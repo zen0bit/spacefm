@@ -41,11 +41,7 @@ VFSFileMonitorCallbackEntry;
 static GHashTable* monitor_hash = NULL;
 static GIOChannel* fam_io_channel = NULL;
 static guint fam_io_watch = 0;
-#ifdef USE_INOTIFY
 static int inotify_fd = -1;
-#else
-static FAMConnection fam;
-#endif
 
 /* event handler of all FAM events */
 static gboolean on_fam_event( GIOChannel *channel,
@@ -55,7 +51,6 @@ static gboolean on_fam_event( GIOChannel *channel,
 
 static gboolean connect_to_fam()
 {
-#ifdef USE_INOTIFY
     inotify_fd = inotify_init ();
     if ( inotify_fd < 0 )
     {
@@ -64,26 +59,6 @@ static gboolean connect_to_fam()
         return FALSE;
     }
     fam_io_channel = g_io_channel_unix_new( inotify_fd );
-#else /* use FAM|gamin */
-
-    if ( FAMOpen( &fam ) )
-    {
-        fam_io_channel = NULL;
-        fam.fd = -1;
-        g_warning( "There is no FAM/gamin server\n" );
-        return FALSE;
-    }
-#if HAVE_FAMNOEXISTS
-    /*
-    * Disable the initital directory content loading.
-    * This can greatly speed up directory loading, but
-    * unfortunately, it's not compatible with original FAM.
-    */
-    FAMNoExists( &fam );  /* This is an extension of gamin */
-#endif
-
-    fam_io_channel = g_io_channel_unix_new( FAMCONNECTION_GETFD( &fam ) );
-#endif
 
     /* set fam socket to non-blocking */
     /* fcntl( FAMCONNECTION_GETFD( &fam ),F_SETFL,O_NONBLOCK); */
@@ -106,14 +81,8 @@ static void disconnect_from_fam()
         g_io_channel_unref( fam_io_channel );
         fam_io_channel = NULL;
         g_source_remove( fam_io_watch );
-#ifdef USE_INOTIFY
-
         close( inotify_fd );
         inotify_fd = -1;
-#else
-
-        FAMClose( &fam );
-#endif
 
     }
 }
@@ -182,7 +151,6 @@ VFSFileMonitor* vfs_file_monitor_add( char* path,
                               monitor->path,
                               monitor );
 
-#ifdef USE_INOTIFY /* Linux inotify */
         monitor->wd = inotify_add_watch ( inotify_fd, real_path,
                                           IN_MODIFY | IN_CREATE | IN_DELETE |
                                           IN_DELETE_SELF | IN_MOVE |
@@ -222,33 +190,6 @@ VFSFileMonitor* vfs_file_monitor_add( char* path,
             return NULL;
         }
 //printf("vfs_file_monitor_add  %s (%s) %d\n", real_path, path, monitor->wd );
-
-#else /* Use FAM|gamin */
-//MOD see NOTE1 in vfs-mime-type.c - what happens here if path doesn't exist?
-//    inotify returns NULL - does fam?
-        if ( fam_io_channel )
-        {
-            if ( is_dir )
-            {
-                FAMMonitorDirectory( &fam,
-                                        real_path,
-                                        &monitor->request,
-                                        monitor );
-            }
-            else
-            {
-                FAMMonitorFile( &fam,
-                                real_path,
-                                &monitor->request,
-                                monitor );
-            }
-        }
-        else
-        {
-            g_warning( "FAM/gamin server is not running ?" );
-            return NULL;
-        }
-#endif
     }
 
     if( G_LIKELY(monitor) )
@@ -288,15 +229,8 @@ void vfs_file_monitor_remove( VFSFileMonitor * fm,
 
     if ( fm && g_atomic_int_dec_and_test( &fm->n_ref ) )  //MOD added "fm &&"
     {
-#ifdef USE_INOTIFY /* Linux inotify */
 //printf( "vfs_file_monitor_remove  %d\n", fm->wd );
         inotify_rm_watch ( inotify_fd, fm->wd );
-#else /*  Use FAM|gamin */
-        if ( fam_io_channel )
-            FAMCancelMonitor( &fam, &fm->request );
-        else
-            g_warning( "FAM/gamin server is not running ?" );
-#endif
 
         g_hash_table_remove( monitor_hash, fm->path );
         g_free( fm->path );
@@ -315,7 +249,6 @@ static void reconnect_fam( gpointer key,
     const char* path = ( const char* ) key;
     if ( lstat( path, &file_stat ) != -1 )
     {
-#ifdef USE_INOTIFY /* Linux inotify */
         monitor->wd = inotify_add_watch ( inotify_fd, path,
                                           IN_MODIFY | IN_CREATE | IN_DELETE | IN_MOVE );
         if ( monitor->wd < 0 )
@@ -331,27 +264,9 @@ static void reconnect_fam( gpointer key,
                         g_strerror ( errno ) );
             return ;
         }
-#else
-        if ( S_ISDIR( file_stat.st_mode ) )
-        {
-            FAMMonitorDirectory( &fam,
-                                 path,
-                                 &monitor->request,
-                                 monitor );
-        }
-        else
-        {
-            FAMMonitorFile( &fam,
-                            path,
-                            &monitor->request,
-                            monitor );
-        }
-#endif
-
     }
 }
 
-#ifdef USE_INOTIFY
 static gboolean find_monitor( gpointer key,
                               gpointer value,
                               gpointer user_data )
@@ -376,7 +291,6 @@ static VFSFileMonitorEvent translate_inotify_event( int inotify_mask )
         return VFS_FILE_MONITOR_CHANGE;
     }
 }
-#endif
 
 static void dispatch_event( VFSFileMonitor * monitor,
                             VFSFileMonitorEvent evt,
@@ -402,13 +316,9 @@ static gboolean on_fam_event( GIOChannel * channel,
                               GIOCondition cond,
                               gpointer user_data )
 {
-#ifdef USE_INOTIFY /* Linux inootify */
 #define BUF_LEN (1024 * (sizeof (struct inotify_event) + 16))
     char buf[ BUF_LEN ];
     int i, len;
-#else /* FAM|gamin */
-    FAMEvent evt;
-#endif
 
     VFSFileMonitor* monitor = NULL;
 
@@ -430,7 +340,6 @@ static gboolean on_fam_event( GIOChannel * channel,
                                     it has been removed by disconnect_from_fam(). */
     }
 
-#ifdef USE_INOTIFY /* Linux inotify */
     while ( ( len = read ( inotify_fd, buf, BUF_LEN ) ) < 0
             && errno == EINTR );
     if ( len < 0 )
@@ -489,32 +398,6 @@ else
         }
         i += sizeof ( struct inotify_event ) + ievent->len;
     }
-#else /* FAM|gamin */
-    while ( FAMPending( &fam ) )
-    {
-        if ( FAMNextEvent( &fam, &evt ) > 0 )
-        {
-            monitor = ( VFSFileMonitor* ) evt.userdata;
-            switch ( evt.code )
-            {
-            case FAMCreated:
-            case FAMDeleted:
-            case FAMChanged:
-                /* FIXME: There exists a possibility that a file can accidentally become
-                          a directory, and a directory can become a file when using chmod.
-                          Should we delete original request, and create a new one when this happens?
-                */
-                /* g_debug("FAM event(%d): %s", evt.code, evt.filename); */
-                /* Call the callback functions */
-                dispatch_event( monitor, evt.code, evt.filename );
-                break;
-                /* Other events are not supported */
-            default:
-                break;
-            }
-        }
-    }
-#endif
     return TRUE;
 }
 
