@@ -174,12 +174,6 @@ void ptk_dir_tree_init ( PtkDirTree *tree )
     vfs_file_info_set_disp_name( child->file, _("File System") );
     tree->root->children = child;
 
-    /*
-    child = ptk_dir_tree_node_new( tree, tree->root, g_get_home_dir(), NULL );
-    vfs_file_info_set_name( child->file, g_get_home_dir() );
-    tree->root->children->next = child;
-    */
-
     /* Random int to check whether an iter belongs to our model */
     tree->stamp = g_random_int();
 }
@@ -884,28 +878,6 @@ without letting the view know.  Any display from now on is likely to
 be incorrect.
 */
     case VFS_FILE_MONITOR_CHANGE:
-/*        if( G_LIKELY( child && child->file ) )
-        {
-            file_path = g_build_filename( fm->path, file_name, NULL );
-            if( ! g_file_test( file_path, G_FILE_TEST_IS_DIR ) )
-            {
-                g_free( file_path );
-                break;
-            }
-            vfs_file_info_get( child->file, file_path, file_name );
-            g_free( file_path );
-            it.stamp = node->tree->stamp;
-            it.user_data = child;
-            it.user_data2 = it.user_data3 = NULL;
-            tree_path = ptk_dir_tree_get_path(GTK_TREE_MODEL(node->tree), &it);
-
-            gtk_tree_model_row_changed( GTK_TREE_MODEL( node->tree ),
-                                        tree_path, &it );
-            gtk_tree_model_row_has_child_toggled( GTK_TREE_MODEL( node->tree ),
-                                                  tree_path, &it );
-            gtk_tree_path_free( tree_path );
-        }
-*/
         break;
     }
     GDK_THREADS_LEAVE();

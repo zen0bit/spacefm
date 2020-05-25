@@ -287,27 +287,6 @@ gboolean vfs_app_desktop_open_multiple_files( VFSAppDesktop* app )
         if ( strstr( app->exec, "%U" ) || strstr( app->exec, "%F" ) ||
              strstr( app->exec, "%N" ) || strstr( app->exec, "%D" ) )
             return TRUE;
-        
-        /*  this is broken
-        for( p = app->exec; *p; ++p )
-        {
-            if( *p == '%' )
-            {
-                ++p;
-                switch( *p )
-                {
-                case 'U':
-                case 'F':
-                case 'N':
-                case 'D':
-                    return TRUE;
-                case '\0':
-                    return FALSE;
-                }
-            }
-            return TRUE;
-        }
-        */
     }
     return FALSE;
 }

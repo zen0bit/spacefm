@@ -418,16 +418,6 @@ gboolean mime_type_has_action( const char* type, const char* desktop_id )
     return found;
 }
 
-#if 0
-static gboolean is_custom_desktop_file( const char* desktop_id )
-{
-    char* path = g_build_filename( g_get_user_data_dir(), "applications", desktop_id, NULL );
-    gboolean ret = g_file_test( path, G_FILE_TEST_EXISTS );
-    g_free( path );
-    return ret;
-}
-#endif
-
 static char* make_custom_desktop_file( const char* desktop_id, const char* mime_type )
 {
     char *name = NULL, *cust_template = NULL, *cust = NULL, *path, *dir;

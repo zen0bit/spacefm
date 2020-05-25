@@ -36,10 +36,6 @@ static const char* cdlg_option[] =  // order must match ElementType order
                     N_("Add an icon"),
     "image",        "FILE|@FILE [COMMAND...]",
                     N_("Add an image"),
-/*
-    "status",       "TEXT|@FILE [COMMAND...]",
-                    N_("Add a status bar"),
-*/
     "progress",     "[VALUE|pulse|@FILE]",
                     N_("Add a progress bar"),
     "hsep",         "( no arguments )",
@@ -53,7 +49,8 @@ static const char* cdlg_option[] =  // order must match ElementType order
     "combo",        "{TEXT... --}|@FILE [DEFAULT|+N|@FILE [COMMAND...]]",
                     N_("Add a combo list.  COMMAND run when Enter pressed."),
     "list",         "{[^HEAD[:TYPE]] [--colwidth=W] TEXT... --}|@FILE [COMMAND...]]",
-                    // ^HIDE   hidden column (must be first) for data return  (int or double or string no progress)
+                    // ^HIDE   hidden column (must be first) for data return
+                    // (int or double or string no progress)
                     // use --colwidth=W inside column list
                     N_("Add a list box.  COMMAND run when double-clicked."),
     "mlist",        "{[^HEAD[:TYPE]] [--colwidth=W] TEXT... --}|@FILE [COMMAND...]]",

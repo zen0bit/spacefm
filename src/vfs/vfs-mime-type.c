@@ -544,15 +544,6 @@ void vfs_mime_type_add_action( VFSMimeType* mime_type,
 * and should be freed when no longer needed.
 */
 
-#if 0
-static void hash_to_strv ( gpointer key, gpointer value, gpointer user_data )
-{
-    char***all_apps = ( char*** ) user_data;
-    **all_apps = ( char* ) key;
-    ++*all_apps;
-}
-#endif
-
 void on_icon_theme_changed( GtkIconTheme *icon_theme,
                             gpointer user_data )
 {

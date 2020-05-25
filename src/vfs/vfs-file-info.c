@@ -231,16 +231,7 @@ void vfs_file_info_reload_mime_type( VFSFileInfo* fi,
        and don't copy unused fields.
     */
     file_stat.st_mode = fi->mode;
-    /*
-    file_stat.st_dev = fi->dev;
-    file_stat.st_uid = fi->uid;
-    file_stat.st_gid = fi->gid;
-    file_stat.st_size = fi->size;
-    file_stat.st_mtime = fi->mtime;
-    file_stat.st_atime = fi->atime;
-    file_stat.st_blksize = fi->blksize;
-    file_stat.st_blocks = fi->blocks;
-    */
+
     old_mime_type = fi->mime_type;
     fi->mime_type = vfs_mime_type_get_from_file( full_path,
                                                  fi->name, &file_stat );

@@ -471,52 +471,8 @@ char* mime_type_get_desc_icon( const char* type, const char* locale,
 
 void mime_type_finalize()
 {
-/*
-    if( G_LIKELY( table ) )
-    {
-        g_hash_table_destroy( table );
-        table = NULL;
-    }
-*/
     mime_cache_free_all();
 }
-
-#if 0
-void test_parents(const char* type)
-{
-    int i;
-    const char** parents = NULL;
-    const char** p;
-
-    for( i = 0; i < n_caches; ++i )
-    {
-        parents = mime_cache_lookup_parents( caches[i], type );
-        if( parents )
-            break;
-    }
-    if( parents )
-        for( p = parents; *p; ++p )
-        {
-            g_debug( "%s is parent of %s", *p, type );
-        }
-    else
-        g_debug( "no parent found" );
-}
-
-void test_alias( const char* type )
-{
-    int i;
-    const char* alias = NULL;
-    for( i = 0; i < n_caches; ++i )
-    {
-        alias = mime_cache_lookup_alias( caches[i], type );
-        if( alias )
-            break;
-    }
-    g_debug("test:\nalias of %s is %s", type, alias );
-
-}
-#endif
 
 void mime_type_init()
 {

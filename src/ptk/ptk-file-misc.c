@@ -634,12 +634,6 @@ void on_move_change( GtkWidget* widget, MoveSet* mset )
         mset->full_path_same = full_path_same;
         mset->mode_change = FALSE;
 
-        //gboolean opt_move = gtk_toggle_button_get_active( mset->opt_move );
-        //gboolean opt_copy = gtk_toggle_button_get_active( mset->opt_copy );
-        //gboolean opt_link = gtk_toggle_button_get_active( mset->opt_link );
-        //gboolean opt_copy_target = gtk_toggle_button_get_active( mset->opt_copy_target );
-        //gboolean opt_link_target = gtk_toggle_button_get_active( mset->opt_link_target );
-
         if ( full_path_same && ( mset->create_new == PTK_RENAME ||
                                  mset->create_new == PTK_RENAME_NEW_LINK ) )
         {
@@ -799,13 +793,6 @@ void select_input( GtkWidget* widget, MoveSet* mset )
 
 static gboolean on_focus( GtkWidget* widget, GtkDirectionType direction, MoveSet* mset )
 {
-/*
-    if ( direction == GTK_DIR_TAB_FORWARD || direction == GTK_DIR_TAB_BACKWARD )
-    {
-        if ( widget == mset->label_mime )
-            return TRUE;
-    }
-*/
     select_input( widget, mset );
     return FALSE;
 }
@@ -2033,19 +2020,6 @@ void update_new_display( const char* path )
     g_timeout_add( 1500, (GSourceFunc)update_new_display_delayed, g_strdup( path ) );
 }
 
-/*
-static gboolean on_dlg_keypress( GtkWidget *widget, GdkEventKey *event,
-                                                            MoveSet* mset )
-{
-    if ( event->keyval == GDK_KEY_F1 && event->state == 0 )
-    {
-        on_help_activate( NULL, mset );
-        return TRUE;
-    }
-    return FALSE;
-}
-*/
-
 int ptk_rename_file( DesktopWindow* desktop, PtkFileBrowser* file_browser,
                                         const char* file_dir, VFSFileInfo* file,
                                         const char* dest_dir, gboolean clip_copy,
@@ -2136,21 +2110,7 @@ int ptk_rename_file( DesktopWindow* desktop, PtkFileBrowser* file_browser,
         mset->desc = _("Folder");
     else
         mset->desc = _("File");
-/*
-    char* title;
-    char* action;
 
-        
-    if ( job == JOB_COPY )
-        action = "Copy";
-    else if ( job == JOB_MOVE )
-        action = "Rename / Move";
-    else
-        action = "Create Link To";
-        
-        
-    title = g_strdup_printf( "%s %s%s", action, mset->desc, root_msg );
-*/
     mset->browser = file_browser;
     mset->desktop = desktop;
     
@@ -2305,10 +2265,6 @@ int ptk_rename_file( DesktopWindow* desktop, PtkFileBrowser* file_browser,
                               G_CALLBACK( on_label_focus ), mset );
         g_signal_connect( G_OBJECT( mset->entry_target ), "key-press-event",
                               G_CALLBACK( on_move_entry_keypress ), mset );
-        //g_signal_connect_after( G_OBJECT( mset->entry_target ), "focus",
-        //                      G_CALLBACK( on_focus ), mset );
-        //gtk_widget_set_sensitive( GTK_WIDGET( mset->entry_target ), !mset->is_dir );
-        //gtk_widget_set_sensitive( GTK_WIDGET( mset->label_target ), !mset->is_dir );
 
         if ( create_new )
         {
@@ -2370,14 +2326,11 @@ int ptk_rename_file( DesktopWindow* desktop, PtkFileBrowser* file_browser,
             }
             g_list_free( templates );
         }
-        //gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( mset->combo_template ),
-        //                                                            _("Add...") );
         gtk_combo_box_set_active( GTK_COMBO_BOX( mset->combo_template ), 0 );
         g_signal_connect( G_OBJECT( mset->combo_template ), "changed",
                                     G_CALLBACK( on_template_changed ), mset );
         g_signal_connect( G_OBJECT( gtk_bin_get_child( GTK_BIN( mset->combo_template ) ) ),
                         "key-press-event", G_CALLBACK( on_move_entry_keypress ), mset );
-        //gtk_label_set_mnemonic_widget( mset->label_template, GTK_WIDGET( mset->combo_template ) );
 
         // template_dir combo
         mset->combo_template_dir = GTK_COMBO_BOX( gtk_combo_box_text_new_with_entry() );
@@ -2401,15 +2354,9 @@ int ptk_rename_file( DesktopWindow* desktop, PtkFileBrowser* file_browser,
             }
             g_list_free( templates );
         }
-        //gtk_combo_box_text_append_text( GTK_COMBO_BOX_TEXT( mset->combo_template_dir ),
-        //                                                        _("Add...") );
         gtk_combo_box_set_active( GTK_COMBO_BOX( mset->combo_template_dir ), 0 );
         g_signal_connect( G_OBJECT( gtk_bin_get_child( GTK_BIN( mset->combo_template_dir ) ) ),
                         "key-press-event", G_CALLBACK( on_move_entry_keypress ), mset );
-        //g_signal_connect( G_OBJECT( mset->combo_template_dir ), "changed",
-        //                            G_CALLBACK( on_template_changed ), mset );
-        //gtk_label_set_mnemonic_widget( mset->label_template, GTK_WIDGET( 
-        //                                            mset->combo_template_dir ) );
 
         // Template Browse button
         mset->browse_template = gtk_button_new();
@@ -2738,32 +2685,6 @@ int ptk_rename_file( DesktopWindow* desktop, PtkFileBrowser* file_browser,
     on_move_change( GTK_WIDGET( mset->buf_full_path ), mset );
     on_opt_toggled( NULL, mset );
 
-    /* instead of using last used widget, just use first visible
-    // last widget
-    int last = xset_get_int( "move_dlg_font", "z" );
-    if ( last == 1 )
-        mset->last_widget = mset->input_name;
-    else if ( last == 2 )
-        mset->last_widget = GTK_WIDGET( mset->entry_ext );
-    else if ( last == 3 )
-        mset->last_widget = mset->input_path;
-    else if ( last == 4 )
-        mset->last_widget = mset->input_full_path;
-    else
-        mset->last_widget = mset->input_full_name;
-
-    if ( !gtk_widget_get_visible( gtk_widget_get_parent( mset->last_widget ) ) )
-    {
-        if ( gtk_widget_get_visible( gtk_widget_get_parent( mset->input_name ) ) )
-            mset->last_widget = mset->input_name;
-        else if ( gtk_widget_get_visible( gtk_widget_get_parent( mset->input_full_name ) ) )
-            mset->last_widget = mset->input_full_name;
-        else if ( gtk_widget_get_visible( gtk_widget_get_parent( mset->input_path ) ) )
-            mset->last_widget = mset->input_path;
-        else if ( gtk_widget_get_visible( gtk_widget_get_parent( mset->input_full_path ) ) )
-            mset->last_widget = mset->input_full_path;
-    }
-    */
     if ( gtk_widget_get_visible( gtk_widget_get_parent( mset->input_name ) ) )
         mset->last_widget = mset->input_name;
     else if ( gtk_widget_get_visible( gtk_widget_get_parent( mset->input_full_name ) ) )
@@ -2783,10 +2704,6 @@ int ptk_rename_file( DesktopWindow* desktop, PtkFileBrowser* file_browser,
                             G_CALLBACK( on_button_focus ), mset );
     g_signal_connect( G_OBJECT( mset->cancel ), "focus",
                             G_CALLBACK( on_button_focus ), mset );
-
-    // not used to speed keypress processing 
-    //g_signal_connect( G_OBJECT( mset->dlg ), "key-press-event",
-    //                        G_CALLBACK( on_dlg_keypress ), mset );
 
     // run
     int response;
@@ -3309,87 +3226,6 @@ _continue_free:
     
     return ret;
 }
-
-/*
-gboolean  ptk_rename_file( GtkWindow* parent_win,
-                      const char* cwd,
-                      VFSFileInfo* file )
-{
-    GtkWidget * input_dlg;
-    GtkLabel* prompt;
-    char* ufile_name;
-    char* file_name;
-    char* from_path;
-    char* to_path;
-    gboolean ret = FALSE;
-    char* disp_name = NULL;
-
-    if ( !cwd || !file )
-        return FALSE;
-
-    // special processing for files with incosistent real name and display name
-    if( G_UNLIKELY( vfs_file_info_is_desktop_entry(file) ) )
-        disp_name = g_filename_display_name( file->name );
-
-    input_dlg = ptk_input_dialog_new( _( "Rename File" ),
-                                      _( "Please input new file name:" ),
-                                      disp_name ? disp_name : vfs_file_info_get_disp_name( file ), parent_win );
-    g_free( disp_name );
-    gtk_window_set_default_size( GTK_WINDOW( input_dlg ),
-                                 360, -1 );
-
-    // Without this line, selected region in entry cannot be set
-    gtk_widget_show( input_dlg );
-    if ( ! vfs_file_info_is_dir( file ) )
-        select_file_name_part( GTK_ENTRY( ptk_input_dialog_get_entry( GTK_WIDGET( input_dlg ) ) ) );
-
-    while ( gtk_dialog_run( GTK_DIALOG( input_dlg ) ) == GTK_RESPONSE_OK )
-    {
-        prompt = GTK_LABEL( ptk_input_dialog_get_label( input_dlg ) );
-
-        ufile_name = ptk_input_dialog_get_text( input_dlg );
-        file_name = g_filename_from_utf8( ufile_name, -1, NULL, NULL, NULL );
-        g_free( ufile_name );
-
-        if ( file_name )
-        {
-            from_path = g_build_filename( cwd,
-                                          vfs_file_info_get_name( file ), NULL );
-            to_path = g_build_filename( cwd,
-                                        file_name, NULL );
-
-            if ( g_file_test( to_path, G_FILE_TEST_EXISTS ) )
-            {
-                gtk_label_set_text( prompt,
-                                    _( "The file name you specified already exists.\n"
-                                       "Please input a new one:" ) );
-            }
-            else
-            {
-                if ( 0 == rename( from_path, to_path ) )
-                {
-                    ret = TRUE;
-                    break;
-                }
-                else
-                {
-                    gtk_label_set_text( prompt, strerror( errno ) );
-                }
-            }
-            g_free( from_path );
-            g_free( to_path );
-        }
-        else
-        {
-            gtk_label_set_text( prompt,
-                                _( "The file name you specified already exists.\n"
-                                   "Please input a new one:" ) );
-        }
-    }
-    gtk_widget_destroy( input_dlg );
-    return ret;
-}
-*/
 
 gboolean  ptk_create_new_file( GtkWindow* parent_win,
                           const char* cwd,

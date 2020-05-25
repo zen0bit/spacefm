@@ -54,14 +54,12 @@ struct _FMPrefDlg
     GtkWidget* single_click;
     GtkWidget* single_hover;
     GtkWidget* use_si_prefix;
-    //GtkWidget* rubberband;
     GtkWidget* root_bar;
     GtkWidget* drag_action;
 
     /* Interface tab */
     GtkWidget* always_show_tabs;
     GtkWidget* hide_close_tab_buttons;
-    //GtkWidget* hide_folder_content_border;
 
     //GtkWidget* show_desktop;
     GtkWidget* show_wallpaper;
@@ -118,16 +116,7 @@ static const char* date_formats[] =
     "%Y-%m-%d %H:%M:%S"
 };
 static const int drag_actions[] = { 0, 1, 2, 3 };
-/*
-static void
-on_show_desktop_toggled( GtkToggleButton* show_desktop, GtkWidget* desktop_page )
-{
-    gtk_container_foreach( GTK_CONTAINER(desktop_page),
-                           (GtkCallback) gtk_widget_set_sensitive,
-                           (gpointer) gtk_toggle_button_get_active( show_desktop ) );
-    gtk_widget_set_sensitive( GTK_WIDGET(show_desktop), TRUE );
-}
-*/
+
 static void set_preview_image( GtkImage* img, const char* file )
 {
     GdkPixbuf* pix = NULL;
@@ -221,7 +210,6 @@ static void on_response( GtkDialog* dlg, int response, FMPrefDlg* user_data )
     gboolean show_wallpaper;
     gboolean single_click;
     gboolean single_hover;
-    //gboolean rubberband;
     gboolean root_bar;
     gboolean root_set_change = FALSE;
     WallpaperMode wallpaper_mode;
@@ -242,7 +230,6 @@ static void on_response( GtkDialog* dlg, int response, FMPrefDlg* user_data )
     /* interface settings */
     gboolean always_show_tabs;
     gboolean hide_close_tab_buttons;
-    //gboolean hide_folder_content_border;
 
     /* built-in response codes of GTK+ are all negative */
     if( response >= 0 )
@@ -250,22 +237,6 @@ static void on_response( GtkDialog* dlg, int response, FMPrefDlg* user_data )
 
     if ( response == GTK_RESPONSE_OK )
     {
-        /* file name encoding */
-        //filename_encoding = gtk_entry_get_text( GTK_ENTRY( data->encoding ) );
-        //if ( filename_encoding
-        //    && g_ascii_strcasecmp ( filename_encoding, "UTF-8" ) )
-        //{
-        //    strcpy( app_settings.encoding, filename_encoding );
-        //    setenv( "G_FILENAME_ENCODING", app_settings.encoding, 1 );
-        //}
-        //else
-        //{
-        //    app_settings.encoding[ 0 ] = '\0';
-        //    unsetenv( "G_FILENAME_ENCODING" );
-        //}
-
-        //app_settings.open_bookmark_method = gtk_combo_box_get_active( GTK_COMBO_BOX( data->bm_open_method ) ) + 1;
-
         show_thumbnail = gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( data->show_thumbnail ) );
         max_thumb = ( ( int ) gtk_spin_button_get_value( GTK_SPIN_BUTTON( data->max_thumb_size ) ) ) << 10;
 
@@ -316,59 +287,6 @@ static void on_response( GtkDialog* dlg, int response, FMPrefDlg* user_data )
                 }
             }
         }
-/*
-        hide_folder_content_border = gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( data->hide_folder_content_border ) );
-        if ( hide_folder_content_border != app_settings.hide_folder_content_border )
-        {
-            app_settings.hide_folder_content_border = hide_folder_content_border;
-            // update all windows/all panels/all browsers
-            for ( l = fm_main_window_get_all(); l; l = l->next )
-            {
-                a_window = FM_MAIN_WINDOW( l->data );
-                for ( p = 1; p < 5; p++ )
-                {
-                    notebook = a_window->panel[p-1];
-                    n = gtk_notebook_get_n_pages( notebook );
-                    for ( i = 0; i < n; ++i )
-                    {
-                        file_browser = PTK_FILE_BROWSER( gtk_notebook_get_nth_page(
-                                                         notebook, i ) );
-                        if ( hide_folder_content_border )
-                            ptk_file_browser_hide_shadow( file_browser );
-                        else
-                            ptk_file_browser_show_shadow( file_browser );
-                    }
-                }
-            }
-        }
-*/
-/*        hide_side_pane_buttons = gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON( data->hide_side_pane_buttons ) );
-        if ( hide_side_pane_buttons != app_settings.hide_side_pane_buttons )
-        {
-            app_settings.hide_side_pane_buttons = hide_side_pane_buttons;
-            for ( l = fm_main_window_get_all(); l; l = l->next )
-            {
-                FMMainWindow* main_window = FM_MAIN_WINDOW( l->data );
-                GtkNotebook* notebook = main_window->notebook;
-                n = gtk_notebook_get_n_pages( notebook );
-
-                for ( i = 0; i < n; ++i )
-                {
-                  file_browser = PTK_FILE_BROWSER( gtk_notebook_get_nth_page( notebook, i ) );
-
-                  if ( hide_side_pane_buttons)
-                  {
-                    ptk_file_browser_hide_side_pane_buttons( file_browser );
-                  }
-                  else
-                  {
-                    ptk_file_browser_show_side_pane_buttons( file_browser );
-                  }
-
-                }
-            }
-        }
-*/
 
         // Desktop settings =================================================
 
@@ -663,16 +581,6 @@ static void on_response( GtkDialog* dlg, int response, FMPrefDlg* user_data )
                                             (GtkToggleButton*)data->click_exec );
         app_settings.no_confirm = !gtk_toggle_button_get_active(
                                             (GtkToggleButton*)data->confirm_delete );
-
-        /*
-        rubberband = gtk_toggle_button_get_active(
-                                            (GtkToggleButton*)data->rubberband );
-        if ( !!rubberband != !!xset_get_b( "rubberband" ) )
-        {
-            xset_set_b( "rubberband", rubberband );
-            main_window_rubberband_all();
-        }
-        */
         
         root_bar = gtk_toggle_button_get_active(
                                             (GtkToggleButton*)data->root_bar );
@@ -957,7 +865,6 @@ gboolean fm_edit_preference( GtkWindow* parent, int page )
         data->single_click = (GtkWidget*)gtk_builder_get_object( builder, "single_click" );
         data->single_hover = (GtkWidget*)gtk_builder_get_object( builder, "single_hover" );
         data->use_si_prefix = (GtkWidget*)gtk_builder_get_object( builder, "use_si_prefix" );
-        //data->rubberband = (GtkWidget*)gtk_builder_get_object( builder, "rubberband" );
         data->root_bar = (GtkWidget*)gtk_builder_get_object( builder, "root_bar" );
         data->drag_action = (GtkWidget*)gtk_builder_get_object( builder, "drag_action" );
 
@@ -965,24 +872,6 @@ gboolean fm_edit_preference( GtkWindow* parent, int page )
         gtk_combo_box_set_model( GTK_COMBO_BOX( data->terminal ), model );
         gtk_combo_box_set_entry_text_column( GTK_COMBO_BOX( data->terminal ), 0 );
         g_object_unref( model );
-
-        //if ( '\0' == ( char ) app_settings.encoding[ 0 ] )
-        //    gtk_entry_set_text( GTK_ENTRY( data->encoding ), "UTF-8" );
-        //else
-        //    gtk_entry_set_text( GTK_ENTRY( data->encoding ), app_settings.encoding );
-        
-        /*
-        if ( app_settings.open_bookmark_method >= 1 &&
-                app_settings.open_bookmark_method <= 2 )
-        {
-            gtk_combo_box_set_active( GTK_COMBO_BOX( data->bm_open_method ),
-                                      app_settings.open_bookmark_method - 1 );
-        }
-        else
-        {
-            gtk_combo_box_set_active( GTK_COMBO_BOX( data->bm_open_method ), 0 );
-        }
-        */
         
         gtk_spin_button_set_value ( GTK_SPIN_BUTTON( data->max_thumb_size ),
                                     app_settings.max_thumb_size >> 10 );
@@ -1068,14 +957,6 @@ gboolean fm_edit_preference( GtkWindow* parent, int page )
         gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON( data->hide_close_tab_buttons ),
                                        app_settings.hide_close_tab_buttons );
 
-/*        data->hide_side_pane_buttons = (GtkWidget*)gtk_builder_get_object( builder, "hide_side_pane_buttons" );
-        gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON( data->hide_side_pane_buttons ),
-                                       app_settings.hide_side_pane_buttons );
-*/
-        //data->hide_folder_content_border = (GtkWidget*)gtk_builder_get_object( builder, "hide_folder_content_border" );
-        //gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON( data->hide_folder_content_border ),
-        //                               app_settings.hide_folder_content_border );
-
         //MOD Interface
         data->confirm_delete = (GtkWidget*)gtk_builder_get_object( builder,
                                                                 "confirm_delete" );
@@ -1085,9 +966,6 @@ gboolean fm_edit_preference( GtkWindow* parent, int page )
                                                                 "click_exec" );
         gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON( data->click_exec ),
                                                         !app_settings.no_execute );
-
-        //gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON( data->rubberband ),
-        //                                                xset_get_b( "rubberband" ) );
 
         gtk_toggle_button_set_active ( GTK_TOGGLE_BUTTON( data->root_bar ),
                                                         xset_get_b( "root_bar" ) );

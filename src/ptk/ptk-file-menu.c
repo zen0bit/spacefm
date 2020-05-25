@@ -43,8 +43,6 @@
 
 #include "gtk2-compat.h"
 
-//#define get_toplevel_win(data)  ( (GtkWindow*) (data->browser ? ( gtk_widget_get_toplevel((GtkWidget*) data->browser) ) : NULL) )
-
 gboolean on_app_button_press( GtkWidget* item, GdkEventButton* event,
                                                             PtkFileMenu* data );
 gboolean app_menu_keypress( GtkWidget* widget, GdkEventKey* event,
@@ -59,11 +57,6 @@ on_popup_open_activate ( GtkMenuItem *menuitem,
 static void
 on_popup_open_with_another_activate ( GtkMenuItem *menuitem,
                                       PtkFileMenu* data );
-#if 0
-static void
-on_file_properties_activate ( GtkMenuItem *menuitem,
-                              PtkFileMenu* data );
-#endif
 static void
 on_popup_run_app ( GtkMenuItem *menuitem,
                    PtkFileMenu* data );
@@ -2283,8 +2276,6 @@ static void show_app_menu( GtkWidget* menu, GtkWidget* app_item, PtkFileMenu* da
     // Set Default
     newitem = app_menu_additem( app_menu, _("_Set As Default"),
                                 GTK_STOCK_SAVE, APP_JOB_DEFAULT, app_item, data );
-    //gtk_widget_add_accelerator( newitem, "activate", accel_group,
-    //                        GDK_k, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE);
 
     // Remove
     newitem = app_menu_additem( app_menu, _("_Remove"),
@@ -2364,13 +2355,7 @@ static void show_app_menu( GtkWidget* menu, GtkWidget* app_item, PtkFileMenu* da
     // mime/packages/
     newitem = app_menu_additem( app_menu, "mime/pac_kages/",
                                 GTK_STOCK_DIRECTORY, APP_JOB_BROWSE_MIME, app_item, data );
-    gtk_widget_set_sensitive( GTK_WIDGET( newitem ), !!data->browser );    
-
-    // Run update-mime-database   (now done automatically)
-    //str = g_strdup_printf( "%s update-mime-database", _("Ru_n") );
-    //newitem = app_menu_additem( app_menu, str,
-    //                            GTK_STOCK_EXECUTE, APP_JOB_UPDATE, app_item, data );
-    //g_free( str );
+    gtk_widget_set_sensitive( GTK_WIDGET( newitem ), !!data->browser );
 
     // Separator
     gtk_container_add ( GTK_CONTAINER ( app_menu ), gtk_separator_menu_item_new() );
@@ -2503,28 +2488,6 @@ gboolean on_app_button_press( GtkWidget* item, GdkEventButton* event,
                 return TRUE;
             }
         }
-/*
-        else if ( keymod == GDK_CONTROL_MASK )
-        {
-            // ctrl
-            job = XSET_JOB_COPY;
-        }
-        else if ( keymod == GDK_MOD1_MASK )
-        {
-            // alt
-            job = XSET_JOB_CUT;
-        }
-        else if ( keymod == GDK_SHIFT_MASK )
-        {
-            // shift
-            job = XSET_JOB_PASTE;
-        }
-        else if ( keymod == ( GDK_CONTROL_MASK | GDK_SHIFT_MASK ) )
-        {
-            // ctrl + shift
-            job = XSET_JOB_COMMAND;
-        }
-*/
     }
     else if ( event->button == 2 )
     {
@@ -2535,49 +2498,7 @@ gboolean on_app_button_press( GtkWidget* item, GdkEventButton* event,
             show_app_menu( menu, item, data, event->button, event->time );
             return TRUE;
         }
-/*
-        else if ( keymod == GDK_CONTROL_MASK )
-        {
-            // ctrl
-            job = XSET_JOB_KEY;
-        }
-        else if ( keymod == GDK_MOD1_MASK )
-        {
-            // alt
-            job = XSET_JOB_HELP;
-        }
-        else if ( keymod == GDK_SHIFT_MASK )
-        {
-            // shift
-            job = XSET_JOB_ICON;
-        }
-        else if ( keymod == ( GDK_CONTROL_MASK | GDK_SHIFT_MASK ) )
-        {
-            // ctrl + shift
-            job = XSET_JOB_REMOVE;
-        }        
-        else if ( keymod == ( GDK_CONTROL_MASK | GDK_MOD1_MASK ) )
-        {
-            // ctrl + alt
-            job = XSET_JOB_CONTEXT;
-        }        
-*/
     }
-/*
-    if ( job != -1 )
-    {
-        if ( xset_job_is_valid( set, job ) )
-        {
-            if ( menu )
-                gtk_menu_shell_deactivate( GTK_MENU_SHELL( menu ) );
-            g_object_set_data( G_OBJECT( item ), "job", GINT_TO_POINTER( job ) );
-            xset_design_job( item, set );
-        }
-        else
-            xset_design_show_menu( menu, set, event->button, event->time );
-        return TRUE;
-    }
-*/
     return FALSE;  // TRUE won't stop activate on button-press (will on release)
 }
 
@@ -2652,23 +2573,6 @@ void
 on_popup_paste_activate ( GtkMenuItem *menuitem,
                           PtkFileMenu* data )
 {
-/*
-    if ( data->sel_files )
-    {
-        char* dest_dir;
-        GtkWidget* parent;
-        parent = (GtkWidget*)get_toplevel_win( data );
-        dest_dir = g_build_filename( data->cwd,
-                                     vfs_file_info_get_name( data->info ), NULL );
-        if( ! g_file_test( dest_dir, G_FILE_TEST_IS_DIR ) )
-        {
-            g_free( dest_dir );
-            dest_dir = NULL;
-        }
-        ptk_clipboard_paste_files( GTK_WINDOW( parent ), dest_dir ? dest_dir : data->cwd,
-        data->browser->task_view );
-    }
-*/
     if ( data->browser )
     {
         GtkWidget* parent_win = gtk_widget_get_toplevel( 

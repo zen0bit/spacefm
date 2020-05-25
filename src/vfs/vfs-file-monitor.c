@@ -182,26 +182,6 @@ VFSFileMonitor* vfs_file_monitor_add( char* path,
                               monitor->path,
                               monitor );
 
-        /*  OLD METHOD - removes wrong dir due to symlinks
-        // NOTE: Since gamin, FAM and inotify don't follow symlinks,
-                 we need to do some special processing here.
-        if ( lstat( path, &file_stat ) == 0 )
-        {
-            const char* link_file = path;
-            while( G_UNLIKELY( S_ISLNK(file_stat.st_mode) ) )
-            {
-                char* link = g_file_read_link( link_file, NULL );
-                char* dirname = g_path_get_dirname( link_file );
-                real_path = vfs_file_resolve_path( dirname, link );
-                g_free( link );
-                g_free( dirname );
-                if( lstat( real_path, &file_stat ) == -1 )
-                    break;
-                link_file = real_path;
-            }
-        }
-        */
-
 #ifdef USE_INOTIFY /* Linux inotify */
         monitor->wd = inotify_add_watch ( inotify_fd, real_path,
                                           IN_MODIFY | IN_CREATE | IN_DELETE |

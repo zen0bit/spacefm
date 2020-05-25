@@ -36,7 +36,6 @@ static void query_overwrite( PtkFileTask* ptask );
 
 static void enter_callback( GtkEntry* entry, GtkDialog* dlg );   //MOD
 void ptk_file_task_update( PtkFileTask* ptask );
-//void ptk_file_task_notify_handler( GObject* o, PtkFileTask* ptask );
 gboolean ptk_file_task_add_main( PtkFileTask* ptask );
 void on_progress_dlg_response( GtkDialog* dlg, int response, PtkFileTask* ptask );
 
@@ -62,9 +61,6 @@ PtkFileTask* ptk_file_task_new( VFSFileTaskType type,
 //printf("ptk_file_task_new\n");
     PtkFileTask* ptask = g_slice_new0( PtkFileTask );
     ptask->task = vfs_task_new( type, src_files, dest_dir );
-    //vfs_file_task_set_progress_callback( ptask->task,
-    //                                     on_vfs_file_task_progress_cb,
-    //                                     ptask );
     vfs_file_task_set_state_callback( ptask->task,
                                       on_vfs_file_task_state_cb, ptask );
     ptask->parent_window = parent_window;
@@ -115,44 +111,11 @@ PtkFileTask* ptk_file_task_new( VFSFileTaskType type,
                                    xset_get_b( "task_q_new" ) )
         ptk_file_task_pause( ptask, VFS_FILE_TASK_QUEUE );
 
-    /*  this method doesn't work because sig handler runs in task thread
-    // setup signal
-    ptask->signal_widget = gtk_label_new( NULL );  // dummy object for signal
-    g_signal_new( "task-notify",
-                     G_TYPE_OBJECT, G_SIGNAL_RUN_FIRST,
-                     0, NULL, NULL,
-                     g_cclosure_marshal_VOID__POINTER,
-                     G_TYPE_NONE, 1, G_TYPE_POINTER);
-    g_signal_connect( G_OBJECT( ptask->signal_widget ), "task-notify",
-                            G_CALLBACK( ptk_file_task_notify_handler ), NULL );
-    */
 //GThread *self = g_thread_self ();
 //printf("GUI_THREAD = %#x\n", self );
 //printf("ptk_file_task_new DONE ptask=%#x\n", ptask);
     return ptask;
 }
-
-/*
-void ptk_file_task_destroy_delayed( PtkFileTask* task )
-{
-    // in case of channel output following process exit
-//printf("ptk_file_task_destroy_delayed %d\n", task->keep_dlg);
-    if ( task->destroy_timer )
-    {
-        g_source_remove( task->destroy_timer );
-        task->destroy_timer = 0;
-    }
-    if ( !task->keep_dlg && gtk_text_buffer_get_char_count( task->task->exec_err_buf ) )
-        on_vfs_file_task_progress_cb( task->task,
-                                   task->task->percent,
-                                   task->task->current_file,
-                                   task->old_dest_file,
-                                   task );
-    if ( !task->keep_dlg )
-        ptk_file_task_destroy( task );
-    return FALSE;
-}
-*/
 
 void save_progress_dialog_size( PtkFileTask* ptask )
 {
@@ -226,13 +189,6 @@ void ptk_file_task_destroy( PtkFileTask* ptask )
 
     if ( ptask->task )
         vfs_file_task_free( ptask->task );
-
-    /*
-    g_signal_handlers_disconnect_by_func(
-                            G_OBJECT( ptask->signal_widget ),
-                            G_CALLBACK( ptk_file_task_notify_handler ), NULL );
-    gtk_widget_destroy( ptask->signal_widget );
-    */
     
     gtk_text_buffer_set_text( ptask->log_buf, "", -1 );
     g_object_unref( ptask->log_buf );
@@ -371,16 +327,6 @@ gboolean ptk_file_task_add_main( PtkFileTask* ptask )
     return FALSE;
 }
 
-/*
-void ptk_file_task_notify_handler( GObject* o, PtkFileTask* ptask )
-{
-printf("ptk_file_task_notify_handler ptask=%#x\n", ptask);
-    //gdk_threads_enter();
-    on_progress_timer( ptask );
-    //gdk_threads_leave();
-}
-*/
-
 void ptk_file_task_run( PtkFileTask* ptask )
 {
 //printf("ptk_file_task_run ptask=%#x\n", ptask);
@@ -488,20 +434,6 @@ gboolean ptk_file_task_cancel( PtkFileTask* ptask )
                 ptask2->task->exec_browser = ptask->task->exec_browser;
                 ptk_file_task_run( ptask2 );                
             }
-
-            /*
-            // remove zombie - now done automatically in update
-            if ( ptask->task->exec_pid // may be reset in other thread on watch close
-                            && waitpid( ptask->task->exec_pid, NULL, WNOHANG ) )
-            {
-                // process is no longer running (defunct zombie)
-                // glib should detect this but sometimes process goes defunct
-                // with no watch callback, so remove it from task list
-                g_warning( "Removing zombie pid=%d on cancel", ptask->task->exec_pid );
-                ptask->task->exec_pid = 0;
-                ptask->complete = TRUE;
-            }
-            */
         }
         else
         {
@@ -950,23 +882,6 @@ void ptk_file_task_progress_open( PtkFileTask* ptask )
         ptask->src_dir = NULL;
         ptask->to = NULL;
     }
-    
-    /* Processing: */
-    /* Processing: <Name of currently proccesed file> */
-/*    label = GTK_LABEL(gtk_label_new( _( "Processing:" ) ));
-    gtk_misc_set_alignment( GTK_MISC ( label ), 0, 0.5 );
-    gtk_table_attach( table,
-                      GTK_WIDGET(label),
-                      0, 1, 2, 3, GTK_FILL, 0, 0, 0 );
-*/  //MOD
-    /* Preparing to do some file operation (Copy, Move, Delete...) */
-/*    ptask->current = GTK_LABEL(gtk_label_new( _( "Preparing..." ) ));
-    gtk_label_set_ellipsize( ptask->current, PANGO_ELLIPSIZE_MIDDLE );
-    gtk_misc_set_alignment( GTK_MISC ( ptask->current ), 0, 0.5 );
-    gtk_table_attach( table,
-                      GTK_WIDGET( ptask->current ),
-                      1, 2, 2, 3, GTK_FILL, 0, 0, 0 );
-*/  //MOD
 
     // Status
     row++;
@@ -992,11 +907,6 @@ void ptk_file_task_progress_open( PtkFileTask* ptask )
 
     /* Progress: */
     row++;
-    //label = GTK_LABEL(gtk_label_new( _( "Progress:" ) ));
-    //gtk_misc_set_alignment( GTK_MISC ( label ), 0, 0.5 );
-    //gtk_table_attach( table,
-    //                  GTK_WIDGET(label),
-    //                  0, 1, 3, 4, GTK_FILL, 0, 0, 0 );
     ptask->progress_bar = GTK_PROGRESS_BAR(gtk_progress_bar_new());
 #if GTK_CHECK_VERSION (3, 0, 0)
     gtk_progress_bar_set_show_text( GTK_PROGRESS_BAR( ptask->progress_bar ), TRUE );
@@ -1298,16 +1208,6 @@ void ptk_file_task_progress_update( PtkFileTask* ptask )
     g_free( ufile_path );
     g_free( usrc_dir );
     g_free( udest );
-
-/*
-    // current dest
-    if ( ptask->old_dest_file )
-    {    
-        ufile_path = g_filename_display_name( ptask->old_dest_file );
-        gtk_label_set_text( ptask->to, ufile_path );
-        g_free( ufile_path );
-    }
-*/
 
     // progress bar
     if ( task->type != VFS_FILE_TASK_EXEC || ptask->task->custom_percent )

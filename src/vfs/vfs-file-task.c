@@ -327,26 +327,6 @@ void update_file_display( const char* path )
     GDK_THREADS_LEAVE();
 }
 
-/*
-void update_file_display( const char* path )
-{
-    // for devices like nfs, emit instant changed
-    GDK_THREADS_ENTER();
-    char* dir_path = g_path_get_dirname( path );
-    VFSDir* vdir = vfs_dir_get_by_path_soft( dir_path );
-    g_free( dir_path );
-    if ( vdir && vdir->avoid_changes )
-    {
-        char* filename = g_path_get_basename( path );
-        vfs_dir_emit_file_changed( vdir, filename, NULL, TRUE );
-        g_free( filename );
-    }
-    if ( vdir )
-        g_object_unref( vdir );
-    GDK_THREADS_LEAVE();
-}
-*/
-
 static gboolean
 vfs_file_task_do_copy( VFSFileTask* task,
                        const char* src_file,
@@ -813,13 +793,6 @@ vfs_file_task_move( char* src_file, VFSFileTask* task )
             /* g_print("not on the same dev: %s\n", src_file); */
             vfs_file_task_do_copy( task, src_file, dest_file );
         }
-        /*
-        else if ( S_ISDIR( src_stat.st_mode ) && 
-                                    g_file_test( dest_file, G_FILE_TEST_IS_DIR) )
-        {
-            // moving a directory onto a directory that exists
-        }
-        */
         else
         {
             /* g_print("on the same dev: %s\n", src_file); */
@@ -1313,58 +1286,7 @@ if ( !( cond & G_IO_NVAL ) )
     }
     else
         printf("cb_exec_out_watch: g_io_channel_read_chars != G_IO_STATUS_NORMAL\n");
-
-/*
-    // this hangs ????
-    GError *error = NULL;
-    gchar* buf;
-    printf("g_io_channel_read_to_end\n");
-    if ( g_io_channel_read_to_end( channel, &buf, &size, &error ) ==
-                                                        G_IO_STATUS_NORMAL )
-    {
-        gtk_text_buffer_get_iter_at_mark( task->exec_err_buf, &iter,
-                                                            task->exec_mark_end );
-        gtk_text_buffer_insert( task->exec_err_buf, &iter, buf, size );
-        g_free(buf );
-        task->err_count++;
-        task->ticks = 10000;
-    }
-    else
-        printf("cb_exec_out_watch: g_io_channel_read_to_end != G_IO_STATUS_NORMAL\n");
-    printf("g_io_channel_read_to_end DONE\n");
-*/
-
-/*
-    // this works except that it blocks when a linefeed is not in buffer
-    //   eg echo -n aaaa  unless NONBLOCK set
-    if ( g_io_channel_read_line( channel, &line, &size, NULL, NULL ) ==
-                                                    G_IO_STATUS_NORMAL )
-    {
-        //printf("    line=%s", line );
-        gtk_text_buffer_get_iter_at_mark( task->exec_err_buf, &iter,
-                                                            task->exec_mark_end );
-        if ( task->exec_type == VFS_EXEC_UDISKS && strstr( line, "ount failed:" ) )
-        {
-            // bug in udisks - exit status not set
-            call_state_callback( task, VFS_FILE_TASK_ERROR );
-            if ( !strstr( line, "helper failed with:" ) ) //cleanup udisks output
-                gtk_text_buffer_insert( task->exec_err_buf, &iter, line, -1 );
-        }
-        else
-            gtk_text_buffer_insert( task->exec_err_buf, &iter, line, -1 );
-
-        g_free(line );
-        task->err_count++; //signal new output
-        task->ticks = 10000;
-    }
-    else
-        printf("cb_exec_out_watch: g_io_channel_read_line != G_IO_STATUS_NORMAL\n");
-*/
-
-    // don't enable this or last lines are lost
-    //if ( ( cond & G_IO_HUP ) )  // put here in case both G_IO_IN and G_IO_HUP
-    //    goto _unref_channel;
-
+    
     return TRUE;
     
 _unref_channel:
@@ -1994,16 +1916,6 @@ static void vfs_file_task_exec( char* src_file, VFSFileTask* task )
     // running
     task->state = VFS_FILE_TASK_RUNNING;
 
-/* enable if this function is not in main loop thread
-    // wait
-    task->exec_cond = g_cond_new();
-    g_mutex_lock( task->mutex );
-    g_cond_wait( task->exec_cond, task->mutex );
-    g_cond_free( task->exec_cond );
-    task->exec_cond = NULL;
-    g_source_remove( child_watch );
-    g_mutex_unlock( task->mutex );
-*/
 //printf("vfs_file_task_exec DONE\n");
     return;  // exit thread
 
@@ -2126,16 +2038,6 @@ static gpointer vfs_file_task_thread ( VFSFileTask* task )
             }
             else
             {
-                /*
-                // sfm why does this code change task->recursive back and forth?
-                if ( S_ISLNK( file_stat.st_mode ) )      // Don't do deep copy for symlinks
-                    task->recursive = FALSE;
-                else if ( task->type == VFS_FILE_TASK_MOVE || task->type == VFS_FILE_TASK_TRASH )
-                    task->recursive = ( file_stat.st_dev != dest_dev );
-                else
-                    task->recursive = FALSE;
-                if ( task->recursive )
-                */
                 if ( ( task->type == VFS_FILE_TASK_MOVE ||
                                                 task->type == VFS_FILE_TASK_TRASH )
                                                 && file_stat.st_dev != dest_dev )
@@ -2213,13 +2115,6 @@ _exit_thread:
     {
         call_state_callback( task, VFS_FILE_TASK_FINISH );
     }
-/*    else
-    {
-        // FIXME: Will this cause any problem?
-        task->thread = NULL;
-        vfs_file_task_free( task );
-    }
-*/
     return NULL;
 }
 
@@ -2332,10 +2227,6 @@ void vfs_file_task_run ( VFSFileTask* task )
 #endif
         task->thread = g_thread_create( ( GThreadFunc ) vfs_file_task_thread,
                                         task, TRUE, NULL );
-        //task->thread = g_thread_create_full( ( GThreadFunc ) vfs_file_task_thread,
-        //                    task, 0, TRUE, TRUE, G_THREAD_PRIORITY_NORMAL, NULL );
-        //pthread_t tid;
-        //task->thread = pthread_create( &tid, NULL, vfs_file_task_thread, task );
     }
     else
     {

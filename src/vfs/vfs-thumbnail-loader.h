@@ -49,12 +49,6 @@ GdkPixbuf* vfs_thumbnail_load_for_file( const char* file, int size, time_t mtime
 
 void vfs_thumbnail_init();
 
-/*
-void vfs_thumbnail_delete_for _file();
-void vfs_thumbnail_delete_for _uri();
-void vfs_thumbnail_delete_all();
-*/
-
 G_END_DECLS
 
 #endif

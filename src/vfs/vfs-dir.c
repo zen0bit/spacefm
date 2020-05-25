@@ -56,21 +56,12 @@ static void vfs_dir_monitor_callback( VFSFileMonitor* fm,
                                       const char* file_name,
                                       gpointer user_data );
 
-#if 0
-static gpointer load_thumbnail_thread( gpointer user_data );
-#endif
-
 static void on_mime_type_reload( gpointer user_data );
-
 
 static void update_changed_files( gpointer key, gpointer data,
                                   gpointer user_data );
 static gboolean notify_file_change( gpointer user_data );
 static gboolean update_file_info( VFSDir* dir, VFSFileInfo* file );
-
-#if 0
-static gboolean is_dir_desktop( const char* path );
-#endif
 
 static void on_list_task_finished( VFSAsyncTask* task, gboolean is_cancelled, VFSDir* dir );
 
@@ -130,11 +121,6 @@ void vfs_dir_class_init( VFSDirClass* klass )
     object_class->set_property = vfs_dir_set_property;
     object_class->get_property = vfs_dir_get_property;
     object_class->finalize = vfs_dir_finalize;
-
-    /* signals */
-//    klass->file_created = on_vfs_dir_file_created;
-//    klass->file_deleted = on_vfs_dir_file_deleted;
-//    klass->file_changed = on_vfs_dir_file_changed;
 
     /*
     * file-created is emitted when there is a new file created in the dir.
@@ -652,13 +638,6 @@ void vfs_dir_load( VFSDir* dir )
     }
 }
 
-#if 0
-gboolean is_dir_desktop( const char* path )
-{
-    return (desktop_dir && 0 == strcmp(path, desktop_dir));
-}
-#endif
-
 gpointer vfs_dir_load_thread(  VFSAsyncTask* task, VFSDir* dir )
 {
     const gchar * file_name;
@@ -789,7 +768,6 @@ gboolean update_file_info( VFSDir* dir, VFSFileInfo* file )
     char* full_path;
     char* file_name;
     gboolean ret = FALSE;
-    /* gboolean is_desktop = is_dir_desktop(dir->path); */
 
     /* FIXME: Dirty hack: steal the string to prevent memory allocation */
     file_name = file->name;
@@ -803,7 +781,6 @@ gboolean update_file_info( VFSDir* dir, VFSFileInfo* file )
         if( G_LIKELY( vfs_file_info_get( file, full_path, file_name ) ) )
         {
             ret = TRUE;
-            /* if( G_UNLIKELY(is_desktop) ) */
             vfs_file_info_load_special_info( file, full_path );
         }
         else /* The file doesn't exist */
@@ -1116,14 +1093,6 @@ const char* vfs_get_desktop_dir()
         desktop_dir = g_build_filename( g_get_home_dir(), "Desktop", NULL );
 #endif
 
-#if 0
-    /* FIXME: what should we do if the user has no desktop dir? */
-    if( ! g_file_test( desktop_dir, G_FILE_TEST_IS_DIR ) )
-    {
-        g_free( desktop_dir );
-        desktop_dir = NULL;
-    }
-#endif
     is_desktop_set = TRUE;
     return desktop_dir;
 }

@@ -136,18 +136,12 @@ static GOptionEntry opt_entries[] =
     { "daemon-mode", 'd', 0, G_OPTION_ARG_NONE, &daemon_mode, N_("Run as a daemon"), NULL },
     { "config-dir", 'c', 0, G_OPTION_ARG_STRING, &config_dir, N_("Use DIR as configuration directory"), "DIR" },
     { "find-files", 'f', 0, G_OPTION_ARG_NONE, &find_files, N_("Show File Search"), NULL },
-/*
-    { "query-type", '\0', 0, G_OPTION_ARG_STRING, &query_type, N_("Query mime-type of the specified file."), NULL },
-    { "query-default", '\0', 0, G_OPTION_ARG_STRING, &query_default, N_("Query default application of the specified mime-type."), NULL },
-    { "set-default", '\0', 0, G_OPTION_ARG_STRING, &set_default, N_("Set default application of the specified mime-type."), NULL },
-*/
 #ifdef DESKTOP_INTEGRATION
     { "set-wallpaper", '\0', 0, G_OPTION_ARG_NONE, &set_wallpaper, N_("Set desktop wallpaper to FILE"), NULL },
 #endif
     { "dialog", 'g', 0, G_OPTION_ARG_NONE, &custom_dialog, N_("Show a custom dialog (See -g help)"), NULL },
     { "socket-cmd", 's', 0, G_OPTION_ARG_NONE, &socket_cmd, N_("Send a socket command (See -s help)"), NULL },
     { "profile", '\0', 0, G_OPTION_ARG_STRING, &profile, N_("No function - for compatibility only"), "PROFILE" },
-    { "no-desktop", '\0', 0, G_OPTION_ARG_NONE, &no_desktop, N_("No function - for compatibility only"), NULL },
     { "version", '\0', 0, G_OPTION_ARG_NONE, &version_opt, N_("Show version information"), NULL },
 
     { "sdebug", '\0', G_OPTION_FLAG_HIDDEN, G_OPTION_ARG_NONE, &sdebug, NULL, NULL },
@@ -168,7 +162,6 @@ static void get_socket_name( char* buf, int len );
 static gboolean on_socket_event( GIOChannel* ioc, GIOCondition cond, gpointer data );
 
 static void init_folder();
-static void check_icon_theme();
 
 static gboolean handle_parsed_commandline_args();
 
@@ -864,46 +857,6 @@ void show_socket_help()
     printf( "\n%s\n    http://ignorantguru.github.io/spacefm/spacefm-manual-en.html#sockets\n", _("For full documentation and examples see the SpaceFM User's Manual:") );
 }
 
-/*
-void check_icon_theme()
-{
-    GtkSettings * settings;
-    char* theme;
-    const char* title = N_( "GTK+ icon theme is not properly set" );
-    const char* error_msg =
-        N_( "<big><b>%s</b></big>\n\n"
-            "This usually means you don't have an XSETTINGS manager running.  "
-            "Desktop environment like GNOME or XFCE automatically execute their "
-            "XSETTING managers like gnome-settings-daemon or xfce-mcs-manager.\n\n"
-            "<b>If you don't use these desktop environments, "
-            "you have two choices:\n"
-            "1. run an XSETTINGS manager, or\n"
-            "2. simply specify an icon theme in ~/.gtkrc-2.0.</b>\n"
-            "For example to use the Tango icon theme add a line:\n"
-            "<i><b>gtk-icon-theme-name=\"Tango\"</b></i> in your ~/.gtkrc-2.0. (create it if no such file)\n\n"
-            "<b>NOTICE: The icon theme you choose should be compatible with GNOME, "
-            "or the file icons cannot be displayed correctly.</b>  "
-            "Due to the differences in icon naming of GNOME and KDE, KDE themes cannot be used.  "
-            "Currently there is no standard for this, but it will be solved by freedesktop.org in the future." );
-    settings = gtk_settings_get_default();
-    g_object_get( settings, "gtk-icon-theme-name", &theme, NULL );
-
-    // No icon theme available
-    if ( !theme || !*theme || 0 == strcmp( theme, "hicolor" ) )
-    {
-        GtkWidget * dlg;
-        dlg = gtk_message_dialog_new_with_markup( NULL,
-                                                  GTK_DIALOG_MODAL,
-                                                  GTK_MESSAGE_ERROR,
-                                                  GTK_BUTTONS_OK,
-                                                  _( error_msg ), _( title ) );
-        gtk_window_set_title( GTK_WINDOW( dlg ), _( title ) );
-        gtk_dialog_run( GTK_DIALOG( dlg ) );
-        gtk_widget_destroy( dlg );
-    }
-    g_free( theme );
-}
-*/
 #ifdef _DEBUG_THREAD
 
 G_LOCK_DEFINE(gdk_lock);
@@ -945,7 +898,6 @@ void init_folder()
     vfs_file_info_set_thumbnail_size( app_settings.big_icon_size,
                                       app_settings.small_icon_size );
 
-    //check_icon_theme();  //sfm seems to run okay without gtk theme
     folder_initialized = TRUE;
 }
 
@@ -1499,18 +1451,7 @@ int main ( int argc, char *argv[] )
     load_settings( config_dir );    /* load config file */  //MOD was before vfs_file_monitor_init
 
     app_settings.sdebug = sdebug;
-    
-/*
-    // temporarily turn off desktop if needed
-    if( G_LIKELY( no_desktop ) )
-    {
-        // No matter what the value of show_desktop is, we don't showdesktop icons
-        // if --no-desktop argument is passed by the users.
-        old_show_desktop = app_settings.show_desktop;
-        // This config value will be restored before saving config files, if needed.
-        app_settings.show_desktop = FALSE;
-    }
-*/
+
     /* If we reach this point, we are the first instance.
      * Subsequent processes will exit() inside single_instance_check and won't reach here.
      */
@@ -1533,28 +1474,10 @@ int main ( int argc, char *argv[] )
 
     single_instance_finalize();
 
-    if( desktop && desktop_or_deamon_initialized )  // desktop was app_settings.show_desktop
+    // desktop was app_settings.show_desktop
+    if( desktop && desktop_or_deamon_initialized )
         fm_turn_off_desktop_icons();
 
-/*
-    if( no_desktop )    // desktop icons is temporarily supressed
-    {
-        if( old_show_desktop )  // restore original settings
-        {
-            old_show_desktop = app_settings.show_desktop;
-            app_settings.show_desktop = TRUE;
-        }
-    }
-*/
-
-/*
-    if( run && xset_get_b( "main_save_exit" ) )
-    {
-        char* err_msg = save_settings();
-        if ( err_msg )
-            printf( "spacefm: Error: Unable to save session\n       %s\n", err_msg );
-    }
-*/
     vfs_volume_finalize();
     vfs_mime_type_clean();
     vfs_file_monitor_clean();

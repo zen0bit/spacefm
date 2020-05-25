@@ -353,9 +353,6 @@ static char** compose_command( FindFile* data )
     /* if lower limit of file size is set */
     if( gtk_toggle_button_get_active((GtkToggleButton*)data->use_size_lower ) )
     {
-//        arg = g_strdup("(");
-//        g_array_append_val( argv, arg );
-
         arg = g_strdup("-size");
         g_array_append_val( argv, arg );
 
@@ -363,28 +360,11 @@ static char** compose_command( FindFile* data )
                         gtk_spin_button_get_value_as_int( (GtkSpinButton*)data->size_lower ),
                         size_units[ gtk_combo_box_get_active( (GtkComboBox*)data->size_lower_unit ) ] );
     g_array_append_val( argv, tmp );
-
-/*        arg = g_strdup( tmp + 1 );
-        g_array_append_val( argv, arg );
-
-        arg = g_strdup("-o"); // -or
-        g_array_append_val( argv, arg );
-
-        arg = g_strdup("-size");
-        g_array_append_val( argv, arg );
-
-        g_array_append_val( argv, tmp );
-
-        arg = g_strdup(")");
-        g_array_append_val( argv, arg );
-*/    }
+    }
 
     /* if upper limit of file size is set */
     if( gtk_toggle_button_get_active((GtkToggleButton*)data->use_size_upper ) )
     {
-//        arg = g_strdup("(");
-//        g_array_append_val( argv, arg );
-
         arg = g_strdup("-size");
         g_array_append_val( argv, arg );
 
@@ -394,18 +374,6 @@ static char** compose_command( FindFile* data )
 
         arg = g_strdup( tmp + 1 );
         g_array_append_val( argv, arg );
-/*
-        arg = g_strdup("-o"); // -or
-        g_array_append_val( argv, arg );
-
-        arg = g_strdup("-size");
-        g_array_append_val( argv, arg );
-
-        g_array_append_val( argv, tmp );
-
-        arg = g_strdup(")");
-        g_array_append_val( argv, arg );
-*/
     }
 
     /* If -name is used */

@@ -420,26 +420,6 @@ GtkWidget* file_properties_dlg_new( GtkWindow* parent,
     data->recurse = (GtkWidget*)gtk_builder_get_object( builder, "recursive" );
     gtk_widget_set_sensitive( data->recurse, is_dirs );
 
-/*  //MOD
-    for ( l = sel_files; l && l->next; l = l->next )
-    {
-        VFSMimeType *type, *type2;
-        file = ( VFSFileInfo* ) l->data;
-        file2 = ( VFSFileInfo* ) l->next->data;
-        type = vfs_file_info_get_mime_type( file );
-        type2 = vfs_file_info_get_mime_type( file2 );
-        if ( type != type2 )
-        {
-            vfs_mime_type_unref( type );
-            vfs_mime_type_unref( type2 );
-            same_type = FALSE;
-            break;
-        }
-        vfs_mime_type_unref( type );
-        vfs_mime_type_unref( type2 );
-    }
-*/
-
     file = ( VFSFileInfo* ) sel_files->data;
     if ( same_type )
     {
@@ -462,7 +442,6 @@ GtkWidget* file_properties_dlg_new( GtkWindow* parent,
      */
     if( ! same_type ||
           vfs_file_info_is_desktop_entry( file ) ||
-        /*  vfs_file_info_is_unknown_type( file ) || */
           vfs_file_info_is_executable( file, NULL ) )
     {
         /* if open with shouldn't show, destroy it. */
@@ -714,13 +693,6 @@ static uid_t uid_from_name( const char* user_name )
             uid *= 10;
             uid += ( *p - '0' );
         }
-#if 0 /* This is not needed */
-        /* Check the existance */
-        pw = getpwuid( uid );
-        if ( !pw )     /* Invalid uid */
-            return -1;
-#endif
-
     }
     return uid;
 }
@@ -746,13 +718,6 @@ gid_t gid_from_name( const char* group_name )
             gid *= 10;
             gid += ( *p - '0' );
         }
-#if 0 /* This is not needed */
-        /* Check the existance */
-        grp = getgrgid( gid );
-        if ( !grp )     /* Invalid gid */
-            return -1;
-#endif
-
     }
     return gid;
 }
@@ -947,25 +912,6 @@ on_dlg_response ( GtkDialog *dialog,
                 ptk_file_task_set_recursive( task,
                                         gtk_toggle_button_get_active(
                                         GTK_TOGGLE_BUTTON( data->recurse ) ) );
-                /*
-                for ( l = data->file_list; l; l = l->next )
-                {
-                    file = ( VFSFileInfo* ) l->data;
-                    if ( vfs_file_info_is_dir( file ) )
-                    {
-                        ask_recursive = gtk_message_dialog_new(
-                                            GTK_WINDOW( data->dlg ),
-                                            GTK_DIALOG_MODAL,
-                                            GTK_MESSAGE_QUESTION,
-                                            GTK_BUTTONS_YES_NO,
-                                            _( "Do you want to recursively apply these changes to all files and sub-folders?" ) );
-                        ptk_file_task_set_recursive( task,
-                                ( GTK_RESPONSE_YES == gtk_dialog_run( GTK_DIALOG( ask_recursive ) ) ) );
-                        gtk_widget_destroy( ask_recursive );
-                        break;
-                    }
-                }
-                */
                 if ( mod_change )
                 {
                      /* If the permissions of file has been changed by the user */

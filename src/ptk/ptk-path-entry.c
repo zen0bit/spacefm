@@ -29,11 +29,6 @@ enum
     N_COLS
 };
 
-/*
-static GQuark use_hand_cursor = (GQuark)"hand_cursor";
-#define is_hand_cursor_used( entry )    (g_object_get_qdata(entry, use_hand_cursor))
-*/
-
 static char*
 get_cwd( GtkEntry* entry )
 {
@@ -129,28 +124,6 @@ gboolean seek_path( GtkEntry* entry )
         else
             g_free( test_path );
     }
-/*  this interferes with entering URLs in path bar
-    char* actual_path = g_build_filename( seek_dir, seek_name, NULL );
-    if ( strcmp( actual_path, "/" ) && g_str_has_suffix( path, "/" ) )
-    {
-        str = actual_path;
-        actual_path = g_strdup_printf( "%s/", str );
-        g_free( str );
-    }
-    if ( strcmp( path, actual_path ) )
-    {
-        // actual dir differs from entry - update
-        g_signal_handlers_block_matched( G_OBJECT( entry ),
-                                         G_SIGNAL_MATCH_FUNC, 0, 0, NULL,
-                                         on_changed, NULL );
-        gtk_entry_set_text( GTK_ENTRY( entry ), actual_path );
-        gtk_editable_set_position( (GtkEditable*)entry, -1 );
-        g_signal_handlers_unblock_matched( G_OBJECT( entry ),
-                                         G_SIGNAL_MATCH_FUNC, 0, 0, NULL,
-                                         on_changed, NULL );        
-    }
-    g_free( actual_path );
-*/
     if ( strcmp( seek_dir, "/" ) && g_str_has_suffix( seek_dir, "/" ) )
     {
         // strip trialing slash
@@ -428,31 +401,6 @@ on_key_press( GtkWidget *entry, GdkEventKey* evt, EntryData* edata )
                  
     if( evt->keyval == GDK_KEY_Tab && !keymod )
     {
-        //gtk_entry_completion_insert_prefix( gtk_entry_get_completion(GTK_ENTRY(entry)) );
-        //gtk_editable_set_position( (GtkEditable*)entry, -1 );
-        
-        /*
-        g_signal_handlers_block_matched( G_OBJECT( entry ),
-                                         G_SIGNAL_MATCH_FUNC, 0, 0, NULL,
-                                         on_changed, NULL );
-                                                
-        gtk_entry_completion_insert_prefix( gtk_entry_get_completion(GTK_ENTRY(entry)) );
-        const char* path = gtk_entry_get_text( GTK_ENTRY( entry ) );
-        if ( path && path[0] && !g_str_has_suffix( path, "/" ) &&
-                                    g_file_test( path, G_FILE_TEST_IS_DIR ) )
-        {
-            char* new_path = g_strdup_printf( "%s/", path );
-            gtk_entry_set_text( GTK_ENTRY( entry ), new_path );
-            g_free( new_path );
-        }
-        gtk_editable_set_position( (GtkEditable*)entry, -1 );
-        
-        g_signal_handlers_unblock_matched( G_OBJECT( entry ),
-                                         G_SIGNAL_MATCH_FUNC, 0, 0, NULL,
-                                         on_changed, NULL );
-        on_changed( GTK_ENTRY( entry ), NULL );
-        */
-
         insert_complete( GTK_ENTRY( entry ) );
         on_changed( GTK_ENTRY( entry ), NULL );
         seek_path_delayed( GTK_ENTRY( entry ), 10 );
@@ -499,36 +447,6 @@ gboolean on_match_selected( GtkEntryCompletion *completion,
     return TRUE;
 }
 
-#if 0
-gboolean on_match_selected( GtkEntryCompletion *completion,
-                               GtkTreeModel    *model,
-                               GtkTreeIter     *iter,
-                               GtkWidget       *entry )
-{
-    char* path = NULL;
-    gtk_tree_model_get( model, iter, COL_PATH, &path, -1 );
-    if ( path && path[0] && !g_str_has_suffix( path, "/" ) )
-    {
-        g_signal_handlers_block_matched( G_OBJECT( entry ),
-                                         G_SIGNAL_MATCH_FUNC, 0, 0, NULL,
-                                         on_changed, NULL );
-
-        char* new_path = g_strdup_printf( "%s/", path );
-        gtk_entry_set_text( GTK_ENTRY( entry ), new_path );
-        g_free( new_path );
-        g_free( path );
-        gtk_editable_set_position( (GtkEditable*)entry, -1 );
-
-        g_signal_handlers_unblock_matched( G_OBJECT( entry ),
-                                         G_SIGNAL_MATCH_FUNC, 0, 0, NULL,
-                                         on_changed, NULL );
-        on_changed( GTK_ENTRY( entry ), NULL );
-        return TRUE;
-    }
-    return FALSE;
-}
-#endif
-
 static gboolean
 on_focus_in( GtkWidget *entry, GdkEventFocus* evt, gpointer user_data )
 {
@@ -569,39 +487,6 @@ on_focus_out( GtkWidget *entry, GdkEventFocus* evt, gpointer user_data )
     gtk_entry_set_completion( GTK_ENTRY(entry), NULL );
     return FALSE;
 }
-
-#if 0
-/* Weird!  We cannot change the cursor of GtkEntry... */
-
-static gboolean on_mouse_move(GtkWidget      *entry,
-                                                             GdkEventMotion *evt,
-                                                             gpointer        user_data)
-{
-    if( evt->state == GDK_CONTROL_MASK )
-    {
-        if( ! is_hand_cursor_used( entry ) )
-        {
-            GdkCursor* hand = gdk_cursor_new_for_display( gtk_widget_get_display(entry), GDK_HAND2 );
-            gdk_window_set_cursor( entry->window, hand );
-            gdk_cursor_unref( hand );
-            g_object_set_qdata( entry, use_hand_cursor, (gpointer)TRUE );
-            g_debug( "SET" );
-        }
-        return TRUE;
-    }
-    else
-    {
-        if( is_hand_cursor_used( entry ) )
-        {
-            gdk_window_set_cursor( entry->window, NULL );
-            g_object_set_qdata( entry, use_hand_cursor, (gpointer)FALSE );
-            g_debug( "UNSET" );
-        }
-    }
-    return FALSE;
-}
-
-#endif
 
 void ptk_path_entry_man( GtkWidget* widget, GtkWidget* parent )
 {

@@ -52,14 +52,7 @@ struct _PtkFileTask
     gboolean log_appended;
     guint err_count;
     char err_mode;
-    
-/*
-    int percent;
-    off64_t total_size;     // Total size of the files to be processed, in bytes
-    off64_t progress;       // Total size of current processed files, in btytes 
-    guint item_count;
-    guint old_err_count;
-*/
+
     gboolean complete;
     gboolean aborted;
     gboolean pause_change;

@@ -57,38 +57,6 @@ typedef struct _FMMainWindow
     GtkWidget* task_scroll;
     GtkWidget* task_view;
 
-//  GtkWidget* toolbar;
-//  GtkEntry* address_bar;
-//  GtkWidget *bookmarks;
-//  GtkWidget *status_bar;
-  //gint splitter_pos;
-    
-  /* Check menu items & tool items */
-/*
-GtkCheckMenuItem* open_side_pane_menu;
-  GtkCheckMenuItem* show_location_menu;
-  GtkCheckMenuItem* show_dir_tree_menu;
-  GtkCheckMenuItem* show_location_bar_menu;
-  GtkCheckMenuItem* show_hidden_files_menu;
-
-  GtkCheckMenuItem* view_as_icon;
-  GtkCheckMenuItem* view_as_compact_list;
-  GtkCheckMenuItem* view_as_list;
-
-  GtkCheckMenuItem* sort_by_name;
-  GtkCheckMenuItem* sort_by_size;
-  GtkCheckMenuItem* sort_by_mtime;
-  GtkCheckMenuItem* sort_by_type;
-  GtkCheckMenuItem* sort_by_perm;
-  GtkCheckMenuItem* sort_by_owner;
-  GtkCheckMenuItem* sort_ascending;
-  GtkCheckMenuItem* sort_descending;
-
-  GtkToggleToolButton* open_side_pane_btn;
-  GtkWidget* back_btn;
-  GtkWidget* forward_btn;
-*/
-
   GtkAccelGroup *accel_group;
 
   GtkWindowGroup* wgroup;
@@ -161,7 +129,6 @@ gboolean main_window_panel_is_visible( PtkFileBrowser* file_browser, int panel )
 void main_window_open_in_panel( PtkFileBrowser* file_browser, int panel_num,
                                                         char* file_path );
 void main_window_autosave( PtkFileBrowser* file_browser );
-void main_window_on_plugins_change( FMMainWindow* main_window );
 void main_window_root_bar_all();
 void main_window_rubberband_all();
 void main_window_refresh_all();

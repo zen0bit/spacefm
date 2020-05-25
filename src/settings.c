@@ -53,8 +53,6 @@
 #define is_under_LXDE()     (g_getenv( "_LXSESSION_PID" ) != NULL)
 
 AppSettings app_settings = {0};
-/* const gboolean singleInstance_default = TRUE; */
-const gboolean show_hidden_files_default = FALSE;
 const gboolean show_thumbnail_default = FALSE;
 const int max_thumb_size_default = 8 << 20;
 const int big_icon_size_default = 48;
@@ -66,12 +64,10 @@ const gboolean no_single_hover_default = FALSE;
 
 /* FIXME: temporarily disable trash since it's not finished */
 const gboolean use_trash_can_default = FALSE;
-//const int open_bookmark_method_default = 1;
 const int view_mode_default = PTK_FB_ICON_VIEW;
 const int sort_order_default = PTK_FB_SORT_BY_NAME;
 const int sort_type_default = GTK_SORT_ASCENDING;
 
-//gboolean show_desktop_default = FALSE;
 const gboolean show_wallpaper_default = FALSE;
 const WallpaperMode wallpaper_mode_default=WPM_STRETCH;
 const GdkColor desktop_bg1_default={0, 4656, 4125, 12014};
@@ -93,8 +89,6 @@ const int margin_pad_default = 6;
 /* Default values of interface settings */
 const gboolean always_show_tabs_default = TRUE;
 const gboolean hide_close_tab_buttons_default = FALSE;
-const gboolean hide_side_pane_buttons_default = FALSE;
-//const gboolean hide_folder_content_border_default = FALSE;
 
 // MOD settings
 void xset_write( FILE* file );
@@ -225,12 +219,6 @@ static void parse_general_settings( char* line )
     *sep = '\0';
     if ( 0 == strcmp( name, "encoding" ) )
         strcpy( app_settings.encoding, value );
-    //else if ( 0 == strcmp( name, "show_hidden_files" ) )
-    //    app_settings.show_hidden_files = atoi( value );
-    //else if ( 0 == strcmp( name, "show_side_pane" ) )
-    //    app_settings.show_side_pane = atoi( value );
-    //else if ( 0 == strcmp( name, "side_pane_mode" ) )
-    //    app_settings.side_pane_mode = atoi( value );
     else if ( 0 == strcmp( name, "show_thumbnail" ) )
         app_settings.show_thumbnail = atoi( value );
     else if ( 0 == strcmp( name, "max_thumb_size" ) )
@@ -265,27 +253,16 @@ static void parse_general_settings( char* line )
         app_settings.single_click = atoi(value);
     else if ( 0 == strcmp( name, "no_single_hover" ) )
         app_settings.no_single_hover = atoi(value);
-    //else if ( 0 == strcmp( name, "view_mode" ) )
-    //    app_settings.view_mode = atoi( value );
     else if ( 0 == strcmp( name, "sort_order" ) )
         app_settings.sort_order = atoi( value );
     else if ( 0 == strcmp( name, "sort_type" ) )
         app_settings.sort_type = atoi( value );
     else if ( 0 == strcmp( name, "open_bookmark_method" ) )
-        //app_settings.open_bookmark_method = atoi( value );
         xset_set_b( "book_newtab", atoi( value ) != 1 ); //sfm backwards compat
-/*
-    else if ( 0 == strcmp( name, "iconTheme" ) )
-    {
-        if ( value && *value )
-            app_settings.iconTheme = strdup( value );
-    }
-*/
     else if ( 0 == strcmp( name, "terminal" ) ) //MOD backwards compat
     {
         if ( value && *value )
             xset_set( "main_terminal", "s", value );
-            //app_settings.terminal = strdup( value );
     }
     else if ( 0 == strcmp( name, "use_si_prefix" ) )
         app_settings.use_si_prefix = atoi( value );
@@ -299,13 +276,6 @@ static void parse_general_settings( char* line )
     }
     else if ( 0 == strcmp( name, "no_confirm" ) )
         app_settings.no_confirm = atoi( value );  //MOD
-    /*
-    else if ( 0 == strcmp( name, "singleInstance" ) )
-        app_settings.singleInstance = atoi( value );
-    */
-/*    else if ( 0 == strcmp( name, "show_location_bar" ) )
-        app_settings.show_location_bar = atoi( value );
-*/
 }
 
 static void color_from_str( GdkColor* ret, const char* value )
@@ -331,11 +301,6 @@ static void parse_window_state( char* line )
     name = line;
     value = sep + 1;
     *sep = '\0';
-    //if ( 0 == strcmp( name, "splitter_pos" ) )
-    //{
-    //    v = atoi( value );
-    //    app_settings.splitter_pos = ( v > 0 ? v : 160 );
-    //}
     if ( 0 == strcmp( name, "width" ) )
     {
         v = atoi( value );
@@ -362,8 +327,6 @@ static void parse_desktop_settings( char* line )
     name = line;
     value = sep + 1;
     *sep = '\0';
-    //if ( 0 == strcmp( name, "show_desktop" ) )
-    //    app_settings.show_desktop = atoi( value );
     if ( 0 == strcmp( name, "show_wallpaper" ) )
         app_settings.show_wallpaper = atoi( value );
     else if ( 0 == strcmp( name, "wallpaper" ) )
@@ -418,10 +381,6 @@ static void parse_interface_settings( char* line )
         app_settings.always_show_tabs = atoi( value );
     else if ( 0 == strcmp( name, "show_close_tab_buttons" ) )
         app_settings.hide_close_tab_buttons = !atoi( value );
-    //else if ( 0 == strcmp( name, "hide_side_pane_buttons" ) )
-    //    app_settings.hide_side_pane_buttons = atoi( value );
-    //else if ( 0 == strcmp( name, "hide_folder_content_border" ) )
-    //    app_settings.hide_folder_content_border = atoi( value );
 }
 
 static void parse_conf( const char* etc_path, char* line )
@@ -605,7 +564,6 @@ void load_settings( char* config_dir )
         settings_config_dir = g_build_filename( g_get_user_config_dir(), "spacefm", NULL );
 
     /* General */
-    /* app_settings.show_desktop = show_desktop_default; */
     app_settings.show_wallpaper = show_wallpaper_default;
     app_settings.wallpaper = NULL;
     app_settings.desktop_bg1 = desktop_bg1_default;
@@ -625,22 +583,13 @@ void load_settings( char* config_dir )
     app_settings.margin_pad = margin_pad_default;
     
     app_settings.encoding[ 0 ] = '\0';
-    //app_settings.show_hidden_files = show_hidden_files_default;
-    //app_settings.show_side_pane = show_side_pane_default;
-    //app_settings.side_pane_mode = side_pane_mode_default;
     app_settings.show_thumbnail = show_thumbnail_default;
     app_settings.max_thumb_size = max_thumb_size_default;
     app_settings.big_icon_size = big_icon_size_default;
     app_settings.small_icon_size = small_icon_size_default;
     app_settings.tool_icon_size = tool_icon_size_default;
     app_settings.use_trash_can = use_trash_can_default;
-    //app_settings.view_mode = view_mode_default;
-    //app_settings.open_bookmark_method = open_bookmark_method_default;
-    /* app_settings.iconTheme = NULL; */
-    //app_settings.terminal = NULL;
     app_settings.use_si_prefix = use_si_prefix_default;
-    //app_settings.show_location_bar = show_location_bar_default;
-    //app_settings.home_folder = NULL;   //MOD
     app_settings.no_execute = TRUE;   //MOD
     app_settings.no_confirm = FALSE;   //MOD
     app_settings.date_format = NULL;   //MOD
@@ -648,25 +597,13 @@ void load_settings( char* config_dir )
     /* Interface */
     app_settings.always_show_tabs = always_show_tabs_default;
     app_settings.hide_close_tab_buttons = hide_close_tab_buttons_default;
-    //app_settings.hide_side_pane_buttons = hide_side_pane_buttons_default;
-    //app_settings.hide_folder_content_border = hide_folder_content_border_default;
 
     /* Window State */
-    //app_settings.splitter_pos = 160;
     app_settings.width = 640;
     app_settings.height = 480;
 
     // MOD extra settings
     xset_defaults();
-
-    /* load settings */   //MOD
-    /* Dirty hacks for LXDE */
-    /*
-    if( is_under_LXDE() )
-    {
-        show_desktop_default = app_settings.show_desktop = TRUE;   // show the desktop by default
-    }
-    */
 
     // set tmp dirs
     if ( !settings_tmp_dir )
@@ -855,8 +792,6 @@ void load_settings( char* config_dir )
         {
             app_name = vfs_mime_type_get_default_action( mime_type );
             vfs_mime_type_unref( mime_type );
-            //int app_len = strlen( app_name );
-            //if ( app_len > 8 && !strcmp( app_name + app_len - 8, ".desktop" ) )
             if ( app_name )
             {
                 VFSAppDesktop* app = vfs_app_desktop_new( app_name );
@@ -904,93 +839,6 @@ void load_settings( char* config_dir )
         ptk_bookmark_view_get_first_bookmark( NULL );
         return;
     }
-/*
-    if ( ver < 3 ) // < 0.5.3
-    {
-        set = xset_get( "toolbar_left" );
-        if ( set->menu_label && !strcmp( set->menu_label, "_Left" ) )
-        {
-            g_free( set->menu_label );
-            set->menu_label = g_strdup( "_Left Toolbar" );
-            set->in_terminal = XSET_B_UNSET;
-        }
-        set = xset_get( "toolbar_right" );
-        if ( set->menu_label && !strcmp( set->menu_label, "_Right" ) )
-        {
-            g_free( set->menu_label );
-            set->menu_label = g_strdup( "_Right Toolbar" );
-            set->in_terminal = XSET_B_UNSET;
-        }
-        set = xset_get( "toolbar_side" );
-        if ( set->menu_label && !strcmp( set->menu_label, "_Side" ) )
-        {
-            g_free( set->menu_label );
-            set->menu_label = g_strdup( "_Side Toolbar" );
-            set->in_terminal = XSET_B_UNSET;
-        }
-        for ( i = 1; i < 5; i++ )
-        {
-            set = xset_get_panel( i, "show_sidebar" );
-            if ( set->menu_label && !strcmp( set->menu_label, "_Sidebar" ) )
-            {
-                g_free( set->menu_label );
-                set->menu_label = g_strdup( "_Side Toolbar" );
-                set->in_terminal = XSET_B_UNSET;
-            }
-        }
-        set = xset_get( "focus_path_bar" );
-        if ( set->menu_label && !strcmp( set->menu_label, "_Smart Bar" ) )
-        {
-            g_free( set->menu_label );
-            set->menu_label = g_strdup( "_Smartbar" );
-            set->in_terminal = XSET_B_UNSET;
-        }
-    }
-    if ( ver < 4 ) // < 0.5.4
-    {
-        set = xset_get( "task_err_first" );
-        if ( set->menu_label && !strcmp( set->menu_label, "Stop On _First" ) )
-        {
-            g_free( set->menu_label );
-            set->menu_label = g_strdup( "Stop If _First" );
-            set->in_terminal = XSET_B_UNSET;
-        }
-    }
-    if ( ver < 6 ) // < 0.6.3
-    {
-        set = xset_get( "dev_show_internal_drives" );
-        if ( set->menu_label && !strcmp( set->menu_label, "Show _Internal Drives" ) )
-        {
-            g_free( set->menu_label );
-            set->menu_label = g_strdup( "_Internal Drives" );
-            set->in_terminal = XSET_B_UNSET;
-        }
-        set = xset_get( "dev_show_partition_tables" );
-        if ( set->menu_label && !strcmp( set->menu_label, "Show _Partition Tables" ) )
-        {
-            g_free( set->menu_label );
-            set->menu_label = g_strdup( "_Partition Tables" );
-            set->in_terminal = XSET_B_UNSET;
-        }
-        set = xset_get( "dev_ignore_udisks_hide" );
-        if ( set->menu_label && !strcmp( set->menu_label, "Ignore Udisks _Hide Policy" ) )
-        {
-            g_free( set->menu_label );
-            set->menu_label = g_strdup( "Ignore _Hide Policy" );
-            set->in_terminal = XSET_B_UNSET;
-        }
-        set = xset_get( "dev_show_hide_volumes" );
-        if ( set->menu_label && !strcmp( set->menu_label, "Show _Volumes..." ) )
-        {
-            g_free( set->menu_label );
-            set->menu_label = g_strdup( "_Volumes..." );
-            set->in_terminal = XSET_B_UNSET;
-        }
-        set = xset_get( "dev_show_empty" );  //new
-        if ( set->b == XSET_B_UNSET )
-            set->b = XSET_B_TRUE;
-    }
-*/
     if ( ver < 7 ) // < 0.7.0
     {
         // custom separators ->next xset have invalid prev
@@ -1138,14 +986,6 @@ void load_settings( char* config_dir )
             string_copy_free( &set->icon, "drive-removable-media" );
             set->keep_terminal = XSET_B_UNSET;
         }
-        /*  > 1.0.1 no longer an xset
-        set = xset_get( "stool_mount" );
-        if ( !g_strcmp0( set->icon, "gtk-add" ) )
-        {
-            string_copy_free( &set->icon, "drive-removable-media" );
-            set->keep_terminal = XSET_B_UNSET;
-        }
-        */
         set = xset_get( "dev_menu_mount" );
         if ( !g_strcmp0( set->icon, "gtk-add" ) )
         {
@@ -1697,18 +1537,8 @@ char* save_settings( gpointer main_window_ptr )
         if ( result < 0 )
             goto _save_error;
         fputs( "[General]\n", file );
-        /*
-        if ( app_settings.singleInstance != singleInstance_default )
-            fprintf( file, "singleInstance=%d\n", !!app_settings.singleInstance );
-        */
         if ( app_settings.encoding[ 0 ] )
             fprintf( file, "encoding=%s\n", app_settings.encoding );
-        //if ( app_settings.show_hidden_files != show_hidden_files_default )
-        //    fprintf( file, "show_hidden_files=%d\n", !!app_settings.show_hidden_files );
-        //if ( app_settings.show_side_pane != show_side_pane_default )
-        //    fprintf( file, "show_side_pane=%d\n", app_settings.show_side_pane );
-        //if ( app_settings.side_pane_mode != side_pane_mode_default )
-        //    fprintf( file, "side_pane_mode=%d\n", app_settings.side_pane_mode );
         if ( app_settings.show_thumbnail != show_thumbnail_default )
             fprintf( file, "show_thumbnail=%d\n", !!app_settings.show_thumbnail );
         if ( app_settings.max_thumb_size != max_thumb_size_default )
@@ -1728,26 +1558,12 @@ char* save_settings( gpointer main_window_ptr )
             fprintf( file, "single_click=%d\n", app_settings.single_click );
         if ( app_settings.no_single_hover != no_single_hover_default )
             fprintf( file, "no_single_hover=%d\n", app_settings.no_single_hover );
-        //if ( app_settings.view_mode != view_mode_default )
-        //    fprintf( file, "view_mode=%d\n", app_settings.view_mode );
         if ( app_settings.sort_order != sort_order_default )
             fprintf( file, "sort_order=%d\n", app_settings.sort_order );
         if ( app_settings.sort_type != sort_type_default )
             fprintf( file, "sort_type=%d\n", app_settings.sort_type );
-        //if ( app_settings.open_bookmark_method != open_bookmark_method_default )
-        //    fprintf( file, "open_bookmark_method=%d\n", app_settings.open_bookmark_method );
-        /*
-        if ( app_settings.iconTheme )
-            fprintf( file, "iconTheme=%s\n", app_settings.iconTheme );
-        */
-        //if ( app_settings.terminal )
-        //    fprintf( file, "terminal=%s\n", app_settings.terminal );
         if ( app_settings.use_si_prefix != use_si_prefix_default )
             fprintf( file, "use_si_prefix=%d\n", !!app_settings.use_si_prefix );
-//        if ( app_settings.show_location_bar != show_location_bar_default )
-//            fprintf( file, "show_location_bar=%d\n", app_settings.show_location_bar );
-/*        if ( app_settings.home_folder )
-            fprintf( file, "home_folder=%s\n", app_settings.home_folder );  //MOD
 */        if ( !app_settings.no_execute )
             fprintf( file, "no_execute=%d\n", !!app_settings.no_execute );  //MOD
         if ( app_settings.no_confirm )
@@ -1756,13 +1572,10 @@ char* save_settings( gpointer main_window_ptr )
         fputs( "\n[Window]\n", file );
         fprintf( file, "width=%d\n", app_settings.width );
         fprintf( file, "height=%d\n", app_settings.height );
-        //fprintf( file, "splitter_pos=%d\n", app_settings.splitter_pos );
         fprintf( file, "maximized=%d\n", app_settings.maximized );
 
         /* Desktop */
         fputs( "\n[Desktop]\n", file );
-        //if ( app_settings.show_desktop != show_desktop_default )
-        //    fprintf( file, "show_desktop=%d\n", !!app_settings.show_desktop );
         if ( app_settings.show_wallpaper != show_wallpaper_default )
             fprintf( file, "show_wallpaper=%d\n", !!app_settings.show_wallpaper );
         if ( app_settings.wallpaper && app_settings.wallpaper[ 0 ] )
@@ -1784,20 +1597,12 @@ char* save_settings( gpointer main_window_ptr )
             fprintf( file, "desk_open_mime=%d\n", app_settings.desk_open_mime );
         
         // always save these colors in case defaults change
-        //if ( ! gdk_color_equal( &app_settings.desktop_bg1,
-        //       &desktop_bg1_default ) )
             save_color( file, "bg1",
                         &app_settings.desktop_bg1 );
-        //if ( ! gdk_color_equal( &app_settings.desktop_bg2,
-        //       &desktop_bg2_default ) )
             save_color( file, "bg2",
                         &app_settings.desktop_bg2 );
-        //if ( ! gdk_color_equal( &app_settings.desktop_text,
-        //       &desktop_text_default ) )
             save_color( file, "text",
                         &app_settings.desktop_text );
-        //if ( ! gdk_color_equal( &app_settings.desktop_shadow,
-        //       &desktop_shadow_default ) )
             save_color( file, "shadow",
                         &app_settings.desktop_shadow );
                         
@@ -1826,10 +1631,6 @@ char* save_settings( gpointer main_window_ptr )
             fprintf( file, "always_show_tabs=%d\n", app_settings.always_show_tabs );
         if ( app_settings.hide_close_tab_buttons != hide_close_tab_buttons_default )
             fprintf( file, "show_close_tab_buttons=%d\n", !app_settings.hide_close_tab_buttons );
-        //if ( app_settings.hide_side_pane_buttons != hide_side_pane_buttons_default )
-        //    fprintf( file, "hide_side_pane_buttons=%d\n", app_settings.hide_side_pane_buttons );
-        //if ( app_settings.hide_folder_content_border != hide_folder_content_border_default )
-        //    fprintf( file, "hide_folder_content_border=%d\n", app_settings.hide_folder_content_border );
 
         // MOD extra settings
         fputs( "\n[MOD]\n", file );
@@ -1874,11 +1675,6 @@ _save_error:
 
 void free_settings()
 {
-/*
-    if ( app_settings.iconTheme )
-        g_free( app_settings.iconTheme );
-*/
-    //g_free( app_settings.terminal );
     g_free( app_settings.wallpaper );
 
     if ( xset_cmd_history )
@@ -2300,82 +2096,6 @@ char* get_name_extension( char* full_name, gboolean is_dir, char** ext )
     }
 }
 
-/*
-char* get_name_extension( char* full_name, gboolean is_dir, char** ext )
-{
-    char* dot = strchr( full_name, '.' );
-    if ( !dot || is_dir )
-    {
-        *ext = NULL;
-        return g_strdup( full_name );
-    }
-    char* name = NULL;
-    char* old_name;
-    char* old_extension;
-    char* segment;
-    char* extension = NULL;
-    char* seg_start = full_name;
-    while ( seg_start )
-    {
-        if ( dot )
-            segment = g_strndup( seg_start, dot - seg_start );
-        else
-            segment = g_strdup( seg_start );
-        if ( ( seg_start == full_name || g_utf8_strlen( segment, -1 ) > 5
-                                            || !is_alphanum( segment ) )
-                        && !( seg_start != full_name && !strcmp( segment, "desktop" ) ) )
-        {
-            // segment and thus all prior segments are part of name
-            old_name = name;
-            //printf("part of name\n");
-            if ( !extension )
-            {
-                if ( !old_name )
-                    name = g_strdup( segment );
-                else
-                    name = g_strdup_printf( "%s.%s", old_name, segment );
-                //printf("\told_name=%s\n\tsegment=%s\n\tname=%s\n", old_name, segment, name );
-            }
-            else
-            {
-                name = g_strdup_printf( "%s.%s.%s", old_name, extension, segment );
-                //printf("\told_name=%s\n\text=%s\n\tsegment=%s\n\tname=%s\n", old_name, extension, segment, name );
-                g_free( extension );
-                extension = NULL;
-            }
-            g_free( old_name );
-        }
-        else
-        {
-            // segment is part of extension
-            //printf("part of extension\n");
-            if ( !extension )
-            {
-                extension = g_strdup( segment );
-                //printf ("\tsegment=%s\n\text=%s\n", segment, extension );
-            }
-            else
-            {
-                old_extension = extension;
-                extension = g_strdup_printf( "%s.%s", old_extension, segment );
-                //printf ("\told_extension=%s\n\tsegment=%s\n\text=%s\n", old_extension, segment, extension );
-                g_free( old_extension );
-            }
-        }
-        g_free( segment );
-        if ( dot )
-        {
-            seg_start = ++dot;
-            dot = strchr( seg_start, '.' );
-        }
-        else
-            seg_start = NULL;
-    }
-    *ext = extension;
-    return name;
-}
-*/
-
 void xset_free_all()
 {
     XSet* set;
@@ -2777,50 +2497,6 @@ XSet* xset_is_main_bookmark( XSet* set )
     }    
     return NULL;
 }
-
-/*
-// this function finds bookmark matching cwd by examining all xsets - 
-// not significantly faster and doesn't find first in desirable order
-XSet* xset_find_bookmark( const char* cwd, XSet** found_parent_set )
-{
-    GList* l;
-    char* url;
-    char* sep;
-    XSet* set;
-    XSet* set_parent = NULL;
-
-    for ( l = xsets; l; l = l->next )
-    {
-        if ( ((XSet*)l->data)->z && !((XSet*)l->data)->lock &&
-                ((XSet*)l->data)->x && !strcmp( ((XSet*)l->data)->x, "3" ) &&
-                g_str_has_prefix( ((XSet*)l->data)->z, cwd ) )
-        {
-            // found a possible match - confirm
-            set = (XSet*)l->data;
-
-            sep = strchr( set->z, ';' );
-            if ( sep )
-                sep[0] = '\0';
-            url = g_strstrip( g_strdup( set->z ) );
-            if ( sep )
-                sep[0] = ';';
-            if ( !g_strcmp0( cwd, url ) )
-            {
-                // found a bookmark matching cwd - verify is in main_book
-                if ( set_parent = xset_is_main_bookmark( set ) )
-                {
-                    // found bookmark in main_book tree
-                    *found_parent_set = set_parent;
-                    g_free( url );
-                    return set;
-                }
-            }
-            g_free( url );
-        }
-    }
-    return *found_parent_set = NULL;
-}
-*/
 
 static void xset_write_set( FILE* file, XSet* set )
 {
@@ -3847,41 +3523,6 @@ GtkWidget* xset_new_menuitem( const char* label, const char* icon )
     gtk_image_menu_item_set_image( GTK_IMAGE_MENU_ITEM( item ), image );
     return item;
 }
-
-/*
-gboolean xset_design_event_cb (GtkWidget *widget, GdkEvent  *gdk_event , XSet* set)
-{
-    GdkEventButton* event = (GdkEventButton*)gdk_event;
-printf("xset_design_event_cb type=%d button=%d state=%d\n", event->type, event->button, event->state );
-    if ( event->type == 10 )
-    {
-        //return TRUE;
-    }
-    else if ( event->type == GDK_BUTTON_PRESS )
-    {
-//        printf("    button_press\n");
-        if ( ((GdkEventButton*)event)->state & GDK_CONTROL_MASK
-                                || ((GdkEventButton*)event)->button == 2 )
-        {
-            printf("    DESIGN\n");
-            return TRUE;
-        }
-    }
-    return FALSE;  // pass through    
-}
-*/
-
-/*
-void xset_design_activate_item( GtkMenuItem* item, XSet* set )
-{
-    if ( design_mode )
-    {
-        g_signal_stop_emission_by_name( item, "activate" );
-        //g_signal_stop_emission_by_name( item, "activate-item" );
-        printf("design_mode_activate\n");
-    }
-}
-*/
 
 char* xset_custom_get_app_name_icon( XSet* set, GdkPixbuf** icon, int icon_size )
 {
@@ -5071,7 +4712,6 @@ void on_install_plugin_cb( VFSFileTask* task, PluginData* plugin_data )
         {
             xset_custom_delete( plugin_data->set, FALSE );
             clean_plugin_mirrors();
-            //main_window_on_plugins_change( NULL );
         }
     }
     else
@@ -5407,37 +5047,6 @@ gboolean xset_custom_export_files( XSet* set, char* plug_dir )
         g_free( path_src );
         g_free( path_dest );
         return TRUE;
-        /*
-        g_mkdir_with_parents( path_dest, 0755 );
-        if ( !g_file_test( path_dest, G_FILE_TEST_EXISTS ) )
-        {
-            g_free( path_src );
-            g_free( path_dest );
-            return FALSE;
-        }
-        chmod( path_dest, 0755 );
-        if ( !set->plugin )
-        {
-            g_free( path_src );
-            g_free( path_dest );
-            return TRUE;
-        }
-        // plugin backwards compat ?
-        cscript = xset_custom_get_script( set, FALSE );
-        if ( cscript && g_file_test( cscript, G_FILE_TEST_EXISTS ) )
-        {
-            command = g_strdup_printf( "cp -a %s %s/", cscript, path_dest );
-            g_free( cscript );
-        }
-        else
-        {
-            if ( cscript )
-                g_free( cscript );
-            g_free( path_src );
-            g_free( path_dest );
-            return TRUE;
-        }
-        */
     }
     else
     {
@@ -5820,14 +5429,6 @@ void xset_custom_activate( GtkWidget* item, XSet* set )
         {
             xset_item_prop_dlg( xset_context, set, 2 );
             return;
-            /*
-            if ( !xset_text_dialog( parent, _("Set Command Line"), NULL, TRUE,
-                            _(enter_command_line), NULL, set->line, &set->line,
-                                                NULL, FALSE,
-                                                "#designmode-command-line" )
-                             || !set->line || set->line[0] == '\0' )
-                return;
-            */
         }
         command = replace_line_subs( set->line );
         char* str = replace_string( command, "\\n", "\n", FALSE );
@@ -6107,81 +5708,6 @@ printf("    set->next = %s\n", set->next );
     }
     return NULL;
 }
-
-#if 0
-void xset_custom_insert_before( XSet* target, XSet* set )
-{
-    XSet* target_prev;
-    XSet* target_next;
-    XSet* target_parent;
-    
-    if ( !set )
-    {
-        g_warning( "xset_custom_insert_before set == NULL" );
-        return;
-    }
-    if ( !target )
-    {
-        g_warning( "xset_custom_insert_before target_set == NULL" );
-        return;
-    }
-
-    if ( target->prev )
-    {
-        target_prev = xset_get( target->prev );
-        g_free( set->prev );
-        g_free( set->next );
-        set->prev = target->prev;       // steal string
-        set->next = target_prev->next;  // steal string or NULL
-        // replace stolen strings
-        target->prev = g_strdup( set->name );
-        target_prev->next = g_strdup( set->name );
-        
-        if ( set->parent )
-        {
-            g_free( set->parent );
-            set->parent = NULL;
-        }
-    }
-    else if ( target->parent )
-    {
-        // target is first item in submenu
-        target_parent = xset_get( target->parent );
-        g_free( set->parent );
-        set->parent = target->parent;       // steal string
-        target->parent = NULL;
-        target->prev = g_strdup( set->name );
-        g_free( set->next );
-        set->next = target_parent->child;   // steal string
-        target_parent->child = g_strdup( set->name );
-        
-        if ( !set->next )
-            set->next = g_strdup( target->name );  // failsafe
-        if ( set->prev )
-        {
-            g_free( set->prev );
-            set->prev = NULL;
-        }
-    }
-    else
-    {
-        g_warning( "xset_custom_insert_before target has no prev or parent" );
-        return;
-    }
-
-    if ( target->tool )
-    {
-        if ( set->tool < XSET_TOOL_CUSTOM )
-            set->tool = XSET_TOOL_CUSTOM;
-    }
-    else
-    {
-        if ( set->tool > XSET_TOOL_CUSTOM )
-            g_warning( "xset_custom_insert_before builtin tool inserted after non-tool" );
-        set->tool = XSET_TOOL_NOT;
-    }
-}
-#endif
 
 void xset_custom_insert_after( XSet* target, XSet* set )
 {   // inserts single set 'set', no next
@@ -6972,15 +6498,6 @@ void xset_design_job( GtkWidget* item, XSet* set )
         g_free( old_icon );
         break;
     case XSET_JOB_LABEL:
-        /*  unused - note that this does not accommodate in_terminal indicator
-        if ( g_str_has_prefix( set->name, "open_all_type_" ) )
-            keyset = xset_get( "open_all" );
-        else
-            keyset = set;
-        xset_text_dialog( parent, _("Change Menu Name"), NULL, FALSE, _(enter_menu_name),
-                                        NULL, keyset->menu_label, &keyset->menu_label,
-                                        NULL, FALSE, "#designmode-designmenu-name" );
-        */
         break;
     case XSET_JOB_EDIT:
         if ( cmd_type == XSET_CMD_SCRIPT )
@@ -7873,9 +7390,6 @@ gboolean xset_design_menu_keypress( GtkWidget* widget, GdkEventKey* event,
             case XSET_JOB_MESSAGE:
                 help = "#designmode-style-message";
                 break;
-            //case XSET_JOB_CONTEXT:
-            //    help = "#designmode-props-context";
-            //    break;
             case XSET_JOB_IGNORE_CONTEXT:
                 help = "#designmode-props-ignorecontext";
                 break;
@@ -8581,20 +8095,6 @@ void xset_menu_cb( GtkWidget* item, XSet* set )
         cb_func = (void *)g_object_get_data( G_OBJECT(item), "cb_func" );
         cb_data = g_object_get_data( G_OBJECT(item), "cb_data" );
     }
-
-/*
-    if ( set->tool )
-    {
-        // get current browser for toolbar button
-        FMMainWindow* main_window = fm_main_window_get_last_active();
-        if ( main_window )
-            set->browser = PTK_FILE_BROWSER( 
-                    fm_main_window_get_current_file_browser( main_window ) );
-        else
-            set->browser = NULL;
-        set->desktop = NULL;
-    }
-*/
 
     parent = set->browser ? GTK_WIDGET( set->browser ) :
                             GTK_WIDGET( set->desktop );
@@ -10503,29 +10003,6 @@ char *replace_string( const char* orig, const char* str, const char* replace,
     g_free( old_result );
     g_free( rep );
     return result;
-    
-/*
-    // replace first occur of str in orig with rep
-    char* buffer;
-    char* buffer2;
-    char *p;
-    char* rep_good;
-
-    if ( !( p = strstr( orig, str ) ) )
-        return g_strdup( orig );  // str not in orig
-    if ( !rep )
-        rep_good = g_strdup_printf( "" );
-    else
-        rep_good = g_strdup( rep );
-    buffer = g_strndup( orig, p - orig );
-    if ( quote )
-        buffer2 = g_strdup_printf( "%s'%s'%s", buffer, rep_good, p + strlen( str ) );
-    else
-        buffer2 = g_strdup_printf( "%s%s%s", buffer, rep_good, p + strlen( str ) );
-    g_free( buffer );
-    g_free( rep_good );
-    return buffer2;
-*/
 }
 
 char* bash_quote( const char* str )
@@ -11039,22 +10516,6 @@ void xset_defaults()
     set->line = g_strdup( "#devices-settings-chdet" );
     set->s = g_strdup( "cifs curlftpfs ftpfs fuse.sshfs nfs smbfs" );
     set->z = g_strdup( set->s );
-    
-    /* Removed 0.9.4
-    set = xset_set( "dev_mount_cmd", "lbl", _("Mount _Command") );
-    set->menu_style = XSET_MENU_STRING;
-    xset_set_set( set, "desc", _("Enter the command to mount a device:\n\nUse:\n\t%%v\tdevice file ( eg /dev/sda5 )\n\t%%o\tvolume-specific mount options\n\nudevil:\t/usr/bin/udevil mount -o %%o %%v\npmount:\t/usr/bin/pmount %%v\nUdisks2:\t/usr/bin/udisksctl mount -b %%v -o %%o\nUdisks1:\t/usr/bin/udisks --mount %%v --mount-options %%o\n\nLeave blank for auto-detection.") );
-    xset_set_set( set, "title", _("Mount Command") );
-    xset_set_set( set, "icn", "gtk-edit" );
-    set->line = g_strdup( "#devices-settings-mcmd" );
-    
-    set = xset_set( "dev_unmount_cmd", "lbl", _("_Unmount Command") );
-    set->menu_style = XSET_MENU_STRING;
-    xset_set_set( set, "desc", _("Enter the command to unmount a device:\n\nUse:\n\t%%v\tdevice file ( eg /dev/sda5 )\n\nudevil:\t/usr/bin/udevil umount %%v\npmount:\t/usr/bin/pumount %%v\nUdisks1:\t/usr/bin/udisks --unmount %%v\nUdisks2:\t/usr/bin/udisksctl unmount -b %%v\n\nLeave blank for auto-detection.") );
-    xset_set_set( set, "title", _("Unmount Command") );
-    xset_set_set( set, "icn", "gtk-edit" );
-    set->line = g_strdup( "#devices-settings-ucmd" );
-    */
 
     set = xset_set( "dev_fs_cnf", "label", _("_Device Handlers") );
     xset_set_set( set, "icon", "gtk-preferences" );
@@ -11142,30 +10603,6 @@ void xset_defaults()
         set->menu_style = XSET_MENU_ICON;
         xset_set_set( set, "icn", "gtk-file" );
         set->line = g_strdup( "#devices-settings-icon" );
-
-    // Bookmark list
-    /*   Removed items config version 30
-    set = xset_get( "sep_bk1" );
-    set->menu_style = XSET_MENU_SEP;
-        
-    set = xset_get( "sep_bk2" );
-    set->menu_style = XSET_MENU_SEP;
-    
-    set = xset_set( "book_new", "lbl", _("_New") );
-    xset_set_set( set, "icn", "gtk-new" );
-
-    set = xset_set( "book_rename", "lbl", _("_Rename") );
-    xset_set_set( set, "icn", "gtk-edit" );
-
-    set = xset_set( "book_edit", "lbl", _("_Edit") );
-    xset_set_set( set, "icn", "gtk-edit" );
-    
-    set = xset_set( "book_remove", "lbl", _("Re_move") );
-    xset_set_set( set, "icn", "gtk-remove" );
-    
-    set = xset_set( "book_tab", "lbl", C_("Bookmarks|Open|", "_Tab") );
-    xset_set_set( set, "icn", "gtk-add" );
-    */
     
     set = xset_set( "book_open", "lbl", _("_Open") );
     xset_set_set( set, "icn", "gtk-open" );
@@ -11395,12 +10832,6 @@ void xset_defaults()
         set = xset_set( "panel_prev", "lbl", _("_Prev") );
         set->line = g_strdup( "#gui-pan" );
         xset_set( "panel_next", "lbl", _("_Next") );
-        /*
-        xset_set( "panel_left", "lbl", _("_Left") );
-        xset_set( "panel_right", "lbl", _("_Right") );
-        xset_set( "panel_top", "lbl", _("_Top") );
-        xset_set( "panel_bottom", "lbl", _("_Bottom") );
-        */
         xset_set( "panel_hide", "lbl", _("_Hide") );
         set = xset_set( "panel_1", "lbl", _("Panel _1") );
         set->line = g_strdup( "#gui-pan" );
@@ -12094,14 +11525,6 @@ void xset_defaults()
         set = xset_set( "arc_conf2", "label", _("Archive _Handlers") );
         xset_set_set( set, "icon", "gtk-preferences" );
         set->line = g_strdup( "#handlers-arc" );
-
-    /* used in < 0.9.4
-    set = xset_set( "iso_mount", "label", _("_Mount ISO") );
-    xset_set_set( set, "icon", "gtk-cdrom" );
-
-    set = xset_set( "iso_auto", "lbl", _("_Auto-Mount ISO") );
-    set->menu_style = XSET_MENU_CHECK;
-    */
 
     set = xset_get( "sep_o1" );
     set->menu_style = XSET_MENU_SEP;
