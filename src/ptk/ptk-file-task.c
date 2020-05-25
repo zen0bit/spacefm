@@ -18,7 +18,9 @@
 
 #include "ptk-file-task.h"
 #include "ptk-utils.h"
-#include "vfs-file-info.h"  //MOD
+
+#include "../vfs/vfs-file-info.h"
+
 #include "main-window.h"
 
 #include "gtk2-compat.h"

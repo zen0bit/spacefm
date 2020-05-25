@@ -27,7 +27,8 @@
 #include <glib/gi18n.h>
 #include <gdk/gdkkeysyms.h>
 
-#include "vfs-app-desktop.h"
+#include "../vfs/vfs-app-desktop.h"
+
 #include "ptk-utils.h"
 #include "ptk-file-misc.h"
 #include "ptk-file-archiver.h"

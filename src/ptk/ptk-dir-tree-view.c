@@ -24,8 +24,8 @@
 #include "ptk-file-menu.h"
 #include "ptk-file-task.h"  //MOD
 
-#include "vfs-file-info.h"
-#include "vfs-file-monitor.h"
+#include "../vfs/vfs-file-info.h"
+#include "../vfs/vfs-file-monitor.h"
 
 #include "gtk2-compat.h"
 

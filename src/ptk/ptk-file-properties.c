@@ -21,7 +21,7 @@
 
 #include "ptk-file-properties.h"
 
-#include "mime-type/mime-type.h"
+#include "../mime-type/mime-type.h"
 
 #include <sys/types.h>
 #include <pwd.h>
@@ -31,8 +31,9 @@
 #include "ptk-file-task.h"
 #include "ptk-utils.h"
 
-#include "vfs-file-info.h"
-#include "vfs-app-desktop.h"
+#include "../vfs/vfs-file-info.h"
+#include "../vfs/vfs-app-desktop.h"
+
 #include "ptk-app-chooser.h"
 #include "main-window.h"
 

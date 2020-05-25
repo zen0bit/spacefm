@@ -42,11 +42,14 @@
 #include <sys/statvfs.h>
 #endif
 
-#include <vfs-file-info.h>
-#include "ptk-file-task.h"
+#include "vfs-file-info.h"
 #include "main-window.h"
-#include "ptk-handler.h"
-#include "ptk-location-view.h"
+
+#include "../ptk/ptk-file-task.h"
+#include "../ptk/ptk-handler.h"
+#include "../ptk/ptk-location-view.h"
+
+#include "main-window.h"
 
 #define MOUNTINFO "/proc/self/mountinfo"
 #define MTAB "/proc/mounts"

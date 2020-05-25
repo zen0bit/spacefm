@@ -12,10 +12,11 @@
 
 #include <string.h>
 
-#include "vfs-file-info.h"
+#include "../vfs/vfs-file-info.h"
+#include "../vfs/vfs-file-task.h"
+
 #include "ptk-file-task.h"
 #include "ptk-file-misc.h"  // for get_real_link_target()
-#include "vfs-file-task.h"
 #include "ptk-utils.h"  //MOD
 
 static GdkDragAction clipboard_action = GDK_ACTION_DEFAULT;

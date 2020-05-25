@@ -14,7 +14,9 @@
 #include <glib.h>
 #include <gdk/gdk.h>
 #include <gtk/gtk.h>
-#include "ptk-file-browser.h"
+
+#include "ptk/ptk-file-browser.h"
+
 #include "desktop-window.h"
 
 // this determines time before item is selected by hover in single-click mode

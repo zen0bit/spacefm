@@ -10,7 +10,8 @@
 *
 */
 
-#include "vfs-file-task.h"
+#include "../vfs/vfs-file-task.h"
+
 #include <gtk/gtk.h>
 #include "settings.h"
 

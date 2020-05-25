@@ -18,7 +18,9 @@
 #include <sys/wait.h>   // WIFEXITED
 
 #include "ptk-handler.h"
-#include "exo-tree-view.h"
+
+#include "../exo/exo-tree-view.h"
+
 #include "gtk2-compat.h"
 
 
