@@ -1058,7 +1058,7 @@ int main ( int argc, char *argv[] )
     // --version
     if ( version_opt )
     {
-        printf( "spacefm %s\n", VERSION );
+        printf( "spacefm %s\n", PACKAGE_VERSION );
 #if GTK_CHECK_VERSION (3, 0, 0)
         printf( "GTK3 " );
 #else
