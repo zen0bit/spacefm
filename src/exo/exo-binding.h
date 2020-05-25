@@ -25,12 +25,9 @@
 
 #include <glib-object.h>
 
-/* Taken from exo v0.10.2 (Debian package libexo-1-0), according to changelog
- * commit f455681554ca205ffe49bd616310b19f5f9f8ef1 Dec 27 13:50:21 2012 */
-
 G_BEGIN_DECLS
 
-typedef struct _ExoBinding       ExoBinding;
+typedef struct _ExoBinding ExoBinding;
 typedef struct _ExoMutualBinding ExoMutualBinding;
 
 /**
@@ -47,36 +44,24 @@ typedef struct _ExoMutualBinding ExoMutualBinding;
  *
  * Returns: %FALSE if transformation failed, else %TRUE.
  **/
-typedef gboolean  (*ExoBindingTransform)  (const GValue *src_value,
-                                           GValue       *dst_value,
-                                           gpointer      user_data);
+typedef gboolean (*ExoBindingTransform)(const GValue* src_value, GValue* dst_value,
+                                        gpointer user_data);
 
-ExoBinding        *exo_binding_new                      (GObject            *src_object,
-                                                         const gchar        *src_property,
-                                                         GObject            *dst_object,
-                                                         const gchar        *dst_property);
+ExoBinding* exo_binding_new(GObject* src_object, const char* src_property, GObject* dst_object,
+                            const char* dst_property);
 
-ExoBinding        *exo_binding_new_full                 (GObject            *src_object,
-                                                         const gchar        *src_property,
-                                                         GObject            *dst_object,
-                                                         const gchar        *dst_property,
-                                                         ExoBindingTransform transform,
-                                                         GDestroyNotify      destroy_notify,
-                                                         gpointer            user_data);
+ExoBinding* exo_binding_new_full(GObject* src_object, const char* src_property, GObject* dst_object,
+                                 const char* dst_property, ExoBindingTransform transform,
+                                 GDestroyNotify destroy_notify, gpointer user_data);
 
-ExoMutualBinding  *exo_mutual_binding_new               (GObject            *object1,
-                                                         const gchar        *property1,
-                                                         GObject            *object2,
-                                                         const gchar        *property2);
+ExoMutualBinding* exo_mutual_binding_new(GObject* object1, const char* property1, GObject* object2,
+                                         const char* property2);
 
-ExoMutualBinding  *exo_mutual_binding_new_full          (GObject            *object1,
-                                                         const gchar        *property1,
-                                                         GObject            *object2,
-                                                         const gchar        *property2,
-                                                         ExoBindingTransform transform,
-                                                         ExoBindingTransform reverse_transform,
-                                                         GDestroyNotify      destroy_notify,
-                                                         gpointer            user_data);
+ExoMutualBinding* exo_mutual_binding_new_full(GObject* object1, const char* property1,
+                                              GObject* object2, const char* property2,
+                                              ExoBindingTransform transform,
+                                              ExoBindingTransform reverse_transform,
+                                              GDestroyNotify destroy_notify, gpointer user_data);
 
 G_END_DECLS
 

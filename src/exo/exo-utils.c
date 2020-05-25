@@ -21,11 +21,7 @@
 #include <config.h>
 #endif
 
-/* Taken from exo v0.10.2 (Debian package libexo-1-0), according to changelog
- * commit f455681554ca205ffe49bd616310b19f5f9f8ef1 Dec 27 13:50:21 2012 */
-
 /* implement exo-utils's inline functions */
-#define G_IMPLEMENT_INLINES 1
 #define __EXO_UTILS_C__
 #include "exo-utils.h"
 
@@ -34,15 +30,14 @@
  * @title: Miscellaneous Utility Functions
  * @short_description: Various utility functions
  * @include: exo/exo.h
- * @see_also: <ulink type="http" url="http://library.gnome.org/devel/glib/stable/glib-Atomic-Operations.html">
- *            GLib Atomic Operations</ulink>
+ * @see_also: <ulink type="http"
+ *url="http://library.gnome.org/devel/glib/stable/glib-Atomic-Operations.html"> GLib Atomic
+ *Operations</ulink>
  *
  * This module contains various utility functions that extend the basic
  * utility functions provided by the <ulink type="http"
  * url="http://library.gnome.org/devel/glib/stable/">GLib</ulink> library.
  **/
-
-
 
 /**
  * exo_noop:
@@ -55,12 +50,9 @@
  *
  * Since: 0.3.1
  **/
-void
-exo_noop (void)
+void exo_noop(void)
 {
 }
-
-
 
 /**
  * exo_noop_one:
@@ -75,13 +67,10 @@ exo_noop (void)
  *
  * Since: 0.3.1
  **/
-gint
-exo_noop_one (void)
+int exo_noop_one(void)
 {
     return 1;
 }
-
-
 
 /**
  * exo_noop_zero:
@@ -96,13 +85,10 @@ exo_noop_one (void)
  *
  * Since: 0.3.1
  **/
-gint
-exo_noop_zero (void)
+int exo_noop_zero(void)
 {
     return 0;
 }
-
-
 
 /**
  * exo_noop_null:
@@ -117,13 +103,10 @@ exo_noop_zero (void)
  *
  * Since: 0.3.1
  **/
-gpointer
-exo_noop_null (void)
+gpointer exo_noop_null(void)
 {
     return NULL;
 }
-
-
 
 /**
  * exo_noop_true:
@@ -138,13 +121,10 @@ exo_noop_null (void)
  *
  * Since: 0.3.1
  **/
-gboolean
-exo_noop_true (void)
+gboolean exo_noop_true(void)
 {
     return TRUE;
 }
-
-
 
 /**
  * exo_noop_false:
@@ -159,11 +139,9 @@ exo_noop_true (void)
  *
  * Since: 0.3.1
  **/
-gboolean
-exo_noop_false (void)
+gboolean exo_noop_false(void)
 {
     return FALSE;
 }
-
 
 #define __EXO_UTILS_C__

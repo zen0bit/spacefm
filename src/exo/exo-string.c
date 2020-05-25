@@ -27,13 +27,12 @@
 #ifdef HAVE_MEMORY_H
 #include <memory.h>
 #endif
+
 #ifdef HAVE_STRING_H
 #include <string.h>
 #endif
 
 #include "exo-string.h"
-
-
 
 /**
  * exo_str_elide_underscores:
@@ -42,21 +41,19 @@
  * Returns a copy of @text with all mnemonic underscores
  * stripped off.
  *
- * Return value: A copy of @text without underscores. The
- *               returned string must be freed when no
- *               longer required.
+ * Returns: A copy of @text without underscores. The returned string
+ *          must be freed when no longer required.
  **/
-gchar*
-exo_str_elide_underscores (const gchar *text)
+char* exo_str_elide_underscores(const char* text)
 {
-    const gchar *s;
-    gboolean     last_underscore = FALSE;
-    gchar       *result;
-    gchar       *t;
+    const char* s;
+    gboolean last_underscore = FALSE;
+    char* result;
+    char* t;
 
-    g_return_val_if_fail (text != NULL, NULL);
+    g_return_val_if_fail(text != NULL, NULL);
 
-    result = g_malloc (strlen (text) + 1);
+    result = g_malloc(strlen(text) + 1);
 
     for (s = text, t = result; *s != '\0'; ++s)
         if (!last_underscore && *s == '_')
@@ -74,8 +71,6 @@ exo_str_elide_underscores (const gchar *text)
     return result;
 }
 
-
-
 /**
  * exo_str_is_equal:
  * @a : A pointer to first string or %NULL.
@@ -86,16 +81,12 @@ exo_str_elide_underscores (const gchar *text)
  *
  * You should always prefer this function over strcmp().
  *
- * Return value: %TRUE if @a equals @b, else %FALSE.
+ * Returns: %TRUE if @a equals @b, else %FALSE.
  **/
-gboolean
-exo_str_is_equal (const gchar *a,
-                  const gchar *b)
+gboolean exo_str_is_equal(const char* a, const char* b)
 {
-    if (a == NULL && b == NULL)
-        return TRUE;
-    else if (a == NULL || b == NULL)
-        return FALSE;
+    if (a == NULL || b == NULL)
+        return (a == b);
 
     while (*a == *b++)
         if (*a++ == '\0')
@@ -103,8 +94,6 @@ exo_str_is_equal (const gchar *a,
 
     return FALSE;
 }
-
-
 
 /**
  * exo_strndupv:
@@ -119,20 +108,24 @@ exo_str_is_equal (const gchar *a,
  *               freed using g_strfreev() when no
  *               longer needed.
  **/
-gchar**
-exo_strndupv (gchar **strv,
-              gint    num)
+char** exo_strndupv(char** strv, uint num)
 {
-    gchar **result;
+    char** result;
+    uint i;
 
-    g_return_val_if_fail (strv != NULL, NULL);
-    g_return_val_if_fail (num >= 0, NULL);
+    /* return null when there is nothing to copy */
+    if (G_UNLIKELY(strv == NULL || num == 0))
+        return NULL;
 
-    result = g_new (gchar *, num + 1);
-    result[num--] = NULL;
-    for (; num >= 0; --num)
-        result[num] = g_strdup (strv[num]);
+    /* duplicate the first @num string */
+    result = g_new(gchar*, num + 1);
+    for (i = 0; i < num && strv[i] != NULL; i++)
+        result[i] = g_strdup(strv[i]);
+    result[i] = NULL;
+
+    /* resize the string if we allocated too much space */
+    if (G_UNLIKELY(num > i))
+        result = g_renew(gchar*, result, i + 1);
 
     return result;
 }
-

@@ -27,15 +27,16 @@
 
 #include <glib.h>
 
-G_BEGIN_DECLS;
+G_BEGIN_DECLS
 
-gchar    *exo_str_elide_underscores  (const gchar *text);
+char* exo_str_elide_underscores(const char* text) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
-gboolean  exo_str_is_equal           (const gchar *a,
-                                      const gchar *b);
+gboolean exo_str_is_equal(const char* a, const char* b);
 
-gchar   **exo_strndupv               (gchar      **strv,
-                                      gint         num);
+/*
+char   **exo_strndupv               (char      **strv,
+                                      int         num)G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+*/
 
 /**
  * exo_str_is_empty:
@@ -62,7 +63,7 @@ gchar   **exo_strndupv               (gchar      **strv,
  *
  * Since : 0.3.1.1
  **/
-#define I_(string) (g_intern_static_string ((string)))
+#define I_(string) (g_intern_static_string((string)))
 
 G_END_DECLS;
 
