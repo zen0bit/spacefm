@@ -1023,7 +1023,11 @@ int main(int argc, char* argv[])
     }
 
     /* initialize GTK+ and parse the command line arguments */
+#ifdef ENABLE_NLS
     if (G_UNLIKELY(!gtk_init_with_args(&argc, &argv, "", opt_entries, GETTEXT_PACKAGE, &err)))
+#else
+    if (G_UNLIKELY(!gtk_init_with_args(&argc, &argv, "", opt_entries, NULL, &err)))
+#endif
     {
         printf("spacefm: %s\n", err->message);
         g_error_free(err);
