@@ -21,6 +21,8 @@
 
 #include "../exo/exo-tree-view.h"
 
+#include "utils.h"
+
 #include "gtk2-compat.h"
 
 

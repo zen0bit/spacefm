@@ -15,6 +15,7 @@
 #include <glib/gi18n.h>
 
 #include "settings.h"
+#include "utils.h"
 #include "gtk2-compat.h"
 #include <gdk/gdkkeysyms.h>
 

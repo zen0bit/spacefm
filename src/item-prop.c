@@ -16,6 +16,7 @@
 
 #include "item-prop.h"
 #include "main-window.h"
+#include "utils.h"
 
 #include "ptk/ptk-app-chooser.h"
 

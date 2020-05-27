@@ -22,7 +22,7 @@
 #include "../vfs/vfs-file-info.h"
 
 #include "main-window.h"
-
+#include "utils.h"
 #include "gtk2-compat.h"
 
 // waitpid

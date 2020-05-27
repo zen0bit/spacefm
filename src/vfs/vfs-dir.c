@@ -29,6 +29,8 @@
 #include <unistd.h> /* for read */
 #include "vfs-volume.h"
 
+#include "utils.h"
+
 
 static void vfs_dir_class_init( VFSDirClass* klass );
 static void vfs_dir_init( VFSDir* dir );

@@ -292,51 +292,6 @@ XSet* evt_device;
 // instance-wide command history
 GList* xset_cmd_history;
 
-static const char* terminal_programs[] =  //for pref-dialog.c
-{
-    "roxterm",
-    "terminal",
-    "xfce4-terminal",
-    "gnome-terminal",
-    "aterm",
-    "Eterm",
-    "konsole",
-    "lxterminal",
-    "mlterm",
-    "mrxvt",
-    "rxvt",
-    "sakura",
-    "terminator",
-    "urxvt",
-    "xterm",
-    "x-terminal-emulator",
-    "lilyterm",
-    "qterminal"
-};
-
-static const char* su_commands[] = // order and contents must match prefdlg.ui
-{
-    "/bin/su",
-    "/usr/bin/sudo",
-    "/usr/bin/su-to-root"
-};
-
-static const char* gsu_commands[] = // order and contents must match prefdlg.ui
-{
-    "/usr/bin/gksu",
-    "/usr/bin/gksudo",
-    "/usr/bin/gnomesu",
-    "/usr/bin/xdg-su",
-    "/usr/bin/kdesu",   // may be translated to "$(kde4-config --path libexec)/kdesu"
-    "/usr/bin/kdesudo",
-    "/usr/bin/ktsuss",
-    "/usr/bin/lxqt-sudo",
-    "/usr/bin/lxsu",
-    "/usr/bin/su-to-root",
-    "/bin/su",
-    "/usr/bin/sudo"
-};
-
 // These will contain the su and gsu settings from /etc/spacefm/spacefm.conf
 char* settings_terminal_su;
 char* settings_graphical_su;
@@ -347,25 +302,11 @@ typedef struct
     char* var[40];
 } XSetContext;
 
-
-char* randhex8();
-char* replace_string( const char* orig, const char* str, const char* replace,
-                                                            gboolean quote );
-char* replace_line_subs( const char* line );
-char* bash_quote( const char* str );
-void string_copy_free( char** s, const char* src );
-gboolean is_alphanum( char* str );
-char* get_name_extension( char* full_name, gboolean is_dir, char** ext );
-char* unescape( const char* t );
 void xset_autosave( gboolean force, gboolean delay );
 void xset_autosave_cancel();
 
-void open_in_prog( const char* path );
 void xset_set_window_icon( GtkWindow* win );
-char* get_valid_su();
-char* get_valid_gsu();
 gboolean xset_copy_file( char* src, char* dest );
-gboolean dir_has_files( const char* path );
 XSet* xset_get( const char* name );
 char* xset_get_s( const char* name );
 gboolean xset_get_bool( const char* name, const char* var );
@@ -392,8 +333,6 @@ XSetContext* xset_context_new();
 XSet* xset_get_plugin_mirror( XSet* set );
 void write_src_functions( FILE* file );
 char* xset_custom_get_script( XSet* set, gboolean create );
-gboolean have_rw_access( const char* path );
-gboolean have_x_access( const char* path );
 char* xset_get_keyname( XSet* set, int key_val, int key_mod );
 void xset_set_key( GtkWidget* parent, XSet* set );
 
@@ -451,8 +390,6 @@ void install_plugin_file( gpointer main_win, GtkWidget* handler_dlg,
                           int job, XSet* insert_set );
 XSet* xset_import_plugin( const char* plug_dir, gboolean* is_bookmarks );
 void clean_plugin_mirrors();
-char* plain_ascii_name( const char* orig_name );
-char* clean_label( const char* menu_label, gboolean kill_special, gboolean convert_amp );
 void xset_show_help( GtkWidget* parent, XSet* set, const char* anchor );
 gboolean xset_opener( PtkFileBrowser* file_browser,
                                                             char job );

@@ -22,6 +22,7 @@
 #include "../vfs/vfs-mime-type.h"
 
 #include "settings.h"
+#include "utils.h"
 
 // Archive handlers treeview model enum
 enum {

@@ -51,6 +51,8 @@
 
 #include "main-window.h"
 
+#include "utils.h"
+
 #define MOUNTINFO "/proc/self/mountinfo"
 #define MTAB "/proc/mounts"
 #define HIDDEN_NON_BLOCK_FS "devpts proc fusectl pstore sysfs tmpfs devtmpfs ramfs aufs overlayfs cgroup binfmt_misc rpc_pipefs fuse.gvfsd-fuse"

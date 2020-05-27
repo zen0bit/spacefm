@@ -19,6 +19,8 @@
 #include "ptk-file-misc.h"  // for get_real_link_target()
 #include "ptk-utils.h"  //MOD
 
+#include "utils.h"
+
 static GdkDragAction clipboard_action = GDK_ACTION_DEFAULT;
 static GList* clipboard_file_list = NULL;
 

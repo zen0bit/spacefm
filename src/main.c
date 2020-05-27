@@ -52,6 +52,8 @@
 #include "pref-dialog.h"
 #include "settings.h"
 
+#include "utils.h"
+
 #include "cust-dialog.h"
 
 //gboolean startup_mode = TRUE;  //MOD

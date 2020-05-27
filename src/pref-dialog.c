@@ -29,6 +29,9 @@
 #include "settings.h"
 #include "main-window.h"
 
+#include "extern.h"
+#include "utils.h"
+
 #include "ptk/ptk-utils.h"
 #include "ptk/ptk-file-browser.h"
 #include "ptk/ptk-location-view.h"

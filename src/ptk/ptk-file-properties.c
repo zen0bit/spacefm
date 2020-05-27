@@ -35,6 +35,7 @@
 #include "../vfs/vfs-app-desktop.h"
 
 #include "ptk-app-chooser.h"
+#include "utils.h"
 #include "main-window.h"
 
 const char* chmod_names[] =

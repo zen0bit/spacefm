@@ -37,6 +37,8 @@
 #include "../vfs/vfs-utils.h" /* for vfs_load_icon */
 #include "../vfs/vfs-app-desktop.h"
 
+#include "utils.h"
+
 #include "gtk2-compat.h"
 
 

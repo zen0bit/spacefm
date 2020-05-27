@@ -48,6 +48,7 @@
 
 #include "main-window.h"
 #include "settings.h"
+#include "utils.h"
 
 #include "ptk/ptk-file-misc.h"
 #include "ptk/ptk-utils.h"

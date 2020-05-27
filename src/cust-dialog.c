@@ -21,6 +21,7 @@
 #include "settings.h"
 #include "cust-dialog.h"
 
+#include "utils.h"
 #include "gtk2-compat.h"
 
 #define DEFAULT_TITLE "SpaceFM Dialog"

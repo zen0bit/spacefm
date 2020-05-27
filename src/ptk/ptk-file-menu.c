@@ -42,6 +42,7 @@
 #include "ptk-file-list.h"  //sfm for sort extra
 #include "pref-dialog.h"
 
+#include "utils.h"
 #include "gtk2-compat.h"
 
 gboolean on_app_button_press( GtkWidget* item, GdkEventButton* event,

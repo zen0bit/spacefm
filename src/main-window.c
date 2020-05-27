@@ -47,6 +47,7 @@
 #include "item-prop.h"
 #include "find-files.h"
 #include "go-dialog.h"
+#include "utils.h"
 
 #ifdef HAVE_STATVFS
 /* FIXME: statvfs support should be moved to src/vfs */

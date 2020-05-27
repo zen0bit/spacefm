@@ -37,6 +37,8 @@
 #include "main-window.h"
 #include "vfs-volume.h"
 
+#include "utils.h"
+
 const mode_t chmod_flags[] =
     {
         S_IRUSR, S_IWUSR, S_IXUSR,
