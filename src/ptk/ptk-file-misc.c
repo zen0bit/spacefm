@@ -45,7 +45,6 @@
 typedef struct
 {
     PtkFileBrowser* file_browser;
-    DesktopWindow* desktop;
     const char* cwd;
 } ParentInfo;
 
@@ -63,8 +62,7 @@ typedef struct
     GtkWidget* dlg;
     GtkWidget* parent;
     PtkFileBrowser* browser;
-    DesktopWindow* desktop;
-    
+
     GtkLabel* label_type;
     GtkLabel* label_mime;
     GtkWidget* hbox_type;
@@ -1518,22 +1516,22 @@ void on_options_button_press( GtkWidget* btn, MoveSet* mset )
     xset_context_new();
 
     XSet* set = xset_set_cb( "move_name", on_toggled, mset );
-    xset_add_menuitem( mset->desktop, mset->browser, popup, accel_group, set );
+    xset_add_menuitem( mset->browser, popup, accel_group, set );
     set = xset_set_cb( "move_filename", on_toggled, mset );
-    xset_add_menuitem( mset->desktop, mset->browser, popup, accel_group, set );
+    xset_add_menuitem( mset->browser, popup, accel_group, set );
     set = xset_set_cb( "move_parent", on_toggled, mset );
-    xset_add_menuitem( mset->desktop, mset->browser, popup, accel_group, set );
+    xset_add_menuitem( mset->browser, popup, accel_group, set );
     set = xset_set_cb( "move_path", on_toggled, mset );
-    xset_add_menuitem( mset->desktop, mset->browser, popup, accel_group, set );
+    xset_add_menuitem( mset->browser, popup, accel_group, set );
     set = xset_set_cb( "move_type", on_toggled, mset );
     set->disable = ( mset->create_new || mset->is_link );
-    xset_add_menuitem( mset->desktop, mset->browser, popup, accel_group, set );
+    xset_add_menuitem( mset->browser, popup, accel_group, set );
     set = xset_set_cb( "move_target", on_toggled, mset );
     set->disable = mset->create_new || !mset->is_link;
-    xset_add_menuitem( mset->desktop, mset->browser, popup, accel_group, set );
+    xset_add_menuitem( mset->browser, popup, accel_group, set );
     set = xset_set_cb( "move_template", on_toggled, mset );
     set->disable = !mset->create_new;
-    xset_add_menuitem( mset->desktop, mset->browser, popup, accel_group, set );
+    xset_add_menuitem( mset->browser, popup, accel_group, set );
 
     set = xset_set_cb( "move_copy", on_toggled, mset );
         set->disable = mset->clip_copy || mset->create_new;
@@ -1545,18 +1543,18 @@ void on_options_button_press( GtkWidget* btn, MoveSet* mset )
         set->disable = !mset->is_link;
     xset_set_cb( "move_as_root", on_toggled, mset );
     set = xset_get( "move_option" );
-    xset_add_menuitem( mset->desktop, mset->browser, popup, accel_group, set );
+    xset_add_menuitem( mset->browser, popup, accel_group, set );
 
     set = xset_get( "sep_mopt1" );
-    xset_add_menuitem( mset->desktop, mset->browser, popup, accel_group, set );
+    xset_add_menuitem( mset->browser, popup, accel_group, set );
     set = xset_get( "move_dlg_confirm_create" );
-    xset_add_menuitem( mset->desktop, mset->browser, popup, accel_group, set );
+    xset_add_menuitem( mset->browser, popup, accel_group, set );
     set = xset_set_cb( "move_dlg_font", on_font_change, mset );
-    xset_add_menuitem( mset->desktop, mset->browser, popup, accel_group, set );
+    xset_add_menuitem( mset->browser, popup, accel_group, set );
     set = xset_get( "sep_mopt2" );
-    xset_add_menuitem( mset->desktop, mset->browser, popup, accel_group, set );
+    xset_add_menuitem( mset->browser, popup, accel_group, set );
     set = xset_set_cb( "move_dlg_help", on_help_activate, mset );
-    xset_add_menuitem( mset->desktop, mset->browser, popup, accel_group, set );
+    xset_add_menuitem( mset->browser, popup, accel_group, set );
 
     gtk_widget_show_all( GTK_WIDGET( popup ) );
     g_signal_connect( popup, "selection-done",
@@ -2021,7 +2019,7 @@ void update_new_display( const char* path )
     g_timeout_add( 1500, (GSourceFunc)update_new_display_delayed, g_strdup( path ) );
 }
 
-int ptk_rename_file( DesktopWindow* desktop, PtkFileBrowser* file_browser,
+int ptk_rename_file( PtkFileBrowser* file_browser,
                                         const char* file_dir, VFSFileInfo* file,
                                         const char* dest_dir, gboolean clip_copy,
                                         PtkRenameMode create_new,
@@ -2113,15 +2111,12 @@ int ptk_rename_file( DesktopWindow* desktop, PtkFileBrowser* file_browser,
         mset->desc = _("File");
 
     mset->browser = file_browser;
-    mset->desktop = desktop;
-    
+
     if ( file_browser )
     {
         mset->parent = gtk_widget_get_toplevel( GTK_WIDGET( file_browser ) );
         task_view = file_browser->task_view;
     }
-    else
-        mset->parent = GTK_WIDGET( desktop );
 
     mset->dlg = gtk_dialog_new_with_buttons( _("Move"),
                                 mset->parent ? GTK_WINDOW( mset->parent ) : NULL,
@@ -3382,7 +3377,7 @@ static gboolean open_archives_with_handler( ParentInfo* parent,
     if ( handlers_slist )
     {
         g_slist_free( handlers_slist );
-        ptk_file_archiver_extract( parent->desktop, parent->file_browser,
+        ptk_file_archiver_extract( parent->file_browser,
                                    sel_files, parent->cwd, dest_dir, cmd, TRUE );
         return TRUE;  // all files handled
     }
@@ -3500,7 +3495,6 @@ static void open_files_with_handler( ParentInfo* parent,
                                     parent->file_browser->task_view : NULL );
         // don't free cwd!
         task->task->exec_browser = parent->file_browser;
-        task->task->exec_desktop = parent->desktop;
         task->task->exec_command = command_final;
         if ( handler_set->icon )
             task->task->exec_icon = g_strdup( handler_set->icon );
@@ -3566,8 +3560,6 @@ static gboolean open_files_with_app( ParentInfo* parent,
 
         if ( parent->file_browser )
             screen = gtk_widget_get_screen( GTK_WIDGET( parent->file_browser ) );
-        else if ( parent->desktop )
-            screen = gtk_widget_get_screen( GTK_WIDGET( parent->desktop ) );
         else
             screen = gdk_screen_get_default();
 
@@ -3609,7 +3601,6 @@ static void free_file_list_hash( gpointer key, gpointer value, gpointer user_dat
 void ptk_open_files_with_app( const char* cwd,
                               GList* sel_files,
                               const char* app_desktop,
-                              DesktopWindow* desktop,
                               PtkFileBrowser* file_browser,
                               gboolean xforce, gboolean xnever )
 {
@@ -3628,7 +3619,6 @@ void ptk_open_files_with_app( const char* cwd,
     PtkFileBrowser* fb;
 
     ParentInfo* parent = g_slice_new0( ParentInfo );
-    parent->desktop = desktop;
     parent->file_browser = file_browser;
     parent->cwd = cwd;
     
@@ -3842,7 +3832,7 @@ void ptk_open_files_with_app( const char* cwd,
     g_slice_free( ParentInfo, parent );
 }
 
-void ptk_file_misc_paste_as( DesktopWindow* desktop, PtkFileBrowser* file_browser,
+void ptk_file_misc_paste_as( PtkFileBrowser* file_browser,
                                             const char* cwd, GFunc callback )
 {
     gchar* file_path;
@@ -3862,7 +3852,7 @@ void ptk_file_misc_paste_as( DesktopWindow* desktop, PtkFileBrowser* file_browse
         file = vfs_file_info_new();
         vfs_file_info_get( file, file_path, NULL );
         file_dir = g_path_get_dirname( file_path );
-        if ( !ptk_rename_file( desktop, file_browser, file_dir, file, cwd, !is_cut,
+        if ( !ptk_rename_file( file_browser, file_dir, file, cwd, !is_cut,
                                                         PTK_RENAME, NULL ) )
         {
             vfs_file_info_unref( file );
@@ -3876,17 +3866,13 @@ void ptk_file_misc_paste_as( DesktopWindow* desktop, PtkFileBrowser* file_browse
     g_list_foreach( files, ( GFunc ) g_free, NULL );
     g_list_free( files );
 
-    if ( callback && desktop )
-        callback( NULL, desktop );
-
     if ( missing_targets > 0 )
     {
         GtkWindow* parent;
         if ( file_browser )
             parent = GTK_WINDOW( gtk_widget_get_toplevel( GTK_WIDGET(
                                                         file_browser ) ) );
-        else if ( desktop )
-            parent = GTK_WINDOW( desktop );
+
         ptk_show_error( parent,
                         g_strdup_printf ( _("Error") ),
                         g_strdup_printf ( "%i target%s missing",
@@ -3896,7 +3882,7 @@ void ptk_file_misc_paste_as( DesktopWindow* desktop, PtkFileBrowser* file_browse
     }
 }
 
-void ptk_file_misc_rootcmd( DesktopWindow* desktop, PtkFileBrowser* file_browser,
+void ptk_file_misc_rootcmd( PtkFileBrowser* file_browser,
                                                 GList* sel_files,
                                                 char* cwd, char* setname )
 {
@@ -3905,15 +3891,14 @@ void ptk_file_misc_rootcmd( DesktopWindow* desktop, PtkFileBrowser* file_browser
      * root_move2       move to
      * root_delete      delete
      */
-    if ( !setname || ( !file_browser && !desktop ) || !sel_files )
+    if ( !setname || !file_browser || !sel_files )
         return;
     XSet* set;
     char* path;
     char* cmd;
     char* task_name;
-    
-    GtkWidget* parent = file_browser ? GTK_WIDGET( file_browser ) :
-                                       GTK_WIDGET( desktop );
+
+    GtkWidget* parent = file_browser;
     char* file_paths = g_strdup( "" );
     GList* sel;
     char* file_path;

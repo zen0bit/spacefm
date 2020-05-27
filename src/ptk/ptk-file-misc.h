@@ -15,7 +15,6 @@
 
 #include <gtk/gtk.h>
 #include "ptk-file-browser.h"
-#include "desktop-window.h"
 
 #include "../vfs/vfs-file-info.h"
 
@@ -25,7 +24,6 @@ typedef struct _AutoOpenCreate
 {
     char* path;
     PtkFileBrowser* file_browser;
-    DesktopWindow* desktop;
     GFunc callback;
     gboolean open_file;
 }AutoOpenCreate;
@@ -42,7 +40,7 @@ void ptk_delete_files( GtkWindow* parent_win,
                        GList* sel_files,
                        GtkTreeView* task_view );
 
-int ptk_rename_file( DesktopWindow* desktop, PtkFileBrowser* file_browser,
+int ptk_rename_file( PtkFileBrowser* file_browser,
                                         const char* file_dir, VFSFileInfo* file,
                                         const char* dest_dir, gboolean clip_copy,
                                         PtkRenameMode create_new,
@@ -64,14 +62,13 @@ void ptk_show_file_properties( GtkWindow* parent_win,
 void ptk_open_files_with_app( const char* cwd,
                               GList* sel_files,
                               const char* app_desktop,
-                              DesktopWindow* desktop,
                               PtkFileBrowser* file_browser,
                               gboolean xforce, gboolean xnever );
 
-void ptk_file_misc_paste_as( DesktopWindow* desktop, PtkFileBrowser* file_browser,
+void ptk_file_misc_paste_as( PtkFileBrowser* file_browser,
                                             const char* cwd, GFunc callback ); //sfm
 
-void ptk_file_misc_rootcmd( DesktopWindow* desktop, PtkFileBrowser* file_browser,
+void ptk_file_misc_rootcmd( PtkFileBrowser* file_browser,
                                                 GList* sel_files,
                                                 char* cwd, char* setname ); //sfm
 

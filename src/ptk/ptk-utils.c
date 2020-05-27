@@ -13,7 +13,6 @@
 #include "ptk-utils.h"
 #include <glib.h>
 #include <glib/gi18n.h>
-#include "working-area.h"
 
 #include "settings.h"
 #include "gtk2-compat.h"
@@ -201,7 +200,6 @@ void ptk_dialog_fit_small_screen( GtkDialog* dlg )
     GtkAllocation allocation;
     int dw, dh, i;
 
-    get_working_area( gtk_widget_get_screen((GtkWidget*)dlg), &wa );
     gtk_widget_size_request( GTK_WIDGET(dlg), &req );
 
     /* Try two times, so we won't be too aggrassive if mild shinkage can do the job.

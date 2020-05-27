@@ -52,7 +52,6 @@
 #include "pref-dialog.h"
 #include "settings.h"
 
-#include "desktop.h"
 #include "cust-dialog.h"
 
 //gboolean startup_mode = TRUE;  //MOD
@@ -76,7 +75,6 @@ typedef enum{
     CMD_PANEL2,
     CMD_PANEL3,
     CMD_PANEL4,
-    CMD_DESKTOP,
     CMD_NO_TABS,
     CMD_SOCKET_CMD,
     SOCKET_RESPONSE_OK,
@@ -85,7 +83,7 @@ typedef enum{
 }SocketEvent;
 
 static gboolean folder_initialized = FALSE;
-static gboolean desktop_or_deamon_initialized = FALSE;
+static gboolean daemon_initialized = FALSE;
 
 static int sock;
 GIOChannel* io_channel = NULL;
@@ -94,25 +92,20 @@ gboolean daemon_mode = FALSE;
 
 static char* default_files[2] = {NULL, NULL};
 static char** files = NULL;
-static gboolean no_desktop = FALSE;
-static gboolean old_show_desktop = FALSE;
 
 static gboolean new_tab = TRUE;
 static gboolean reuse_tab = FALSE;  //sfm
 static gboolean no_tabs = FALSE;     //sfm
 static gboolean new_window = FALSE;
-static gboolean desktop_pref = FALSE;  //MOD
-static gboolean desktop = FALSE;  //MOD
 static gboolean profile = FALSE;  //MOD
 static gboolean custom_dialog = FALSE;  //sfm
 static gboolean socket_cmd = FALSE;     //sfm
 static gboolean version_opt = FALSE;     //sfm
 static gboolean sdebug = FALSE;         //sfm
-static gboolean socket_daemon_or_desktop = FALSE;  //sfm
+static gboolean socket_daemon = FALSE;  //sfm
 
 static int show_pref = 0;
 static int panel = -1;
-static gboolean set_wallpaper = FALSE;
 
 static gboolean find_files = FALSE;
 static char* config_dir = NULL;
@@ -126,15 +119,10 @@ static GOptionEntry opt_entries[] =
     { "no-saved-tabs", 'n', 0, G_OPTION_ARG_NONE, &no_tabs, N_("Don't load saved tabs"), NULL },
     { "new-window", 'w', 0, G_OPTION_ARG_NONE, &new_window, N_("Open folders in new window"), NULL },
     { "panel", 'p', 0, G_OPTION_ARG_INT, &panel, N_("Open folders in panel 'P' (1-4)"), "P" },
-    { "desktop", '\0', 0, G_OPTION_ARG_NONE, &desktop, N_("Launch desktop manager daemon"), NULL },
-    { "desktop-pref", '\0', 0, G_OPTION_ARG_NONE, &desktop_pref, N_("Show desktop settings"), NULL },
     { "show-pref", '\0', 0, G_OPTION_ARG_INT, &show_pref, N_("Show Preferences ('N' is the Pref tab number)"), "N" },
     { "daemon-mode", 'd', 0, G_OPTION_ARG_NONE, &daemon_mode, N_("Run as a daemon"), NULL },
     { "config-dir", 'c', 0, G_OPTION_ARG_STRING, &config_dir, N_("Use DIR as configuration directory"), "DIR" },
     { "find-files", 'f', 0, G_OPTION_ARG_NONE, &find_files, N_("Show File Search"), NULL },
-#ifdef DESKTOP_INTEGRATION
-    { "set-wallpaper", '\0', 0, G_OPTION_ARG_NONE, &set_wallpaper, N_("Set desktop wallpaper to FILE"), NULL },
-#endif
     { "dialog", 'g', 0, G_OPTION_ARG_NONE, &custom_dialog, N_("Show a custom dialog (For help run, man spacefm-dialog)"), NULL },
     { "socket-cmd", 's', 0, G_OPTION_ARG_NONE, &socket_cmd, N_("Send a socket command (For help run, man spacefm-socket)"), NULL },
     { "profile", '\0', 0, G_OPTION_ARG_STRING, &profile, N_("No function - for compatibility only"), "PROFILE" },
@@ -209,7 +197,7 @@ gboolean on_socket_event( GIOChannel* ioc, GIOCondition cond, gpointer data )
             panel = 0;
             reuse_tab = FALSE;
             no_tabs = FALSE;
-            socket_daemon_or_desktop = FALSE;
+            socket_daemon = FALSE;
             
             int argx = 0;
             if ( args->str[argx] == CMD_NO_TABS )
@@ -259,21 +247,15 @@ gboolean on_socket_event( GIOChannel* ioc, GIOCondition cond, gpointer data )
                 panel = 4;
                 break;
             case CMD_DAEMON_MODE:
-                socket_daemon_or_desktop = daemon_mode = TRUE;
+                socket_daemon = daemon_mode = TRUE;
                 g_string_free( args, TRUE );
                 return TRUE;
-            case CMD_DESKTOP:
-                socket_daemon_or_desktop = desktop = TRUE;
-                break;
             case CMD_PREF:
                 GDK_THREADS_ENTER();
                 fm_edit_preference( NULL, (unsigned char)args->str[1] - 1 );
                 GDK_THREADS_LEAVE();
                 g_string_free( args, TRUE );
                 return TRUE;
-            case CMD_WALLPAPER:
-                set_wallpaper = TRUE;
-                break;
             case CMD_FIND_FILES:
                 find_files = TRUE;
                 break;
@@ -301,7 +283,7 @@ gboolean on_socket_event( GIOChannel* ioc, GIOCondition cond, gpointer data )
             }
             handle_parsed_commandline_args();
             app_settings.load_saved_tabs = TRUE;
-            socket_daemon_or_desktop = FALSE;
+            socket_daemon = FALSE;
             
             GDK_THREADS_LEAVE();
         }
@@ -387,8 +369,6 @@ gboolean single_instance_check()
         
         if( daemon_mode )
             cmd = CMD_DAEMON_MODE;
-        else if( desktop )
-            cmd = CMD_DESKTOP;
         else if( new_window )
         {
             if ( panel > 0 && panel < 5 )
@@ -398,13 +378,6 @@ gboolean single_instance_check()
         }
         else if( show_pref > 0 )
             cmd = CMD_PREF;
-        else if ( desktop_pref )  //MOD
-        {
-            cmd = CMD_PREF;
-            show_pref = 3;
-        }
-        else if( set_wallpaper )
-            cmd = CMD_WALLPAPER;
         else if( find_files )
             cmd = CMD_FIND_FILES;
         else if ( panel > 0 && panel < 5 )
@@ -726,7 +699,7 @@ gboolean delayed_popup( GtkWidget* popup )
     return FALSE;
 }
 
-static void init_desktop_or_daemon()
+static void init_daemon()
 {
     init_folder();
 
@@ -735,10 +708,7 @@ static void init_desktop_or_daemon()
     signal( SIGINT, (void*)gtk_main_quit );
     signal( SIGTERM, (void*)gtk_main_quit );
 
-    if ( desktop )
-        fm_turn_on_desktop_icons( app_settings.show_wallpaper == 1 &&
-                            app_settings.wallpaper_mode == WPM_TRANSPARENT );
-    desktop_or_deamon_initialized = TRUE;
+    daemon_initialized = TRUE;
 }
 
 char* dup_to_absolute_file_path(char** file)
@@ -872,16 +842,6 @@ gboolean handle_parsed_commandline_args()
 //                                                            new_tab ? "new_tab" : "",
 //                                                            reuse_tab ? "reuse_tab" : "" );
     }
-
-    if ( desktop_pref )  //MOD
-    {
-#ifdef DESKTOP_INTEGRATION
-        show_pref = 3;
-#else
-        show_pref = 1;
-        fprintf( stderr, "spacefm: %s\n", _("This build of SpaceFM has desktop integration disabled") );
-#endif
-    }
     
     if( show_pref > 0 ) /* show preferences dialog */
     {
@@ -894,51 +854,10 @@ gboolean handle_parsed_commandline_args()
         fm_find_files( (const char**)files );
         find_files = FALSE;
     }
-#ifdef DESKTOP_INTEGRATION
-    else if( set_wallpaper ) /* change wallpaper */
-    {
-        set_wallpaper = FALSE;
-        char* file = files ? files[0] : NULL;
-        char* path;
-        if( ! file )
-            return FALSE;
-
-        if( g_str_has_prefix( file, "file:" ) )  /* URI */
-        {
-            path = g_filename_from_uri( file, NULL, NULL );
-            g_free( file );
-            file = path;
-        }
-        else
-            file = g_strdup( file );
-
-        if( g_file_test( file, G_FILE_TEST_IS_REGULAR ) )
-        {
-            g_free( app_settings.wallpaper );
-            app_settings.wallpaper = file;
-            app_settings.show_wallpaper = TRUE;
-            //xset_autosave( TRUE, FALSE );
-            char* err_msg = save_settings( fm_main_window_get_last_active() );
-            if ( err_msg )
-                printf( _("spacefm: Error: Unable to save session\n       %s\n"),
-                                                                    err_msg );
-            if( desktop && app_settings.show_wallpaper )
-            {
-                if( desktop_or_deamon_initialized )
-                    fm_desktop_update_wallpaper( FALSE );
-            }
-        }
-        else
-            g_free( file );
-
-        ret = ( daemon_mode || ( desktop && desktop_or_deamon_initialized ) );
-        goto out;
-    }
-#endif
     else /* open files/folders */
     {
-        if ( ( daemon_mode || desktop ) && !desktop_or_deamon_initialized )
-            init_desktop_or_daemon();
+        if ( daemon_mode && !daemon_initialized )
+            init_daemon();
         else if ( files != default_files )
         {
             /* open files passed in command line arguments */
@@ -999,7 +918,7 @@ gboolean handle_parsed_commandline_args()
                 g_free( real_path );
             }
         }
-        else if ( !socket_daemon_or_desktop )
+        else if ( !socket_daemon )
         {
             // no files specified, just create window with default tabs
             if( G_UNLIKELY( ! main_window ) )
@@ -1133,15 +1052,6 @@ int main ( int argc, char *argv[] )
         fprintf( stderr, "spacefm: %s\n", _("--socket-cmd must be first option") );
         return 1;
     }
-    
-    // --desktop with no desktop build?
-#ifndef DESKTOP_INTEGRATION
-    if ( desktop )
-    {
-        fprintf( stderr, "spacefm: %s\n", _("This build of SpaceFM has desktop integration disabled") );
-        return 1;
-    }
-#endif
 
     // --version
     if ( version_opt )
@@ -1154,10 +1064,6 @@ int main ( int argc, char *argv[] )
 #endif
         printf( "UDEV " );
         printf( "INOTIFY " );
-#endif
-#ifdef DESKTOP_INTEGRATION
-        printf( "DESKTOP " );
-#endif
 #ifdef HAVE_SN
         printf( "SNOTIFY " );
 #endif
@@ -1228,10 +1134,6 @@ int main ( int argc, char *argv[] )
     main_window_event( NULL, NULL, "evt_exit", 0, 0, NULL, 0, 0, 0, FALSE );
 
     single_instance_finalize();
-
-    // desktop was app_settings.show_desktop
-    if( desktop && desktop_or_deamon_initialized )
-        fm_turn_off_desktop_icons();
 
     vfs_volume_finalize();
     vfs_mime_type_clean();
@@ -1321,7 +1223,7 @@ void pcmanfm_ref()
 gboolean pcmanfm_unref()
 {
     --n_pcmanfm_ref;
-    if( 0 == n_pcmanfm_ref && ! daemon_mode && !desktop )
+    if( 0 == n_pcmanfm_ref && ! daemon_mode )
         gtk_main_quit();
     return FALSE;
 }
