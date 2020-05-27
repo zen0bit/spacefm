@@ -220,17 +220,17 @@ static void exo_tree_view_get_property(GObject* object, uint prop_id, GValue* va
 
     switch (prop_id)
     {
-    case PROP_SINGLE_CLICK:
-        g_value_set_boolean(value, exo_tree_view_get_single_click(tree_view));
-        break;
+        case PROP_SINGLE_CLICK:
+            g_value_set_boolean(value, exo_tree_view_get_single_click(tree_view));
+            break;
 
-    case PROP_SINGLE_CLICK_TIMEOUT:
-        g_value_set_uint(value, exo_tree_view_get_single_click_timeout(tree_view));
-        break;
+        case PROP_SINGLE_CLICK_TIMEOUT:
+            g_value_set_uint(value, exo_tree_view_get_single_click_timeout(tree_view));
+            break;
 
-    default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-        break;
+        default:
+            G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
+            break;
     }
 }
 
@@ -241,17 +241,17 @@ static void exo_tree_view_set_property(GObject* object, uint prop_id, const GVal
 
     switch (prop_id)
     {
-    case PROP_SINGLE_CLICK:
-        exo_tree_view_set_single_click(tree_view, g_value_get_boolean(value));
-        break;
+        case PROP_SINGLE_CLICK:
+            exo_tree_view_set_single_click(tree_view, g_value_get_boolean(value));
+            break;
 
-    case PROP_SINGLE_CLICK_TIMEOUT:
-        exo_tree_view_set_single_click_timeout(tree_view, g_value_get_uint(value));
-        break;
+        case PROP_SINGLE_CLICK_TIMEOUT:
+            exo_tree_view_set_single_click_timeout(tree_view, g_value_get_uint(value));
+            break;
 
-    default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-        break;
+        default:
+            G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
+            break;
     }
 }
 

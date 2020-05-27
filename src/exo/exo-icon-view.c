@@ -1320,99 +1320,99 @@ static void exo_icon_view_get_property(GObject* object, uint prop_id, GValue* va
 
     switch (prop_id)
     {
-    case PROP_COLUMN_SPACING:
-        g_value_set_int(value, priv->column_spacing);
-        break;
+        case PROP_COLUMN_SPACING:
+            g_value_set_int(value, priv->column_spacing);
+            break;
 
-    case PROP_COLUMNS:
-        g_value_set_int(value, priv->columns);
-        break;
+        case PROP_COLUMNS:
+            g_value_set_int(value, priv->columns);
+            break;
 
-    case PROP_ENABLE_SEARCH:
-        g_value_set_boolean(value, priv->enable_search);
-        break;
+        case PROP_ENABLE_SEARCH:
+            g_value_set_boolean(value, priv->enable_search);
+            break;
 
-    case PROP_ITEM_WIDTH:
-        g_value_set_int(value, priv->item_width);
-        break;
+        case PROP_ITEM_WIDTH:
+            g_value_set_int(value, priv->item_width);
+            break;
 
-    case PROP_MARGIN:
-        g_value_set_int(value, priv->margin);
-        break;
+        case PROP_MARGIN:
+            g_value_set_int(value, priv->margin);
+            break;
 
-    case PROP_MARKUP_COLUMN:
-        g_value_set_int(value, priv->markup_column);
-        break;
+        case PROP_MARKUP_COLUMN:
+            g_value_set_int(value, priv->markup_column);
+            break;
 
-    case PROP_MODEL:
-        g_value_set_object(value, priv->model);
-        break;
+        case PROP_MODEL:
+            g_value_set_object(value, priv->model);
+            break;
 
-    case PROP_ORIENTATION:
-        g_value_set_enum(value, priv->orientation);
-        break;
+        case PROP_ORIENTATION:
+            g_value_set_enum(value, priv->orientation);
+            break;
 
-    case PROP_PIXBUF_COLUMN:
-        g_value_set_int(value, priv->pixbuf_column);
-        break;
+        case PROP_PIXBUF_COLUMN:
+            g_value_set_int(value, priv->pixbuf_column);
+            break;
 
-    case PROP_REORDERABLE:
-        g_value_set_boolean(value, priv->reorderable);
-        break;
+        case PROP_REORDERABLE:
+            g_value_set_boolean(value, priv->reorderable);
+            break;
 
-    case PROP_ROW_SPACING:
-        g_value_set_int(value, priv->row_spacing);
-        break;
+        case PROP_ROW_SPACING:
+            g_value_set_int(value, priv->row_spacing);
+            break;
 
-    case PROP_SEARCH_COLUMN:
-        g_value_set_int(value, priv->search_column);
-        break;
+        case PROP_SEARCH_COLUMN:
+            g_value_set_int(value, priv->search_column);
+            break;
 
-    case PROP_SELECTION_MODE:
-        g_value_set_enum(value, priv->selection_mode);
-        break;
+        case PROP_SELECTION_MODE:
+            g_value_set_enum(value, priv->selection_mode);
+            break;
 
-    case PROP_SINGLE_CLICK:
-        g_value_set_boolean(value, priv->single_click);
-        break;
+        case PROP_SINGLE_CLICK:
+            g_value_set_boolean(value, priv->single_click);
+            break;
 
-    case PROP_SINGLE_CLICK_TIMEOUT:
-        g_value_set_uint(value, priv->single_click_timeout);
-        break;
+        case PROP_SINGLE_CLICK_TIMEOUT:
+            g_value_set_uint(value, priv->single_click_timeout);
+            break;
 
-    case PROP_SPACING:
-        g_value_set_int(value, priv->spacing);
-        break;
+        case PROP_SPACING:
+            g_value_set_int(value, priv->spacing);
+            break;
 
-    case PROP_TEXT_COLUMN:
-        g_value_set_int(value, priv->text_column);
-        break;
+        case PROP_TEXT_COLUMN:
+            g_value_set_int(value, priv->text_column);
+            break;
 
-    case PROP_LAYOUT_MODE:
-        g_value_set_enum(value, priv->layout_mode);
-        break;
+        case PROP_LAYOUT_MODE:
+            g_value_set_enum(value, priv->layout_mode);
+            break;
 
 #if (GTK_MAJOR_VERSION == 3)
-    case PROP_HADJUSTMENT:
-        g_value_set_object(value, priv->hadjustment);
-        break;
+        case PROP_HADJUSTMENT:
+            g_value_set_object(value, priv->hadjustment);
+            break;
 
-    case PROP_VADJUSTMENT:
-        g_value_set_object(value, priv->vadjustment);
-        break;
+        case PROP_VADJUSTMENT:
+            g_value_set_object(value, priv->vadjustment);
+            break;
 
-    case PROP_HSCROLL_POLICY:
-        g_value_set_enum(value, priv->hscroll_policy);
-        break;
+        case PROP_HSCROLL_POLICY:
+            g_value_set_enum(value, priv->hscroll_policy);
+            break;
 
-    case PROP_VSCROLL_POLICY:
-        g_value_set_enum(value, priv->vscroll_policy);
-        break;
+        case PROP_VSCROLL_POLICY:
+            g_value_set_enum(value, priv->vscroll_policy);
+            break;
 #endif
 
-    default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-        break;
+        default:
+            G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
+            break;
     }
 }
 
@@ -1423,113 +1423,113 @@ static void exo_icon_view_set_property(GObject* object, uint prop_id, const GVal
 
     switch (prop_id)
     {
-    case PROP_COLUMN_SPACING:
-        exo_icon_view_set_column_spacing(icon_view, g_value_get_int(value));
-        break;
+        case PROP_COLUMN_SPACING:
+            exo_icon_view_set_column_spacing(icon_view, g_value_get_int(value));
+            break;
 
-    case PROP_COLUMNS:
-        exo_icon_view_set_columns(icon_view, g_value_get_int(value));
-        break;
+        case PROP_COLUMNS:
+            exo_icon_view_set_columns(icon_view, g_value_get_int(value));
+            break;
 
-    case PROP_ENABLE_SEARCH:
-        exo_icon_view_set_enable_search(icon_view, g_value_get_boolean(value));
-        break;
+        case PROP_ENABLE_SEARCH:
+            exo_icon_view_set_enable_search(icon_view, g_value_get_boolean(value));
+            break;
 
-    case PROP_ITEM_WIDTH:
-        exo_icon_view_set_item_width(icon_view, g_value_get_int(value));
-        break;
+        case PROP_ITEM_WIDTH:
+            exo_icon_view_set_item_width(icon_view, g_value_get_int(value));
+            break;
 
-    case PROP_MARGIN:
-        exo_icon_view_set_margin(icon_view, g_value_get_int(value));
-        break;
+        case PROP_MARGIN:
+            exo_icon_view_set_margin(icon_view, g_value_get_int(value));
+            break;
 
-    case PROP_MARKUP_COLUMN:
-        exo_icon_view_set_markup_column(icon_view, g_value_get_int(value));
-        break;
+        case PROP_MARKUP_COLUMN:
+            exo_icon_view_set_markup_column(icon_view, g_value_get_int(value));
+            break;
 
-    case PROP_MODEL:
-        exo_icon_view_set_model(icon_view, g_value_get_object(value));
-        break;
+        case PROP_MODEL:
+            exo_icon_view_set_model(icon_view, g_value_get_object(value));
+            break;
 
-    case PROP_ORIENTATION:
-        exo_icon_view_set_orientation(icon_view, g_value_get_enum(value));
-        break;
+        case PROP_ORIENTATION:
+            exo_icon_view_set_orientation(icon_view, g_value_get_enum(value));
+            break;
 
-    case PROP_PIXBUF_COLUMN:
-        exo_icon_view_set_pixbuf_column(icon_view, g_value_get_int(value));
-        break;
+        case PROP_PIXBUF_COLUMN:
+            exo_icon_view_set_pixbuf_column(icon_view, g_value_get_int(value));
+            break;
 
-    case PROP_REORDERABLE:
-        exo_icon_view_set_reorderable(icon_view, g_value_get_boolean(value));
-        break;
+        case PROP_REORDERABLE:
+            exo_icon_view_set_reorderable(icon_view, g_value_get_boolean(value));
+            break;
 
-    case PROP_ROW_SPACING:
-        exo_icon_view_set_row_spacing(icon_view, g_value_get_int(value));
-        break;
+        case PROP_ROW_SPACING:
+            exo_icon_view_set_row_spacing(icon_view, g_value_get_int(value));
+            break;
 
-    case PROP_SEARCH_COLUMN:
-        exo_icon_view_set_search_column(icon_view, g_value_get_int(value));
-        break;
+        case PROP_SEARCH_COLUMN:
+            exo_icon_view_set_search_column(icon_view, g_value_get_int(value));
+            break;
 
-    case PROP_SELECTION_MODE:
-        exo_icon_view_set_selection_mode(icon_view, g_value_get_enum(value));
-        break;
+        case PROP_SELECTION_MODE:
+            exo_icon_view_set_selection_mode(icon_view, g_value_get_enum(value));
+            break;
 
-    case PROP_SINGLE_CLICK:
-        exo_icon_view_set_single_click(icon_view, g_value_get_boolean(value));
-        break;
+        case PROP_SINGLE_CLICK:
+            exo_icon_view_set_single_click(icon_view, g_value_get_boolean(value));
+            break;
 
-    case PROP_SINGLE_CLICK_TIMEOUT:
-        exo_icon_view_set_single_click_timeout(icon_view, g_value_get_uint(value));
-        break;
+        case PROP_SINGLE_CLICK_TIMEOUT:
+            exo_icon_view_set_single_click_timeout(icon_view, g_value_get_uint(value));
+            break;
 
-    case PROP_SPACING:
-        exo_icon_view_set_spacing(icon_view, g_value_get_int(value));
-        break;
+        case PROP_SPACING:
+            exo_icon_view_set_spacing(icon_view, g_value_get_int(value));
+            break;
 
-    case PROP_TEXT_COLUMN:
-        exo_icon_view_set_text_column(icon_view, g_value_get_int(value));
-        break;
+        case PROP_TEXT_COLUMN:
+            exo_icon_view_set_text_column(icon_view, g_value_get_int(value));
+            break;
 
-    case PROP_LAYOUT_MODE:
-        exo_icon_view_set_layout_mode(icon_view, g_value_get_enum(value));
-        break;
+        case PROP_LAYOUT_MODE:
+            exo_icon_view_set_layout_mode(icon_view, g_value_get_enum(value));
+            break;
 
 #if (GTK_MAJOR_VERSION == 3)
-    case PROP_HADJUSTMENT:
-        exo_icon_view_set_adjustments(icon_view,
-                                      g_value_get_object(value),
-                                      icon_view->priv->vadjustment);
-        break;
+        case PROP_HADJUSTMENT:
+            exo_icon_view_set_adjustments(icon_view,
+                                          g_value_get_object(value),
+                                          icon_view->priv->vadjustment);
+            break;
 
-    case PROP_VADJUSTMENT:
-        exo_icon_view_set_adjustments(icon_view,
-                                      icon_view->priv->hadjustment,
-                                      g_value_get_object(value));
-        break;
+        case PROP_VADJUSTMENT:
+            exo_icon_view_set_adjustments(icon_view,
+                                          icon_view->priv->hadjustment,
+                                          g_value_get_object(value));
+            break;
 
-    case PROP_HSCROLL_POLICY:
-        if (icon_view->priv->hscroll_policy != (GtkScrollablePolicy)g_value_get_enum(value))
-        {
-            icon_view->priv->hscroll_policy = g_value_get_enum(value);
-            gtk_widget_queue_resize(GTK_WIDGET(icon_view));
-            g_object_notify_by_pspec(object, pspec);
-        }
-        break;
+        case PROP_HSCROLL_POLICY:
+            if (icon_view->priv->hscroll_policy != (GtkScrollablePolicy)g_value_get_enum(value))
+            {
+                icon_view->priv->hscroll_policy = g_value_get_enum(value);
+                gtk_widget_queue_resize(GTK_WIDGET(icon_view));
+                g_object_notify_by_pspec(object, pspec);
+            }
+            break;
 
-    case PROP_VSCROLL_POLICY:
-        if (icon_view->priv->vscroll_policy != (GtkScrollablePolicy)g_value_get_enum(value))
-        {
-            icon_view->priv->vscroll_policy = g_value_get_enum(value);
-            gtk_widget_queue_resize(GTK_WIDGET(icon_view));
-            g_object_notify_by_pspec(object, pspec);
-        }
-        break;
+        case PROP_VSCROLL_POLICY:
+            if (icon_view->priv->vscroll_policy != (GtkScrollablePolicy)g_value_get_enum(value))
+            {
+                icon_view->priv->vscroll_policy = g_value_get_enum(value);
+                gtk_widget_queue_resize(GTK_WIDGET(icon_view));
+                g_object_notify_by_pspec(object, pspec);
+            }
+            break;
 #endif
 
-    default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-        break;
+        default:
+            G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
+            break;
     }
 }
 
@@ -1932,110 +1932,110 @@ static gboolean exo_icon_view_expose_event(GtkWidget* widget, GdkEventExpose* ev
     {
         switch (dest_pos)
         {
-        case EXO_ICON_VIEW_DROP_INTO:
+            case EXO_ICON_VIEW_DROP_INTO:
 #if (GTK_MAJOR_VERSION == 3)
-            gtk_paint_focus(gtk_widget_get_style(widget),
-                            cr,
-                            gtk_widget_get_state(widget),
-                            widget,
+                gtk_paint_focus(gtk_widget_get_style(widget),
+                                cr,
+                                gtk_widget_get_state(widget),
+                                widget,
 #elif (GTK_MAJOR_VERSION == 2)
-            gtk_paint_focus(gtk_widget_get_style(widget),
-                            priv->bin_window,
-                            gtk_widget_get_state(widget),
-                            NULL,
-                            widget,
+                gtk_paint_focus(gtk_widget_get_style(widget),
+                                priv->bin_window,
+                                gtk_widget_get_state(widget),
+                                NULL,
+                                widget,
 #endif
-                            "iconview-drop-indicator",
-                            dest_item->area.x,
-                            dest_item->area.y,
-                            dest_item->area.width,
-                            dest_item->area.height);
-            break;
+                                "iconview-drop-indicator",
+                                dest_item->area.x,
+                                dest_item->area.y,
+                                dest_item->area.width,
+                                dest_item->area.height);
+                break;
 
-        case EXO_ICON_VIEW_DROP_ABOVE:
+            case EXO_ICON_VIEW_DROP_ABOVE:
 #if (GTK_MAJOR_VERSION == 3)
-            gtk_paint_focus(gtk_widget_get_style(widget),
-                            cr,
-                            gtk_widget_get_state(widget),
-                            widget,
+                gtk_paint_focus(gtk_widget_get_style(widget),
+                                cr,
+                                gtk_widget_get_state(widget),
+                                widget,
 #elif (GTK_MAJOR_VERSION == 2)
-            gtk_paint_focus(gtk_widget_get_style(widget),
-                            priv->bin_window,
-                            gtk_widget_get_state(widget),
-                            NULL,
-                            widget,
+                gtk_paint_focus(gtk_widget_get_style(widget),
+                                priv->bin_window,
+                                gtk_widget_get_state(widget),
+                                NULL,
+                                widget,
 #endif
-                            "iconview-drop-indicator",
-                            dest_item->area.x,
-                            dest_item->area.y - 1,
-                            dest_item->area.width,
-                            2);
-            break;
+                                "iconview-drop-indicator",
+                                dest_item->area.x,
+                                dest_item->area.y - 1,
+                                dest_item->area.width,
+                                2);
+                break;
 
-        case EXO_ICON_VIEW_DROP_LEFT:
+            case EXO_ICON_VIEW_DROP_LEFT:
 #if (GTK_MAJOR_VERSION == 3)
-            gtk_paint_focus(gtk_widget_get_style(widget),
-                            cr,
-                            gtk_widget_get_state(widget),
-                            widget,
+                gtk_paint_focus(gtk_widget_get_style(widget),
+                                cr,
+                                gtk_widget_get_state(widget),
+                                widget,
 #elif (GTK_MAJOR_VERSION == 2)
-            gtk_paint_focus(gtk_widget_get_style(widget),
-                            priv->bin_window,
-                            gtk_widget_get_state(widget),
-                            NULL,
-                            widget,
+                gtk_paint_focus(gtk_widget_get_style(widget),
+                                priv->bin_window,
+                                gtk_widget_get_state(widget),
+                                NULL,
+                                widget,
 #endif
-                            "iconview-drop-indicator",
-                            dest_item->area.x - 1,
-                            dest_item->area.y,
-                            2,
-                            dest_item->area.height);
-            break;
+                                "iconview-drop-indicator",
+                                dest_item->area.x - 1,
+                                dest_item->area.y,
+                                2,
+                                dest_item->area.height);
+                break;
 
-        case EXO_ICON_VIEW_DROP_BELOW:
+            case EXO_ICON_VIEW_DROP_BELOW:
 #if (GTK_MAJOR_VERSION == 3)
-            gtk_paint_focus(gtk_widget_get_style(widget),
-                            cr,
-                            gtk_widget_get_state(widget),
-                            widget,
+                gtk_paint_focus(gtk_widget_get_style(widget),
+                                cr,
+                                gtk_widget_get_state(widget),
+                                widget,
 #elif (GTK_MAJOR_VERSION == 2)
-            gtk_paint_focus(gtk_widget_get_style(widget),
-                            priv->bin_window,
-                            gtk_widget_get_state(widget),
-                            NULL,
-                            widget,
+                gtk_paint_focus(gtk_widget_get_style(widget),
+                                priv->bin_window,
+                                gtk_widget_get_state(widget),
+                                NULL,
+                                widget,
 #endif
-                            "iconview-drop-indicator",
-                            dest_item->area.x,
-                            dest_item->area.y + dest_item->area.height - 1,
-                            dest_item->area.width,
-                            2);
-            break;
+                                "iconview-drop-indicator",
+                                dest_item->area.x,
+                                dest_item->area.y + dest_item->area.height - 1,
+                                dest_item->area.width,
+                                2);
+                break;
 
-        case EXO_ICON_VIEW_DROP_RIGHT:
+            case EXO_ICON_VIEW_DROP_RIGHT:
 #if (GTK_MAJOR_VERSION == 3)
-            gtk_paint_focus(gtk_widget_get_style(widget),
-                            cr,
-                            gtk_widget_get_state(widget),
-                            widget,
+                gtk_paint_focus(gtk_widget_get_style(widget),
+                                cr,
+                                gtk_widget_get_state(widget),
+                                widget,
 #elif (GTK_MAJOR_VERSION == 2)
-            gtk_paint_focus(gtk_widget_get_style(widget),
-                            priv->bin_window,
-                            gtk_widget_get_state(widget),
-                            NULL,
-                            widget,
+                gtk_paint_focus(gtk_widget_get_style(widget),
+                                priv->bin_window,
+                                gtk_widget_get_state(widget),
+                                NULL,
+                                widget,
 #endif
-                            "iconview-drop-indicator",
-                            dest_item->area.x + dest_item->area.width - 1,
-                            dest_item->area.y,
-                            2,
-                            dest_item->area.height);
+                                "iconview-drop-indicator",
+                                dest_item->area.x + dest_item->area.width - 1,
+                                dest_item->area.y,
+                                2,
+                                dest_item->area.height);
 
-        case EXO_ICON_VIEW_NO_DROP:
-            break;
+            case EXO_ICON_VIEW_NO_DROP:
+                break;
 
-        default:
-            g_assert_not_reached();
+            default:
+                g_assert_not_reached();
         }
     }
 
@@ -3193,28 +3193,28 @@ static void exo_icon_view_real_toggle_cursor_item(ExoIconView* icon_view)
     {
         switch (icon_view->priv->selection_mode)
         {
-        case GTK_SELECTION_NONE:
-            break;
+            case GTK_SELECTION_NONE:
+                break;
 
-        case GTK_SELECTION_BROWSE:
-            exo_icon_view_select_item(icon_view, icon_view->priv->cursor_item);
-            break;
-
-        case GTK_SELECTION_SINGLE:
-            if (icon_view->priv->cursor_item->selected)
-                exo_icon_view_unselect_item(icon_view, icon_view->priv->cursor_item);
-            else
+            case GTK_SELECTION_BROWSE:
                 exo_icon_view_select_item(icon_view, icon_view->priv->cursor_item);
-            break;
+                break;
 
-        case GTK_SELECTION_MULTIPLE:
-            icon_view->priv->cursor_item->selected = !icon_view->priv->cursor_item->selected;
-            g_signal_emit(icon_view, icon_view_signals[SELECTION_CHANGED], 0);
-            exo_icon_view_queue_draw_item(icon_view, icon_view->priv->cursor_item);
-            break;
+            case GTK_SELECTION_SINGLE:
+                if (icon_view->priv->cursor_item->selected)
+                    exo_icon_view_unselect_item(icon_view, icon_view->priv->cursor_item);
+                else
+                    exo_icon_view_select_item(icon_view, icon_view->priv->cursor_item);
+                break;
 
-        default:
-            g_assert_not_reached();
+            case GTK_SELECTION_MULTIPLE:
+                icon_view->priv->cursor_item->selected = !icon_view->priv->cursor_item->selected;
+                g_signal_emit(icon_view, icon_view_signals[SELECTION_CHANGED], 0);
+                exo_icon_view_queue_draw_item(icon_view, icon_view->priv->cursor_item);
+                break;
+
+            default:
+                g_assert_not_reached();
         }
     }
 }
@@ -4277,21 +4277,21 @@ static gboolean exo_icon_view_real_move_cursor(ExoIconView* icon_view, GtkMoveme
 
     switch (step)
     {
-    case GTK_MOVEMENT_LOGICAL_POSITIONS:
-    case GTK_MOVEMENT_VISUAL_POSITIONS:
-        exo_icon_view_move_cursor_left_right(icon_view, count);
-        break;
-    case GTK_MOVEMENT_DISPLAY_LINES:
-        exo_icon_view_move_cursor_up_down(icon_view, count);
-        break;
-    case GTK_MOVEMENT_PAGES:
-        exo_icon_view_move_cursor_page_up_down(icon_view, count);
-        break;
-    case GTK_MOVEMENT_BUFFER_ENDS:
-        exo_icon_view_move_cursor_start_end(icon_view, count);
-        break;
-    default:
-        g_assert_not_reached();
+        case GTK_MOVEMENT_LOGICAL_POSITIONS:
+        case GTK_MOVEMENT_VISUAL_POSITIONS:
+            exo_icon_view_move_cursor_left_right(icon_view, count);
+            break;
+        case GTK_MOVEMENT_DISPLAY_LINES:
+            exo_icon_view_move_cursor_up_down(icon_view, count);
+            break;
+        case GTK_MOVEMENT_PAGES:
+            exo_icon_view_move_cursor_page_up_down(icon_view, count);
+            break;
+        case GTK_MOVEMENT_BUFFER_ENDS:
+            exo_icon_view_move_cursor_start_end(icon_view, count);
+            break;
+        default:
+            g_assert_not_reached();
     }
 
     icon_view->priv->ctrl_pressed = FALSE;

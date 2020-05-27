@@ -1,14 +1,14 @@
 /*
-*  C Implementation: ptkutils
-*
-* Description:
-*
-*
-* Author: Hong Jen Yee (PCMan) <pcman.tw (AT) gmail.com>, (C) 2006
-*
-* Copyright: See COPYING file that comes with this distribution
-*
-*/
+ *  C Implementation: ptkutils
+ *
+ * Description:
+ *
+ *
+ * Author: Hong Jen Yee (PCMan) <pcman.tw (AT) gmail.com>, (C) 2006
+ *
+ * Copyright: See COPYING file that comes with this distribution
+ *
+ */
 
 #include "ptk-utils.h"
 #include <glib.h>
@@ -19,102 +19,116 @@
 #include "gtk2-compat.h"
 #include <gdk/gdkkeysyms.h>
 
-GtkWidget* ptk_menu_new_from_data( PtkMenuItemEntry* entries,
-                                   gpointer cb_data,
-                                   GtkAccelGroup* accel_group )
+GtkWidget* ptk_menu_new_from_data(PtkMenuItemEntry* entries, gpointer cb_data,
+                                  GtkAccelGroup* accel_group)
 {
-  GtkWidget* menu;
-  menu = gtk_menu_new();
-  ptk_menu_add_items_from_data( menu, entries, cb_data, accel_group );
-  return menu;
+    GtkWidget* menu;
+    menu = gtk_menu_new();
+    ptk_menu_add_items_from_data(menu, entries, cb_data, accel_group);
+    return menu;
 }
 
-void ptk_menu_add_items_from_data( GtkWidget* menu,
-                                   PtkMenuItemEntry* entries,
-                                   gpointer cb_data,
-                                   GtkAccelGroup* accel_group )
+void ptk_menu_add_items_from_data(GtkWidget* menu, PtkMenuItemEntry* entries, gpointer cb_data,
+                                  GtkAccelGroup* accel_group)
 {
-  PtkMenuItemEntry* ent;
-  GtkWidget* menu_item = NULL;
-  GtkWidget* sub_menu;
-  GtkWidget* image;
-  GSList* radio_group = NULL;
-  const char* signal;
+    PtkMenuItemEntry* ent;
+    GtkWidget* menu_item = NULL;
+    GtkWidget* sub_menu;
+    GtkWidget* image;
+    GSList* radio_group = NULL;
+    const char* signal;
 
-  for( ent = entries; ; ++ent )
-  {
-    if( G_LIKELY( ent->label ) )
+    for (ent = entries;; ++ent)
     {
-      /* Stock item */
-      signal = "activate";
-      if( G_UNLIKELY( PTK_IS_STOCK_ITEM(ent) ) )  {
-        menu_item = gtk_image_menu_item_new_from_stock( ent->label, accel_group );
-      }
-      else if( G_LIKELY(ent->stock_icon) )  {
-        if( G_LIKELY( ent->stock_icon > (char *)2 ) )  {
-          menu_item = gtk_image_menu_item_new_with_mnemonic(_(ent->label));
-          image = gtk_image_new_from_stock( ent->stock_icon, GTK_ICON_SIZE_MENU );
-          gtk_image_menu_item_set_image( GTK_IMAGE_MENU_ITEM(menu_item), image );
+        if (G_LIKELY(ent->label))
+        {
+            /* Stock item */
+            signal = "activate";
+            if (G_UNLIKELY(PTK_IS_STOCK_ITEM(ent)))
+            {
+                menu_item = gtk_image_menu_item_new_from_stock(ent->label, accel_group);
+            }
+            else if (G_LIKELY(ent->stock_icon))
+            {
+                if (G_LIKELY(ent->stock_icon > (char*)2))
+                {
+                    menu_item = gtk_image_menu_item_new_with_mnemonic(_(ent->label));
+                    image = gtk_image_new_from_stock(ent->stock_icon, GTK_ICON_SIZE_MENU);
+                    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item), image);
+                }
+                else if (G_UNLIKELY(PTK_IS_CHECK_MENU_ITEM(ent)))
+                {
+                    menu_item = gtk_check_menu_item_new_with_mnemonic(_(ent->label));
+                    signal = "toggled";
+                }
+                else if (G_UNLIKELY(PTK_IS_RADIO_MENU_ITEM(ent)))
+                {
+                    menu_item = gtk_radio_menu_item_new_with_mnemonic(radio_group, _(ent->label));
+                    if (G_LIKELY(PTK_IS_RADIO_MENU_ITEM((ent + 1))))
+                        radio_group = gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(menu_item));
+                    else
+                        radio_group = NULL;
+                    signal = "toggled";
+                }
+            }
+            else
+            {
+                menu_item = gtk_menu_item_new_with_mnemonic(_(ent->label));
+            }
+
+            if (G_LIKELY(accel_group) && ent->key)
+            {
+                gtk_widget_add_accelerator(menu_item,
+                                           "activate",
+                                           accel_group,
+                                           ent->key,
+                                           ent->mod,
+                                           GTK_ACCEL_VISIBLE);
+            }
+
+            if (G_LIKELY(ent->callback))
+            { /* Callback */
+                g_signal_connect(menu_item, signal, ent->callback, cb_data);
+            }
+
+            if (G_UNLIKELY(ent->sub_menu))
+            { /* Sub menu */
+                sub_menu = ptk_menu_new_from_data(ent->sub_menu, cb_data, accel_group);
+                gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item), sub_menu);
+                ent->menu = sub_menu; // MOD
+            }
         }
-        else if( G_UNLIKELY( PTK_IS_CHECK_MENU_ITEM(ent) ) )  {
-          menu_item = gtk_check_menu_item_new_with_mnemonic(_(ent->label));
-          signal = "toggled";
+        else
+        {
+            if (!ent->stock_icon) /* End of menu */
+                break;
+            menu_item = gtk_separator_menu_item_new();
         }
-        else if( G_UNLIKELY( PTK_IS_RADIO_MENU_ITEM(ent) ) )  {
-          menu_item = gtk_radio_menu_item_new_with_mnemonic( radio_group, _(ent->label) );
-          if( G_LIKELY( PTK_IS_RADIO_MENU_ITEM( (ent + 1) ) ) )
-            radio_group = gtk_radio_menu_item_get_group( GTK_RADIO_MENU_ITEM(menu_item) );
-          else
-            radio_group = NULL;
-          signal = "toggled";
+
+        gtk_menu_shell_append(GTK_MENU_SHELL(menu), menu_item);
+        if (G_UNLIKELY(ent->ret))
+        { // Return
+            *ent->ret = menu_item;
+            ent->ret = NULL;
         }
-      }
-      else  {
-        menu_item = gtk_menu_item_new_with_mnemonic(_(ent->label));
-      }
-
-      if( G_LIKELY(accel_group) && ent->key ) {
-        gtk_widget_add_accelerator (menu_item, "activate", accel_group,
-                                    ent->key, ent->mod, GTK_ACCEL_VISIBLE);
-      }
-
-      if( G_LIKELY(ent->callback) )  { /* Callback */
-        g_signal_connect( menu_item, signal, ent->callback, cb_data);
-      }
-
-      if( G_UNLIKELY( ent->sub_menu ) )  { /* Sub menu */
-        sub_menu = ptk_menu_new_from_data( ent->sub_menu, cb_data, accel_group );
-        gtk_menu_item_set_submenu( GTK_MENU_ITEM(menu_item), sub_menu );
-        ent->menu = sub_menu;  //MOD
-      }
     }
-    else
-    {
-      if( ! ent->stock_icon ) /* End of menu */
-        break;
-        menu_item = gtk_separator_menu_item_new();      
-    }
-
-    gtk_menu_shell_append ( GTK_MENU_SHELL(menu), menu_item );
-    if( G_UNLIKELY(ent->ret) ) {// Return
-      *ent->ret = menu_item;
-      ent->ret = NULL;
-    }
-
-  }
 }
 
-void ptk_show_error(GtkWindow* parent, const char* title, const char* message )
+void ptk_show_error(GtkWindow* parent, const char* title, const char* message)
 {
-    char* msg = replace_string( message, "%", "%%", FALSE );
-    GtkWidget* dlg = gtk_message_dialog_new(parent, GTK_DIALOG_MODAL,
-                        GTK_MESSAGE_ERROR, GTK_BUTTONS_OK, msg, NULL);
-    g_free( msg );
-    if( title )
-        gtk_window_set_title( (GtkWindow*)dlg, title );
-    xset_set_window_icon( GTK_WINDOW( dlg ) );
-    gtk_dialog_run( GTK_DIALOG(dlg) );
-    gtk_widget_destroy( dlg );
+    char* msg = replace_string(message, "%", "%%", FALSE);
+    GtkWidget* dlg = gtk_message_dialog_new(parent,
+                                            GTK_DIALOG_MODAL,
+                                            GTK_MESSAGE_ERROR,
+                                            GTK_BUTTONS_OK,
+                                            msg,
+                                            NULL);
+    g_free(msg);
+    if (title)
+        gtk_window_set_title((GtkWindow*)dlg, title);
+    xset_set_window_icon(GTK_WINDOW(dlg));
+    gtk_dialog_run(GTK_DIALOG(dlg));
+    gtk_widget_destroy(dlg);
 }
 
 /* Make the size of dialogs smaller by breaking GNOME HIG
@@ -123,70 +137,70 @@ void ptk_show_error(GtkWindow* parent, const char* title, const char* message )
  * Change them to the multiples of 1 can greatly reduce the required size
  * while still keeping some degree of spacing.
  */
-static void break_gnome_hig( GtkWidget* w, gpointer _factor )
+static void break_gnome_hig(GtkWidget* w, gpointer _factor)
 {
     int factor = GPOINTER_TO_INT(_factor);
 
     /* g_debug( G_OBJECT_TYPE_NAME(w) ); */
-    if( GTK_IS_CONTAINER(w) )
+    if (GTK_IS_CONTAINER(w))
     {
         int val;
-        val = gtk_container_get_border_width( (GtkContainer*)w );
+        val = gtk_container_get_border_width((GtkContainer*)w);
 
         /* border of dialog defaults to 12 under gnome */
-        if( GTK_IS_DIALOG(w) )
+        if (GTK_IS_DIALOG(w))
         {
-            if( val > 0 )
-                gtk_container_set_border_width( (GtkContainer*)w, val / factor );
+            if (val > 0)
+                gtk_container_set_border_width((GtkContainer*)w, val / factor);
         }
         else
         {
-            if( GTK_IS_BOX(w) ) /* boxes, spacing defaults to 6, 12, 18 under gnome */
+            if (GTK_IS_BOX(w)) /* boxes, spacing defaults to 6, 12, 18 under gnome */
             {
-                int spacing = gtk_box_get_spacing( (GtkBox*)w );
-                gtk_box_set_spacing( (GtkBox*)w, spacing / factor );
+                int spacing = gtk_box_get_spacing((GtkBox*)w);
+                gtk_box_set_spacing((GtkBox*)w, spacing / factor);
             }
-            else if( GTK_IS_TABLE(w) ) /* tables, spacing defaults to 6, 12, 18 under gnome */
+            else if (GTK_IS_TABLE(w)) /* tables, spacing defaults to 6, 12, 18 under gnome */
             {
                 int spacing;
                 int col, row;
-                g_object_get( w, "n-columns", &col, "n-rows", &row, NULL );
-                if( col > 1 )
+                g_object_get(w, "n-columns", &col, "n-rows", &row, NULL);
+                if (col > 1)
                 {
                     --col;
-                    while( --col >= 0 )
+                    while (--col >= 0)
                     {
-                        spacing = gtk_table_get_col_spacing( (GtkTable*)w, col );
-                        if( spacing > 0 )
-                            gtk_table_set_col_spacing( (GtkTable*)w, col, spacing / factor );
+                        spacing = gtk_table_get_col_spacing((GtkTable*)w, col);
+                        if (spacing > 0)
+                            gtk_table_set_col_spacing((GtkTable*)w, col, spacing / factor);
                     }
                 }
-                if( row > 1 )
+                if (row > 1)
                 {
                     --row;
-                    while( --row >= 0 )
+                    while (--row >= 0)
                     {
-                        spacing = gtk_table_get_row_spacing( (GtkTable*)w, row );
-                        if( spacing > 0 )
-                            gtk_table_set_row_spacing( (GtkTable*)w, row, spacing / factor );
+                        spacing = gtk_table_get_row_spacing((GtkTable*)w, row);
+                        if (spacing > 0)
+                            gtk_table_set_row_spacing((GtkTable*)w, row, spacing / factor);
                     }
                 }
                 /* FIXME: handle default spacings */
             }
-            else if( GTK_IS_ALIGNMENT(w) ) /* groups, has 12 px indent by default */
+            else if (GTK_IS_ALIGNMENT(w)) /* groups, has 12 px indent by default */
             {
                 int t, b, l, r;
-                gtk_alignment_get_padding( (GtkAlignment*)w, &t, &b, &l, &r );
-                if( l > 0 )
+                gtk_alignment_get_padding((GtkAlignment*)w, &t, &b, &l, &r);
+                if (l > 0)
                 {
                     l /= (factor / 2); /* groups still need proper indent not to hurt usability */
-                    gtk_alignment_set_padding( (GtkAlignment*)w, t, b, l, r );
+                    gtk_alignment_set_padding((GtkAlignment*)w, t, b, l, r);
                 }
             }
-            if( val > 0 )
-                gtk_container_set_border_width( (GtkContainer*)w, val * 2 / factor );
+            if (val > 0)
+                gtk_container_set_border_width((GtkContainer*)w, val * 2 / factor);
         }
-        gtk_container_foreach( (GtkContainer*)w, break_gnome_hig, GINT_TO_POINTER(factor) );
+        gtk_container_foreach((GtkContainer*)w, break_gnome_hig, GINT_TO_POINTER(factor));
     }
 }
 
@@ -194,52 +208,52 @@ static void break_gnome_hig( GtkWidget* w, gpointer _factor )
  * this API is provided to adjust the dialogs, and try to fit them into
  * small screens via totally breaking GNOME HIG and compress spacings.
  */
-void ptk_dialog_fit_small_screen( GtkDialog* dlg )
+void ptk_dialog_fit_small_screen(GtkDialog* dlg)
 {
     GtkRequisition req;
     GdkRectangle wa;
     GtkAllocation allocation;
     int dw, dh, i;
 
-    gtk_widget_size_request( GTK_WIDGET(dlg), &req );
+    gtk_widget_size_request(GTK_WIDGET(dlg), &req);
 
     /* Try two times, so we won't be too aggrassive if mild shinkage can do the job.
      * First time shrink all spacings to their 1/3.
      * If this is not enough, shrink them again by dividing all spacings by 2. (1/6 size now)
      */
-    for( i =0; (req.width > wa.width || req.height > wa.height) && i < 2; ++i )
+    for (i = 0; (req.width > wa.width || req.height > wa.height) && i < 2; ++i)
     {
-        break_gnome_hig( GTK_WIDGET(dlg), GINT_TO_POINTER((i == 0 ? 3 : 2)) );
-        gtk_widget_size_request( GTK_WIDGET(dlg), &req );
+        break_gnome_hig(GTK_WIDGET(dlg), GINT_TO_POINTER((i == 0 ? 3 : 2)));
+        gtk_widget_size_request(GTK_WIDGET(dlg), &req);
         /* g_debug("%d, %d", req.width, req.height ); */
     }
 
-    if( gtk_widget_get_realized( GTK_WIDGET(dlg) ) )
+    if (gtk_widget_get_realized(GTK_WIDGET(dlg)))
     {
-        gtk_widget_get_allocation ( (GtkWidget*)dlg, &allocation);
+        gtk_widget_get_allocation((GtkWidget*)dlg, &allocation);
         gboolean changed = FALSE;
-        if( allocation.width > wa.width )
+        if (allocation.width > wa.width)
         {
             dw = wa.width;
             changed = TRUE;
         }
-        if( allocation.height > wa.width )
+        if (allocation.height > wa.width)
         {
             dh = wa.height;
             changed = TRUE;
         }
-        if( changed )
-            gtk_window_resize( (GtkWindow*)dlg, dw, dh );
+        if (changed)
+            gtk_window_resize((GtkWindow*)dlg, dw, dh);
         /* gtk_window_move( dlg, 0, 0 ); */
     }
     else
     {
-        gtk_window_get_default_size( (GtkWindow*)dlg, &dw, &dh );
-        if( dw > wa.width )
+        gtk_window_get_default_size((GtkWindow*)dlg, &dw, &dh);
+        if (dw > wa.width)
             dw = wa.width;
-        if( dh > wa.height )
+        if (dh > wa.height)
             dh = wa.height;
-        gtk_window_set_default_size( GTK_WINDOW(dlg), dw, dh );
+        gtk_window_set_default_size(GTK_WINDOW(dlg), dw, dh);
     }
 }
 
@@ -247,29 +261,29 @@ typedef struct
 {
     GMainLoop* lp;
     int response;
-}DlgRunData;
+} DlgRunData;
 
-static gboolean on_dlg_delete_event( GtkWidget* dlg, GdkEvent* evt, DlgRunData* data )
+static gboolean on_dlg_delete_event(GtkWidget* dlg, GdkEvent* evt, DlgRunData* data)
 {
     return TRUE;
 }
 
-static void on_dlg_response( GtkDialog* dlg, int response, DlgRunData* data )
+static void on_dlg_response(GtkDialog* dlg, int response, DlgRunData* data)
 {
     data->response = response;
-    if( g_main_loop_is_running( data->lp ) )
-        g_main_loop_quit( data->lp );
+    if (g_main_loop_is_running(data->lp))
+        g_main_loop_quit(data->lp);
 }
 
-int ptk_dialog_run_modaless( GtkDialog* dlg )
+int ptk_dialog_run_modaless(GtkDialog* dlg)
 {
     DlgRunData data = {0};
-    data.lp = g_main_loop_new( NULL, FALSE );
+    data.lp = g_main_loop_new(NULL, FALSE);
 
-    guint deh = g_signal_connect( dlg, "delete_event", G_CALLBACK(on_dlg_delete_event), &data );
-    guint rh = g_signal_connect( dlg, "response", G_CALLBACK(on_dlg_response), &data );
+    guint deh = g_signal_connect(dlg, "delete_event", G_CALLBACK(on_dlg_delete_event), &data);
+    guint rh = g_signal_connect(dlg, "response", G_CALLBACK(on_dlg_response), &data);
 
-    gtk_window_present( (GtkWindow*)dlg );
+    gtk_window_present((GtkWindow*)dlg);
 
     GDK_THREADS_LEAVE();
     g_main_loop_run(data.lp);
@@ -277,82 +291,85 @@ int ptk_dialog_run_modaless( GtkDialog* dlg )
 
     g_main_loop_unref(data.lp);
 
-    g_signal_handler_disconnect( dlg, deh );
-    g_signal_handler_disconnect( dlg, rh );
+    g_signal_handler_disconnect(dlg, deh);
+    g_signal_handler_disconnect(dlg, rh);
 
     return data.response;
 }
 
-GtkBuilder* _gtk_builder_new_from_file( const char* file, GError** err )
+GtkBuilder* _gtk_builder_new_from_file(const char* file, GError** err)
 {
     GtkBuilder* builder = gtk_builder_new();
-    if( G_UNLIKELY( ! gtk_builder_add_from_file( builder, file, err ) ) )
+    if (G_UNLIKELY(!gtk_builder_add_from_file(builder, file, err)))
     {
-        g_object_unref( builder );
+        g_object_unref(builder);
         return NULL;
     }
     return builder;
 }
 
-void transpose_nonlatin_keypress( GdkEventKey* event )
+void transpose_nonlatin_keypress(GdkEventKey* event)
 {
-    if ( !( event && event->keyval != 0 ) )
+    if (!(event && event->keyval != 0))
         return;
-    
+
     // is already a latin key?
-    if ( ( GDK_KEY_0 <= event->keyval && event->keyval <= GDK_KEY_9 ) ||
-         ( GDK_KEY_A <= event->keyval && event->keyval <= GDK_KEY_Z ) ||
-         ( GDK_KEY_a <= event->keyval && event->keyval <= GDK_KEY_z ) )
+    if ((GDK_KEY_0 <= event->keyval && event->keyval <= GDK_KEY_9) ||
+        (GDK_KEY_A <= event->keyval && event->keyval <= GDK_KEY_Z) ||
+        (GDK_KEY_a <= event->keyval && event->keyval <= GDK_KEY_z))
         return;
-    
+
     // We have a non-latin char, try other keyboard groups
     GdkKeymapKey* keys = NULL;
-    guint *keyvals;
+    guint* keyvals;
     gint n_entries;
     gint level;
     gint n;
 
-    if ( gdk_keymap_translate_keyboard_state(
-#if GTK_CHECK_VERSION (3, 0, 0)
-// GTK3 no longer accepts NULL for default keymap
-                                              gdk_keymap_get_default(),
+    if (gdk_keymap_translate_keyboard_state(
+#if GTK_CHECK_VERSION(3, 0, 0)
+            // GTK3 no longer accepts NULL for default keymap
+            gdk_keymap_get_default(),
 #else
-                                              NULL,
+            NULL,
 #endif
-                                              event->hardware_keycode,
-                                              (GdkModifierType)event->state,
-                                              event->group,
-                                              NULL, NULL, &level, NULL )
-        && gdk_keymap_get_entries_for_keycode(
-#if GTK_CHECK_VERSION (3, 0, 0)
-// GTK3 no longer accepts NULL for default keymap
-                                               gdk_keymap_get_default(),
+            event->hardware_keycode,
+            (GdkModifierType)event->state,
+            event->group,
+            NULL,
+            NULL,
+            &level,
+            NULL) &&
+        gdk_keymap_get_entries_for_keycode(
+#if GTK_CHECK_VERSION(3, 0, 0)
+            // GTK3 no longer accepts NULL for default keymap
+            gdk_keymap_get_default(),
 #else
-                                               NULL,
+            NULL,
 #endif
-                                               event->hardware_keycode,
-                                               &keys, &keyvals,
-                                               &n_entries ) )
+            event->hardware_keycode,
+            &keys,
+            &keyvals,
+            &n_entries))
     {
-        for ( n = 0; n < n_entries; n++ )
+        for (n = 0; n < n_entries; n++)
         {
-            if ( keys[n].group == event->group )
+            if (keys[n].group == event->group)
                 // Skip keys from the same group
                 continue;
-            if ( keys[n].level != level )
+            if (keys[n].level != level)
                 // Allow only same level keys
                 continue;
-            if ( ( GDK_KEY_0 <= keyvals[n] && keyvals[n] <= GDK_KEY_9 ) ||
-                 ( GDK_KEY_A <= keyvals[n] && keyvals[n] <= GDK_KEY_Z ) ||
-                 ( GDK_KEY_a <= keyvals[n] && keyvals[n] <= GDK_KEY_z ) )
+            if ((GDK_KEY_0 <= keyvals[n] && keyvals[n] <= GDK_KEY_9) ||
+                (GDK_KEY_A <= keyvals[n] && keyvals[n] <= GDK_KEY_Z) ||
+                (GDK_KEY_a <= keyvals[n] && keyvals[n] <= GDK_KEY_z))
             {
                 // Latin character found
                 event->keyval = keyvals[n];
                 break;
             }
         }
-        g_free( keys );
-        g_free( keyvals );
+        g_free(keys);
+        g_free(keyvals);
     }
 }
-

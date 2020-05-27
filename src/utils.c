@@ -62,7 +62,8 @@ void check_for_errno()
 
 char* replace_line_subs(const char* line)
 {
-    const char* perc[] = {"%f", "%F", "%n", "%N", "%d", "%D", "%v", "%l", "%m", "%y", "%b", "%t", "%p", "%a"};
+    const char* perc[] =
+        {"%f", "%F", "%n", "%N", "%d", "%D", "%v", "%l", "%m", "%y", "%b", "%t", "%p", "%a"};
     const char* var[] = {"\"${fm_file}\"",
                          "\"${fm_files[@]}\"",
                          "\"${fm_filename}\"",
@@ -137,7 +138,7 @@ char* get_name_extension(char* full_name, gboolean is_dir, char** ext)
         return full;
     }
     dot[0] = '\0';
-    char*  final_ext = dot + 1;
+    char* final_ext = dot + 1;
     // get previous dot
     dot = strrchr(full, '.');
     uint final_ext_len = strlen(final_ext);
@@ -297,29 +298,29 @@ char* unescape(const char* t)
     {
         switch (t[i])
         {
-        case '\\':
-            switch (t[++i])
-            {
-            case 'n':
-                s[j] = '\n';
-                break;
-            case 't':
-                s[j] = '\t';
-                break;
             case '\\':
-                s[j] = '\\';
-                break;
-            case '\"':
-                s[j] = '\"';
+                switch (t[++i])
+                {
+                    case 'n':
+                        s[j] = '\n';
+                        break;
+                    case 't':
+                        s[j] = '\t';
+                        break;
+                    case '\\':
+                        s[j] = '\\';
+                        break;
+                    case '\"':
+                        s[j] = '\"';
+                        break;
+                    default:
+                        // copy
+                        s[j++] = '\\';
+                        s[j] = t[i];
+                }
                 break;
             default:
-                // copy
-                s[j++] = '\\';
                 s[j] = t[i];
-            }
-            break;
-        default:
-            s[j] = t[i];
         }
         ++i;
         ++j;
@@ -367,86 +368,85 @@ char* get_valid_su() // may return NULL
     return su_path;
 }
 
-char* get_valid_gsu()  // may return NULL
+char* get_valid_gsu() // may return NULL
 {
     int i;
     char* use_gsu = NULL;
     char* custom_gsu = NULL;
 
     // get gsu set in Prefs
-    use_gsu = g_strdup( xset_get_s( "gsu_command" ) );
+    use_gsu = g_strdup(xset_get_s("gsu_command"));
 
-    if ( settings_graphical_su )
+    if (settings_graphical_su)
         // get gsu from /etc/spacefm/spacefm.conf
-        custom_gsu = g_find_program_in_path( settings_graphical_su );
+        custom_gsu = g_find_program_in_path(settings_graphical_su);
 #ifdef PREFERABLE_SUDO_PROG
-    if ( !custom_gsu )
+    if (!custom_gsu)
         // get build-time gsu
-        custom_gsu = g_find_program_in_path( PREFERABLE_SUDO_PROG );
+        custom_gsu = g_find_program_in_path(PREFERABLE_SUDO_PROG);
 #endif
-    if ( custom_gsu && ( !use_gsu || use_gsu[0] == '\0' ) )
+    if (custom_gsu && (!use_gsu || use_gsu[0] == '\0'))
     {
         // no gsu set in Prefs, use custom
-        xset_set( "gsu_command", "s", custom_gsu );
-        g_free( use_gsu );
-        use_gsu = g_strdup( custom_gsu );
+        xset_set("gsu_command", "s", custom_gsu);
+        g_free(use_gsu);
+        use_gsu = g_strdup(custom_gsu);
     }
-    if ( use_gsu )
+    if (use_gsu)
     {
-        if ( !custom_gsu || g_strcmp0( custom_gsu, use_gsu ) )
+        if (!custom_gsu || g_strcmp0(custom_gsu, use_gsu))
         {
             // is Prefs use_gsu in list of valid gsu commands?
-            for ( i = 0; i < G_N_ELEMENTS( gsu_commands ); i++ )
+            for (i = 0; i < G_N_ELEMENTS(gsu_commands); i++)
             {
-                if ( !strcmp( gsu_commands[i], use_gsu ) )
+                if (!strcmp(gsu_commands[i], use_gsu))
                     break;
             }
-            if ( i == G_N_ELEMENTS( gsu_commands ) )
+            if (i == G_N_ELEMENTS(gsu_commands))
             {
                 // not in list - invalid
-                g_free( use_gsu );
+                g_free(use_gsu);
                 use_gsu = NULL;
             }
         }
     }
-    if ( !use_gsu )
+    if (!use_gsu)
     {
         // discovery
-        for ( i = 0; i < G_N_ELEMENTS( gsu_commands ); i++ )
+        for (i = 0; i < G_N_ELEMENTS(gsu_commands); i++)
         {
             // don't automatically select gksudo
-            if ( strcmp( gsu_commands[i], "/usr/bin/gksudo" ) )
+            if (strcmp(gsu_commands[i], "/usr/bin/gksudo"))
             {
-                if ( use_gsu = g_find_program_in_path( gsu_commands[i] ) )
+                if (use_gsu = g_find_program_in_path(gsu_commands[i]))
                     break;
             }
         }
-        if ( !use_gsu )
-            use_gsu = g_strdup( gsu_commands[0] );
-        xset_set( "gsu_command", "s", use_gsu );
+        if (!use_gsu)
+            use_gsu = g_strdup(gsu_commands[0]);
+        xset_set("gsu_command", "s", use_gsu);
     }
 
-    char* gsu_path = g_find_program_in_path( use_gsu );
-    if ( !gsu_path && !g_strcmp0( use_gsu, "/usr/bin/kdesu" ) )
+    char* gsu_path = g_find_program_in_path(use_gsu);
+    if (!gsu_path && !g_strcmp0(use_gsu, "/usr/bin/kdesu"))
     {
         // kdesu may be in libexec path
         char* stdout;
-        if ( g_spawn_command_line_sync( "kde4-config --path libexec",
-                                        &stdout, NULL, NULL, NULL )
-             && stdout && stdout[0] != '\0' )
+        if (g_spawn_command_line_sync("kde4-config --path libexec", &stdout, NULL, NULL, NULL) &&
+            stdout && stdout[0] != '\0')
         {
-            if ( gsu_path = strchr( stdout, '\n' ) )
+            if (gsu_path = strchr(stdout, '\n'))
                 gsu_path[0] = '\0';
-            gsu_path = g_build_filename( stdout, "kdesu", NULL );
-            g_free( stdout );
-            if ( !g_file_test( gsu_path, G_FILE_TEST_EXISTS ) )
+            gsu_path = g_build_filename(stdout, "kdesu", NULL);
+            g_free(stdout);
+            if (!g_file_test(gsu_path, G_FILE_TEST_EXISTS))
             {
-                g_free( gsu_path );
+                g_free(gsu_path);
                 gsu_path = NULL;
             }
         }
     }
-    g_free( use_gsu );
-    g_free( custom_gsu );
+    g_free(use_gsu);
+    g_free(custom_gsu);
     return gsu_path;
 }

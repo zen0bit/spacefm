@@ -166,14 +166,14 @@ static GType exo_icon_chooser_model_get_column_type(GtkTreeModel* tree_model, in
 {
     switch (idx)
     {
-    case EXO_ICON_CHOOSER_MODEL_COLUMN_CONTEXT:
-        return G_TYPE_UINT;
+        case EXO_ICON_CHOOSER_MODEL_COLUMN_CONTEXT:
+            return G_TYPE_UINT;
 
-    case EXO_ICON_CHOOSER_MODEL_COLUMN_ICON_NAME:
-        return G_TYPE_STRING;
-    default:
-        _exo_assert_not_reached();
-        return G_TYPE_INVALID;
+        case EXO_ICON_CHOOSER_MODEL_COLUMN_ICON_NAME:
+            return G_TYPE_STRING;
+        default:
+            _exo_assert_not_reached();
+            return G_TYPE_INVALID;
     }
 }
 
@@ -228,19 +228,19 @@ static void exo_icon_chooser_model_get_value(GtkTreeModel* tree_model, GtkTreeIt
 
     switch (column)
     {
-    case EXO_ICON_CHOOSER_MODEL_COLUMN_CONTEXT:
-        g_value_init(value, G_TYPE_UINT);
-        g_value_set_uint(value, item->context);
-        break;
+        case EXO_ICON_CHOOSER_MODEL_COLUMN_CONTEXT:
+            g_value_init(value, G_TYPE_UINT);
+            g_value_set_uint(value, item->context);
+            break;
 
-    case EXO_ICON_CHOOSER_MODEL_COLUMN_ICON_NAME:
-        g_value_init(value, G_TYPE_STRING);
-        g_value_set_static_string(value, item->icon_name);
-        break;
+        case EXO_ICON_CHOOSER_MODEL_COLUMN_ICON_NAME:
+            g_value_init(value, G_TYPE_STRING);
+            g_value_set_static_string(value, item->icon_name);
+            break;
 
-    default:
-        _exo_assert_not_reached();
-        break;
+        default:
+            _exo_assert_not_reached();
+            break;
     }
 }
 

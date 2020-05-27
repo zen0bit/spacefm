@@ -168,13 +168,13 @@ static void exo_cell_renderer_ellipsized_text_get_property(GObject* object, uint
 
     switch (prop_id)
     {
-    case PROP_FOLLOW_STATE:
-        g_value_set_boolean(value, priv->follow_state);
-        break;
+        case PROP_FOLLOW_STATE:
+            g_value_set_boolean(value, priv->follow_state);
+            break;
 
-    default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-        break;
+        default:
+            G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
+            break;
     }
 }
 
@@ -187,13 +187,13 @@ static void exo_cell_renderer_ellipsized_text_set_property(GObject* object, uint
 
     switch (prop_id)
     {
-    case PROP_FOLLOW_STATE:
-        priv->follow_state = g_value_get_boolean(value);
-        break;
+        case PROP_FOLLOW_STATE:
+            priv->follow_state = g_value_get_boolean(value);
+            break;
 
-    default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-        break;
+        default:
+            G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
+            break;
     }
 }
 

@@ -235,25 +235,25 @@ static void exo_cell_renderer_icon_get_property(GObject* object, uint prop_id, G
 
     switch (prop_id)
     {
-    case PROP_FOLLOW_STATE:
-        g_value_set_boolean(value, priv->follow_state);
-        break;
+        case PROP_FOLLOW_STATE:
+            g_value_set_boolean(value, priv->follow_state);
+            break;
 
-    case PROP_ICON:
-        g_value_set_string(value, priv->icon);
-        break;
+        case PROP_ICON:
+            g_value_set_string(value, priv->icon);
+            break;
 
-    case PROP_GICON:
-        g_value_set_object(value, priv->gicon);
-        break;
+        case PROP_GICON:
+            g_value_set_object(value, priv->gicon);
+            break;
 
-    case PROP_SIZE:
-        g_value_set_int(value, priv->size);
-        break;
+        case PROP_SIZE:
+            g_value_set_int(value, priv->size);
+            break;
 
-    default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-        break;
+        default:
+            G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
+            break;
     }
 }
 
@@ -266,34 +266,34 @@ static void exo_cell_renderer_icon_set_property(GObject* object, uint prop_id, c
 
     switch (prop_id)
     {
-    case PROP_FOLLOW_STATE:
-        priv->follow_state = g_value_get_boolean(value);
-        break;
+        case PROP_FOLLOW_STATE:
+            priv->follow_state = g_value_get_boolean(value);
+            break;
 
-    case PROP_ICON:
-        /* release the previous icon (if not static) */
-        if (!priv->icon_static)
-            g_free(priv->icon);
-        icon = g_value_get_string(value);
-        priv->icon_static = (value->data[1].v_uint & G_VALUE_NOCOPY_CONTENTS) ? TRUE : FALSE;
-        priv->icon = (gchar*)((icon == NULL) ? "" : icon);
-        if (!priv->icon_static)
-            priv->icon = g_strdup(priv->icon);
-        break;
+        case PROP_ICON:
+            /* release the previous icon (if not static) */
+            if (!priv->icon_static)
+                g_free(priv->icon);
+            icon = g_value_get_string(value);
+            priv->icon_static = (value->data[1].v_uint & G_VALUE_NOCOPY_CONTENTS) ? TRUE : FALSE;
+            priv->icon = (gchar*)((icon == NULL) ? "" : icon);
+            if (!priv->icon_static)
+                priv->icon = g_strdup(priv->icon);
+            break;
 
-    case PROP_GICON:
-        if (priv->gicon != NULL)
-            g_object_unref(priv->gicon);
-        priv->gicon = g_value_dup_object(value);
-        break;
+        case PROP_GICON:
+            if (priv->gicon != NULL)
+                g_object_unref(priv->gicon);
+            priv->gicon = g_value_dup_object(value);
+            break;
 
-    case PROP_SIZE:
-        priv->size = g_value_get_int(value);
-        break;
+        case PROP_SIZE:
+            priv->size = g_value_get_int(value);
+            break;
 
-    default:
-        G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
-        break;
+        default:
+            G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
+            break;
     }
 }
 
