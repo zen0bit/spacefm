@@ -1063,6 +1063,7 @@ char* vfs_file_task_get_cpids(GPid pid)
         return NULL;
 
     char* command = g_strdup_printf("/bin/ps h --ppid %d -o pid", pid);
+    print_command(command);
     gboolean ret = g_spawn_command_line_sync(command, &stdout, NULL, NULL, NULL);
     g_free(command);
     if (ret && stdout && stdout[0] != '\0' && strchr(stdout, '\n'))
@@ -1288,8 +1289,9 @@ char* get_sha256sum(char* path)
 
     char* stdout;
     char* sum;
-    char* cmd = g_strdup_printf("%s %s", sha256sum, path);
-    if (g_spawn_command_line_sync(cmd, &stdout, NULL, NULL, NULL))
+    char* command = g_strdup_printf("%s %s", sha256sum, path);
+    print_command(command);
+    if (g_spawn_command_line_sync(command, &stdout, NULL, NULL, NULL))
     {
         sum = g_strndup(stdout, 64);
         g_free(stdout);
@@ -1299,7 +1301,7 @@ char* get_sha256sum(char* path)
             sum = NULL;
         }
     }
-    g_free(cmd);
+    g_free(command);
     return sum;
 }
 
@@ -1601,7 +1603,7 @@ static void vfs_file_task_exec(char* src_file, VFSFileTask* task)
         }
 
         // build - command
-        printf("\nTASK_COMMAND(%p)=%s\n", task->exec_ptask, task->exec_command);
+        print_task_command(task->exec_ptask, task->exec_command);
         result = fprintf(file, "%s\nfm_err=$?\n", task->exec_command);
         if (result < 0)
             goto _exit_with_error;
@@ -1840,15 +1842,6 @@ static void vfs_file_task_exec(char* src_file, VFSFileTask* task)
     if (gsu)
         g_free(gsu);
 
-    printf("SPAWN=");
-    i = 0;
-    while (argv[i])
-    {
-        printf("%s%s", i == 0 ? "" : "  ", argv[i]);
-        i++;
-    }
-    printf("\n");
-
     char* first_arg = g_strdup(argv[0]);
     if (task->exec_sync)
     {
@@ -1879,6 +1872,8 @@ static void vfs_file_task_exec(char* src_file, VFSFileTask* task)
                                           NULL);
     }
 
+    print_task_command_spawn(argv, pid);
+
     if (!result)
     {
         printf("    result=%d ( %s )\n", errno, g_strerror(errno));
@@ -1896,8 +1891,6 @@ static void vfs_file_task_exec(char* src_file, VFSFileTask* task)
         call_state_callback(task, VFS_FILE_TASK_FINISH);
         return;
     }
-    else
-        printf("    pid = %d\n", pid);
     g_free(first_arg);
 
     if (!task->exec_sync)

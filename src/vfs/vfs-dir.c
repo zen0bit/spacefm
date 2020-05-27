@@ -1120,12 +1120,16 @@ VFSDir* mime_dir = NULL;
 gboolean on_mime_change_timer(gpointer user_data)
 {
     // printf("MIME-UPDATE on_timer\n" );
-    char* cmd = g_strdup_printf("update-mime-database %s/mime", g_get_user_data_dir());
-    g_spawn_command_line_async(cmd, NULL);
-    g_free(cmd);
-    cmd = g_strdup_printf("update-desktop-database %s/applications", g_get_user_data_dir());
-    g_spawn_command_line_async(cmd, NULL);
-    g_free(cmd);
+    char* command = g_strdup_printf("update-mime-database %s/mime", g_get_user_data_dir());
+    print_command(command);
+    g_spawn_command_line_async(command, NULL);
+    g_free(command);
+
+    command = g_strdup_printf("update-desktop-database %s/applications", g_get_user_data_dir());
+    print_command(command);
+    g_spawn_command_line_async(command, NULL);
+    g_free(command);
+
     g_source_remove(mime_change_timer);
     mime_change_timer = 0;
     return FALSE;

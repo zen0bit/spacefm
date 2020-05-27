@@ -546,7 +546,7 @@ void load_settings(char* config_dir)
         g_file_test(xdg_path, G_FILE_TEST_IS_DIR))
     {
         char* command = g_strdup_printf("cp -r %s '%s'", xdg_path, settings_config_dir);
-        printf("COMMAND=%s\n", command);
+        print_command(command);
         g_spawn_command_line_sync(command, NULL, NULL, NULL, NULL);
         g_free(command);
         chmod(settings_config_dir, S_IRWXU);
@@ -3192,7 +3192,7 @@ void xset_custom_copy_files(XSet* src, XSet* dest)
     if (command)
     {
         // printf("    path_dest=%s\n", path_dest );
-        printf("COMMAND=%s\n", command);
+        print_command(command);
         ret = g_spawn_command_line_sync(command, &stdout, &stderr, &exit_status, NULL);
         g_free(command);
         printf("%s%s", stdout, stderr);
@@ -3217,7 +3217,7 @@ void xset_custom_copy_files(XSet* src, XSet* dest)
             g_free(stdout);
         stderr = stdout = NULL;
         command = g_strdup_printf("chmod -R go-rwx %s", path_dest);
-        printf("COMMAND=%s\n", command);
+        print_command(command);
         g_spawn_command_line_sync(command, NULL, NULL, NULL, NULL);
         g_free(command);
         g_free(path_dest);
@@ -3232,7 +3232,7 @@ void xset_custom_copy_files(XSet* src, XSet* dest)
         command = g_strdup_printf("cp -a %s %s", path_src, path_dest);
         g_free(path_src);
         stderr = stdout = NULL;
-        printf("COMMAND=%s\n", command);
+        print_command(command);
         ret = g_spawn_command_line_sync(command, &stdout, &stderr, &exit_status, NULL);
         g_free(command);
         printf("%s%s", stdout, stderr);
@@ -3257,7 +3257,7 @@ void xset_custom_copy_files(XSet* src, XSet* dest)
         stderr = stdout = NULL;
         command = g_strdup_printf("chmod -R go-rwx %s", path_dest);
         g_free(path_dest);
-        printf("COMMAND=%s\n", command);
+        print_command(command);
         g_spawn_command_line_sync(command, NULL, NULL, NULL, NULL);
         g_free(command);
     }
@@ -3369,7 +3369,7 @@ _redo:
                 g_dir_close(dir);
                 command = g_strdup_printf("rm -rf %s/%s", path, name);
                 stderr = stdout = NULL;
-                printf("COMMAND=%s\n", command);
+                print_command(command);
                 g_spawn_command_line_sync(command, NULL, NULL, NULL, NULL);
                 g_free(command);
                 if (stderr)
@@ -4105,7 +4105,7 @@ gboolean xset_custom_export_files(XSet* set, char* plug_dir)
     }
     g_free(path_src);
     g_free(path_dest);
-    printf("COMMAND=%s\n", command);
+    print_command(command);
     gboolean ret = g_spawn_command_line_sync(command, NULL, NULL, NULL, NULL);
     g_free(command);
     if (stderr)
@@ -4290,6 +4290,7 @@ _rmtmp_error:
     {
         s2 = bash_quote(plug_dir);
         s1 = g_strdup_printf("rm -rf %s", s2);
+        print_command(s1);
         g_spawn_command_line_sync(s1, NULL, NULL, NULL, NULL);
         g_free(s1);
         g_free(s2);
@@ -4685,7 +4686,7 @@ void xset_custom_delete(XSet* set, gboolean delete_next)
     g_free(cscript);
     if (command)
     {
-        printf("COMMAND=%s\n", command);
+        print_command(command);
         g_spawn_command_line_sync(command, NULL, NULL, NULL, NULL);
         g_free(command);
     }

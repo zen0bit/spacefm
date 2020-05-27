@@ -1520,6 +1520,8 @@ void app_job(GtkWidget* item, GtkWidget* app_item)
                 g_free(msg);
 
                 // need to copy
+                char* command = g_strdup_printf("cp -a  %s %s", share_desktop, path);
+                print_command(command);
                 xset_copy_file(share_desktop, path);
                 g_free(share_desktop);
                 if (!g_file_test(path, G_FILE_TEST_EXISTS))
@@ -1740,10 +1742,13 @@ void app_job(GtkWidget* item, GtkWidget* app_item)
             break;
         case APP_JOB_UPDATE:
             path = g_strdup_printf("update-mime-database %s/mime", g_get_user_data_dir());
+            print_command(path);
             g_spawn_command_line_async(path, NULL);
             g_free(path);
+
             path =
                 g_strdup_printf("update-desktop-database %s/applications", g_get_user_data_dir());
+            print_command(path);
             g_spawn_command_line_async(path, NULL);
             g_free(path);
             break;

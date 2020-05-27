@@ -3638,11 +3638,12 @@ void vfs_volume_autoexec(VFSVolume* vol)
                         if (!prog)
                             prog = g_strdup("spacefm");
                         char* quote_path = bash_quote(vol->mount_point);
-                        char* line = g_strdup_printf("%s -t %s", prog, quote_path);
-                        g_spawn_command_line_async(line, NULL);
+                        char* cmd = g_strdup_printf("%s -t %s", prog, quote_path);
+                        print_command(cmd);
+                        g_spawn_command_line_async(cmd, NULL);
                         g_free(prog);
                         g_free(quote_path);
-                        g_free(line);
+                        g_free(cmd);
                     }
                 }
                 command = xset_get_s("dev_exec_fs");
