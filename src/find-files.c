@@ -37,8 +37,6 @@
 
 #include "pcmanfm.h"
 
-#include "glib-mem.h"
-
 #include "vfs/vfs-dir.h"
 #include "vfs/vfs-file-info.h"
 

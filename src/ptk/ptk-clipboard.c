@@ -176,10 +176,10 @@ void ptk_clipboard_cut_or_copy_files(const char* working_dir, GList* files, gboo
     targets = g_renew(GtkTargetEntry, targets, n_targets);
     new_target = g_new0(GtkTargetEntry, 1);
     new_target->target = "x-special/gnome-copied-files";
-    g_memmove(&(targets[n_targets - 2]), new_target, sizeof(GtkTargetEntry));
+    memmove(&(targets[n_targets - 2]), new_target, sizeof(GtkTargetEntry));
     new_target = g_new0(GtkTargetEntry, 1);
     new_target->target = "text/uri-list";
-    g_memmove(&(targets[n_targets - 1]), new_target, sizeof(GtkTargetEntry));
+    memmove(&(targets[n_targets - 1]), new_target, sizeof(GtkTargetEntry));
 
     gtk_target_list_unref(target_list);
 
@@ -222,10 +222,10 @@ void ptk_clipboard_copy_file_list(char** path, gboolean copy)
     targets = g_renew(GtkTargetEntry, targets, n_targets);
     new_target = g_new0(GtkTargetEntry, 1);
     new_target->target = "x-special/gnome-copied-files";
-    g_memmove(&(targets[n_targets - 2]), new_target, sizeof(GtkTargetEntry));
+    memmove(&(targets[n_targets - 2]), new_target, sizeof(GtkTargetEntry));
     new_target = g_new0(GtkTargetEntry, 1);
     new_target->target = "text/uri-list";
-    g_memmove(&(targets[n_targets - 1]), new_target, sizeof(GtkTargetEntry));
+    memmove(&(targets[n_targets - 1]), new_target, sizeof(GtkTargetEntry));
 
     gtk_target_list_unref(target_list);
 

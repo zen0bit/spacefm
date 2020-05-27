@@ -17,7 +17,6 @@
 #include "private.h"
 
 #include <gtk/gtk.h>
-#include "glib-mem.h"
 
 #include "ptk-file-properties.h"
 
@@ -651,7 +650,7 @@ GtkWidget* file_properties_dlg_new(GtkWindow* parent, const char* dir_path, GLis
         gtk_label_set_text(data->size_on_disk_label, calculating);
 
         g_object_set_data(G_OBJECT(dlg), "calc_size", data);
-        data->calc_size_thread = g_thread_create((GThreadFunc)calc_size, data, TRUE, NULL);
+        data->calc_size_thread = g_thread_new("calc_size", calc_size, data);
         data->update_label_timer = g_timeout_add(250, (GSourceFunc)on_update_labels, data);
     }
 

@@ -22,8 +22,6 @@
 #include <sys/stat.h>
 
 #include <glib.h>
-#include "glib-mem.h"
-#include "glib-utils.h"
 #include <glib/gi18n.h>
 
 #include <stdio.h>
@@ -2196,7 +2194,7 @@ VFSFileTask* vfs_task_new(VFSFileTaskType type, GList* src_files, const char* de
     task->queue_start = FALSE;
     task->devs = NULL;
 
-    task->mutex = g_mutex_new();
+    g_mutex_init(&task->mutex);
 
     GtkTextIter iter;
     task->add_log_buf = gtk_text_buffer_new(NULL);
@@ -2240,7 +2238,7 @@ void vfs_file_task_run(VFSFileTask* task)
         else
             task->avoid_changes = vfs_volume_dir_avoid_changes(task->dest_dir);
 
-        task->thread = g_thread_create((GThreadFunc)vfs_file_task_thread, task, TRUE, NULL);
+        task->thread = g_thread_new("task_run", vfs_file_task_thread, task);
     }
     else
     {
@@ -2309,7 +2307,7 @@ void vfs_file_task_free(VFSFileTask* task)
     if (task->exec_script)
         g_free(task->exec_script);
 
-    g_mutex_free(task->mutex);
+    g_mutex_clear(&task->mutex);
 
     gtk_text_buffer_set_text(task->add_log_buf, "", -1);
     g_object_unref(task->add_log_buf);

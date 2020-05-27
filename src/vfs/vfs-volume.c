@@ -17,7 +17,6 @@
 #include "vfs-volume.h"
 #include <glib.h>
 #include <glib/gstdio.h>
-#include "glib-mem.h"
 #include <glib/gi18n.h>
 #include <string.h>
 #include <stdio.h>

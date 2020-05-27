@@ -23,12 +23,10 @@
 
 #include <gtk/gtk.h>
 
-#include "glib-mem.h"
-
 #include "vfs-utils.h" /* for vfs_load_icon */
 
 static GHashTable* mime_hash = NULL;
-GStaticRWLock mime_hash_lock = G_STATIC_RW_LOCK_INIT; /* mutex lock is needed */
+GRWLock mime_hash_lock;
 
 static guint reload_callback_id = 0;
 static GList* reload_cb = NULL;
@@ -54,9 +52,9 @@ static gboolean vfs_mime_type_reload(gpointer user_data)
     /* Remove all items in the hash table */
     GDK_THREADS_ENTER();
 
-    g_static_rw_lock_writer_lock(&mime_hash_lock);
+    g_rw_lock_writer_lock(&mime_hash_lock);
     g_hash_table_foreach_remove(mime_hash, (GHRFunc)gtk_true, NULL);
-    g_static_rw_lock_writer_unlock(&mime_hash_lock);
+    g_rw_lock_writer_unlock(&mime_hash_lock);
 
     g_source_remove(reload_callback_id);
     reload_callback_id = 0;
@@ -166,16 +164,16 @@ VFSMimeType* vfs_mime_type_get_from_type(const char* type)
 {
     VFSMimeType* mime_type;
 
-    g_static_rw_lock_reader_lock(&mime_hash_lock);
+    g_rw_lock_reader_lock(&mime_hash_lock);
     mime_type = g_hash_table_lookup(mime_hash, type);
-    g_static_rw_lock_reader_unlock(&mime_hash_lock);
+    g_rw_lock_reader_unlock(&mime_hash_lock);
 
     if (!mime_type)
     {
         mime_type = vfs_mime_type_new(type);
-        g_static_rw_lock_writer_lock(&mime_hash_lock);
+        g_rw_lock_reader_lock(&mime_hash_lock);
         g_hash_table_insert(mime_hash, mime_type->type, mime_type);
-        g_static_rw_lock_writer_unlock(&mime_hash_lock);
+        g_rw_lock_writer_unlock(&mime_hash_lock);
     }
     vfs_mime_type_ref(mime_type);
     return mime_type;
@@ -368,7 +366,7 @@ static void free_cached_icons(gpointer key, gpointer value, gpointer user_data)
 
 void vfs_mime_type_set_icon_size(int big, int small)
 {
-    g_static_rw_lock_writer_lock(&mime_hash_lock);
+    g_rw_lock_reader_lock(&mime_hash_lock);
     if (big != big_icon_size)
     {
         big_icon_size = big;
@@ -381,7 +379,7 @@ void vfs_mime_type_set_icon_size(int big, int small)
         /* Unload old cached icons */
         g_hash_table_foreach(mime_hash, free_cached_icons, GINT_TO_POINTER(0));
     }
-    g_static_rw_lock_writer_unlock(&mime_hash_lock);
+    g_rw_lock_writer_unlock(&mime_hash_lock);
 }
 
 void vfs_mime_type_get_icon_size(int* big, int* small)
@@ -517,12 +515,12 @@ void vfs_mime_type_add_action(VFSMimeType* mime_type, const char* desktop_id, ch
 void on_icon_theme_changed(GtkIconTheme* icon_theme, gpointer user_data)
 {
     /* reload_mime_icons */
-    g_static_rw_lock_writer_lock(&mime_hash_lock);
+    g_rw_lock_reader_lock(&mime_hash_lock);
 
     g_hash_table_foreach(mime_hash, free_cached_icons, GINT_TO_POINTER(1));
     g_hash_table_foreach(mime_hash, free_cached_icons, GINT_TO_POINTER(0));
 
-    g_static_rw_lock_writer_unlock(&mime_hash_lock);
+    g_rw_lock_writer_unlock(&mime_hash_lock);
 }
 
 GList* vfs_mime_type_add_reload_cb(GFreeFunc cb, gpointer user_data)

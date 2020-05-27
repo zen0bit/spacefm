@@ -15,7 +15,6 @@
 #include <string.h>
 
 #include "settings.h"
-#include "glib-mem.h"
 
 #include "../vfs/vfs-utils.h" /* for vfs_load_icon */
 #include "../vfs/vfs-file-info.h"
