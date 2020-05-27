@@ -560,7 +560,7 @@ void on_address_bar_activate(GtkWidget* entry, PtkFileBrowser* file_browser)
     gchar *dir_path, *final_path;
     GList* l;
     char* str;
-    struct stat64 statbuf;
+    struct stat statbuf;
 
     text = gtk_entry_get_text(GTK_ENTRY(entry));
 
@@ -688,7 +688,7 @@ void on_address_bar_activate(GtkWidget* entry, PtkFileBrowser* file_browser)
         }
         else if (final_path_exists)
         {
-            if (stat64(final_path, &statbuf) == 0 && S_ISBLK(statbuf.st_mode) &&
+            if (stat(final_path, &statbuf) == 0 && S_ISBLK(statbuf.st_mode) &&
                 ptk_location_view_open_block(final_path, FALSE))
             {
                 // ptk_location_view_open_block opened device
@@ -4477,7 +4477,7 @@ void on_folder_view_drag_data_received(GtkWidget* widget, GdkDragContext* drag_c
                 // We only want to update drag status, not really want to drop
                 dev_t dest_dev;
                 ino_t dest_inode;
-                struct stat statbuf; // skip stat64
+                struct stat statbuf; // skip stat
                 if (stat(dest_dir, &statbuf) == 0)
                 {
                     dest_dev = statbuf.st_dev;
@@ -4571,7 +4571,7 @@ void on_folder_view_drag_data_received(GtkWidget* widget, GdkDragContext* drag_c
                     /* We only want to update drag status, not really want to drop */
                     if (file_browser->pending_drag_status)
                     {
-                        struct stat statbuf; // skip stat64
+                        struct stat statbuf; // skip stat
                         if (stat(dest_dir, &statbuf) == 0)
                         {
                             file_browser->pending_drag_status = 0;

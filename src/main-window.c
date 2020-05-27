@@ -7451,7 +7451,7 @@ char main_window_socket_command(char* argv[], char** reply)
             }
 
             // Resolve TARGET
-            struct stat64 statbuf;
+            struct stat statbuf;
             char* real_path = argv[j];
             char* device_file = NULL;
             VFSVolume* vol = NULL;
@@ -7461,7 +7461,7 @@ char main_window_socket_command(char* argv[], char** reply)
                 // unmount DIR
                 if (path_is_mounted_mtab(NULL, real_path, &device_file, NULL) && device_file)
                 {
-                    if (!(stat64(device_file, &statbuf) == 0 && S_ISBLK(statbuf.st_mode)))
+                    if (!(stat(device_file, &statbuf) == 0 && S_ISBLK(statbuf.st_mode)))
                     {
                         // NON-block device - try to find vol by mount point
                         if (!(vol = vfs_volume_get_by_device_or_point(device_file, real_path)))
@@ -7474,7 +7474,7 @@ char main_window_socket_command(char* argv[], char** reply)
                     }
                 }
             }
-            else if (stat64(real_path, &statbuf) == 0 && S_ISBLK(statbuf.st_mode))
+            else if (stat(real_path, &statbuf) == 0 && S_ISBLK(statbuf.st_mode))
             {
                 // block device eg /dev/sda1
                 device_file = g_strdup(real_path);

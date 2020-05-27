@@ -108,7 +108,7 @@ VFSFileMonitor* vfs_file_monitor_add(char* path, gboolean is_dir, VFSFileMonitor
 {
     VFSFileMonitor* monitor;
     VFSFileMonitorCallbackEntry cb_ent;
-    struct stat file_stat; // skip stat64
+    struct stat file_stat; // skip stat
     char resolved_path[PATH_MAX];
     char* real_path;
 
@@ -237,7 +237,7 @@ void vfs_file_monitor_remove(VFSFileMonitor* fm, VFSFileMonitorCallback cb, gpoi
 
 static void reconnect_fam(gpointer key, gpointer value, gpointer user_data)
 {
-    struct stat file_stat; // skip stat64
+    struct stat file_stat; // skip stat
     VFSFileMonitor* monitor = (VFSFileMonitor*)value;
     const char* path = (const char*)key;
     if (lstat(path, &file_stat) != -1)

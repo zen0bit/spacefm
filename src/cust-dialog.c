@@ -2515,7 +2515,7 @@ static void update_element(CustomElement* el, GtkWidget* box, GSList** radio, in
     GtkWidget* dlg = (GtkWidget*)el->widgets->data;
     char* str;
     char* sep;
-    struct stat64 statbuf;
+    struct stat statbuf;
     GtkTextBuffer* buf;
     GtkTextIter iter;
     int i;
@@ -2898,7 +2898,7 @@ static void update_element(CustomElement* el, GtkWidget* box, GSList** radio, in
             {
                 // viewer
                 buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(el->widgets->next->data));
-                if (selstart && stat64((char*)args->data, &statbuf) != -1 &&
+                if (selstart && stat((char*)args->data, &statbuf) != -1 &&
                     S_ISFIFO(statbuf.st_mode))
                 {
                     // watch pipe
@@ -2962,7 +2962,7 @@ static void update_element(CustomElement* el, GtkWidget* box, GSList** radio, in
         case CDLG_COMMAND:
             if (!el->option && args)
             {
-                if (((char*)args->data)[0] != '\0' && stat64((char*)args->data, &statbuf) != -1 &&
+                if (((char*)args->data)[0] != '\0' && stat((char*)args->data, &statbuf) != -1 &&
                     S_ISFIFO(statbuf.st_mode))
                 {
                     // watch pipe
