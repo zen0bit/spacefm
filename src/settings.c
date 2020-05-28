@@ -337,8 +337,6 @@ static void parse_conf(const char* etc_path, char* line)
     if (!(sname && sname[0] && svalue && svalue[0]))
     {
     }
-    else if (strpbrk(svalue, " $%\\()&#|:;?<>{}[]*\"'"))
-        g_warning(_("%s: %s contains invalid characters - ignored"), etc_path, sname);
     else if (!strcmp(sname, "tmp_dir"))
     {
         if (svalue[0] != '/' || !g_file_test(svalue, G_FILE_TEST_IS_DIR))
