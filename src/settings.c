@@ -55,9 +55,6 @@
 
 #define DEFAULT_TMP_DIR "/tmp"
 
-/* Dirty hack: check whether we are under LXDE or not */
-#define is_under_LXDE() (g_getenv("_LXSESSION_PID") != NULL)
-
 AppSettings app_settings = {0};
 const gboolean show_thumbnail_default = FALSE;
 const int max_thumb_size_default = 8 << 20;
