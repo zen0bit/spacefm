@@ -4368,7 +4368,7 @@ void main_context_fill(PtkFileBrowser* file_browser, XSetContext* c)
     }
 
     // tasks
-    const char* job_titles[] = {"move", "copy", "trash", "delete", "link", "change", "run"};
+    const char* job_titles[] = {"move", "copy", "delete", "link", "change", "run"};
     if ((ptask = get_selected_task(file_browser->task_view)))
     {
         c->var[CONTEXT_TASK_TYPE] = g_strdup(job_titles[ptask->task->type]);
@@ -4737,7 +4737,7 @@ void main_write_exports(VFSFileTask* vtask, const char* value, GString* buf)
     // tasks
     if ((ptask = get_selected_task(file_browser->task_view)))
     {
-        const char* job_titles[] = {"move", "copy", "trash", "delete", "link", "change", "run"};
+        const char* job_titles[] = {"move", "copy", "delete", "link", "change", "run"};
         g_string_append_printf(buf, "\nfm_task_type=\"%s\"\n", job_titles[ptask->task->type]);
         if (ptask->task->type == VFS_FILE_TASK_EXEC)
         {
@@ -5555,7 +5555,6 @@ void main_task_view_update_task(PtkFileTask* ptask)
     // clang-format off
     const char* job_titles[] = {N_("moving"),
                                 N_("copying"),
-                                N_("trashing"),
                                 N_("deleting"),
                                 N_("linking"),
                                 N_("changing"),
