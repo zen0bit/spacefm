@@ -100,7 +100,6 @@ static gboolean new_tab = TRUE;
 static gboolean reuse_tab = FALSE; // sfm
 static gboolean no_tabs = FALSE;   // sfm
 static gboolean new_window = FALSE;
-static gboolean profile = FALSE;       // MOD
 static gboolean custom_dialog = FALSE; // sfm
 static gboolean socket_cmd = FALSE;    // sfm
 static gboolean version_opt = FALSE;   // sfm
@@ -129,7 +128,6 @@ static GOptionEntry opt_entries[] =
     {"find-files", 'f', 0, G_OPTION_ARG_NONE, &find_files, N_("Show File Search"), NULL},
     {"dialog", 'g', 0, G_OPTION_ARG_NONE, &custom_dialog, N_("Show a custom dialog (See -g help)"), NULL},
     {"socket-cmd", 's', 0, G_OPTION_ARG_NONE, &socket_cmd, N_("Send a socket command (See -s help)"), NULL},
-    {"profile", '\0', 0, G_OPTION_ARG_STRING, &profile, N_("No function - for compatibility only"), "PROFILE"},
     {"version", '\0', 0, G_OPTION_ARG_NONE, &version_opt, N_("Show version information"), NULL},
     {"sdebug", '\0', G_OPTION_FLAG_HIDDEN, G_OPTION_ARG_NONE, &sdebug, NULL, NULL},
     {G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &files, NULL, N_("[DIR | FILE | URL]...")},
