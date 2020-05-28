@@ -225,9 +225,7 @@ static void parse_general_settings(char* line)
     name = line;
     value = sep + 1;
     *sep = '\0';
-    if (0 == strcmp(name, "encoding"))
-        strcpy(app_settings.encoding, value);
-    else if (0 == strcmp(name, "show_thumbnail"))
+    if (0 == strcmp(name, "show_thumbnail"))
         app_settings.show_thumbnail = atoi(value);
     else if (0 == strcmp(name, "max_thumb_size"))
         app_settings.max_thumb_size = atoi(value) << 10;
@@ -489,22 +487,23 @@ void move_attached_to_builtin(const char* removed_name, const char* move_to_name
 void load_settings(char* config_dir)
 {
     FILE* file;
-    gchar* path = NULL;
-    char line[2048];
-    char* section_name;
-    SettingsParseFunc func = NULL;
-    XSet* set;
-    char* str;
+    char* path = NULL;
+    gboolean git_backed_settings = TRUE;
 
     xset_cmd_history = NULL;
     app_settings.load_saved_tabs = TRUE;
+
+    settings_tmp_dir = g_get_user_cache_dir();
+
+    if (G_UNLIKELY(!(g_file_test("/usr/bin/git", G_FILE_TEST_IS_EXECUTABLE))))
+        git_backed_settings = FALSE;
+
     if (config_dir)
         settings_config_dir = config_dir;
     else
         settings_config_dir = g_build_filename(g_get_user_config_dir(), "spacefm", NULL);
 
     /* General */
-    app_settings.encoding[0] = '\0';
     app_settings.show_thumbnail = show_thumbnail_default;
     app_settings.max_thumb_size = max_thumb_size_default;
     app_settings.big_icon_size = big_icon_size_default;
@@ -527,75 +526,85 @@ void load_settings(char* config_dir)
     // MOD extra settings
     xset_defaults();
 
-    // set tmp dirs
-    if (!settings_tmp_dir)
-        settings_tmp_dir = g_strdup(DEFAULT_TMP_DIR);
-
-    // copy /etc/xdg/spacefm
-    char* xdg_path = g_build_filename(SYSCONFDIR, "xdg", "spacefm", NULL);
-    if (!g_file_test(settings_config_dir, G_FILE_TEST_EXISTS) &&
-        g_file_test(xdg_path, G_FILE_TEST_IS_DIR))
+    if (!g_file_test(settings_config_dir, G_FILE_TEST_EXISTS))
     {
-        char* command = g_strdup_printf("cp -r %s '%s'", xdg_path, settings_config_dir);
-        print_command(command);
-        g_spawn_command_line_sync(command, NULL, NULL, NULL, NULL);
-        g_free(command);
-        chmod(settings_config_dir, S_IRWXU);
+        // copy /etc/xdg/spacefm
+        char* xdg_path = g_build_filename(SYSCONFDIR, "xdg", "spacefm", NULL);
+        if (g_file_test(xdg_path, G_FILE_TEST_IS_DIR))
+        {
+            char* command = g_strdup_printf("cp -r %s '%s'", xdg_path, settings_config_dir);
+            print_command(command);
+            g_spawn_command_line_sync(command, NULL, NULL, NULL, NULL);
+            g_free(command);
+            chmod(settings_config_dir, S_IRWXU);
+        }
+        g_free(xdg_path);
     }
-    g_free(xdg_path);
+
     if (!g_file_test(settings_config_dir, G_FILE_TEST_EXISTS))
         g_mkdir_with_parents(settings_config_dir, 0700);
 
-    // load session
-    int x = 0;
-    do
+    // check if .git exists
+    if (git_backed_settings)
     {
-        if (path)
-            g_free(path);
-        path = NULL;
-        switch (x)
+        path = g_build_filename(settings_config_dir, ".git", NULL);
+        if (!G_LIKELY(g_file_test(path, G_FILE_TEST_EXISTS)))
         {
-            case 0:
-                path = g_build_filename(settings_config_dir, "session", NULL);
-                break;
-            case 1:
-                path = g_build_filename(settings_config_dir, "session-last", NULL);
-                break;
-            case 2:
-                path = g_build_filename(settings_config_dir, "session-prior", NULL);
-                break;
-            case 3:
-                path = g_build_filename(settings_config_dir, "main.lxde", NULL);
-                break;
-            case 4:
-                path = g_build_filename(settings_config_dir, "main", NULL);
-                break;
-            case 5:
-                path = g_build_filename(g_get_user_config_dir(), "pcmanfm", "main.lxde", NULL);
-                break;
-            case 6:
-                path = g_build_filename(g_get_user_config_dir(), "pcmanfm", "main", NULL);
-                break;
-            default:
-                path = NULL;
+            char* command = g_strdup_printf("%s -c \"cd %s && git init && "
+                                            "git config commit.gpgsign false\"",
+                                            BASHPATH,
+                                            settings_config_dir);
+            print_command(command);
+            g_spawn_command_line_sync(command, NULL, NULL, NULL, NULL);
+            g_free(command);
         }
-        x++;
-    } while (path && !g_file_test(path, G_FILE_TEST_EXISTS));
+    }
 
-    if (x == 1)
+    // load session
+    path = g_build_filename(settings_config_dir, "session", NULL);
+    if (G_LIKELY(g_file_test(path, G_FILE_TEST_EXISTS)))
     {
-        // copy session to session-last
-        char* last = g_build_filename(settings_config_dir, "session-last", NULL);
-        char* prior = g_build_filename(settings_config_dir, "session-prior", NULL);
-        if (g_file_test(last, G_FILE_TEST_EXISTS))
+        if (git_backed_settings)
         {
-            unlink(prior);
-            rename(last, prior);
+            char* command = g_strdup_printf("%s -c \"cd %s && git add session && "
+                                            "git commit -m 'Session File' 1>/dev/null\"",
+                                            BASHPATH,
+                                            settings_config_dir);
+            print_command(command);
+            g_spawn_command_line_sync(command, NULL, NULL, NULL, NULL);
+            g_free(command);
         }
-        xset_copy_file(path, last);
-        chmod(last, S_IRUSR | S_IWUSR);
-        g_free(last);
-        g_free(prior);
+        else
+        {
+            // copy session to session-old
+            char* old = g_build_filename(settings_config_dir, "session-old", NULL);
+            char* command = g_strdup_printf("cp -a  %s %s", path, old);
+            if (g_file_test(old, G_FILE_TEST_EXISTS))
+                unlink(old);
+            print_command(command);
+            g_spawn_command_line_sync(command, NULL, NULL, NULL, NULL);
+            g_free(command);
+            g_free(old);
+        }
+    }
+    else
+    {
+        if (git_backed_settings)
+        {
+            char* command = g_strdup_printf("%s -c \"cd %s && git checkout session\"",
+                                            BASHPATH,
+                                            settings_config_dir);
+            print_command(command);
+            g_spawn_command_line_sync(command, NULL, NULL, NULL, NULL);
+            g_free(command);
+            path = g_build_filename(settings_config_dir, "session", NULL);
+        }
+        else
+        {
+            path = g_build_filename(settings_config_dir, "session-old", NULL);
+        }
+        if (!g_file_test(path, G_FILE_TEST_EXISTS))
+            path = NULL;
     }
 
     if (path)
@@ -605,8 +614,11 @@ void load_settings(char* config_dir)
     }
     else
         file = NULL;
+
     if (file)
     {
+        SettingsParseFunc func = NULL;
+        char line[2048];
         while (fgets(line, sizeof(line), file))
         {
             strtok(line, "\r\n");
@@ -614,7 +626,7 @@ void load_settings(char* config_dir)
                 continue;
             if (line[0] == '[')
             {
-                section_name = strtok(line, "]");
+                strtok(line, "]");
                 if (0 == strcmp(line + 1, "General"))
                     func = &parse_general_settings;
                 else if (0 == strcmp(line + 1, "Window"))
@@ -633,11 +645,6 @@ void load_settings(char* config_dir)
         fclose(file);
     }
 
-    if (app_settings.encoding[0])
-    {
-        setenv("G_FILENAME_ENCODING", app_settings.encoding, 1);
-    }
-
     // MOD turn off fullscreen
     xset_set_b("main_full", FALSE);
 
@@ -651,23 +658,20 @@ void load_settings(char* config_dir)
         xset_set("date_format", "s", "%Y-%m-%d %H:%M");
     }
 
-    // MOD su and gsu command discovery (sets default)
+    // MOD su command discovery (sets default)
     char* set_su = get_valid_su();
-    if (set_su)
-        g_free(set_su);
-    set_su = get_valid_gsu();
     if (set_su)
         g_free(set_su);
 
     // MOD terminal discovery
-    int i;
-    char* term;
     char* terminal = xset_get_s("main_terminal");
     if (!terminal || terminal[0] == '\0')
     {
+        int i;
         for (i = 0; i < G_N_ELEMENTS(terminal_programs); i++)
         {
-            if (term = g_find_program_in_path(terminal_programs[i]))
+            char* term;
+            if ((term = g_find_program_in_path(terminal_programs[i])))
             {
                 xset_set("main_terminal", "s", terminal_programs[i]);
                 xset_set_b("main_terminal", TRUE); // discovery
@@ -705,7 +709,7 @@ void load_settings(char* config_dir)
     ptk_handler_add_defaults(HANDLER_MODE_NET, FALSE, FALSE);
     ptk_handler_add_defaults(HANDLER_MODE_FILE, FALSE, FALSE);
 
-    // get root-protected settings
+    // get root protected settings;wq
     read_root_settings();
 
     // set default keys

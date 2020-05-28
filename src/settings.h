@@ -36,7 +36,6 @@ typedef enum
 typedef struct
 {
     /* General Settings */
-    char encoding[32];
     gboolean show_thumbnail;
     int max_thumb_size;
 
