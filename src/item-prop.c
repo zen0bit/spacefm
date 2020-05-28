@@ -1031,9 +1031,6 @@ void on_open_browser(GtkComboBox* box, ContextData* ctxt)
         }
         else
         {
-            script = xset_custom_get_script(ctxt->set, FALSE); // backwards compat copy
-            if (script)
-                g_free(script);
             folder = g_build_filename(xset_get_config_dir(), "scripts", ctxt->set->name, NULL);
         }
         if (!g_file_test(folder, G_FILE_TEST_EXISTS) && !ctxt->set->plugin)

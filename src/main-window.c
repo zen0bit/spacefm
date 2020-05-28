@@ -2206,11 +2206,7 @@ void fm_main_window_store_positions(FMMainWindow* main_window)
                 pos = gtk_paned_get_position(GTK_PANED(main_window->task_vpane));
                 if (pos)
                 {
-                    // save slider pos for version < 0.9.2 (in case of downgrade)
-                    posa = g_strdup_printf("%d", pos);
-                    xset_set("panel_sliders", "z", posa);
-                    g_free(posa);
-                    // save absolute height introduced v0.9.2
+                    // save absolute height
                     posa = g_strdup_printf("%d", allocation.height - pos);
                     xset_set("task_show_manager", "x", posa);
                     g_free(posa);
@@ -7611,8 +7607,7 @@ char main_window_socket_command(char* argv[], char** reply)
         }
         gdk_event_free((GdkEvent*)event);
     }
-    else if (!strcmp(argv[0], "activate") ||
-             !strcmp(argv[0], "show-menu") /* backwards compat <1.0.4 */)
+    else if (!strcmp(argv[0], "activate"))
     {
         if (!argv[i])
         {
