@@ -22,6 +22,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <linux/limits.h> //PATH_MAX
+
 // udev
 #include <libudev.h>
 #include <fcntl.h>

@@ -21,6 +21,8 @@
 #include <unistd.h>
 #include <stdlib.h> /* for realpath */
 
+#include <linux/limits.h> //PATH_MAX
+
 #include <glib/gi18n.h>
 #include "ptk-utils.h"
 #include "ptk-file-task.h"

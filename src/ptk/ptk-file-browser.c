@@ -20,6 +20,8 @@
 #include <ctype.h>
 #include <malloc.h>
 
+#include <linux/limits.h> //PATH_MAX
+
 #include <fcntl.h>
 
 #include <sys/stat.h>

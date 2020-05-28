@@ -21,6 +21,8 @@
 #include <stdlib.h> /* for realpath */
 #include <errno.h>
 
+#include <linux/limits.h> //PATH_MAX
+
 #include "ptk-location-view.h"
 #include "ptk-utils.h"
 #include "ptk-file-browser.h"

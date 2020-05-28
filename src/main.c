@@ -32,6 +32,8 @@
 
 #include <locale.h>
 
+#include <linux/limits.h> //PATH_MAX
+
 #include "main-window.h"
 
 #include "vfs/vfs-file-info.h"

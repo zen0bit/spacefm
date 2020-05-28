@@ -37,6 +37,8 @@
 
 #include <gmodule.h>
 
+#include <linux/limits.h> //PATH_MAX
+
 #include "utils.h"
 
 const mode_t chmod_flags[] = {S_IRUSR,

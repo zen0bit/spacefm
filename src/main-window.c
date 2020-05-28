@@ -25,6 +25,8 @@
 #include <string.h>
 #include <malloc.h>
 
+#include <linux/limits.h> //PATH_MAX
+
 #include <gmodule.h>
 
 #include <unistd.h>

@@ -26,6 +26,8 @@
 #include <sys/stat.h>
 #include <errno.h>
 
+#include <linux/limits.h> //PATH_MAX
+
 #include <stdlib.h>
 #include <string.h>
 
