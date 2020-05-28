@@ -840,7 +840,7 @@ char* ptk_handler_save_script(int mode, int cmd, XSet* handler_set, GtkTextView*
                               const char* command)
 {
     /* writes command in textview buffer or const command to script */
-    if (!(handler_set && handler_set->disable == FALSE))
+    if (!(handler_set && !handler_set->disable))
         return g_strdup(_("Error: unable to save command (internal error)"));
     // get default script path
     char* def_script = xset_custom_get_script(handler_set, FALSE);
@@ -2526,7 +2526,7 @@ gboolean on_activate_link(GtkLabel* label, gchar* uri, HandlerData* hnd)
     gtk_tree_model_get(model, &it, COL_XSET_NAME, &xset_name, -1);
     XSet* set = xset_is(xset_name);
     g_free(xset_name);
-    if (!(set && set->disable == FALSE && set->b == XSET_B_TRUE))
+    if (!(set && !set->disable && set->b == XSET_B_TRUE))
         return TRUE;
     char* script = ptk_handler_get_command(hnd->mode, action, set);
     if (!script)
