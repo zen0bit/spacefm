@@ -66,7 +66,6 @@ struct _FMPrefDlg
     GtkWidget* confirm_delete;
     GtkWidget* click_exec;
     GtkWidget* su_command;
-    GtkWidget* gsu_command;
     GtkWidget* date_format;
     GtkWidget* date_display;
     GtkWidget* editor;
@@ -362,31 +361,6 @@ static void on_response(GtkDialog* dlg, int response, FMPrefDlg* user_data)
             }
             else
                 xset_set("su_command", "s", su_commands[idx]);
-        }
-
-        // graphical su command
-        char* custom_gsu = NULL;
-        if (settings_graphical_su)
-            // get gsu from /etc/spacefm/spacefm.conf
-            custom_gsu = g_find_program_in_path(settings_graphical_su);
-#ifdef PREFERABLE_SUDO_PROG
-        if (!custom_gsu)
-            // get build-time gsu
-            custom_gsu = g_find_program_in_path(PREFERABLE_SUDO_PROG);
-#endif
-        idx = gtk_combo_box_get_active(GTK_COMBO_BOX(data->gsu_command));
-        if (idx > -1)
-        {
-            if (custom_gsu)
-            {
-                if (idx == 0)
-                    xset_set("gsu_command", "s", custom_gsu);
-                else
-                    xset_set("gsu_command", "s", gsu_commands[idx - 1]);
-                g_free(custom_gsu);
-            }
-            else
-                xset_set("gsu_command", "s", gsu_commands[idx]);
         }
 
         // MOD editors
@@ -751,48 +725,6 @@ gboolean fm_edit_preference(GtkWindow* parent, int page)
         }
         gtk_combo_box_set_active(GTK_COMBO_BOX(data->su_command), idx);
         g_free(custom_su);
-
-        // graphical su
-        char* custom_gsu = NULL;
-        char* use_gsu;
-        data->gsu_command = (GtkWidget*)gtk_builder_get_object(builder, "gsu_command");
-        use_gsu = xset_get_s("gsu_command");
-        if (settings_graphical_su)
-            // get gsu from /etc/spacefm/spacefm.conf
-            custom_gsu = g_find_program_in_path(settings_graphical_su);
-#ifdef PREFERABLE_SUDO_PROG
-        if (!custom_gsu)
-            // get build-time gsu
-            custom_gsu = g_find_program_in_path(PREFERABLE_SUDO_PROG);
-#endif
-        if (custom_gsu)
-        {
-            GtkListStore* gsu_list =
-                GTK_LIST_STORE(gtk_combo_box_get_model(GTK_COMBO_BOX(data->gsu_command)));
-            gtk_list_store_prepend(gsu_list, &it);
-            gtk_list_store_set(GTK_LIST_STORE(gsu_list), &it, 0, custom_gsu, -1);
-        }
-
-        if (!use_gsu)
-            idx = 0;
-        else if (custom_gsu && !g_strcmp0(custom_gsu, use_gsu))
-            idx = 0;
-        else
-        {
-            for (i = 0; i < G_N_ELEMENTS(gsu_commands); i++)
-            {
-                if (!strcmp(gsu_commands[i], use_gsu))
-                    break;
-            }
-            if (i == G_N_ELEMENTS(gsu_commands))
-                idx = 0;
-            else if (custom_gsu)
-                idx = i + 1;
-            else
-                idx = i;
-        }
-        gtk_combo_box_set_active(GTK_COMBO_BOX(data->gsu_command), idx);
-        g_free(custom_gsu);
 
         // date format
         data->date_format = (GtkWidget*)gtk_builder_get_object(builder, "date_format");

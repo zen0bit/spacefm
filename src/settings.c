@@ -106,7 +106,6 @@ XSet* evt_device = NULL;
 GList* xset_cmd_history = NULL;
 
 char* settings_terminal_su = NULL;
-char* settings_graphical_su = NULL;
 
 // delayed session saving
 guint xset_autosave_timer = 0;
@@ -339,11 +338,6 @@ static void parse_conf(const char* etc_path, char* line)
             settings_terminal_su = svalue;
             svalue = NULL;
         }
-        else
-        {
-            settings_graphical_su = svalue;
-            svalue = NULL;
-        }
     }
     g_free(svalue);
 }
@@ -354,7 +348,6 @@ void load_conf()
     char line[2048];
 
     settings_terminal_su = NULL;
-    settings_graphical_su = NULL;
 
     char* etc_path = g_build_filename(SYSCONFDIR, "spacefm", "spacefm.conf", NULL);
     FILE* file = fopen(etc_path, "r");

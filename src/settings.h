@@ -295,9 +295,8 @@ extern XSet* evt_device;
 // instance-wide command history
 extern GList* xset_cmd_history;
 
-// These will contain the su and gsu settings from /etc/spacefm/spacefm.conf
+// These will contain the su settings from /etc/spacefm/spacefm.conf
 extern char* settings_terminal_su;
-extern char* settings_graphical_su;
 
 typedef struct
 {
