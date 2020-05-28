@@ -380,7 +380,6 @@ GtkWidget* file_properties_dlg_new(GtkWindow* parent, const char* dir_path, GLis
                                             GTK_RESPONSE_OK,
                                             GTK_RESPONSE_CANCEL,
                                             -1);
-    ptk_dialog_fit_small_screen(GTK_DIALOG(dlg));
 
     int width = xset_get_int("app_dlg", "s");
     int height = xset_get_int("app_dlg", "z");

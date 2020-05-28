@@ -207,7 +207,6 @@ GtkWidget* app_chooser_dialog_new(GtkWindow* parent, VFSMimeType* mime_type,
                                             GTK_RESPONSE_OK,
                                             GTK_RESPONSE_CANCEL,
                                             -1);
-    ptk_dialog_fit_small_screen(GTK_DIALOG(dlg));
 
     int width = xset_get_int("app_dlg", "x");
     int height = xset_get_int("app_dlg", "y");

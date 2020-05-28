@@ -134,12 +134,6 @@ GtkWidget* ptk_toolbar_add_items_from_data(GtkWidget* toolbar, PtkToolItemEntry*
  */
 void ptk_show_error(GtkWindow* parent, const char* title, const char* message);
 
-/* Because GNOME HIG causes some usability problems under limited screen size,
- * this API is provided to adjust the dialogs, and try to fit them into
- * small screens via totally breaking GNOME HIG and compress spacings.
- */
-void ptk_dialog_fit_small_screen(GtkDialog* dlg);
-
 /* gtk_dialog_run will disable all parent windows of the dialog.
  * However, sometimes we need modaless dialogs. So here it is.
  */
