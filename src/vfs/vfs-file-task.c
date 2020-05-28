@@ -469,9 +469,6 @@ static gboolean vfs_file_task_do_copy(VFSFileTask* task, const char* src_file,
 
             if ((wfd = symlink(buffer, dest_file)) == 0)
             {
-                // MOD don't chmod link because it changes target
-                // chmod( dest_file, file_stat.st_mode );
-
                 /* Move files to different device: Need to delete source files */
                 if ((task->type == VFS_FILE_TASK_MOVE) && !copy_fail)
                 {

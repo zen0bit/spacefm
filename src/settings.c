@@ -2760,7 +2760,6 @@ char* xset_custom_get_help(GtkWidget* parent, XSet* set)
         if (!g_file_test(dir, G_FILE_TEST_EXISTS))
         {
             g_mkdir_with_parents(dir, 0700);
-            chmod(dir, 0700);
         }
     }
 
@@ -5920,7 +5919,6 @@ void xset_design_job(GtkWidget* item, XSet* set)
             if (!g_file_test(folder, G_FILE_TEST_EXISTS) && !set->plugin)
             {
                 g_mkdir_with_parents(folder, 0700);
-                chmod(folder, 0700);
             }
 
             if (set->browser)
@@ -5941,7 +5939,6 @@ void xset_design_job(GtkWidget* item, XSet* set)
             if (!g_file_test(folder, G_FILE_TEST_EXISTS))
             {
                 g_mkdir_with_parents(folder, 0700);
-                chmod(folder, 0700);
             }
 
             if (set->browser)
