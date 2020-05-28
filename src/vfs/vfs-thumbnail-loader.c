@@ -434,7 +434,6 @@ static GdkPixbuf* _vfs_thumbnail_load(const char* file_path, const char* uri, in
                                 "tEXt::Thumb::MTime",
                                 mtime_str,
                                 NULL);
-                chmod(thumbnail_file, 0600); /* only the owner can read it. */
             }
         }
         else
@@ -457,7 +456,6 @@ static GdkPixbuf* _vfs_thumbnail_load(const char* file_path, const char* uri, in
                                                              thumbnail_file);
                 video_thumbnailer_destroy(video_thumb);
 
-                chmod(thumbnail_file, 0600); /* only the owner can read it. */
                 thumbnail = gdk_pixbuf_new_from_file(thumbnail_file, NULL);
             }
         }
