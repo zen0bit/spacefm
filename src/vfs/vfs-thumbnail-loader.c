@@ -25,9 +25,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <sys/stat.h>
-#ifdef HAVE_FFMPEG
+
 #include <libffmpegthumbnailer/videothumbnailerc.h>
-#endif
 
 struct _VFSThumbnailLoader
 {
@@ -149,15 +148,6 @@ gboolean on_thumbnail_idle(VFSThumbnailLoader* loader)
 
     return FALSE;
 }
-
-#if 0
-//#ifdef HAVE_FFMPEG
-/* Do nothing on ffmpeg thumbnailer library messages to silence them - note that
- * from v2.0.11, messages are silenced by default */
-void on_video_thumbnailer_log_message(ThumbnailerLogLevel lvl, const char* msg)
-{
-}
-#endif
 
 gpointer thumbnail_loader_thread(VFSAsyncTask* task, VFSThumbnailLoader* loader)
 {
@@ -367,7 +357,6 @@ static GdkPixbuf* _vfs_thumbnail_load(const char* file_path, const char* uri, in
         create_size = 128;
 
     gboolean file_is_video = FALSE;
-#ifdef HAVE_FFMPEG
     VFSMimeType* mimetype = vfs_mime_type_get_from_file_name(file_path);
     if (mimetype)
     {
@@ -375,7 +364,6 @@ static GdkPixbuf* _vfs_thumbnail_load(const char* file_path, const char* uri, in
             file_is_video = TRUE;
         vfs_mime_type_unref(mimetype);
     }
-#endif
 
     if (file_is_video == FALSE)
     {
@@ -449,7 +437,6 @@ static GdkPixbuf* _vfs_thumbnail_load(const char* file_path, const char* uri, in
                 chmod(thumbnail_file, 0600); /* only the owner can read it. */
             }
         }
-#ifdef HAVE_FFMPEG
         else
         {
             video_thumbnailer* video_thumb = video_thumbnailer_create();
@@ -474,7 +461,6 @@ static GdkPixbuf* _vfs_thumbnail_load(const char* file_path, const char* uri, in
                 thumbnail = gdk_pixbuf_new_from_file(thumbnail_file, NULL);
             }
         }
-#endif
     }
 
     if (thumbnail)
