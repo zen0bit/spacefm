@@ -2863,39 +2863,6 @@ char* xset_custom_get_help(GtkWidget* parent, XSet* set)
     return NULL;
 }
 
-gboolean xset_copy_file(char* src, char* dest)
-{ // overwrites!
-    int inF, ouF, bytes;
-    char line[1024];
-
-    if (!g_file_test(src, G_FILE_TEST_EXISTS))
-        return FALSE;
-
-    if ((inF = open(src, O_RDONLY)) == -1)
-        return FALSE;
-
-    unlink(dest);
-    if ((ouF = open(dest, O_CREAT | O_WRONLY | O_TRUNC, S_IRUSR | S_IWUSR)) == -1)
-    {
-        close(inF);
-        return FALSE;
-    }
-
-    while ((bytes = read(inF, line, sizeof(line))) > 0)
-    {
-        if (write(ouF, line, bytes) <= 0)
-        {
-            close(inF);
-            close(ouF);
-            unlink(dest);
-            return FALSE;
-        }
-    }
-    close(inF);
-    close(ouF);
-    return TRUE;
-}
-
 char* xset_custom_new_name()
 {
     char* setname;

@@ -310,7 +310,6 @@ void xset_autosave(gboolean force, gboolean delay);
 void xset_autosave_cancel();
 
 void xset_set_window_icon(GtkWindow* win);
-gboolean xset_copy_file(char* src, char* dest);
 XSet* xset_get(const char* name);
 char* xset_get_s(const char* name);
 gboolean xset_get_bool(const char* name, const char* var);
