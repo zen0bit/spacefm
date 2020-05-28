@@ -38,9 +38,7 @@
 #include <linux/kdev_t.h>  // MAJOR MINOR
 #include <sys/sysmacros.h> // needed for dev_t
 
-#ifdef HAVE_STATVFS
 #include <sys/statvfs.h>
-#endif
 
 #include "vfs-file-info.h"
 #include "main-window.h"
@@ -2058,11 +2056,8 @@ char* free_slash_total(const char* dir)
 {
     guint64 total_size;
     char size_str[64];
-#ifdef HAVE_STATVFS
     struct statvfs fs_stat = {0};
-#endif
 
-#ifdef HAVE_STATVFS
     if (statvfs(dir, &fs_stat) == 0)
     {
         char total_size_str[64];
@@ -2072,7 +2067,6 @@ char* free_slash_total(const char* dir)
                                        "%.0f%s");
         return g_strdup_printf("%s/%s", size_str, total_size_str);
     }
-#endif
     return g_strdup("");
 }
 
