@@ -91,7 +91,6 @@ gboolean clipboard_is_cut;
 XSet* set_last;
 char* settings_config_dir = NULL;
 char* settings_tmp_dir = NULL;
-char* settings_shared_tmp_dir = NULL;
 char* settings_user_tmp_dir = NULL;
 XSetContext* xset_context = NULL;
 XSet* book_icon_set_cached = NULL;
@@ -532,16 +531,6 @@ void load_settings(char* config_dir)
     if (!settings_tmp_dir)
         settings_tmp_dir = g_strdup(DEFAULT_TMP_DIR);
 
-    // shared tmp
-    settings_shared_tmp_dir = g_build_filename(settings_tmp_dir, "spacefm.tmp", NULL);
-    if (geteuid() == 0)
-    {
-        if (!g_file_test(settings_shared_tmp_dir, G_FILE_TEST_EXISTS))
-            g_mkdir_with_parents(settings_shared_tmp_dir, S_IRWXU | S_IRWXG | S_IRWXO | S_ISVTX);
-        chown(settings_shared_tmp_dir, 0, 0);
-        chmod(settings_shared_tmp_dir, S_IRWXU | S_IRWXG | S_IRWXO | S_ISVTX);
-    }
-
     // copy /etc/xdg/spacefm
     char* xdg_path = g_build_filename(SYSCONFDIR, "xdg", "spacefm", NULL);
     if (!g_file_test(settings_config_dir, G_FILE_TEST_EXISTS) &&
@@ -896,42 +885,14 @@ const char* xset_get_tmp_dir()
     return settings_tmp_dir;
 }
 
-const char* xset_get_shared_tmp_dir()
-{
-    if (!g_file_test(settings_shared_tmp_dir, G_FILE_TEST_EXISTS))
-    {
-        g_mkdir_with_parents(settings_shared_tmp_dir, S_IRWXU | S_IRWXG | S_IRWXO | S_ISVTX);
-        chmod(settings_shared_tmp_dir, S_IRWXU | S_IRWXG | S_IRWXO | S_ISVTX);
-    }
-    return settings_shared_tmp_dir;
-}
-
 const char* xset_get_user_tmp_dir()
 {
     if (settings_user_tmp_dir && g_file_test(settings_user_tmp_dir, G_FILE_TEST_EXISTS))
         return settings_user_tmp_dir;
 
-    char* rand;
-    char* name;
-    int count = 0;
-    int ret;
-    do
-    {
-        g_free(settings_user_tmp_dir);
-        rand = randhex8();
-        name = g_strdup_printf("spacefm-%s-%s.tmp", g_get_user_name(), rand);
-        g_free(rand);
-        settings_user_tmp_dir = g_build_filename(settings_tmp_dir, name, NULL);
-        g_free(name);
-        count++;
-    } while (count < 1000 && ((ret = mkdir(settings_user_tmp_dir,
-                                           S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH)) != 0));
-    if (ret != 0)
-    {
-        g_free(settings_user_tmp_dir);
-        settings_user_tmp_dir = NULL;
-        g_warning("Unable to create temporary directory in %s", settings_tmp_dir);
-    }
+    settings_user_tmp_dir = g_build_filename(settings_tmp_dir, "spacefm", NULL);
+    g_mkdir_with_parents(settings_user_tmp_dir, 0700);
+
     return settings_user_tmp_dir;
 }
 
