@@ -2024,9 +2024,11 @@ static void write_source(GtkWidget* dlg, CustomElement* el_pressed, FILE* out, g
     // write values
     int button_count = 0;
     fprintf(out,
-            "#!%s\n# SpaceFM Dialog source output - execute this output to set variables\n# "
-            "Example:  eval \"`spacefm --dialog --label \"Message\" --button ok`\"\n\n",
-            BASHPATH);
+            "#!%s\n%s\n# SpaceFM Dialog source output - execute this output to set "
+            "variables\n# Example: eval \"$(spacefm --dialog --label \"Message\" "
+            "--button ok)\"\n\n",
+            BASHPATH,
+            SHELL_SETTINGS);
     if (!el_pressed)
     {
         // no button press caused dialog closure

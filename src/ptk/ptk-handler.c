@@ -25,6 +25,26 @@
 
 #include "gtk2-compat.h"
 
+#define MOUNT_EXAMPLE                                                                            \
+    "# Enter mount command or leave blank for auto:\n\n\n# # Examples: (remove # to enable a "   \
+    "mount command)\n#\n# # udevil:\n#     udevil mount -o '%o' %v\n#\n# # pmount: (does not "   \
+    "accept mount options)\n#     pmount %v\n#\n# # udisks v2:\n#     udisksctl mount -b %v -o " \
+    "'%o'\n#\n# # udisks v1: (enable all three lines!)\n#     fm_udisks=$(udisks --mount %v "    \
+    "--mount-options '%o' 2>&1)\n#     echo \"$fm_udisks\"\n#     [[ \"$fm_udisks\" = "          \
+    "\"${fm_udisks/ount failed:/}\" ]]\n\n"
+
+#define UNMOUNT_EXAMPLE                                                                           \
+    "# Enter unmount command or leave blank for auto:\n\n\n# # Examples: (remove # to enable an " \
+    "unmount command)\n#\n# # udevil:\n#     udevil umount %v\n#\n# # pmount:\n#     pumount "    \
+    "%v\n#\n# # udisks v2:\n#     udisksctl unmount -b %v\n#\n# # udisks v1: (enable all three "  \
+    "lines!)\n#     fm_udisks=$(udisks --unmount %v 2>&1)\n#     echo \"$fm_udisks\"\n#     [[ "  \
+    "\"$fm_udisks\" = \"${fm_udisks/ount failed:/}\" ]]\n\n"
+
+#define INFO_EXAMPLE                                                                            \
+    "# Enter command to show properties or leave blank for auto:\n\n\n# # Example:\n\n# echo "  \
+    "MOUNT\n# mount | grep \" on %a \"\n# echo\n# echo PROCESSES\n# /usr/bin/lsof -w \"%a\" | " \
+    "head -n 500\n"
+
 enum
 {
     HANDLER_JOB_EXPORT,
@@ -414,12 +434,12 @@ const Handler handlers_net[] = {
      "# This handler opens http:// and webdav://\n\n# Set your web browser in "
      "Help|Options|Browser\n\n# set missing_davfs=1 if you always want to open http in web "
      "browser\n# set missing_davfs=0 if you always want to mount http with "
-     "davfs\nmissing_davfs=\n\nif [ -z \"$missing_davfs\" ]; then\n    grep -qs "
+     "davfs\nmissing_davfs=\n\nif [ -z \"$missing_davfs\" ];then\n    grep -qs "
      "'^[[:space:]]*allowed_types[[:space:]]*=[^#]*davfs' \\\n                                    "
      "/etc/udevil/udevil.conf 2>/dev/null\n    missing_davfs=$?  \nfi\nif [ \"$fm_url_proto\" = "
      "\"webdav\" ] || [ \"$fm_url_proto\" = \"davfs\" ] || \\\n   [ \"$fm_url_proto\" = \"dav\" ] "
      "|| [ \"$fm_url_proto\" = \"davs\" ] || \\\n                                    [ "
-     "$missing_davfs -eq 0 ]; then\n    fm_url_proto=\"${fm_url_proto/webdav/http}\"\n    "
+     "$missing_davfs -eq 0 ];then\n    fm_url_proto=\"${fm_url_proto/webdav/http}\"\n    "
      "fm_url_proto=\"${fm_url_proto/davfs/http}\"\n    "
      "fm_url_proto=\"${fm_url_proto/davs/https}\"\n    fm_url_proto=\"${fm_url_proto/dav/http}\"\n "
      "   "
@@ -439,7 +459,7 @@ const Handler handlers_net[] = {
      "ftp",
      "ftp",
      "",
-     "options=\"nonempty\"\nif [ -n \"%user%\" ]; then\n    user=\",user=%user%\"\n    [[ -n "
+     "options=\"nonempty\"\nif [ -n \"%user%\" ];then\n    user=\",user=%user%\"\n    [[ -n "
      "\"%pass%\" ]] && user=\"$user:%pass%\"\nfi\n[[ -n \"%port%\" ]] && portcolon=:\necho \">>> "
      "curlftpfs -o $options$user ftp://%host%${portcolon}%port%%path% %a\"\necho\ncurlftpfs -o "
      "$options$user ftp://%host%${portcolon}%port%%path% \"%a\"\n[[ $? -eq 0 ]] && sleep 1 && ls "
@@ -463,7 +483,7 @@ const Handler handlers_net[] = {
      " uncheck Run In Terminal\n# # Run sshfs in a terminal without SpaceFM task.  sshfs "
      "disconnects when the\n# # terminal is closed\n# spacefm -s run-task cmd --terminal \"echo "
      "'Connecting to $fm_url'; echo; sshfs -p $fm_url_port $fm_url_user$fm_url_host:$fm_url_path "
-     "%a; if [ $? -ne 0 ]; then echo; echo '[ Finished ] Press Enter to close'; else echo; echo "
+     "%a; if [ $? -ne 0 ];then echo; echo '[ Finished ] Press Enter to close'; else echo; echo "
      "'Press Enter to close (closing this window may unmount sshfs)'; fi; read\" & sleep 1\n",
      TRUE,
      "fusermount -u \"%a\"",
@@ -475,9 +495,9 @@ const Handler handlers_net[] = {
      "mtp mtab_fs=fuse.jmtpfs mtab_fs=fuse.simple-mtpfs mtab_fs=fuse.mtpfs mtab_fs=fuse.DeviceFs(*",
      "",
      "mtpmount=\"$(which jmtpfs || which simple-mtpfs || which mtpfs || which go-mtpfs)\"\nif [ -z "
-     "\"$mtpmount\" ]; then\n    echo \"To mount mtp:// you must install jmtpfs, simple-mtpfs, "
+     "\"$mtpmount\" ];then\n    echo \"To mount mtp:// you must install jmtpfs, simple-mtpfs, "
      "mtpfs, or go-mtpfs,\"\n    echo \"or add a custom protocol handler.\"\n    exit 1\nelif [ "
-     "\"${mtpmount##*/}\" = \"go-mtpfs\" ]; then\n    # Run go-mtpfs in background, as it does not "
+     "\"${mtpmount##*/}\" = \"go-mtpfs\" ];then\n    # Run go-mtpfs in background, as it does not "
      "exit after mount\n    outputtmp=\"$(mktemp --tmpdir spacefm-go-mtpfs-output-XXXXXXXX)\" || "
      "exit 1\n    go-mtpfs \"%a\" &> \"$outputtmp\" &\n    sleep 2s\n    [[ -e \"$outputtmp\" ]] "
      "&& cat \"$outputtmp\" ; rm -f \"$outputtmp\"\n    # set success status only if positive that "
@@ -559,22 +579,22 @@ const Handler handlers_file[] = {
      "*.img *.iso *.mdf *.nrg",
      "# Note: Unmounting of iso files is performed by the fuseiso or udevil device\n# handler, not "
      "this file handler.\n\n# Use fuseiso or udevil ?\nfuse=\"$(which fuseiso)\"  # remove this "
-     "line to use udevil only\nif [[ -z \"$fuse\" ]]; then\n    udevil=\"$(which udevil)\"\n    if "
-     "[[ -z \"$udevil\" ]]; then\n        echo \"You must install fuseiso or udevil to mount ISOs "
+     "line to use udevil only\nif [[ -z \"$fuse\" ]];then\n    udevil=\"$(which udevil)\"\n    if "
+     "[[ -z \"$udevil\" ]];then\n        echo \"You must install fuseiso or udevil to mount ISOs "
      "with this handler.\"\n        exit 1\n    fi\n    # use udevil - attempt mount\n    "
      "uout=\"$($udevil mount \"$fm_file\" 2>&1)\"\n    err=$?; echo \"$uout\"\n    if [ $err -eq 2 "
-     "]; then\n        # is file already mounted? (english only)\n        point=\"${uout#* is "
-     "already mounted at }\"\n        if [ \"$point\" != \"$uout\" ]; then\n            "
-     "point=\"${point% (*}\"\n            if [ -x \"$point\" ]; then\n                spacefm -t "
+     "];then\n        # is file already mounted? (english only)\n        point=\"${uout#* is "
+     "already mounted at }\"\n        if [ \"$point\" != \"$uout\" ];then\n            "
+     "point=\"${point% (*}\"\n            if [ -x \"$point\" ];then\n                spacefm -t "
      "\"$point\"\n                exit 0\n            fi\n        fi\n    fi\n    [[ $err -ne 0 ]] "
      "&& exit 1\n    point=\"${uout#Mounted }\"\n    [[ \"$point\" = \"$uout\" ]] && exit 0\n    "
      "point=\"${point##* at }\"\n    [[ -d \"$point\" ]] && spacefm \"$point\" &\n    exit "
      "0\nfi\n# use fuseiso - is file already mounted?\ncanon=\"$(readlink -f \"$fm_file\" "
-     "2>/dev/null)\"\nif [ -n \"$canon\" ]; then\n    canon_enc=\"${canon// /\\\\040}\" # encode "
-     "spaces for mtab+grep\n    if grep -q \"^$canon_enc \" ~/.mtab.fuseiso 2>/dev/null; then\n    "
+     "2>/dev/null)\"\nif [ -n \"$canon\" ];then\n    canon_enc=\"${canon// /\\\\040}\" # encode "
+     "spaces for mtab+grep\n    if grep -q \"^$canon_enc \" ~/.mtab.fuseiso 2>/dev/null;then\n    "
      "    # file is mounted - get mount point\n        point=\"$(grep -m 1 \"^$canon_enc \" "
      "~/.mtab.fuseiso \\\n                 | sed 's/.* \\(.*\\) fuseiso .*/\\1/' )\"\n    if [ -x "
-     "\"$point\" ]; then\n            spacefm \"$point\" &\n            exit\n        fi\n    "
+     "\"$point\" ];then\n            spacefm \"$point\" &\n            exit\n        fi\n    "
      "fi\nfi\n# mount & open\nfuseiso %f %a && spacefm %a &\n",
      FALSE,
      "",

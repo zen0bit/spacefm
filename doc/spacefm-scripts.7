@@ -116,7 +116,7 @@ Shell variables usable in custom commands
    # and current panel isn't 2 ?
    if [ "${fm_pwd_panel[2]}" != "" ] \\
                && [ "${fm_files[0]}" != "" ] \\
-               && [ "$fm_panel" != 2 ]; then
+               && [ "$fm_panel" != 2 ];then
        cp "${fm_files[@]}" "${fm_pwd_panel[2]}"
    else
        echo "Can't copy to panel 2"

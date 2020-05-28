@@ -137,7 +137,7 @@ const char* enter_command_line =
        "file\n\t%%N\tselected filenames  or  %%n first selected filename\n\t%%d\tcurrent "
        "directory\n\t%%v\tselected device (eg /dev/sda1)\n\t%%m\tdevice mount point (eg "
        "/media/dvd);  %%l device label\n\t%%b\tselected bookmark\n\t%%t\tselected task directory;  "
-       "%%p task pid\n\t%%a\tmenu item value\n\t$fm_panel, $fm_tab, $fm_command, etc");
+       "%%p task pid\n\t%%a\tmenu item value\n\t$fm_panel, $fm_tab, etc");
 
 const char* icon_desc =
     N_("Enter an icon name, icon file path, or stock item name:\n\nOr click Choose to select an "
@@ -3749,7 +3749,7 @@ void install_plugin_file(gpointer main_win, GtkWidget* handler_dlg, const char* 
 
     task->task->exec_command = g_strdup_printf(
         "rm -rf %s ; mkdir -p %s && cd %s %s&& tar --exclude='/*' --keep-old-files -x%sf %s ; "
-        "err=$?; if [ $err -ne 0 ] || [ ! -e plugin ]%s; then rm -rf %s ; echo 'Error installing "
+        "err=$?; if [ $err -ne 0 ] || [ ! -e plugin ]%s;then rm -rf %s ; echo 'Error installing "
         "plugin (invalid plugin file?)'; exit 1 ; fi ; %s %s",
         plug_dir_q,
         plug_dir_q,
@@ -9696,7 +9696,7 @@ void xset_defaults()
           " (modifier keys)\n\t%%f\tfocus  (element which received the click)\n\nExported bash "
           "variables (eg $fm_pwd, etc) can be used in this command when no asterisk prefix is "
           "used.\n\nPrefix your command with an asterisk (*) and conditionally return exit status "
-          "0 to inhibit the default handler.  For example:\n*if [ \"%%b\" != \"2\" ]; then exit 1; "
+          "0 to inhibit the default handler.  For example:\n*if [ \"%%b\" != \"2\" ];then exit 1; "
           "fi; spacefm -g --label \"\\nMiddle button was clicked in %%f\" --button ok &"));
     set->line = g_strdup("#sockets-events-winclk");
 
@@ -9712,7 +9712,7 @@ void xset_defaults()
           "(modifier keys)\n\nExported bash variables (eg $fm_pwd, etc) can be used in this "
           "command when no asterisk prefix is used.\n\nPrefix your command with an asterisk (*) "
           "and conditionally return exit status 0 to inhibit the default handler.  For "
-          "example:\n*if [ \"%%k\" != \"0xffc5\" ]; then exit 1; fi; spacefm -g --label \"\\nKey "
+          "example:\n*if [ \"%%k\" != \"0xffc5\" ];then exit 1; fi; spacefm -g --label \"\\nKey "
           "F8 was pressed.\" --button ok &"));
     set->line = g_strdup("#sockets-events-winkey");
 

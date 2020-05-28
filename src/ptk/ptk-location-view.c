@@ -98,6 +98,7 @@ void update_all();
 const char* data_loss_overwrite = "DATA LOSS WARNING - overwriting";
 const char* type_yes_to_proceed = "Type yes and press Enter to proceed, or no to cancel";
 const char* press_enter_to_close = "[ Finished ]  Press Enter to close";
+const char* keep_term_when_done = "\\n[[ $? -eq 0 ]] || ( read -p '%s: ' )\\n\"";
 
 /*  Drag & Drop/Clipboard targets  */
 static GtkTargetEntry drag_targets[] = {{"text/uri-list", 0, 0}};
@@ -762,7 +763,7 @@ void ptk_location_view_clean_mount_points()
     if (udevil)
     {
         g_free(udevil);
-        char* command = g_strdup_printf("bash -c \"sleep 1 ; %s clean\"", udevil);
+        char* command = g_strdup_printf("%s -c \"sleep 1 ; %s clean\"", BASHPATH, udevil);
         print_command(command);
         g_spawn_command_line_async(command, NULL);
         g_free(command);
@@ -1074,13 +1075,13 @@ void ptk_location_view_mount_network(PtkFileBrowser* file_browser, const char* u
     // task
     char* keepterm;
     if (ssh_udevil)
-        keepterm = g_strdup_printf(
-            "if [ $? -ne 0 ]; then\n    echo \"%s\"\n    read\nelse\n    echo; echo \"Press Enter "
-            "to close (closing this window may unmount sshfs)\"\n    read\nfi\n",
-            press_enter_to_close);
+        keepterm = g_strdup_printf("if [ $? -ne 0 ];then\n    read -p \"%s\"\nelse\n    echo;"
+                                   "read -p \"Press Enter to close (closing this window may "
+                                   "unmount sshfs)\"\nfi\n",
+                                   press_enter_to_close);
+
     else if (run_in_terminal)
-        keepterm =
-            g_strdup_printf("[[ $? -eq 0 ]] || ( echo -n '%s: ' ; read )\n", press_enter_to_close);
+        keepterm = g_strdup_printf("[[ $? -eq 0 ]] || ( read -p '%s: ' )\n", press_enter_to_close);
     else
         keepterm = g_strdup("");
 
@@ -1197,8 +1198,7 @@ static void on_mount(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2)
         task->task->exec_type = VFS_EXEC_UDISKS;
     char* keep_term;
     if (run_in_terminal)
-        keep_term = g_strdup_printf("\n[[ $? -eq 0 ]] || ( echo -n '%s: ' ; read )\n",
-                                    press_enter_to_close);
+        keep_term = g_strdup_printf(keep_term_when_done, press_enter_to_close);
     else
         keep_term = g_strdup("");
 
@@ -1605,8 +1605,7 @@ static void on_umount(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2)
         task->task->exec_type = VFS_EXEC_UDISKS;
     char* keep_term;
     if (run_in_terminal)
-        keep_term = g_strdup_printf("\n[[ $? -eq 0 ]] || ( echo -n '%s: ' ; read )\n",
-                                    press_enter_to_close);
+        keep_term = g_strdup_printf(keep_term_when_done, press_enter_to_close);
     else
         keep_term = g_strdup("");
     task->task->exec_command = g_strdup_printf("%s%s", line, keep_term);
@@ -1698,15 +1697,15 @@ static void on_eject(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2)
             wait_done = g_strdup("");
         }
         if (run_in_terminal)
-            line = g_strdup_printf("echo 'Unmounting %s...'\n%s%s\nif [ $? -ne 0 ]; then\n    echo "
-                                   "-n '%s: '\n    read\n    exit 1\nelse\n    %s\nfi",
+            line = g_strdup_printf("echo 'Unmounting %s...'\n%s%s\nif [ $? -ne 0 ];then\n    "
+                                   "read -p '%s: '\n    exit 1\nelse\n    %s\nfi",
                                    vol->device_file,
                                    vol->device_type == DEVICE_TYPE_BLOCK ? "sync\n" : "",
                                    unmount,
                                    press_enter_to_close,
                                    eject);
         else
-            line = g_strdup_printf("%s%s%s\nuerr=$?%s\nif [ $uerr -ne 0 ]; then\n    exit 1\nfi%s",
+            line = g_strdup_printf("%s%s%s\nuerr=$?%s\nif [ $uerr -ne 0 ];then\n    exit 1\nfi%s",
                                    wait,
                                    vol->device_type == DEVICE_TYPE_BLOCK ? "sync\n" : "",
                                    unmount,
@@ -1818,8 +1817,7 @@ static gboolean try_mount(GtkTreeView* view, VFSVolume* vol)
         task->task->exec_type = VFS_EXEC_UDISKS;
     char* keep_term;
     if (run_in_terminal)
-        keep_term = g_strdup_printf("\n[[ $? -eq 0 ]] || ( echo -n '%s: ' ; read )\n",
-                                    press_enter_to_close);
+        keep_term = g_strdup_printf(keep_term_when_done, press_enter_to_close);
     else
         keep_term = g_strdup("");
     task->task->exec_command = g_strdup_printf("%s%s", line, keep_term);
@@ -1890,8 +1888,7 @@ static void on_open_tab(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2)
             task->task->exec_type = VFS_EXEC_UDISKS;
         char* keep_term;
         if (run_in_terminal)
-            keep_term = g_strdup_printf("\n[[ $? -eq 0 ]] || ( echo -n '%s: ' ; read )\n",
-                                        press_enter_to_close);
+            keep_term = g_strdup_printf(keep_term_when_done, press_enter_to_close);
         else
             keep_term = g_strdup("");
         task->task->exec_command = g_strdup_printf("%s%s", line, keep_term);
@@ -1964,8 +1961,7 @@ static void on_open(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2)
             task->task->exec_type = VFS_EXEC_UDISKS;
         char* keep_term;
         if (run_in_terminal)
-            keep_term = g_strdup_printf("\n[[ $? -eq 0 ]] || ( echo -n '%s: ' ; read )\n",
-                                        press_enter_to_close);
+            keep_term = g_strdup_printf(keep_term_when_done, press_enter_to_close);
         else
             keep_term = g_strdup("");
         task->task->exec_command = g_strdup_printf("%s%s", line, keep_term);
@@ -2049,15 +2045,14 @@ static void on_remount(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2)
             return;
         }
         if (mount_in_terminal || unmount_in_terminal)
-            line = g_strdup_printf(
-                "%s\nif [ $? -ne 0 ]; then\n    echo -n '%s: '\n    read\n    exit 1\nelse\n    "
-                "%s\n    [[ $? -eq 0 ]] || ( echo -n '%s: ' ; read )\nfi",
-                unmount_command,
-                press_enter_to_close,
-                mount_command,
-                press_enter_to_close);
+            line = g_strdup_printf("%s\nif [ $? -ne 0 ];then\n    read -p '%s: '\n    exit 1\n"
+                                   "else\n    %s\n    [[ $? -eq 0 ]] || ( read -p '%s: ' )\nfi",
+                                   unmount_command,
+                                   press_enter_to_close,
+                                   mount_command,
+                                   press_enter_to_close);
         else
-            line = g_strdup_printf("%s\nif [ $? -ne 0 ]; then\n    exit 1\nelse\n    %s\nfi",
+            line = g_strdup_printf("%s\nif [ $? -ne 0 ];then\n    exit 1\nelse\n    %s\nfi",
                                    unmount_command,
                                    mount_command);
         g_free(mount_command);
@@ -2113,16 +2108,15 @@ static void on_reload(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2)
             eject = g_strdup("");
 
         if (run_in_terminal)
-            line = g_strdup_printf("echo 'Unmounting %s...'\nsync\n%s\nif [ $? -ne 0 ]; then\n    "
-                                   "echo -n '%s: '\n    read\n    exit 1%s\nfi",
+            line = g_strdup_printf("echo 'Unmounting %s...'\nsync\n%s\nif [ $? -ne 0 ];then\n    "
+                                   "read -p '%s: '\n    exit 1%s\nfi",
                                    vol->device_file,
                                    unmount,
                                    press_enter_to_close,
                                    eject);
         else
-            line = g_strdup_printf("sync\n%s\nif [ $? -ne 0 ]; then\n    exit 1%s\nfi",
-                                   unmount,
-                                   eject);
+            line =
+                g_strdup_printf("sync\n%s\nif [ $? -ne 0 ];then\n    exit 1%s\nfi", unmount, eject);
         g_free(eject);
         g_free(unmount);
         char* task_name = g_strdup_printf("Reload %s", vol->device_file);
@@ -2271,7 +2265,7 @@ static void on_format(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2, XSet*
         g_free(task_name);
         char* scmd = g_strdup_printf(
             "echo \">>> %s\"; echo; echo \"%s %s\"; echo; echo -n \"%s: \"; read s; if [ \"$s\" != "
-            "\"yes\" ]; then exit; fi; %s; echo; echo -n \"%s: \"; read s",
+            "\"yes\" ];then exit; fi; %s; echo; echo -n \"%s: \"; read s",
             cmd,
             data_loss_overwrite,
             vol->device_file,
@@ -2513,7 +2507,7 @@ static void on_restore(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2, XSet
     if (job == 2)
         scmd = g_strdup_printf(
             "echo \">>> %s\"; echo; echo \"%s %s\"; echo; echo -n \"%s: \"; read s; if [ \"$s\" != "
-            "\"yes\" ]; then exit; fi; %s; echo; echo -n \"%s \"; read s",
+            "\"yes\" ];then exit; fi; %s; echo; echo -n \"%s \"; read s",
             cmd,
             "DATA LOSS WARNING - overwriting MBR boot code of",
             vfile,
@@ -2523,7 +2517,7 @@ static void on_restore(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2, XSet
     else if (job == 1)
         scmd = g_strdup_printf(
             "echo \">>> %s\"; echo; echo \"%s %s\"; echo; echo -n \"%s: \"; read s; if [ \"$s\" != "
-            "\"yes\" ]; then exit; fi; %s; echo; echo -n \"%s: \"; read s",
+            "\"yes\" ];then exit; fi; %s; echo; echo -n \"%s: \"; read s",
             cmd,
             data_loss_overwrite,
             vfile,
@@ -2546,7 +2540,7 @@ static void on_restore(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2, XSet
         }
         scmd = g_strdup_printf(
             "echo \">>> %s archinfo %s\"; echo; %s archinfo %s; echo; echo \">>> %s\"; echo; echo "
-            "\"%s %s\"; echo; echo -n \"%s: \"; read s; if [ \"$s\" != \"yes\" ]; then exit; fi; "
+            "\"%s %s\"; echo; echo -n \"%s: \"; read s; if [ \"$s\" != \"yes\" ];then exit; fi; "
             "%s; echo; echo -n \"%s: \"; read s",
             fsarc_bin,
             sfile,
@@ -3066,8 +3060,9 @@ static void on_prop(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2)
     if (base)
     {
         // /bin/ls -l /dev/disk/by-uuid | grep ../sdc2 | sed 's/.* \([a-fA-F0-9\-]*\) -> .*/\1/'
-        cmd = g_strdup_printf("bash -c \"/bin/ls -l /dev/disk/by-uuid | grep '\\.\\./%s$' | sed "
+        cmd = g_strdup_printf("%s -c \"/bin/ls -l /dev/disk/by-uuid | grep '\\.\\./%s$' | sed "
                               "'s/.* \\([a-fA-F0-9-]*\\) -> .*/\\1/'\"",
+                              BASHPATH,
                               base);
         print_command(cmd);
         g_spawn_command_line_sync(cmd, &uuid, NULL, NULL, NULL);
@@ -3085,7 +3080,8 @@ static void on_prop(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2)
 
         if (uuid)
         {
-            cmd = g_strdup_printf("bash -c \"cat %s | grep -e '%s' -e '%s'\"",
+            cmd = g_strdup_printf("%s -c \"cat %s | grep -e '%s' -e '%s'\"",
+                                  BASHPATH,
                                   fstab_path,
                                   uuid,
                                   vol->device_file);
@@ -3099,9 +3095,10 @@ static void on_prop(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2)
 
         if (!fstab)
         {
-            cmd = g_strdup_printf("bash -c \"cat %s | grep '%s'\"", fstab_path, vol->device_file);
-            // cmd = g_strdup_printf( "bash -c \"cat /etc/fstab | grep '^[# ]*%s '\"",
-            // vol->device_file );
+            cmd = g_strdup_printf("%s -c \"cat %s | grep '%s'\"",
+                                  BASHPATH,
+                                  fstab_path,
+                                  vol->device_file);
             print_command(cmd);
             g_spawn_command_line_sync(cmd, &fstab, NULL, NULL, NULL);
             g_free(cmd);

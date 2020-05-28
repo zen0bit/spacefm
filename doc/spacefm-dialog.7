@@ -194,7 +194,7 @@ source     FILE
  # This script shows a Yes/No dialog
  # Use QUOTED eval to read variables output by SpaceFM Dialog:
  eval "`spacefm -g --label "Are you sure?" --button yes --button no`"
- if [[ "$dialog_pressed" == "button1" ]]; then
+ if [[ "$dialog_pressed" == "button1" ]];then
      echo "User pressed Yes - take some action"
  else
      echo "User did NOT press Yes - abort"

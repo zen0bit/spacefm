@@ -4,10 +4,10 @@
 # run as: ./build-manual > spacefm-manual-en.html
 
 f="$1"
-if [ "$f" = "" ]; then
+if [ "$f" = "" ];then
 	f=spacefm-mansrc-en.html
 fi
-if [ ! -e "$f" ]; then
+if [ ! -e "$f" ];then
 	echo "missing file $f" 1>&2
 	exit 1
 fi
@@ -30,20 +30,20 @@ parse()
 	h1="${h1%%-->*}"
 	h1="$(trim "$h1")"			#Plugins
 	hx="${h2#*@}"				#Creation And Files -->
-	if [ "$hx" = "$h2" ]; then
+	if [ "$hx" = "$h2" ];then
 		h2=""
 	else
 		h2="$hx"
 		h2="${h2%%-->*}"			#Creation And Files
 		h2="$(trim "$h2")"			#Creation And Files
 		subname="${h2##*#}"			#Creation And Files #creation
-		if [ "$subname" = "$h2" ]; then
+		if [ "$subname" = "$h2" ];then
 			subname=""
 		else
 			h2="${h2%%#*}"
 		fi
 	fi
-	if [ "$subname" != "" ]; then
+	if [ "$subname" != "" ];then
 		anc="$h1-$subname"
 	else
 		anc="$h1-$h2"
@@ -68,22 +68,22 @@ sx=-1
 # read sections
 for l in `cat -E "$f"`; do
 	l="${l%\$}"
-	if [[ "$l" =~ \<!--.*@.*--\> ]]; then
+	if [[ "$l" =~ \<!--.*@.*--\> ]];then
 		# new section header
 		(( sx++ ))
 		section[sx]="$l$n"
 		mode=1
 	else
-		if (( mode == 0 )); then
+		if (( mode == 0 ));then
 			# print the top part of the file as-is
 			echo "$l"
-		elif (( mode == 1 )); then
+		elif (( mode == 1 ));then
 			# add line to section
-			if [ "${l:0:6}" = "<!-- #" ]; then
+			if [ "${l:0:6}" = "<!-- #" ];then
 				# substitute name
 				subname="${l#*#}"
 				subanc="${subname#*#}"
-				if [ "$subanc" = "$subname" ]; then
+				if [ "$subanc" = "$subname" ];then
 					subanc=""
 				else
 					subanc="${subanc%-->}"
@@ -92,7 +92,7 @@ for l in `cat -E "$f"`; do
 				subname="${subname%%#*}"
 				subname="${subname%-->}"
 				subname="$(trim "$subname")"
-				if [ "$subanc" = "" ]; then
+				if [ "$subanc" = "" ];then
 					subanc=`echo "$subname" | tr '[A-Z]' '[a-z]'`
 					subanc=`echo "$subanc" | tr -d '/& '`
 				fi
@@ -109,7 +109,7 @@ done
 
 parse 0
 
-if [ "$h1" = "toc" ]; then
+if [ "$h1" = "toc" ];then
 	# converting html to nanual
 	a=0
 else
@@ -129,12 +129,12 @@ else
 	main=""
 	while (( sx < scount )); do
 		parse $sx
-		if [ "$h1" = "tail" ]; then
+		if [ "$h1" = "tail" ];then
 			break
 		fi
-		if [ "$main" != "$h1" ]; then
+		if [ "$main" != "$h1" ];then
 			# new main section
-			if [ "$main" != "" ]; then
+			if [ "$main" != "" ];then
 				echo "</ul>"
 			fi
 			main="$h1"
@@ -155,10 +155,10 @@ else
 	main=""
 	while (( sx < scount )); do
 		parse $sx
-		if [ "$h1" = "tail" ]; then
+		if [ "$h1" = "tail" ];then
 			break
 		fi
-		if [ "$main" != "$h1" ]; then
+		if [ "$main" != "$h1" ];then
 			# new main section
 			main="$h1"
 			main_anc="$anc1"
@@ -198,21 +198,21 @@ else
 		live=0
 		while (( sy < scount )); do
 			parse $sy
-			if [ "$h1" = "tail" ]; then
-				if (( live == 1 )); then
+			if [ "$h1" = "tail" ];then
+				if (( live == 1 ));then
 					echo "    </ul>"
 				fi
 				break
 			fi
-			if [ "$mainy" != "$h1" ]; then
+			if [ "$mainy" != "$h1" ];then
 				# new main section
-				if (( live == 1 )); then
+				if (( live == 1 ));then
 					echo "    </ul>"
 					live=0
 				fi
 				mainy="$h1"
 				mainy_anc="$anc1"
-				if [ "$mainy" = "$hh1" ]; then
+				if [ "$mainy" = "$hh1" ];then
 					# live main section
 					echo "    <li>$mainy"
 					echo "    <ul>"
@@ -222,8 +222,8 @@ else
 				fi
 			fi
 			# subsection
-			if (( live == 1 )); then
-				if [ "$h2" = "$hh2" ]; then
+			if (( live == 1 ));then
+				if [ "$h2" = "$hh2" ];then
 					# current subsection
 					echo "        <li>$h2"
 				else
@@ -250,10 +250,10 @@ else
 	# tail
 
 	# get version info
-	if [ -e ../configure.ac ]; then
+	if [ -e ../configure.ac ];then
 		ver=`grep -m 1 "^AC_INIT(\[spacefm\], \[" "../configure.ac" \
 			| sed 's/AC_INIT(\[spacefm\], \[\(.*\)\])/\1/'`
-		if [ "$ver" = "" ]; then
+		if [ "$ver" = "" ];then
 			echo
 			echo "nanual: WARNING: cannot get version"
 			echo

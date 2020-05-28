@@ -6014,8 +6014,9 @@ static gboolean delayed_show_menu(GtkWidget* menu)
 
 char main_window_socket_command(char* argv[], char** reply)
 {
-    int i, j;
-    int panel = 0, tab = 0;
+    int j;
+    int panel = 0;
+    int tab = 0;
     char* window = NULL;
     char* str;
     FMMainWindow* main_window;
@@ -6027,9 +6028,6 @@ char main_window_socket_command(char* argv[], char** reply)
     const char* column_titles[] =
         {N_("Name"), N_("Size"), N_("Type"), N_("Permission"), N_("Owner"), N_("Modified")};
 
-    const char* column_names[] =
-        {"detcol_name", "detcol_size", "detcol_type", "detcol_perm", "detcol_owner", "detcol_date"};
-
     *reply = NULL;
     if (!(argv && argv[0]))
     {
@@ -6038,7 +6036,7 @@ char main_window_socket_command(char* argv[], char** reply)
     }
 
     // cmd options
-    i = 1;
+    int i = 1;
     while (argv[i] && argv[i][0] == '-')
     {
         if (!strcmp(argv[i], "--window"))
@@ -6279,12 +6277,13 @@ char main_window_socket_command(char* argv[], char** reply)
             else
                 fm_main_window_add_new_tab(main_window, argv[i + 1]);
             main_window_get_counts(file_browser, &i, &tab, &j);
-            *reply =
-                g_strdup_printf("#!%s\nnew_tab_window=%p\nnew_tab_panel=%d\nnew_tab_number=%d\n",
-                                BASHPATH,
-                                main_window,
-                                panel,
-                                tab);
+            *reply = g_strdup_printf("#!%s\n%s\nnew_tab_window=%p\nnew_tab_panel=%d\n"
+                                     "new_tab_number=%d\n",
+                                     BASHPATH,
+                                     SHELL_SETTINGS,
+                                     main_window,
+                                     panel,
+                                     tab);
         }
         else if (g_str_has_suffix(argv[i], "_visible"))
         {
@@ -6966,7 +6965,6 @@ char main_window_socket_command(char* argv[], char** reply)
         else if (!strcmp(argv[i], "selected_filenames") || !strcmp(argv[i], "selected_files"))
         {
             GList* sel_files;
-            VFSFileInfo* file;
 
             sel_files = ptk_file_browser_get_selected_files(file_browser);
             if (!sel_files)
@@ -6976,7 +6974,7 @@ char main_window_socket_command(char* argv[], char** reply)
             GString* gstr = g_string_new("(");
             for (l = sel_files; l; l = l->next)
             {
-                file = vfs_file_info_ref((VFSFileInfo*)l->data);
+                VFSFileInfo* file = vfs_file_info_ref((VFSFileInfo*)l->data);
                 if (file)
                 {
                     str = bash_quote(vfs_file_info_get_name(file));
@@ -7314,9 +7312,11 @@ char main_window_socket_command(char* argv[], char** reply)
             ptk_file_task_run(ptask);
             if (opt_task)
                 *reply =
-                    g_strdup_printf("#!%s\n# Note: $new_task_id not valid until approx one half "
-                                    "second after task start\nnew_task_window=%p\nnew_task_id=%p\n",
+                    g_strdup_printf("#!%s\n%s\n# Note: $new_task_id not valid until approx one "
+                                    "half second after task start\nnew_task_window=%p\n"
+                                    "new_task_id=%p\n",
                                     BASHPATH,
+                                    SHELL_SETTINGS,
                                     main_window,
                                     ptask);
         }
@@ -7567,12 +7567,13 @@ char main_window_socket_command(char* argv[], char** reply)
                                   GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(file_browser))),
                                   file_browser->task_view);
             ptk_file_task_run(ptask);
-            *reply =
-                g_strdup_printf("#!%s\n# Note: $new_task_id not valid until approx one half second "
-                                "after task start\nnew_task_window=%p\nnew_task_id=%p\n",
-                                BASHPATH,
-                                main_window,
-                                ptask);
+            *reply = g_strdup_printf("#!%s\n%s\n# Note: $new_task_id not valid until approx one "
+                                     "half second after task  start\nnew_task_window=%p\n"
+                                     "new_task_id=%p\n",
+                                     BASHPATH,
+                                     SHELL_SETTINGS,
+                                     main_window,
+                                     ptask);
         }
         else
         {

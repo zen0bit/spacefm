@@ -27,7 +27,7 @@ const char* enter_command_use =
        "selected file\n\t%N\tselected filenames  or  %n first selected filename\n\t%d\tcurrent "
        "directory\n\t%v\tselected device (eg /dev/sda1)\n\t%m\tdevice mount point (eg /media/dvd); "
        " %l device label\n\t%b\tselected bookmark\n\t%t\tselected task directory;  %p task "
-       "pid\n\t%a\tmenu item value\n\t$fm_panel, $fm_tab, $fm_command, etc");
+       "pid\n\t%a\tmenu item value\n\t$fm_panel, $fm_tab, etc");
 
 enum
 {

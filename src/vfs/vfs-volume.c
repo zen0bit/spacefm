@@ -3301,15 +3301,15 @@ char* vfs_volume_device_mount_cmd(VFSVolume* vol, const char* options, gboolean*
         {
             // udisks1 - generate a valid exit status
             if (options && options[0] != '\0')
-                command = g_strdup_printf(
-                    "fm_udisks=`%s --mount %s --mount-options '%s' 2>&1`\necho \"$fm_udisks\"\n[[ "
-                    "\"$fm_udisks\" = \"${fm_udisks/ount failed:/}\" ]]\n",
-                    s1,
-                    vol->device_file,
-                    options);
+                command = g_strdup_printf("fm_udisks=$(%s --mount %s --mount-options '%s' 2>&1)\n"
+                                          "echo \"$fm_udisks\"\n[[ \"$fm_udisks\" = "
+                                          "\"${fm_udisks/ount failed:/}\" ]]\n",
+                                          s1,
+                                          vol->device_file,
+                                          options);
             else
-                command = g_strdup_printf("fm_udisks=`%s --mount %s 2>&1`\necho \"$fm_udisks\"\n[[ "
-                                          "\"$fm_udisks\" = \"${fm_udisks/ount failed:/}\" ]]\n",
+                command = g_strdup_printf("fm_udisks=$(%s --mount %s 2>&1)\necho \"$fm_udisks\"\n"
+                                          "[[ \"$fm_udisks\" = \"${fm_udisks/ount failed:/}\" ]]\n",
                                           s1,
                                           vol->device_file);
         }
@@ -3414,8 +3414,8 @@ char* vfs_volume_device_unmount_cmd(VFSVolume* vol, gboolean* run_in_terminal)
         else if ((s1 = g_find_program_in_path("udisks")))
         {
             // udisks1 - generate a valid exit status
-            command = g_strdup_printf("fm_udisks=`%s --unmount %s 2>&1`\necho \"$fm_udisks\"\n[[ "
-                                      "\"$fm_udisks\" = \"${fm_udisks/ount failed:/}\" ]]\n",
+            command = g_strdup_printf("fm_udisks=$(%s --unmount %s 2>&1)\necho \"$fm_udisks\"\n"
+                                      "[[ \"$fm_udisks\" = \"${fm_udisks/ount failed:/}\" ]]\n",
                                       s1,
                                       pointq);
         }
