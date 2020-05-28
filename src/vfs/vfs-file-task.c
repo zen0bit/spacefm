@@ -35,6 +35,8 @@
 #include "main-window.h"
 #include "vfs-volume.h"
 
+#include <gmodule.h>
+
 #include "utils.h"
 
 const mode_t chmod_flags[] = {S_IRUSR,
@@ -1324,19 +1326,15 @@ static void vfs_file_task_exec(char* src_file, VFSFileTask* task)
     // this function is now thread safe but is not currently run in
     // another thread because gio adds watches to main loop thread anyway
     char* su = NULL;
-    char* gsu = NULL;
     char* str;
     const char* tmp;
-    char* hex8;
     char* hexname;
     int result;
-    FILE* file;
     char* terminal = NULL;
     char** terminalv = NULL;
     const char* value;
     char* sum_script = NULL;
     GtkWidget* parent = NULL;
-    gboolean success;
     int i;
     char buf[PATH_MAX + 1];
 
@@ -1376,8 +1374,7 @@ static void vfs_file_task_exec(char* src_file, VFSFileTask* task)
             su = get_valid_su();
             if (!su)
             {
-                str =
-                    _("Please configure a valid Terminal SU command in View|Preferences|Advanced");
+                str = "Please configure a valid Terminal SU command in View|Preferences|Advanced";
                 g_warning(str, NULL);
                 // do not use xset_msg_dialog if non-main thread
                 // vfs_file_task_exec_error( task, 0, str );
@@ -1391,34 +1388,13 @@ static void vfs_file_task_exec(char* src_file, VFSFileTask* task)
                                 NULL);
                 goto _exit_with_error_lean;
             }
-            gsu = get_valid_gsu();
-            if (!gsu)
-            {
-                str =
-                    _("Please configure a valid Graphical SU command in View|Preferences|Advanced");
-                g_warning(str, NULL);
-                // do not use xset_msg_dialog if non-main thread
-                // vfs_file_task_exec_error( task, 0, str );
-                xset_msg_dialog(parent,
-                                GTK_MESSAGE_ERROR,
-                                _("Graphical SU Not Available"),
-                                NULL,
-                                0,
-                                str,
-                                NULL,
-                                NULL);
-                goto _exit_with_error_lean;
-            }
         }
     }
 
     // make tmpdir
-    if (geteuid() != 0 && task->exec_as_user && !strcmp(task->exec_as_user, "root"))
-        tmp = xset_get_shared_tmp_dir();
-    else
-        tmp = xset_get_user_tmp_dir();
+    tmp = xset_get_user_tmp_dir();
 
-    if (!tmp || (tmp && !g_file_test(tmp, G_FILE_TEST_IS_DIR)))
+    if (!tmp || !g_file_test(tmp, G_FILE_TEST_IS_DIR))
     {
         str = _("Cannot create temporary directory");
         g_warning(str, NULL);
@@ -1428,17 +1404,11 @@ static void vfs_file_task_exec(char* src_file, VFSFileTask* task)
         goto _exit_with_error_lean;
     }
 
-    // get terminal if needed
+    // get terminal
     if (!task->exec_terminal && task->exec_as_user)
     {
-        if (!strcmp(gsu, "/bin/su") || !strcmp(gsu, "/usr/bin/sudo"))
-        {
-            // using a non-GUI gsu so run in terminal
-            if (su)
-                g_free(su);
-            su = strdup(gsu);
-            task->exec_terminal = TRUE;
-        }
+        // using cli tool so run in terminal
+        task->exec_terminal = TRUE;
     }
     if (task->exec_terminal)
     {
@@ -1483,35 +1453,23 @@ static void vfs_file_task_exec(char* src_file, VFSFileTask* task)
         {
             if (task->exec_script)
                 g_free(task->exec_script);
-            hex8 = randhex8();
-            hexname = g_strdup_printf("%s-tmp.sh", hex8);
+            hexname = g_strdup_printf("%s-tmp.sh", randhex8());
             task->exec_script = g_build_filename(tmp, hexname, NULL);
             g_free(hexname);
-            g_free(hex8);
         } while (g_file_test(task->exec_script, G_FILE_TEST_EXISTS));
 
-        // open file
-        file = fopen(task->exec_script, "w");
-        if (!file)
-            goto _exit_with_error;
+        // open buffer
+        GString* buf = g_string_sized_new(524288); // 500K
 
         // build - header
-        result =
-            fprintf(file,
-                    "#!%s\n#\n# Temporary SpaceFM exec script - it is safe to delete this file\n\n",
-                    BASHPATH);
-        if (result < 0)
-            goto _exit_with_error;
+        g_string_append_printf(buf, "#!%s\n%s\n#tmp exec script\n", BASHPATH, SHELL_SETTINGS);
 
         // build - exports
         if (task->exec_export && (task->exec_browser || task->exec_desktop))
         {
             if (task->exec_browser)
-                success = main_write_exports(task, value, file);
+                main_write_exports(task, value, buf);
             else
-                success = FALSE;
-
-            if (!success)
                 goto _exit_with_error;
         }
         else
@@ -1524,9 +1482,7 @@ static void vfs_file_task_exec(char* src_file, VFSFileTask* task)
         }
 
         // build - run
-        result = fprintf(file, "# run\n\nif [ \"$1\" == \"run\" ]; then\n\n");
-        if (result < 0)
-            goto _exit_with_error;
+        g_string_append_printf(buf, "#run\nif [ \"$1\" == \"run\" ];then\n\n");
 
         // build - write root settings
         if (task->exec_write_root && geteuid() != 0)
@@ -1536,116 +1492,68 @@ static void vfs_file_task_exec(char* src_file, VFSFileTask* task)
             {
                 char* root_set_path =
                     g_strdup_printf("%s/spacefm/%s-as-root", SYSCONFDIR, this_user);
-                write_root_settings(file, root_set_path);
+                write_root_settings(buf, root_set_path);
                 g_free(root_set_path);
-                // g_free( this_user );  DON'T
             }
             else
             {
                 char* root_set_path =
                     g_strdup_printf("%s/spacefm/%d-as-root", SYSCONFDIR, geteuid());
-                write_root_settings(file, root_set_path);
+                write_root_settings(buf, root_set_path);
                 g_free(root_set_path);
             }
         }
 
         // build - export vars
         if (task->exec_export)
-            result = fprintf(file, "export fm_import='source %s'\n", task->exec_script);
+            g_string_append_printf(buf, "export fm_import=\"source %s\"\n", task->exec_script);
         else
-            result = fprintf(file, "export fm_import=''\n");
-        if (result < 0)
-            goto _exit_with_error;
-        result = fprintf(file, "export fm_source='%s'\n\n", task->exec_script);
-        if (result < 0)
-            goto _exit_with_error;
+            g_string_append_printf(buf, "export fm_import=\"\"\n");
+
+        g_string_append_printf(buf, "export fm_source=\"%s\"\n\n", task->exec_script);
 
         // build - trap rm
-        /* These terminals provide no option to start a new instance, child
-         * exit occurs immediately so can't delete tmp files.  So keep files
-         * and let trap delete on exit.
-
-         * These terminals will not work properly with Run As Task.
-         * ! WHEN CHANGING THIS LIST, also see similar checks in pref-dialog.c
-         * and ptk-location-view.c.
-
-         * Note for konsole:  if you create a link to it and execute the
-         * link, it will start a new instance (might also work for lxterminal?)
-         * http://www.linuxjournal.com/content/start-and-control-konsole-dbus
-         *
-         * gnome-terminal removed --disable-factory option as of 3.10
-         * https://github.com/IgnorantGuru/spacefm/issues/428
-        */
-        if (!task->exec_keep_tmp && terminal &&
-            (strstr(terminal, "lxterminal") ||
-             strstr(terminal, "urxvtc") || // sure no option avail?
-             strstr(terminal, "konsole") || strstr(terminal, "gnome-terminal")))
-        /* when changing this list adjust also
-         * ptk-location-view.c:ptk_location_view_mount_network()
-         * pref-dialog.c Line ~777 */
-        {
-            result = fprintf(file,
-                             "trap \"rm -f %s; exit\" EXIT SIGINT SIGTERM SIGQUIT SIGHUP\n\n",
-                             task->exec_script);
-            if (result < 0)
-                goto _exit_with_error;
-            task->exec_keep_tmp = TRUE;
-        }
-        else if (!task->exec_keep_tmp && geteuid() != 0 && task->exec_as_user &&
-                 !strcmp(task->exec_as_user, "root"))
+        if (!task->exec_keep_tmp && geteuid() != 0 && task->exec_as_user &&
+            !strcmp(task->exec_as_user, "root"))
         {
             // run as root command, clean up
-            result = fprintf(file,
-                             "trap \"rm -f %s; exit\" EXIT SIGINT SIGTERM SIGQUIT SIGHUP\n\n",
-                             task->exec_script);
-            if (result < 0)
-                goto _exit_with_error;
+            g_string_append_printf(buf,
+                                   "trap \"rm -f %s; exit\" EXIT SIint SIGTERM SIGQUIT SIGHUP\n\n",
+                                   task->exec_script);
         }
 
         // build - command
         print_task_command(task->exec_ptask, task->exec_command);
-        result = fprintf(file, "%s\nfm_err=$?\n", task->exec_command);
-        if (result < 0)
-            goto _exit_with_error;
+
+        g_string_append_printf(buf, "%s\nfm_err=$?\n", task->exec_command);
 
         // build - press enter to close
         if (terminal && task->exec_keep_terminal)
         {
             if (geteuid() == 0 || (task->exec_as_user && !strcmp(task->exec_as_user, "root")))
-                result = fprintf(file,
-                                 "\necho\necho -n '%s: '\nread s",
-                                 "[ Finished ]  Press Enter to close");
+                g_string_append_printf(buf,
+                                       "\necho;read -p '[ Finished ]  Press Enter to close: '\n");
             else
             {
-                result = fprintf(file,
-                                 "\necho\necho -n '%s: '\nread s\nif [ \"$s\" = 's' ]; then\n    "
-                                 "if [ \"$(whoami)\" = \"root\" ]; then\n        echo\n        "
-                                 "echo '[ %s ]'\n    fi\n    echo\n    %s\nfi\n\n",
-                                 "[ Finished ]  Press Enter to close or s + Enter for a shell",
-                                 "You are ROOT",
-                                 BASHPATH);
+                g_string_append_printf(buf,
+                                       "\necho;read -p '[ Finished ]  Press Enter to close or s + "
+                                       "Enter for a shell: ' "
+                                       "s\nif [ \"$s\" = 's' ];then\n    if [ \"$(whoami)\" = "
+                                       "\"root\" ];then\n        "
+                                       "echo '\n[ %s ]'\n    fi\n    echo\n    %s\nfi\n\n",
+                                       "You are ROOT",
+                                       BASHPATH);
             }
-            if (result < 0)
-                goto _exit_with_error;
         }
 
-        result = fprintf(file, "\nexit $fm_err\nfi\n");
-        if (result < 0)
-            goto _exit_with_error;
+        g_string_append_printf(buf, "\nexit $fm_err\nfi\n");
 
-        // close file
-        result = fclose(file);
-        file = NULL;
-        if (result)
+        if (!g_file_set_contents(task->exec_script, buf->str, buf->len, NULL))
             goto _exit_with_error;
+        g_string_free(buf, TRUE);
 
         // set permissions
-        if (task->exec_as_user && strcmp(task->exec_as_user, "root"))
-            // run as a non-root user
-            chmod(task->exec_script, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
-        else
-            // run as self or as root
-            chmod(task->exec_script, S_IRWXU);
+        chmod(task->exec_script, 0700);
 
         // use checksum
         if (geteuid() != 0 && (task->exec_as_user || task->exec_checksum))
@@ -1656,8 +1564,8 @@ static void vfs_file_task_exec(char* src_file, VFSFileTask* task)
 
     // Spawn
     GPid pid;
-    gchar* argv[35];
-    gint out, err;
+    char* argv[35];
+    int out, err;
     int a = 0;
     char* use_su;
     gboolean single_arg = FALSE;
@@ -1680,19 +1588,12 @@ static void vfs_file_task_exec(char* src_file, VFSFileTask* task)
         terminalv = NULL;
 
         // automatic terminal options
-        if (strstr(terminal, "roxterm"))
-        {
-            argv[a++] = g_strdup_printf("--disable-sm");
-            argv[a++] = g_strdup_printf("--separate");
-        }
-        else if (strstr(terminal, "lilyterm"))
-            argv[a++] = g_strdup_printf("--separate");
-        else if (strstr(terminal, "xfce4-terminal") || g_str_has_suffix(terminal, "/terminal"))
+        if (strstr(terminal, "xfce4-terminal") || g_str_has_suffix(terminal, "/terminal"))
             argv[a++] = g_strdup_printf("--disable-server");
 
         // add option to execute command in terminal
-        if (strstr(terminal, "xfce4-terminal") || strstr(terminal, "gnome-terminal") ||
-            strstr(terminal, "terminator") || g_str_has_suffix(terminal, "/terminal")) // xfce
+        if (strstr(terminal, "xfce4-terminal") || strstr(terminal, "terminator") ||
+            g_str_has_suffix(terminal, "/terminal")) // xfce
             argv[a++] = g_strdup("-x");
         else if (strstr(terminal, "sakura"))
         {
@@ -1708,8 +1609,6 @@ static void vfs_file_task_exec(char* src_file, VFSFileTask* task)
 
         use_su = su;
     }
-    else
-        use_su = gsu;
 
     if (task->exec_as_user)
     {
@@ -1717,47 +1616,16 @@ static void vfs_file_task_exec(char* src_file, VFSFileTask* task)
         argv[a++] = g_strdup(use_su);
         if (strcmp(task->exec_as_user, "root"))
         {
-            if (!strcmp(use_su, "/usr/bin/su-to-root"))
-                argv[a++] = g_strdup("-p");
-            else if (strcmp(use_su, "/bin/su"))
+            if (strcmp(use_su, "/bin/su"))
                 argv[a++] = g_strdup("-u");
             argv[a++] = g_strdup(task->exec_as_user);
         }
 
-        if (!strcmp(use_su, "/usr/bin/gksu") || !strcmp(use_su, "/usr/bin/gksudo"))
-        {
-            // gksu*
-            argv[a++] = g_strdup("-g");
-            argv[a++] = g_strdup("-D");
-            argv[a++] = g_strdup("SpaceFM Command");
-            single_arg = TRUE;
-        }
-        else if (strstr(use_su, "kdesu"))
-        {
-            // kdesu kdesudo
-            argv[a++] = g_strdup("-d");
-            argv[a++] = g_strdup("-c");
-            single_arg = TRUE;
-        }
-        else if (!strcmp(use_su, "/bin/su"))
+        if (!strcmp(use_su, "/bin/su"))
         {
             // /bin/su
             argv[a++] = g_strdup("-s");
             argv[a++] = g_strdup(BASHPATH); // shell spec
-            argv[a++] = g_strdup("-c");
-            single_arg = TRUE;
-        }
-        else if (!strcmp(use_su, "/usr/bin/gnomesu") || !strcmp(use_su, "/usr/bin/xdg-su"))
-        {
-            // gnomesu
-            argv[a++] = g_strdup("-c");
-            single_arg = TRUE;
-        }
-        else if (!strcmp(use_su, "/usr/bin/su-to-root"))
-        {
-            // su-to-root
-            if (!terminal)
-                argv[a++] = g_strdup("-X"); // command is a X11 program
             argv[a++] = g_strdup("-c");
             single_arg = TRUE;
         }
@@ -1839,8 +1707,6 @@ static void vfs_file_task_exec(char* src_file, VFSFileTask* task)
     argv[a++] = NULL;
     if (su)
         g_free(su);
-    if (gsu)
-        g_free(gsu);
 
     char* first_arg = g_strdup(argv[0]);
     if (task->exec_sync)
@@ -1876,7 +1742,8 @@ static void vfs_file_task_exec(char* src_file, VFSFileTask* task)
 
     if (!result)
     {
-        printf("    result=%d ( %s )\n", errno, g_strerror(errno));
+        if (errno)
+            printf("    result=%d ( %s )\n", errno, g_strerror(errno));
         if (!task->exec_keep_tmp && task->exec_sync)
         {
             if (task->exec_script)
@@ -1946,9 +1813,9 @@ static void vfs_file_task_exec(char* src_file, VFSFileTask* task)
     // out and err can/should be closed too?
 
 _exit_with_error:
-    vfs_file_task_exec_error(task, errno, _("Error writing temporary file"));
-    if (file)
-        fclose(file);
+    vfs_file_task_exec_error(task, errno, "Error writing temporary file");
+    g_string_free(buf, TRUE);
+
     if (!task->exec_keep_tmp)
     {
         if (task->exec_script)
@@ -1958,7 +1825,6 @@ _exit_with_error_lean:
     g_strfreev(terminalv);
     g_free(terminal);
     g_free(su);
-    g_free(gsu);
     call_state_callback(task, VFS_FILE_TASK_FINISH);
     // printf("vfs_file_task_exec DONE ERROR\n");
 }

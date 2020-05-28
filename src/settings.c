@@ -31,6 +31,8 @@
 #include <errno.h>
 #include <fcntl.h>
 
+#include <gmodule.h>
+
 #include "settings.h"
 #include "main-window.h"
 #include "item-prop.h"
@@ -77,7 +79,7 @@ const gboolean always_show_tabs_default = TRUE;
 const gboolean hide_close_tab_buttons_default = FALSE;
 
 // MOD settings
-void xset_write(FILE* file);
+void xset_write(GString* buf);
 void xset_parse(char* line);
 void read_root_settings();
 void xset_defaults();
@@ -749,16 +751,9 @@ void load_settings(char* config_dir)
     ptk_bookmark_view_get_first_bookmark(NULL);
 }
 
-char* save_settings(gpointer main_window_ptr)
+void save_settings(gpointer main_window_ptr)
 {
-    FILE* file;
-    gchar* path;
-    int result, p, pages, g;
-    char* err_msg = NULL;
     XSet* set;
-    PtkFileBrowser* file_browser;
-    char* tabs;
-    char* old_tabs;
     FMMainWindow* main_window;
     // printf("save_settings\n");
 
@@ -771,171 +766,112 @@ char* save_settings(gpointer main_window_ptr)
     else
         main_window = fm_main_window_get_last_active();
 
-    if (GTK_IS_WIDGET(main_window) && save_tabs)
+    if (GTK_IS_WIDGET(main_window))
     {
-        for (p = 1; p < 5; p++)
+        int p;
+        if (save_tabs)
         {
-            set = xset_get_panel(p, "show");
-            if (GTK_IS_NOTEBOOK(main_window->panel[p - 1]))
+            for (p = 1; p < 5; p++)
             {
-                pages = gtk_notebook_get_n_pages(GTK_NOTEBOOK(main_window->panel[p - 1]));
-                if (pages) // panel was shown
+                set = xset_get_panel(p, "show");
+                if (GTK_IS_NOTEBOOK(main_window->panel[p - 1]))
                 {
-                    if (set->s)
+                    int pages = gtk_notebook_get_n_pages(GTK_NOTEBOOK(main_window->panel[p - 1]));
+                    if (pages) // panel was shown
                     {
-                        g_free(set->s);
-                        set->s = NULL;
-                    }
-                    tabs = g_strdup("");
-                    for (g = 0; g < pages; g++)
-                    {
-                        file_browser = PTK_FILE_BROWSER(
-                            gtk_notebook_get_nth_page(GTK_NOTEBOOK(main_window->panel[p - 1]), g));
-                        old_tabs = tabs;
-                        tabs = g_strdup_printf("%s///%s",
-                                               old_tabs,
-                                               ptk_file_browser_get_cwd(file_browser));
-                        g_free(old_tabs);
-                    }
-                    if (tabs[0] != '\0')
-                        set->s = tabs;
-                    else
-                        g_free(tabs);
+                        if (set->s)
+                        {
+                            g_free(set->s);
+                            set->s = NULL;
+                        }
+                        char* tabs = g_strdup("");
+                        int g;
+                        for (g = 0; g < pages; g++)
+                        {
+                            PtkFileBrowser* file_browser = PTK_FILE_BROWSER(
+                                gtk_notebook_get_nth_page(GTK_NOTEBOOK(main_window->panel[p - 1]),
+                                                          g));
+                            char* old_tabs = tabs;
+                            tabs = g_strdup_printf("%s///%s",
+                                                   old_tabs,
+                                                   ptk_file_browser_get_cwd(file_browser));
+                            g_free(old_tabs);
+                        }
+                        if (tabs[0] != '\0')
+                            set->s = tabs;
+                        else
+                            g_free(tabs);
 
-                    // save current tab
-                    if (set->x)
-                        g_free(set->x);
-                    set->x = g_strdup_printf(
-                        "%d",
-                        gtk_notebook_get_current_page(GTK_NOTEBOOK(main_window->panel[p - 1])));
+                        // save current tab
+                        if (set->x)
+                            g_free(set->x);
+                        set->x = g_strdup_printf(
+                            "%d",
+                            gtk_notebook_get_current_page(GTK_NOTEBOOK(main_window->panel[p - 1])));
+                    }
                 }
             }
         }
-    }
-    else if (!save_tabs)
-    {
-        // clear saved tabs
-        for (p = 1; p < 5; p++)
+        else
         {
-            set = xset_get_panel(p, "show");
-            if (set->s)
+            // clear saved tabs
+            for (p = 1; p < 5; p++)
             {
-                g_free(set->s);
-                set->s = NULL;
-            }
-            if (set->x)
-            {
-                g_free(set->x);
-                set->x = NULL;
+                set = xset_get_panel(p, "show");
+                if (set->s)
+                {
+                    g_free(set->s);
+                    set->s = NULL;
+                }
+                if (set->x)
+                {
+                    g_free(set->x);
+                    set->x = NULL;
+                }
             }
         }
     }
 
     /* save settings */
-    if (!g_file_test(settings_config_dir, G_FILE_TEST_EXISTS))
+    if (G_UNLIKELY(!g_file_test(settings_config_dir, G_FILE_TEST_EXISTS)))
         g_mkdir_with_parents(settings_config_dir, 0700);
 
-    if (!g_file_test(settings_config_dir, G_FILE_TEST_EXISTS))
-        goto _save_error;
+    GString* buf = g_string_sized_new(4096);
 
-    path = g_build_filename(settings_config_dir, "session.tmp", NULL);
+    // clang-format off
+    g_string_append(buf, "[General]\n");
+    g_string_append_printf(buf, "show_thumbnail=%d\n", app_settings.show_thumbnail);
+    g_string_append_printf(buf, "max_thumb_size=%d\n", app_settings.max_thumb_size >> 10);
+    g_string_append_printf(buf, "big_icon_size=%d\n", app_settings.big_icon_size);
+    g_string_append_printf(buf, "small_icon_size=%d\n", app_settings.small_icon_size);
+    g_string_append_printf(buf, "tool_icon_size=%d\n", app_settings.tool_icon_size);
+    g_string_append_printf(buf, "single_click=%d\n", app_settings.single_click);
+    g_string_append_printf(buf, "no_single_hover=%d\n", app_settings.no_single_hover);
+    g_string_append_printf(buf, "sort_order=%d\n", app_settings.sort_order);
+    g_string_append_printf(buf, "sort_type=%d\n", app_settings.sort_type);
+    g_string_append_printf(buf, "use_si_prefix=%d\n", app_settings.use_si_prefix);
+    g_string_append_printf(buf, "no_execute=%d\n", app_settings.no_execute);
+    g_string_append_printf(buf, "no_confirm=%d\n", app_settings.no_confirm);
 
-    /* Dirty hacks for LXDE */
-    file = fopen(path, "w");
+    g_string_append(buf, "\n[Window]\n");
+    g_string_append_printf(buf, "width=%d\n", app_settings.width);
+    g_string_append_printf(buf, "height=%d\n", app_settings.height);
+    g_string_append_printf(buf, "maximized=%d\n", app_settings.maximized);
 
-    if (file)
-    {
-        /* General */
-        result = fputs(_("# SpaceFM Session File\n\n# THIS FILE IS NOT DESIGNED TO BE EDITED - it "
-                         "will be read and OVERWRITTEN\n\n# If you delete all session* files, "
-                         "SpaceFM will be reset to factory defaults.\n\n"),
-                       file);
-        if (result < 0)
-            goto _save_error;
-        fputs("[General]\n", file);
-        if (app_settings.encoding[0])
-            fprintf(file, "encoding=%s\n", app_settings.encoding);
-        if (app_settings.show_thumbnail != show_thumbnail_default)
-            fprintf(file, "show_thumbnail=%d\n", !!app_settings.show_thumbnail);
-        if (app_settings.max_thumb_size != max_thumb_size_default)
-            fprintf(file, "max_thumb_size=%d\n", app_settings.max_thumb_size >> 10);
-        if (app_settings.big_icon_size != big_icon_size_default)
-            fprintf(file, "big_icon_size=%d\n", app_settings.big_icon_size);
-        if (app_settings.small_icon_size != small_icon_size_default)
-            fprintf(file, "small_icon_size=%d\n", app_settings.small_icon_size);
-        if (app_settings.tool_icon_size != tool_icon_size_default)
-            fprintf(file, "tool_icon_size=%d\n", app_settings.tool_icon_size);
-            /* FIXME: temporarily disable trash since it's not finished */
-#if 0
-        if ( app_settings.use_trash_can != use_trash_can_default )
-            fprintf( file, "use_trash_can=%d\n", app_settings.use_trash_can );
-#endif
-        if (app_settings.single_click != single_click_default)
-            fprintf(file, "single_click=%d\n", app_settings.single_click);
-        if (app_settings.no_single_hover != no_single_hover_default)
-            fprintf(file, "no_single_hover=%d\n", app_settings.no_single_hover);
-        if (app_settings.sort_order != sort_order_default)
-            fprintf(file, "sort_order=%d\n", app_settings.sort_order);
-        if (app_settings.sort_type != sort_type_default)
-            fprintf(file, "sort_type=%d\n", app_settings.sort_type);
-        if (app_settings.use_si_prefix != use_si_prefix_default)
-            fprintf(file, "use_si_prefix=%d\n", !!app_settings.use_si_prefix);
-        if (!app_settings.no_execute)
-            fprintf(file, "no_execute=%d\n", !!app_settings.no_execute); // MOD
-        if (app_settings.no_confirm)
-            fprintf(file, "no_confirm=%d\n", !!app_settings.no_confirm); // MOD
+    g_string_append(buf, "\n[Interface]\n");
+    g_string_append_printf(buf, "always_show_tabs=%d\n", app_settings.always_show_tabs);
+    g_string_append_printf(buf, "show_close_tab_buttons=%d\n", !app_settings.hide_close_tab_buttons);
 
-        fputs("\n[Window]\n", file);
-        fprintf(file, "width=%d\n", app_settings.width);
-        fprintf(file, "height=%d\n", app_settings.height);
-        fprintf(file, "maximized=%d\n", app_settings.maximized);
-
-        /* Interface */
-        fputs("\n[Interface]\n", file);
-        if (app_settings.always_show_tabs != always_show_tabs_default)
-            fprintf(file, "always_show_tabs=%d\n", app_settings.always_show_tabs);
-        if (app_settings.hide_close_tab_buttons != hide_close_tab_buttons_default)
-            fprintf(file, "show_close_tab_buttons=%d\n", !app_settings.hide_close_tab_buttons);
-
-        // MOD extra settings
-        fputs("\n[MOD]\n", file);
-        xset_write(file);
-
-        result = fputs("\n", file);
-        if (result < 0)
-            goto _save_error;
-        result = fclose(file);
-        if (result)
-            goto _save_error;
-    }
-    else
-        goto _save_error;
+    g_string_append(buf, "\n[MOD]\n");
+    xset_write(buf);
+    // clang-format on
 
     // move
-    char* session = g_build_filename(settings_config_dir, "session", NULL);
-    unlink(session);
-    if (g_file_test(session, G_FILE_TEST_EXISTS))
-        goto _save_error;
-    result = rename(path, session);
+    char* path = g_build_filename(settings_config_dir, "session", NULL);
+    if (!g_file_set_contents(path, buf->str, buf->len, NULL))
+        fprintf(stderr, "spacefm: saving session file failed\n");
     g_free(path);
-    if (result == -1)
-        goto _save_error;
-    if (!g_file_test(session, G_FILE_TEST_EXISTS))
-        goto _save_error;
-    g_free(session);
-
-    return NULL;
-
-_save_error:
-    if (errno)
-    {
-        err_msg = (char*)g_strerror(errno);
-        if (err_msg)
-            err_msg = g_strdup(err_msg);
-    }
-    if (!err_msg)
-        err_msg = g_strdup_printf(_("Error saving file"));
-    return err_msg;
+    g_string_free(buf, TRUE);
 }
 
 void free_settings()
@@ -1002,13 +938,8 @@ const char* xset_get_user_tmp_dir()
 static gboolean idle_save_settings(gpointer ptr)
 {
     // printf("AUTOSAVE *** idle_save_settings\n" );
-    char* err_msg = save_settings(NULL);
-    if (err_msg)
-    {
-        printf(_("SpaceFM Error: Unable to autosave session file ( %s )\n"), err_msg);
-        g_free(err_msg);
-    }
-    return FALSE;
+    save_settings(NULL);
+    // return FALSE;
 }
 
 static void auto_save_start(gboolean delay)
@@ -1478,22 +1409,22 @@ XSet* xset_is_main_bookmark(XSet* set)
     return NULL;
 }
 
-static void xset_write_set(FILE* file, XSet* set)
+static void xset_write_set(GString* buf, XSet* set)
 {
     if (set->plugin)
         return;
     if (set->s)
-        fprintf(file, "%s-s=%s\n", set->name, set->s);
+        g_string_append_printf(buf, "%s-s=%s\n", set->name, set->s);
     if (set->x)
-        fprintf(file, "%s-x=%s\n", set->name, set->x);
+        g_string_append_printf(buf, "%s-x=%s\n", set->name, set->x);
     if (set->y)
-        fprintf(file, "%s-y=%s\n", set->name, set->y);
+        g_string_append_printf(buf, "%s-y=%s\n", set->name, set->y);
     if (set->z)
-        fprintf(file, "%s-z=%s\n", set->name, set->z);
+        g_string_append_printf(buf, "%s-z=%s\n", set->name, set->z);
     if (set->key)
-        fprintf(file, "%s-key=%d\n", set->name, set->key);
+        g_string_append_printf(buf, "%s-key=%d\n", set->name, set->key);
     if (set->keymod)
-        fprintf(file, "%s-keymod=%d\n", set->name, set->keymod);
+        g_string_append_printf(buf, "%s-keymod=%d\n", set->name, set->keymod);
     // menu label
     if (set->menu_label)
     {
@@ -1502,11 +1433,11 @@ static void xset_write_set(FILE* file, XSet* set)
             // built-in
             if (set->in_terminal == XSET_B_TRUE && set->menu_label && set->menu_label[0])
                 // only save lbl if menu_label was customized
-                fprintf(file, "%s-lbl=%s\n", set->name, set->menu_label);
+                g_string_append_printf(buf, "%s-lbl=%s\n", set->name, set->menu_label);
         }
         else
             // custom
-            fprintf(file, "%s-label=%s\n", set->name, set->menu_label);
+            g_string_append_printf(buf, "%s-label=%s\n", set->name, set->menu_label);
     }
     // icon
     if (set->lock)
@@ -1514,60 +1445,57 @@ static void xset_write_set(FILE* file, XSet* set)
         // built-in
         if (set->keep_terminal == XSET_B_TRUE)
             // only save icn if icon was customized
-            fprintf(file, "%s-icn=%s\n", set->name, set->icon ? set->icon : "");
+            g_string_append_printf(buf, "%s-icn=%s\n", set->name, set->icon ? set->icon : "");
     }
     else if (set->icon)
         // custom
-        fprintf(file, "%s-icon=%s\n", set->name, set->icon);
+        g_string_append_printf(buf, "%s-icon=%s\n", set->name, set->icon);
     if (set->next)
-        fprintf(file, "%s-next=%s\n", set->name, set->next);
+        g_string_append_printf(buf, "%s-next=%s\n", set->name, set->next);
     if (set->child)
-        fprintf(file, "%s-child=%s\n", set->name, set->child);
+        g_string_append_printf(buf, "%s-child=%s\n", set->name, set->child);
     if (set->context)
-        fprintf(file, "%s-cxt=%s\n", set->name, set->context);
+        g_string_append_printf(buf, "%s-cxt=%s\n", set->name, set->context);
     if (set->b != XSET_B_UNSET)
-        fprintf(file, "%s-b=%d\n", set->name, set->b);
+        g_string_append_printf(buf, "%s-b=%d\n", set->name, set->b);
     if (set->tool != XSET_TOOL_NOT)
-        fprintf(file, "%s-tool=%d\n", set->name, set->tool);
+        g_string_append_printf(buf, "%s-tool=%d\n", set->name, set->tool);
     if (!set->lock)
     {
         if (set->menu_style)
-            fprintf(file, "%s-style=%d\n", set->name, set->menu_style);
+            g_string_append_printf(buf, "%s-style=%d\n", set->name, set->menu_style);
         if (set->desc)
-            fprintf(file, "%s-desc=%s\n", set->name, set->desc);
+            g_string_append_printf(buf, "%s-desc=%s\n", set->name, set->desc);
         if (set->title)
-            fprintf(file, "%s-title=%s\n", set->name, set->title);
+            g_string_append_printf(buf, "%s-title=%s\n", set->name, set->title);
         if (set->prev)
-            fprintf(file, "%s-prev=%s\n", set->name, set->prev);
+            g_string_append_printf(buf, "%s-prev=%s\n", set->name, set->prev);
         if (set->parent)
-            fprintf(file, "%s-parent=%s\n", set->name, set->parent);
+            g_string_append_printf(buf, "%s-parent=%s\n", set->name, set->parent);
         if (set->line)
-            fprintf(file, "%s-line=%s\n", set->name, set->line);
+            g_string_append_printf(buf, "%s-line=%s\n", set->name, set->line);
         if (set->task != XSET_B_UNSET)
-            fprintf(file, "%s-task=%d\n", set->name, set->task);
+            g_string_append_printf(buf, "%s-task=%d\n", set->name, set->task);
         if (set->task_pop != XSET_B_UNSET)
-            fprintf(file, "%s-task_pop=%d\n", set->name, set->task_pop);
+            g_string_append_printf(buf, "%s-task_pop=%d\n", set->name, set->task_pop);
         if (set->task_err != XSET_B_UNSET)
-            fprintf(file, "%s-task_err=%d\n", set->name, set->task_err);
+            g_string_append_printf(buf, "%s-task_err=%d\n", set->name, set->task_err);
         if (set->task_out != XSET_B_UNSET)
-            fprintf(file, "%s-task_out=%d\n", set->name, set->task_out);
+            g_string_append_printf(buf, "%s-task_out=%d\n", set->name, set->task_out);
         if (set->in_terminal != XSET_B_UNSET)
-            fprintf(file, "%s-term=%d\n", set->name, set->in_terminal);
+            g_string_append_printf(buf, "%s-term=%d\n", set->name, set->in_terminal);
         if (set->keep_terminal != XSET_B_UNSET)
-            fprintf(file, "%s-keep=%d\n", set->name, set->keep_terminal);
+            g_string_append_printf(buf, "%s-keep=%d\n", set->name, set->keep_terminal);
         if (set->scroll_lock != XSET_B_UNSET)
-            fprintf(file, "%s-scroll=%d\n", set->name, set->scroll_lock);
+            g_string_append_printf(buf, "%s-scroll=%d\n", set->name, set->scroll_lock);
         if (set->opener != 0)
-            fprintf(file, "%s-op=%d\n", set->name, set->opener);
+            g_string_append_printf(buf, "%s-op=%d\n", set->name, set->opener);
     }
 }
 
-void xset_write(FILE* file)
+void xset_write(GString* buf)
 {
     GList* l;
-
-    if (!file)
-        return;
 
     for (l = g_list_last(xsets); l; l = l->prev)
     {
@@ -1576,7 +1504,7 @@ void xset_write(FILE* file)
         if ((gboolean)((XSet*)l->data)->disable && (char)((XSet*)l->data)->name[0] == 'h' &&
             g_str_has_prefix((char*)((XSet*)l->data)->name, "hand"))
             continue;
-        xset_write_set(file, (XSet*)l->data);
+        xset_write_set(buf, (XSet*)l->data);
     }
 }
 
@@ -2050,7 +1978,7 @@ gboolean xset_opener(PtkFileBrowser* file_browser, char job)
     return found;
 }
 
-void write_root_saver(FILE* file, const char* path, const char* name, const char* var,
+void write_root_saver(GString* buf, const char* path, const char* name, const char* var,
                       const char* value)
 {
     if (!value)
@@ -2058,24 +1986,21 @@ void write_root_saver(FILE* file, const char* path, const char* name, const char
 
     char* save = g_strdup_printf("%s-%s=%s", name, var, value);
     char* qsave = bash_quote(save);
-    fprintf(file, "echo %s >> \"%s\"\n", qsave, path);
+    g_string_append_printf(buf, "echo %s >> \"%s\"\n", qsave, path);
     g_free(save);
     g_free(qsave);
 }
 
-gboolean write_root_settings(FILE* file, const char* path)
+gboolean write_root_settings(GString* buf, const char* path)
 {
     GList* l;
     XSet* set;
 
-    if (!file)
-        return FALSE;
-
-    fprintf(file,
-            "\n# save root settings\nmkdir -p %s/spacefm\necho -e '# SpaceFM As-Root Session "
-            "File\\n\\n# THIS FILE IS NOT DESIGNED TO BE EDITED\\n\\n' > '%s'\n",
-            SYSCONFDIR,
-            path);
+    g_string_append_printf(buf,
+                           "\n#save root settings\nmkdir -p %s/spacefm\n"
+                           "echo -e '#SpaceFM As-Root Session File\\n\\' > '%s'\n",
+                           SYSCONFDIR,
+                           path);
 
     for (l = xsets; l; l = l->next)
     {
@@ -2088,16 +2013,20 @@ gboolean write_root_settings(FILE* file, const char* path)
                 !strcmp(set->name, "dev_root_unmount") || !strcmp(set->name, "main_terminal") ||
                 !strncmp(set->name, "dev_fmt_", 8) || !strncmp(set->name, "label_cmd_", 8))
             {
-                write_root_saver(file, path, set->name, "s", set->s);
-                write_root_saver(file, path, set->name, "x", set->x);
-                write_root_saver(file, path, set->name, "y", set->y);
+                write_root_saver(buf, path, set->name, "s", set->s);
+                write_root_saver(buf, path, set->name, "x", set->x);
+                write_root_saver(buf, path, set->name, "y", set->y);
                 if (set->b != XSET_B_UNSET)
-                    fprintf(file, "echo '%s-b=%d' >> \"%s\"\n", set->name, set->b, path);
+                    g_string_append_printf(buf,
+                                           "echo '%s-b=%d' >> \"%s\"\n",
+                                           set->name,
+                                           set->b,
+                                           path);
             }
         }
     }
 
-    fprintf(file, "chmod -R go-w+rX %s/spacefm\n\n", SYSCONFDIR);
+    g_string_append_printf(buf, "chmod -R go-w+rX %s/spacefm\n\n", SYSCONFDIR);
     return TRUE;
 }
 
@@ -2176,23 +2105,6 @@ void read_root_settings()
         xset_parse(line);
     }
     fclose(file);
-}
-
-void write_src_functions(FILE* file)
-{
-    fputs("\nfm_randhex4()  # generate a four digit random hex number\n{\n    fm_rand1=$RANDOM\n   "
-          " fm_rand2=$RANDOM\n    (( fm_rand = fm_rand1 + fm_rand2 ))\n    let \"fm_rand \%= "
-          "65536\"\n    fm_randhex=`printf \"\%04X\" $fm_rand | tr A-Z a-z`\n    if [ "
-          "\"$fm_randhex\" = \"\" ]; then\n        fm_randhex=$RANDOM  # failsafe\n    "
-          "fi\n}\n\nfm_new_tmp()\n{\n    fm_randhex4\n    "
-          "fm_tmp1=\"$fm_tmp_dir/$$-$fm_randhex.tmp\"\n    fm_count1=0\n    while ! mkdir "
-          "\"$fm_tmp1\" 2>/dev/null; do\n        fm_randhex4\n        "
-          "fm_tmp1=\"$fm_tmp_dir/$$-$fm_randhex.tmp\"\n        if (( fm_count1++ > 1000 )); then\n "
-          "           echo 'spacefm: error creating temporary directory' 1>&2\n          unset "
-          "fm_tmp1 fm_randhex fm_count1\n            echo \"\"\n            return 1\n        fi\n "
-          "   done\n    echo \"$fm_tmp1\"\n    unset fm_tmp1 fm_randhex "
-          "fm_count1\n}\n\nfm_edit()\n{\n    spacefm -s set edit_file \"$1\"\n}\n\n",
-          file);
 }
 
 XSetContext* xset_context_new()
@@ -4116,19 +4028,19 @@ gboolean xset_custom_export_files(XSet* set, char* plug_dir)
     return ret;
 }
 
-gboolean xset_custom_export_write(FILE* file, XSet* set, char* plug_dir)
+gboolean xset_custom_export_write(GString* buf, XSet* set, char* plug_dir)
 { // recursively write set, submenu sets, and next sets
-    xset_write_set(file, set);
+    xset_write_set(buf, set);
     if (!xset_custom_export_files(set, plug_dir))
         return FALSE;
     if (set->menu_style == XSET_MENU_SUBMENU && set->child)
     {
-        if (!xset_custom_export_write(file, xset_get(set->child), plug_dir))
+        if (!xset_custom_export_write(buf, xset_get(set->child), plug_dir))
             return FALSE;
     }
     if (set->next)
     {
-        if (!xset_custom_export_write(file, xset_get(set->next), plug_dir))
+        if (!xset_custom_export_write(buf, xset_get(set->next), plug_dir))
             return FALSE;
     }
     return TRUE;
@@ -4136,13 +4048,11 @@ gboolean xset_custom_export_write(FILE* file, XSet* set, char* plug_dir)
 
 void xset_custom_export(GtkWidget* parent, PtkFileBrowser* file_browser, XSet* set)
 {
-    char* deffolder;
+    const char* deffolder;
     char* deffile;
-    char* s1;
-    char* s2;
 
     // get new plugin filename
-    XSet* save = xset_get("plug_ifile");
+    XSet* save = xset_get("plug_cfile");
     if (save->s) //&& g_file_test( save->s, G_FILE_TEST_IS_DIR )
         deffolder = save->s;
     else
@@ -4150,36 +4060,43 @@ void xset_custom_export(GtkWidget* parent, PtkFileBrowser* file_browser, XSet* s
         if (!(deffolder = xset_get_s("go_set_default")))
             deffolder = "/";
     }
+
     if (!set->plugin)
     {
-        s1 = clean_label(set->menu_label, TRUE, FALSE);
-        s2 = plain_ascii_name(s1);
+        char* s1 = clean_label(set->menu_label, TRUE, FALSE);
+        char* s2 = plain_ascii_name(s1);
         if (s2[0] == '\0')
         {
             g_free(s2);
             s2 = g_strdup("Plugin");
         }
+        char* type;
         if (!strcmp(set->name, "main_book"))
-            deffile = g_strdup_printf("%s.spacefm-bookmarks.tar.gz", s2);
+            type = g_strdup_printf("bookmarks");
         else if (g_str_has_prefix(set->name, "hand_arc_"))
-            deffile = g_strdup_printf("%s.spacefm-archive-handler.tar.gz", s2);
+            type = g_strdup_printf("archive-handler");
         else if (g_str_has_prefix(set->name, "hand_fs_"))
-            deffile = g_strdup_printf("%s.spacefm-device-handler.tar.gz", s2);
+            type = g_strdup_printf("device-handler");
         else if (g_str_has_prefix(set->name, "hand_net_"))
-            deffile = g_strdup_printf("%s.spacefm-protocol-handler.tar.gz", s2);
+            type = g_strdup_printf("protocol-handler");
         else if (g_str_has_prefix(set->name, "hand_f_"))
-            deffile = g_strdup_printf("%s.spacefm-file-handler.tar.gz", s2);
+            type = g_strdup_printf("file-handler");
         else
-            deffile = g_strdup_printf("%s.spacefm-plugin.tar.gz", s2);
+            type = g_strdup_printf("plugin");
+
+        deffile = g_strdup_printf("%s.spacefm-%s.tar.xz", s2, type);
+
         g_free(s1);
         g_free(s2);
+        g_free(type);
     }
     else
     {
-        s1 = g_path_get_basename(set->plug_dir);
-        deffile = g_strdup_printf("%s.spacefm-plugin.tar.gz", s1);
+        char* s1 = g_path_get_basename(set->plug_dir);
+        deffile = g_strdup_printf("%s.spacefm-plugin.tar.xz", s1);
         g_free(s1);
     }
+
     char* path = xset_file_dialog(parent,
                                   GTK_FILE_CHOOSER_ACTION_SAVE,
                                   _("Save As Plugin File"),
@@ -4194,44 +4111,33 @@ void xset_custom_export(GtkWidget* parent, PtkFileBrowser* file_browser, XSet* s
 
     // get or create tmp plugin dir
     char* plug_dir = NULL;
-    char* hex8;
     if (!set->plugin)
     {
-        s1 = (char*)xset_get_user_tmp_dir();
+        char* s1 = (char*)xset_get_user_tmp_dir();
         if (!s1)
             goto _export_error;
         while (!plug_dir || g_file_test(plug_dir, G_FILE_TEST_EXISTS))
         {
-            hex8 = randhex8();
+            char* hex8 = randhex8();
             if (plug_dir)
                 g_free(plug_dir);
             plug_dir = g_build_filename(s1, hex8, NULL);
             g_free(hex8);
         }
         g_mkdir_with_parents(plug_dir, 0700);
-        chmod(plug_dir, 0700);
 
         // Create plugin file
-        s1 = g_build_filename(plug_dir, "plugin", NULL);
-        FILE* file = fopen(s1, "w");
-        g_free(s1);
-        if (!file)
-            goto _rmtmp_error;
-        int result =
-            fputs("# SpaceFM Plugin File\n\n# THIS FILE IS NOT DESIGNED TO BE EDITED\n\n", file);
-        if (result < 0)
-        {
-            fclose(file);
-            goto _rmtmp_error;
-        }
-        fputs("[Plugin]\n", file);
-        xset_write_set(file, xset_get("config_version"));
+        char* path = g_build_filename(plug_dir, "plugin", NULL);
+        GString* buf = g_string_sized_new(4096);
+
+        g_string_append(buf, "[Plugin]\n");
+        xset_write_set(buf, xset_get("config_version"));
 
         char* s_prev = set->prev;
         char* s_next = set->next;
         char* s_parent = set->parent;
         set->prev = set->next = set->parent = NULL;
-        xset_write_set(file, set);
+        xset_write_set(buf, set);
         set->prev = s_prev;
         set->next = s_next;
         set->parent = s_parent;
@@ -4240,13 +4146,13 @@ void xset_custom_export(GtkWidget* parent, PtkFileBrowser* file_browser, XSet* s
             goto _rmtmp_error;
         if (set->menu_style == XSET_MENU_SUBMENU && set->child)
         {
-            if (!xset_custom_export_write(file, xset_get(set->child), plug_dir))
+            if (!xset_custom_export_write(buf, xset_get(set->child), plug_dir))
                 goto _rmtmp_error;
         }
-        result = fputs("\n", file);
-        fclose(file);
-        if (result < 0)
-            goto _rmtmp_error;
+        g_string_append(buf, "\n");
+        g_file_set_contents(path, buf->str, buf->len, NULL);
+        g_free(path);
+        g_string_free(buf, TRUE);
     }
     else
         plug_dir = g_strdup(set->plug_dir);
@@ -4261,14 +4167,14 @@ void xset_custom_export(GtkWidget* parent, PtkFileBrowser* file_browser, XSet* s
     char* path_q = bash_quote(path);
     if (!set->plugin)
         task->task->exec_command =
-            g_strdup_printf("tar --numeric-owner -czf %s * ; err=$? ; rm -rf %s ; if [ $err -ne 0 "
-                            "]; then rm -f %s; fi; exit $err",
+            g_strdup_printf("tar --numeric-owner -cJf %s * ; err=$? ; rm -rf %s ; if [ $err -ne 0 "
+                            "];then rm -f %s; fi; exit $err",
                             path_q,
                             plug_dir_q,
                             path_q);
     else
-        task->task->exec_command = g_strdup_printf("tar --numeric-owner -czf %s * ; err=$? ; if [ "
-                                                   "$err -ne 0 ]; then rm -f %s; fi; exit $err",
+        task->task->exec_command = g_strdup_printf("tar --numeric-owner -cJf %s * ; err=$? ; if [ "
+                                                   "$err -ne 0 ];then rm -f %s; fi; exit $err",
                                                    path_q,
                                                    path_q);
     g_free(plug_dir_q);
@@ -4288,12 +4194,10 @@ void xset_custom_export(GtkWidget* parent, PtkFileBrowser* file_browser, XSet* s
 _rmtmp_error:
     if (!set->plugin)
     {
-        s2 = bash_quote(plug_dir);
-        s1 = g_strdup_printf("rm -rf %s", s2);
-        print_command(s1);
-        g_spawn_command_line_sync(s1, NULL, NULL, NULL, NULL);
-        g_free(s1);
-        g_free(s2);
+        char* command = g_strdup_printf("rm -rf %s", bash_quote(plug_dir));
+        print_command(command);
+        g_spawn_command_line_sync(command, NULL, NULL, NULL, NULL);
+        g_free(command);
     }
 _export_error:
     g_free(plug_dir);
