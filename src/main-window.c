@@ -78,8 +78,6 @@ static void fm_main_window_set_property(GObject* obj, guint prop_id, const GValu
 static gboolean fm_main_window_delete_event(GtkWidget* widget, GdkEvent* event);
 
 static gboolean fm_main_window_window_state_event(GtkWidget* widget, GdkEventWindowState* event);
-static void fm_main_window_next_tab(FMMainWindow* widget);
-static void fm_main_window_prev_tab(FMMainWindow* widget);
 
 static void on_folder_notebook_switch_pape(GtkNotebook* notebook, GtkWidget* page, guint page_num,
                                            gpointer user_data);
@@ -90,8 +88,6 @@ static void on_file_browser_after_chdir(PtkFileBrowser* file_browser, FMMainWind
 static void on_file_browser_content_change(PtkFileBrowser* file_browser, FMMainWindow* main_window);
 static void on_file_browser_sel_change(PtkFileBrowser* file_browser, FMMainWindow* main_window);
 void on_file_browser_panel_change(PtkFileBrowser* file_browser, FMMainWindow* main_window);
-static void on_file_browser_splitter_pos_change(PtkFileBrowser* file_browser, GParamSpec* param,
-                                                FMMainWindow* main_window);
 static gboolean on_tab_drag_motion(GtkWidget* widget, GdkDragContext* drag_context, gint x, gint y,
                                    guint time, PtkFileBrowser* file_browser);
 static gboolean on_main_window_focus(GtkWidget* main_window, GdkEventFocus* event,
@@ -225,7 +221,7 @@ void on_plugin_install(GtkMenuItem* item, FMMainWindow* main_window, XSet* set2)
 {
     XSet* set;
     char* path = NULL;
-    char* deffolder;
+    const char* deffolder;
     char* plug_dir;
     char* msg;
     int type = 0;
@@ -785,7 +781,7 @@ void main_update_fonts(GtkWidget* widget, PtkFileBrowser* file_browser)
     GtkImage* icon;
     GtkWidget* tab_label;
     XSet* set;
-    char* icon_name;
+    const char* icon_name;
 
     int p = file_browser->mypanel;
     // all windows/panel p/all browsers
@@ -916,7 +912,7 @@ void main_update_fonts(GtkWidget* widget, PtkFileBrowser* file_browser)
 void update_window_icon(GtkWindow* window, GtkIconTheme* theme)
 {
     GdkPixbuf* icon;
-    char* name;
+    const char* name;
     GError* error = NULL;
 
     XSet* set = xset_get("main_icon");
@@ -1420,7 +1416,7 @@ void show_panels(GtkMenuItem* item, FMMainWindow* main_window)
                             tab_dir = g_strdup("/");
                             tabs++;
                         }
-                        else if (end = strstr(tabs, "///"))
+                        else if ((end = strstr(tabs, "///")))
                         {
                             end[0] = '\0';
                             tab_dir = g_strdup(tabs);
@@ -1858,7 +1854,7 @@ void fm_main_window_init(FMMainWindow* main_window)
     GtkAccelGroup* edit_accel_group;
     GClosure* closure;
     int i;
-    char* icon_name;
+    const char* icon_name;
     XSet* set;
 
     main_window->configure_evt_timer = 0;
@@ -1922,7 +1918,7 @@ void fm_main_window_init(FMMainWindow* main_window)
         main_window->panel_btn[i] = GTK_WIDGET(gtk_toggle_tool_button_new());
         icon_name = g_strdup_printf(_("Show Panel %d"), i + 1);
         gtk_tool_button_set_label(GTK_TOOL_BUTTON(main_window->panel_btn[i]), icon_name);
-        g_free(icon_name);
+        free((char*)icon_name);
         set = xset_get_panel(i + 1, "icon_status");
         if (set->icon && set->icon[0] != '\0')
             icon_name = set->icon;
@@ -3034,7 +3030,7 @@ void on_about_activate(GtkMenuItem* menuitem, gpointer user_data)
         g_object_unref(builder);
         gtk_about_dialog_set_version(GTK_ABOUT_DIALOG(about_dlg), PACKAGE_VERSION);
 
-        char* name;
+        const char* name;
         XSet* set = xset_get("main_icon");
         if (set->icon)
             name = set->icon;
@@ -3358,6 +3354,8 @@ void on_file_browser_open_item(PtkFileBrowser* file_browser, const char* path, P
             case PTK_OPEN_TERMINAL:
                 break;
             case PTK_OPEN_FILE:
+                break;
+            default:
                 break;
         }
     }
@@ -4089,7 +4087,7 @@ void main_context_fill(PtkFileBrowser* file_browser, XSetContext* c)
                                                : g_strdup("true");
         }
 
-        if (sel_files = ptk_file_browser_get_selected_files(file_browser))
+        if ((sel_files = ptk_file_browser_get_selected_files(file_browser)))
             file = vfs_file_info_ref((VFSFileInfo*)sel_files->data);
         else
             file = NULL;
@@ -4373,7 +4371,7 @@ void main_context_fill(PtkFileBrowser* file_browser, XSetContext* c)
 
     // tasks
     const char* job_titles[] = {"move", "copy", "trash", "delete", "link", "change", "run"};
-    if (ptask = get_selected_task(file_browser->task_view))
+    if ((ptask = get_selected_task(file_browser->task_view)))
     {
         c->var[CONTEXT_TASK_TYPE] = g_strdup(job_titles[ptask->task->type]);
         if (ptask->task->type == VFS_FILE_TASK_EXEC)
@@ -4408,8 +4406,7 @@ void main_context_fill(PtkFileBrowser* file_browser, XSetContext* c)
         {
             task_count++;
             while (gtk_tree_model_iter_next(model_task, &it))
-                ;
-            task_count++;
+                task_count++;
         }
         c->var[CONTEXT_TASK_COUNT] = g_strdup_printf("%d", task_count);
     }
@@ -5042,6 +5039,8 @@ void on_task_stop(GtkMenuItem* item, GtkWidget* view, XSet* set2, PtkFileTask* t
                     case JOB_RESUME:
                         ptk_file_task_pause(ptask, VFS_FILE_TASK_RUNNING);
                         break;
+                    default:
+                        break;
                 }
             }
         } while (model && gtk_tree_model_iter_next(model, &it));
@@ -5349,7 +5348,7 @@ gboolean on_task_button_press_event(GtkWidget* view, GdkEventButton* event,
     {
         // get selected task
         model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
-        if (is_tasks = gtk_tree_model_get_iter_first(model, &it))
+        if ((is_tasks = gtk_tree_model_get_iter_first(model, &it)))
         {
             if (gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(view),
                                               event->x,
@@ -5449,7 +5448,7 @@ gboolean on_task_button_press_event(GtkWidget* view, GdkEventButton* event,
             return FALSE;
         if (event->button == 1 && g_strcmp0(gtk_tree_view_column_get_title(col), _("Status")))
             return FALSE;
-        char* sname;
+        const char* sname;
         switch (ptask->task->state_pause)
         {
             case VFS_FILE_TASK_PAUSE:
@@ -7771,7 +7770,7 @@ gboolean run_event(FMMainWindow* main_window, PtkFileBrowser* file_browser, XSet
             char* str = cmd;
             cmd = replace_string(str, "%f", focus, FALSE);
             g_free(str);
-            char* change;
+            const char* change;
             if (state == VFS_VOLUME_ADDED)
                 change = "added";
             else if (state == VFS_VOLUME_REMOVED)
@@ -7797,7 +7796,7 @@ gboolean run_event(FMMainWindow* main_window, PtkFileBrowser* file_browser, XSet
         return FALSE;
 
     // replace vars
-    char* replace = "ewpt";
+    const char* replace = "ewpt";
     if (set == evt_win_click)
     {
         replace = "ewptfbm";

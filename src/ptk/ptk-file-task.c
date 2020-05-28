@@ -33,7 +33,6 @@ static gboolean on_vfs_file_task_state_cb(VFSFileTask* task, VFSFileTaskState st
 
 static void query_overwrite(PtkFileTask* ptask);
 
-static void enter_callback(GtkEntry* entry, GtkDialog* dlg); // MOD
 void ptk_file_task_update(PtkFileTask* ptask);
 gboolean ptk_file_task_add_main(PtkFileTask* ptask);
 void on_progress_dlg_response(GtkDialog* dlg, int response, PtkFileTask* ptask);
@@ -402,7 +401,7 @@ gboolean ptk_file_task_cancel(PtkFileTask* ptask)
                     // convert linefeeds to spaces
                     char* scpids = g_strdup(cpids);
                     char* lf;
-                    while (lf = strchr(scpids, '\n'))
+                    while ((lf = strchr(scpids, '\n')))
                         lf[0] = ' ';
 
                     cmd = g_strdup_printf("/bin/kill %d %s ; sleep 3 ; /bin/kill -s KILL %d %s %s",
@@ -456,8 +455,8 @@ gboolean ptk_file_task_cancel(PtkFileTask* ptask)
 
 void set_button_states(PtkFileTask* ptask)
 {
-    char* icon;
-    char* iconset;
+    const char* icon;
+    const char* iconset;
     char* label;
     gboolean sens = !ptask->complete;
 
@@ -537,7 +536,7 @@ void ptk_file_task_pause(PtkFileTask* ptask, int state)
                     // convert linefeeds to spaces
                     char* scpids = g_strdup(cpids);
                     char* lf;
-                    while (lf = strchr(scpids, '\n'))
+                    while ((lf = strchr(scpids, '\n')))
                         lf[0] = ' ';
                     cmd = g_strdup_printf("/bin/kill -s %d %d %s",
                                           sig,
@@ -640,6 +639,8 @@ void on_progress_dlg_response(GtkDialog* dlg, int response, PtkFileTask* ptask)
                 gtk_combo_box_popdown(GTK_COMBO_BOX(ptask->error_combo));
             gtk_widget_destroy(ptask->progress_dlg);
             ptask->progress_dlg = NULL;
+            break;
+        default:
             break;
     }
 }
@@ -767,7 +768,7 @@ void ptk_file_task_progress_open(PtkFileTask* ptask)
     // Buttons
     // Pause
     XSet* set = xset_get("task_pause");
-    char* pause_icon = set->icon;
+    const char* pause_icon = set->icon;
     if (!pause_icon)
         pause_icon = GTK_STOCK_MEDIA_PAUSE;
     ptask->progress_btn_pause = gtk_button_new_with_mnemonic(_("Pa_use"));
@@ -1828,6 +1829,8 @@ gboolean on_vfs_file_task_state_cb(VFSFileTask* task, VFSFileTaskState state, gp
                 gdk_threads_leave();
             }
             break;
+        default:
+            break;
     }
 
     return ret; /* return TRUE to continue */
@@ -1948,6 +1951,8 @@ void query_overwrite_response(GtkDialog* dlg, gint response, PtkFileTask* ptask)
         case GTK_RESPONSE_DELETE_EVENT: // escape was pressed or window closed
         case GTK_RESPONSE_CANCEL:
             ptask->task->abort = TRUE;
+            break;
+        default:
             break;
     }
 
@@ -2229,7 +2234,7 @@ static void query_overwrite(PtkFileTask* ptask)
                            NULL);
 
     XSet* set = xset_get("task_pause");
-    char* pause_icon = set->icon;
+    const char* pause_icon = set->icon;
     if (!pause_icon)
         pause_icon = GTK_STOCK_MEDIA_PAUSE;
     gtk_button_set_image(GTK_BUTTON(btn_pause), xset_get_image(pause_icon, GTK_ICON_SIZE_BUTTON));

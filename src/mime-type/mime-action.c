@@ -528,12 +528,12 @@ static char* _locate_desktop_file_recursive(const char* path, const char* deskto
         return NULL;
 
     char* found = NULL;
-    while (name = g_dir_read_name(dir))
+    while ((name = g_dir_read_name(dir)))
     {
         sub_path = g_build_filename(path, name, NULL);
         if (g_file_test(sub_path, G_FILE_TEST_IS_DIR))
         {
-            if (found = _locate_desktop_file_recursive(sub_path, desktop_id, FALSE))
+            if ((found = _locate_desktop_file_recursive(sub_path, desktop_id, FALSE)))
             {
                 g_free(sub_path);
                 break;
@@ -606,8 +606,8 @@ static char* get_default_action(const char* dir, const char* type, gpointer user
 
     // g_print( "get_default_action( %s, %s )\n", dir, type );
     // search these files in dir for the first existing default app
-    char* names[] = {"mimeapps.list", "defaults.list"};
-    char* groups[] = {"Default Applications", "Added Associations"};
+    const char* names[] = {"mimeapps.list", "defaults.list"};
+    const char* groups[] = {"Default Applications", "Added Associations"};
 
     for (n = 0; n < G_N_ELEMENTS(names); n++)
     {
@@ -629,7 +629,7 @@ static char* get_default_action(const char* dir, const char* type, gpointer user
                         if (apps[i][0] != '\0')
                         {
                             // g_print( "        %s\n", apps[i] );
-                            if (path = mime_type_locate_desktop_file(NULL, apps[i]))
+                            if ((path = mime_type_locate_desktop_file(NULL, apps[i])))
                             {
                                 // g_print( "            EXISTS\n" );
                                 g_free(path);

@@ -217,24 +217,6 @@ char* get_real_link_target(const char* link_path)
     return target_path;
 }
 
-static void select_file_name_part(GtkEntry* entry)
-{
-    GtkEditable* editable = GTK_EDITABLE(entry);
-    const char* file_name = gtk_entry_get_text(entry);
-    const char* dot;
-    int pos;
-
-    if (!file_name[0] || file_name[0] == '.')
-        return;
-    /* FIXME: Simply finding '.' usually gets wrong filename suffix. */
-    dot = g_utf8_strrchr(file_name, -1, '.');
-    if (dot)
-    {
-        pos = g_utf8_pointer_to_offset(file_name, dot);
-        gtk_editable_select_region(editable, 0, pos);
-    }
-}
-
 void on_help_activate(GtkMenuItem* item, MoveSet* mset)
 {
     xset_show_help(GTK_WIDGET(mset->dlg), NULL, mset->create_new ? "#gui-newf" : "#gui-rename");
@@ -1234,7 +1216,7 @@ void on_opt_toggled(GtkMenuItem* item, MoveSet* mset)
 {
     const char* action;
     char* btn_label = NULL;
-    char* root_msg;
+    const char* root_msg;
     char* title;
     GtkTextIter iter, siter;
 
@@ -1898,7 +1880,7 @@ GList* get_templates(const char* templates_dir, const char* subdir, GList* templ
     GDir* dir = g_dir_open(templates_path, 0, NULL);
     if (dir)
     {
-        while (name = g_dir_read_name(dir))
+        while ((name = g_dir_read_name(dir)))
         {
             path = g_build_filename(templates_path, name, NULL);
             if (getdir)
@@ -1959,11 +1941,11 @@ void on_template_changed(GtkWidget* widget, MoveSet* mset)
     {
         g_strstrip(text);
         str = text;
-        while (str2 = strchr(str, '/'))
+        while ((str2 = strchr(str, '/')))
             str = str2 + 1;
         if (str[0] == '.')
             str++;
-        if (str2 = strchr(str, '.'))
+        if ((str2 = strchr(str, '.')))
             str = str2 + 1;
         else
             str = NULL;
@@ -2100,7 +2082,7 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
     mset->is_move = FALSE;
 
     // Dialog
-    char* root_msg;
+    const char* root_msg;
     if (mset->is_link)
         mset->desc = _("Link");
     else if (mset->is_dir)
@@ -2708,7 +2690,7 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
 
     // run
     int response;
-    while (response = gtk_dialog_run(GTK_DIALOG(mset->dlg)))
+    while ((response = gtk_dialog_run(GTK_DIALOG(mset->dlg))))
     {
         if (response == GTK_RESPONSE_OK || response == GTK_RESPONSE_APPLY)
         {

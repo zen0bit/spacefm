@@ -760,7 +760,7 @@ char* ptk_handler_load_script(int mode, int cmd, XSet* handler_set, GtkTextView*
 
     if (g_file_test(script, G_FILE_TEST_EXISTS))
     {
-        if (file = fopen(script, "r"))
+        if ((file = fopen(script, "r")))
         {
             // read file one line at a time to prevent splitting UTF-8 characters
             while (fgets(line, sizeof(line), file))
@@ -864,7 +864,7 @@ char* ptk_handler_save_script(int mode, int cmd, XSet* handler_set, GtkTextView*
     // printf("WRITE %s\n", script );
     // write script
     FILE* file = 0;
-    if (file = fopen(script, "w"))
+    if ((file = fopen(script, "w")))
     {
         // add default script header   #!/bin/bash\n\n
         if (fputs(script_header, file) < 0)
@@ -1033,7 +1033,7 @@ GSList* ptk_handler_file_has_handlers(int mode, int cmd, const char* path, VFSMi
         under_path = (char*)path;
 
     // parsing handlers space-separated list
-    if (ptr = xset_get_s(handler_conf_xset[mode]))
+    if ((ptr = xset_get_s(handler_conf_xset[mode])))
     {
         while (ptr[0])
         {
@@ -1041,7 +1041,7 @@ GSList* ptk_handler_file_has_handlers(int mode, int cmd, const char* path, VFSMi
                 ptr++;
             if (!ptr[0])
                 break;
-            if (delim = strchr(ptr, ' '))
+            if ((delim = strchr(ptr, ' ')))
                 delim[0] = '\0'; // set temporary end of string
 
             // Fetching handler
@@ -2186,7 +2186,7 @@ static gboolean on_handlers_button_press(GtkWidget* view, GdkEventButton* evt, H
         if (item_clicked)
             // select clicked item
             gtk_tree_view_set_cursor(GTK_TREE_VIEW(hnd->view_handlers), tree_path, NULL, FALSE);
-        else if (selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(hnd->view_handlers)))
+        else if ((selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(hnd->view_handlers))))
             // unselect all
             gtk_tree_selection_unselect_all(selection);
         ret = TRUE;
@@ -2197,7 +2197,7 @@ static gboolean on_handlers_button_press(GtkWidget* view, GdkEventButton* evt, H
         if (item_clicked)
             // select clicked item
             gtk_tree_view_set_cursor(GTK_TREE_VIEW(hnd->view_handlers), tree_path, NULL, FALSE);
-        else if (selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(hnd->view_handlers)))
+        else if ((selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(hnd->view_handlers))))
             // unselect all
             gtk_tree_selection_unselect_all(selection);
 
@@ -3503,7 +3503,7 @@ void ptk_handler_show_config(int mode, PtkFileBrowser* file_browser, XSet* def_h
      * buttons that should not cause the dialog to exit */
     /*igcr need to handle dialog delete event? */
     int response;
-    while (response = gtk_dialog_run(GTK_DIALOG(hnd->dlg)))
+    while ((response = gtk_dialog_run(GTK_DIALOG(hnd->dlg))))
     {
         if (response == GTK_RESPONSE_OK)
         {

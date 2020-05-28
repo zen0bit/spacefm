@@ -101,28 +101,6 @@ const char* press_enter_to_close = "[ Finished ]  Press Enter to close";
 /*  Drag & Drop/Clipboard targets  */
 static GtkTargetEntry drag_targets[] = {{"text/uri-list", 0, 0}};
 
-static void show_busy(GtkWidget* view)
-{
-    GtkWidget* toplevel;
-    GdkCursor* cursor;
-
-    toplevel = gtk_widget_get_toplevel(GTK_WIDGET(view));
-    cursor = gdk_cursor_new_for_display(gtk_widget_get_display(GTK_WIDGET(view)), GDK_WATCH);
-    gdk_window_set_cursor(gtk_widget_get_window(toplevel), cursor);
-    gdk_cursor_unref(cursor);
-
-    /* update the  GUI */
-    while (gtk_events_pending())
-        gtk_main_iteration();
-}
-
-static void show_ready(GtkWidget* view)
-{
-    GtkWidget* toplevel;
-    toplevel = gtk_widget_get_toplevel(GTK_WIDGET(view));
-    gdk_window_set_cursor(gtk_widget_get_window(toplevel), NULL);
-}
-
 static void on_model_destroy(gpointer data, GObject* object)
 {
     GtkIconTheme* icon_theme;
@@ -3101,7 +3079,7 @@ static void on_prop(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2)
         }
         if (uuid)
         {
-            if (old_flags = strchr(uuid, '\n'))
+            if ((old_flags = strchr(uuid, '\n')))
                 old_flags[0] = '\0';
         }
 
@@ -3498,7 +3476,7 @@ gboolean volume_is_visible(VFSVolume* vol)
                 value = vol->label;
             else
             {
-                if (value = vol->udi)
+                if ((value = vol->udi))
                 {
                     value = strrchr(value, '/');
                     if (value)
@@ -4263,7 +4241,7 @@ void ptk_bookmark_view_import_gtk(const char* path, XSet* book_set)
         {
             /* Every line is an URI containing no space charactetrs
                with its name appended (optional) */
-            if (sep = strchr(line, ' '))
+            if ((sep = strchr(line, ' ')))
             {
                 sep[0] = '\0';
                 name = sep + 1;
@@ -4793,7 +4771,7 @@ static XSet* find_cwd_match_bookmark(XSet* parent_set, const char* cwd, gboolean
         else if (set->menu_style == XSET_MENU_SUBMENU && recurse && set->child)
         {
             // set is a parent - recurse contents
-            if (found_set = find_cwd_match_bookmark(set, cwd, TRUE, skip_set, found_parent_set))
+            if ((found_set = find_cwd_match_bookmark(set, cwd, TRUE, skip_set, found_parent_set)))
                 return found_set;
         }
         set = xset_is(set->next);
@@ -5056,7 +5034,7 @@ static void activate_bookmark_item(XSet* sel_set, GtkTreeView* view, PtkFileBrow
         set = sel_set;
         while (set->prev)
             set = xset_get(set->prev);
-        if (set = xset_is(set->parent))
+        if ((set = xset_is(set->parent)))
         {
             g_free(file_browser->book_set_name);
             file_browser->book_set_name = g_strdup(set->name);

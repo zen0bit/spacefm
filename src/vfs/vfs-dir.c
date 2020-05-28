@@ -1027,7 +1027,7 @@ static void on_mime_type_reload(gpointer user_data)
 /* Thanks to the freedesktop.org, things are much more complicated now... */
 const char* vfs_get_desktop_dir()
 {
-    char* def;
+    static const char* def;
 
     if (G_LIKELY(is_desktop_set))
         return desktop_dir;

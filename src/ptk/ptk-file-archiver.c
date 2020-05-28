@@ -143,7 +143,7 @@ static void on_format_changed(GtkComboBox* combo, gpointer user_data)
                            &xset_name,
                            // COL_HANDLER_EXTENSIONS, &extensions,
                            -1);
-        if (handler_xset = xset_is(xset_name))
+        if ((handler_xset = xset_is(xset_name)))
         {
             // Obtaining archive extension
             extension = archive_handler_get_first_extension(handler_xset);
@@ -178,7 +178,7 @@ static void on_format_changed(GtkComboBox* combo, gpointer user_data)
                            &xset_name,
                            // COL_HANDLER_EXTENSIONS, &extensions,
                            -1);
-        if (handler_xset = xset_is(xset_name))
+        if ((handler_xset = xset_is(xset_name)))
         {
             // Obtaining archive extension
             extension = archive_handler_get_first_extension(handler_xset);
@@ -227,7 +227,8 @@ static char* generate_bash_error_function(gboolean run_in_terminal, char* parent
      * the user can review the situation. Even outside a terminal, IG
      * has requested text is output
      * No translation for security purposes */
-    char *error_pause = NULL, *finished_with_errors = NULL;
+    const char* error_pause = NULL;
+    const char* finished_with_errors = NULL;
     if (run_in_terminal)
     {
         error_pause = "       read\n";
@@ -519,7 +520,7 @@ void ptk_file_archiver_create(PtkFileBrowser* file_browser, GList* files, const 
                            &xset_name,
                            // COL_HANDLER_EXTENSIONS, &extensions,
                            -1);
-        if (handler_xset = xset_is(xset_name))
+        if ((handler_xset = xset_is(xset_name)))
         {
             char* err_msg = ptk_handler_load_script(HANDLER_MODE_ARC,
                                                     HANDLER_COMPRESS,
@@ -602,7 +603,7 @@ void ptk_file_archiver_create(PtkFileBrowser* file_browser, GList* files, const 
     gboolean run_in_terminal;
     gtk_widget_show_all(dlg);
 
-    while (res = gtk_dialog_run(GTK_DIALOG(dlg)))
+    while ((res = gtk_dialog_run(GTK_DIALOG(dlg))))
     {
         if (res == GTK_RESPONSE_OK)
         {
@@ -1124,7 +1125,7 @@ void ptk_file_archiver_extract(PtkFileBrowser* file_browser, GList* files, const
         }
 
         // Displaying dialog
-        while (res = gtk_dialog_run(GTK_DIALOG(dlg)))
+        while ((res = gtk_dialog_run(GTK_DIALOG(dlg))))
         {
             if (res == GTK_RESPONSE_OK)
             {

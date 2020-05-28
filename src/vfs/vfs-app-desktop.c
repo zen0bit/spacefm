@@ -65,7 +65,7 @@ VFSAppDesktop* vfs_app_desktop_new(const char* file_name)
         if (!load)
         {
             // some desktop files are in subdirs of data dirs (out of spec)
-            if (app->full_path = mime_type_locate_desktop_file(NULL, file_name))
+            if ((app->full_path = mime_type_locate_desktop_file(NULL, file_name)))
                 load = g_key_file_load_from_file(file, app->full_path, G_KEY_FILE_NONE, NULL);
         }
     }
@@ -418,6 +418,8 @@ static char* translate_app_exec_to_command_line(VFSAppDesktop* app, GList* file_
                 case '\0':
                     goto _finish;
                     break;
+                default:
+                    break;
             }
         }
         else /* not % escaped part */
@@ -560,7 +562,7 @@ gboolean vfs_app_desktop_open_files(GdkScreen* screen, const char* working_dir, 
                     }
                     g_free(cmd);
                 }
-            } while (l = l ? l->next : NULL);
+            } while ((l = l ? l->next : NULL));
         }
         g_free(exec);
         return TRUE;

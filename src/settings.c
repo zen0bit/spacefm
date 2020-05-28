@@ -397,7 +397,7 @@ void swap_menu_label(const char* set_name, const char* old_name, const char* new
 { // changes default menu label for older config files
     XSet* set;
 
-    if (set = xset_is(set_name))
+    if ((set = xset_is(set_name)))
     {
         if (set->menu_label && !strcmp(set->menu_label, old_name))
         {
@@ -2303,7 +2303,7 @@ GtkWidget* xset_get_image(const char* icon, int icon_size)
     if (!icon_size)
         icon_size = GTK_ICON_SIZE_MENU;
 
-    if (stockid = icon_stock_to_id(icon))
+    if ((stockid = icon_stock_to_id(icon)))
         image = gtk_image_new_from_stock(stockid, icon_size);
     else if (icon[0] == '/')
     {
@@ -2829,14 +2829,14 @@ char* xset_custom_get_help(GtkWidget* parent, XSet* set)
         }
     }
 
-    char* names[] = {"README",
-                     "readme",
-                     "README.TXT",
-                     "README.txt",
-                     "readme.txt",
-                     "README.MKD",
-                     "README.mkd",
-                     "readme.mkd"};
+    const char* names[] = {"README",
+                           "readme",
+                           "README.TXT",
+                           "README.txt",
+                           "readme.txt",
+                           "README.MKD",
+                           "README.mkd",
+                           "readme.mkd"};
     int i;
     for (i = 0; i < G_N_ELEMENTS(names); ++i)
     {
@@ -3236,7 +3236,7 @@ _redo:
     dir = g_dir_open(path, 0, NULL);
     if (dir)
     {
-        while (name = g_dir_read_name(dir))
+        while ((name = g_dir_read_name(dir)))
         {
             if (strlen(name) == 13 && g_str_has_prefix(name, "cstm_") && !xset_is(name))
             {
@@ -3553,7 +3553,7 @@ XSet* xset_import_plugin(const char* plug_dir, int* use)
             set = (XSet*)l->data;
             set->key = set->keymod = set->tool = set->opener = 0;
             xset_set_plugin_mirror(set);
-            if (set->plugin_top = top)
+            if ((set->plugin_top = top))
             {
                 top = FALSE;
                 rset = set;
@@ -3819,7 +3819,7 @@ void install_plugin_file(gpointer main_win, GtkWidget* handler_dlg, const char* 
     char* file_path_q;
     char* own;
     char* rem = g_strdup("");
-    char* compression = "z";
+    const char* compression = "z";
 
     FMMainWindow* main_window = (FMMainWindow*)main_win;
     // task
@@ -3872,7 +3872,7 @@ void install_plugin_file(gpointer main_win, GtkWidget* handler_dlg, const char* 
         own = g_strdup_printf("chmod -R go+rX-w %s", plug_dir_q);
     }
 
-    char* book = "";
+    const char* book = "";
     if (insert_set && !strcmp(insert_set->name, "main_book"))
     {
         // import bookmarks to end
@@ -4461,7 +4461,7 @@ void xset_custom_activate(GtkWidget* item, XSet* set)
             char* url;
             while (specs && specs[0])
             {
-                if (sep = strchr(specs, ';'))
+                if ((sep = strchr(specs, ';')))
                     sep[0] = '\0';
                 url = g_strdup(specs);
                 url = g_strstrip(url);
@@ -4816,20 +4816,20 @@ void xset_open_url(GtkWidget* parent, const char* url)
             char* program;
             if (g_str_has_prefix(url, "file://") || g_str_has_prefix(url, "/"))
                 ii = 3; // xdg,gnome,exo-open use editor for html files so skip at start
-            char* programs[] = {"xdg-open",
-                                "gnome-open",
-                                "exo-open",
-                                "firefox",
-                                "iceweasel",
-                                "arora",
-                                "konqueror",
-                                "opera",
-                                "epiphany",
-                                "midori",
-                                "chrome",
-                                "xdg-open",
-                                "gnome-open",
-                                "exo-open"};
+            const char* programs[] = {"xdg-open",
+                                      "gnome-open",
+                                      "exo-open",
+                                      "firefox",
+                                      "iceweasel",
+                                      "arora",
+                                      "konqueror",
+                                      "opera",
+                                      "epiphany",
+                                      "midori",
+                                      "chrome",
+                                      "xdg-open",
+                                      "gnome-open",
+                                      "exo-open"};
             int i;
             for (i = ii; i < G_N_ELEMENTS(programs); ++i)
             {
@@ -5477,11 +5477,11 @@ void xset_design_job(GtkWidget* item, XSet* set)
                 folder = g_strdup_printf("/usr/bin");
                 file = NULL;
             }
-            if (custom_file = xset_file_dialog(parent,
-                                               GTK_FILE_CHOOSER_ACTION_OPEN,
-                                               _("Choose Custom Executable"),
-                                               folder,
-                                               file))
+            if ((custom_file = xset_file_dialog(parent,
+                                                GTK_FILE_CHOOSER_ACTION_OPEN,
+                                                _("Choose Custom Executable"),
+                                                folder,
+                                                file)))
             {
                 xset_set_set(set, "x", "2");
                 xset_set_set(set, "z", custom_file);
@@ -6178,6 +6178,8 @@ void xset_design_job(GtkWidget* item, XSet* set)
             set_next = xset_get_panel(1, "tool_l");
             set_next->b = set_next->b == XSET_B_TRUE ? XSET_B_UNSET : XSET_B_TRUE;
             break;
+        default:
+            break;
     }
 
     if (set && (!set->lock || !strcmp(set->name, "main_book")))
@@ -6267,6 +6269,8 @@ gboolean xset_job_is_valid(XSet* set, int job)
             return TRUE;
         case XSET_JOB_HELP:
             return (!set->lock || (set->lock && set->line));
+        default:
+            break;
     }
     return FALSE;
 }
@@ -6288,7 +6292,7 @@ gboolean xset_design_menu_keypress(GtkWidget* widget, GdkEventKey* event, XSet* 
     {
         if (event->keyval == GDK_KEY_F1)
         {
-            char* help = NULL;
+            const char* help = NULL;
             job = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item), "job"));
             switch (job)
             {
@@ -6427,6 +6431,8 @@ gboolean xset_design_menu_keypress(GtkWidget* widget, GdkEventKey* event, XSet* 
                     break;
                 case XSET_JOB_TOOLTIPS:
                     help = "#designmode-designmenu-tooltips";
+                    break;
+                default:
                     break;
             }
             if (!help)
@@ -7777,7 +7783,7 @@ gboolean xset_text_dialog(GtkWidget* parent, const char* title, GtkWidget* image
     int response;
     char* icon;
     gboolean ret = FALSE;
-    while (response = gtk_dialog_run(GTK_DIALOG(dlg)))
+    while ((response = gtk_dialog_run(GTK_DIALOG(dlg))))
     {
         if (response == GTK_RESPONSE_OK)
         {
@@ -8055,7 +8061,7 @@ char* xset_color_dialog(GtkWidget* parent, char* title, char* defcolor)
     char* scolor = NULL;
     GtkWidget* dlgparent = parent ? gtk_widget_get_toplevel(parent) : NULL;
     GtkWidget* dlg = gtk_color_selection_dialog_new(title);
-    GtkWidget* color_sel;
+    GtkWidget* color_sel = NULL;
     GtkWidget* help_button;
 
     g_object_get(G_OBJECT(dlg), "help-button", &help_button, NULL);
@@ -8194,7 +8200,7 @@ void xset_builtin_tool_activate(char tool_type, XSet* set, GdkEventButton* event
     }
 }
 
-const char* xset_get_builtin_toolitem_label(char tool_type)
+const char* xset_get_builtin_toolitem_label(unsigned char tool_type)
 {
     if (tool_type < XSET_TOOL_DEVICES || tool_type >= XSET_TOOL_INVALID)
         return NULL;
@@ -8823,7 +8829,7 @@ GtkWidget* xset_add_toolitem(GtkWidget* parent, PtkFileBrowser* file_browser, Gt
 // printf("    set=%s   set->next=%s\n", set->name, set->next );
 // next toolitem
 _next_toolitem:
-    if (set_next = xset_is(set->next))
+    if ((set_next = xset_is(set->next)))
     {
         // printf("    NEXT %s\n", set_next->name );
         xset_add_toolitem(parent, file_browser, toolbar, icon_size, set_next, show_tooltips);
@@ -8904,7 +8910,7 @@ void xset_fill_toolbar(GtkWidget* parent, PtkFileBrowser* file_browser, GtkWidge
 
 void xset_set_window_icon(GtkWindow* win)
 {
-    char* name;
+    const char* name;
     XSet* set = xset_get("main_icon");
     if (set->icon)
         name = set->icon;
@@ -11215,7 +11221,7 @@ void xset_defaults()
     }
 }
 
-void def_key(char* name, int key, int keymod)
+void def_key(const char* name, int key, int keymod)
 {
     XSet* set = xset_get(name);
 

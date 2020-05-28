@@ -85,18 +85,18 @@ static void get_width_height_pad(char* val, int* width, int* height, int* pad)
     *width = *height = -1;
     if (val)
     {
-        if (sep = strchr(val, 'x'))
+        if ((sep = strchr(val, 'x')))
             sep[0] = '\0';
-        else if (sep = strchr(val, ' '))
+        else if ((sep = strchr(val, ' ')))
             sep[0] = '\0';
         *width = atoi(val);
         if (sep)
         {
             sep[0] = 'x';
             str = sep + 1;
-            if (sep = strchr(str, 'x'))
+            if ((sep = strchr(str, 'x')))
                 sep[0] = '\0';
-            else if (sep = strchr(str, ' '))
+            else if ((sep = strchr(str, ' ')))
                 sep[0] = '\0';
             *height = atoi(str);
             if (sep)
@@ -247,6 +247,8 @@ char* get_column_value(GtkTreeModel* model, GtkTreeIter* iter, int col_index)
             break;
         case G_TYPE_STRING:
             gtk_tree_model_get(model, iter, col_index, &str, -1);
+        default:
+            break;
     }
     return str;
 }
@@ -460,6 +462,8 @@ static void fill_tree_view(CustomElement* el, GList* arglist)
                     renderer = gtk_cell_renderer_progress_new();
                     gtk_tree_view_column_pack_start(col, renderer, TRUE);
                     gtk_tree_view_column_set_attributes(col, renderer, "value", colcount - 1, NULL);
+                default:
+                    break;
             }
         }
     }
@@ -737,7 +741,7 @@ static void set_element_value(CustomElement* el, const char* name, char* value)
             {
                 g_free(el_name->val);
                 el_name->val = unescape(value);
-                if (sep = strrchr(el_name->val, ':'))
+                if ((sep = strrchr(el_name->val, ':')))
                     sep[0] = '\0';
                 else
                     sep = NULL;
@@ -1029,6 +1033,8 @@ static void set_element_value(CustomElement* el, const char* name, char* value)
                                                   value);
             }
             break;
+        default:
+            break;
     }
 }
 
@@ -1130,6 +1136,8 @@ static char* get_element_value(CustomElement* el, const char* name)
                 ret = g_strdup(
                     gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(el_name->widgets->next->data)));
             break;
+        default:
+            break;
     }
     return ret ? ret : g_strdup("");
 }
@@ -1183,7 +1191,7 @@ static char* replace_vars(CustomElement* el, char* value, char* xvalue)
 
     char* newval = NULL;
     ptr = value;
-    while (sep = strchr(ptr, '%'))
+    while ((sep = strchr(ptr, '%')))
     {
         sep[0] = '\0';
         if (ptr[0] != '\0')
@@ -1362,6 +1370,8 @@ static void internal_command(CustomElement* el, int icmd, GList* args, char* xva
             case CMD_ENABLE:
                 icmd = CMD_DISABLE;
                 break;
+            default:
+                break;
         }
     }
 
@@ -1458,6 +1468,8 @@ static void internal_command(CustomElement* el, int icmd, GList* args, char* xva
             if (out != stderr)
                 fclose(out);
             break;
+        default:
+            break;
     }
     g_free(cname);
     g_free(cvalue);
@@ -1552,7 +1564,7 @@ static void run_command_line(CustomElement* el, char* line)
     {
         if (i < 2)
         {
-            if (sep = strchr(str, ' '))
+            if ((sep = strchr(str, ' ')))
                 sep[0] = '\0';
             args = g_list_append(args, g_strdup(str));
             if (sep)
@@ -1980,7 +1992,7 @@ static void write_source(GtkWidget* dlg, CustomElement* el_pressed, FILE* out, g
     GList* l;
     CustomElement* el;
     char* str;
-    char* prefix = "dialog";
+    const char* prefix = "dialog";
     int width, height, pad = -1;
 
     GList* elements = (GList*)g_object_get_data(G_OBJECT(dlg), "elements");
@@ -2037,6 +2049,7 @@ static void write_source(GtkWidget* dlg, CustomElement* el_pressed, FILE* out, g
                 break;
             case CDLG_BUTTON:
                 button_count++;
+                // fallthrough
             case CDLG_FREE_BUTTON:
             case CDLG_TIMEOUT:
                 if (el == el_pressed)
@@ -2251,6 +2264,8 @@ static void write_source(GtkWidget* dlg, CustomElement* el_pressed, FILE* out, g
                     write_file_value((char*)el->args->data + 1, str);
                 }
                 g_free(str);
+                break;
+            default:
                 break;
         }
     }
@@ -3404,7 +3419,7 @@ static void update_element(CustomElement* el, GtkWidget* box, GSList** radio, in
                         str = (char*)l->data;
                         while (str)
                         {
-                            if (sep = strchr(str, ':'))
+                            if ((sep = strchr(str, ':')))
                                 sep[0] = '\0';
                             if (strchr(str, '/'))
                                 gtk_file_filter_add_mime_type(filter, str);
@@ -3486,6 +3501,8 @@ static void update_element(CustomElement* el, GtkWidget* box, GSList** radio, in
                 if (radio)
                     *radio = NULL;
             }
+            break;
+        default:
             break;
     }
 }

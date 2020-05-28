@@ -365,6 +365,8 @@ void ptk_dir_tree_get_value(GtkTreeModel* tree_model, GtkTreeIter* iter, gint co
                 return;
             g_value_set_pointer(value, vfs_file_info_ref(info));
             break;
+        default:
+            break;
     }
 }
 
@@ -810,6 +812,8 @@ void on_file_monitor_event(VFSFileMonitor* fm, VFSFileMonitorEvent event, const 
             be incorrect.
             */
         case VFS_FILE_MONITOR_CHANGE:
+            break;
+        default:
             break;
     }
     GDK_THREADS_LEAVE();

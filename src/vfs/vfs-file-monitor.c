@@ -146,7 +146,7 @@ VFSFileMonitor* vfs_file_monitor_add(char* path, gboolean is_dir, VFSFileMonitor
                                             IN_MOVE | IN_MOVE_SELF | IN_UNMOUNT | IN_ATTRIB);
         if (monitor->wd < 0)
         {
-            char* msg;
+            const char* msg;
             switch (errno)
             {
                 case EACCES:

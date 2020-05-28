@@ -93,8 +93,6 @@ static void ptk_file_browser_cut_or_copy(PtkFileBrowser* file_browser, gboolean 
 
 static void ptk_file_browser_update_model(PtkFileBrowser* file_browser);
 
-static gboolean is_latin_shortcut_key(guint keyval);
-
 /* Get GtkTreePath of the item at coordinate x, y */
 static GtkTreePath* folder_view_get_tree_path_at_pos(PtkFileBrowser* file_browser, int x, int y);
 
@@ -174,10 +172,6 @@ enum
     RESPONSE_RUN = 100,
     RESPONSE_RUNTERMINAL = 101,
 };
-
-static void enter_callback(GtkEntry* entry, GtkDialog* dlg); // MOD
-
-static char* replace_str(char* str, char* orig, char* rep); // MOD
 
 static void rebuild_toolbox(GtkWidget* widget, PtkFileBrowser* file_browser);
 static void rebuild_side_toolbox(GtkWidget* widget, PtkFileBrowser* file_browser);
@@ -533,7 +527,7 @@ void save_command_history(GtkEntry* entry)
         return;
     const char* text = gtk_entry_get_text(GTK_ENTRY(entry));
     // remove duplicates
-    while (l = g_list_find_custom(xset_cmd_history, text, (GCompareFunc)g_strcmp0))
+    while ((l = g_list_find_custom(xset_cmd_history, text, (GCompareFunc)g_strcmp0)))
     {
         g_free((char*)l->data);
         xset_cmd_history = g_list_delete_link(xset_cmd_history, l);
@@ -724,7 +718,7 @@ void on_address_bar_activate(GtkWidget* entry, PtkFileBrowser* file_browser)
 
 void ptk_file_browser_add_toolbar_widget(gpointer set_ptr, GtkWidget* widget)
 { // store the toolbar widget created by set for later change of status
-    char x;
+    unsigned char x;
     XSet* set = (XSet*)set_ptr;
 
     if (!(set && !set->lock && set->browser && set->tool && GTK_IS_WIDGET(widget)))
@@ -763,7 +757,7 @@ void ptk_file_browser_add_toolbar_widget(gpointer set_ptr, GtkWidget* widget)
 void ptk_file_browser_update_toolbar_widgets(PtkFileBrowser* file_browser, gpointer set_ptr,
                                              char tool_type)
 {
-    char x;
+    unsigned char x;
     GSList* l;
     GtkWidget* widget;
     XSet* set = (XSet*)set_ptr;
@@ -1900,7 +1894,7 @@ void ptk_file_browser_select_last(PtkFileBrowser* file_browser) // MOD added
         }
         if (!element)
         {
-            while (l = l->prev)
+            while ((l = l->prev))
             {
                 if (l->data && !strcmp((char*)l->data, (char*)file_browser->curHistory->data))
                 {
@@ -2440,6 +2434,8 @@ static void on_sort_col_changed(GtkTreeSortable* sortable, PtkFileBrowser* file_
             break;
         case COL_FILE_OWNER:
             col = PTK_FB_SORT_BY_OWNER;
+            break;
+        default:
             break;
     }
     file_browser->sort_order = col;
@@ -4045,6 +4041,8 @@ static GtkWidget* create_folder_view(PtkFileBrowser* file_browser, PtkFBViewMode
                              "destroy",
                              G_CALLBACK(on_folder_view_destroy),
                              file_browser);
+            break;
+        default:
             break;
     }
 
@@ -5950,8 +5948,8 @@ void ptk_file_browser_on_permission(GtkMenuItem* item, PtkFileBrowser* file_brow
     char* cmd;
     const char* prog;
     gboolean as_root = FALSE;
-    char* user1 = "1000";
-    char* user2 = "1001";
+    const char* user1 = "1000";
+    const char* user2 = "1001";
     char* myuser = g_strdup_printf("%d", geteuid());
 
     if (!sel_files)

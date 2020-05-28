@@ -54,9 +54,7 @@ static void on_popup_open_activate(GtkMenuItem* menuitem, PtkFileMenu* data);
 static void on_popup_open_with_another_activate(GtkMenuItem* menuitem, PtkFileMenu* data);
 static void on_popup_run_app(GtkMenuItem* menuitem, PtkFileMenu* data);
 static void on_popup_open_in_new_tab_activate(GtkMenuItem* menuitem, PtkFileMenu* data);
-static void on_popup_open_in_new_win_activate(GtkMenuItem* menuitem, PtkFileMenu* data);
 static void on_new_bookmark(GtkMenuItem* menuitem, PtkFileMenu* data);
-static void on_popup_open_in_terminal_activate(GtkMenuItem* menuitem, PtkFileMenu* data);
 static void on_popup_handlers_activate(GtkMenuItem* menuitem, PtkFileMenu* data);
 static void on_popup_cut_activate(GtkMenuItem* menuitem, PtkFileMenu* data);
 static void on_popup_copy_activate(GtkMenuItem* menuitem, PtkFileMenu* data);
@@ -83,8 +81,6 @@ static void on_popup_file_properties_activate(GtkMenuItem* menuitem, PtkFileMenu
 
 void on_popup_file_permissions_activate(GtkMenuItem* menuitem, PtkFileMenu* data);
 
-static void on_popup_open_files_activate(GtkMenuItem* menuitem,
-                                         PtkFileMenu* data); // MOD
 static void on_popup_open_all(GtkMenuItem* menuitem, PtkFileMenu* data);
 
 void on_popup_canon(GtkMenuItem* menuitem, PtkFileMenu* data);
@@ -1421,7 +1417,7 @@ char* get_shared_desktop_file_location(const char* name)
     dirs = g_get_system_data_dirs();
     for (; *dirs; ++dirs)
     {
-        if (ret = vfs_mime_type_locate_desktop_file(*dirs, name))
+        if ((ret = vfs_mime_type_locate_desktop_file(*dirs, name)))
             return ret;
     }
     return NULL;
@@ -1671,15 +1667,15 @@ void app_job(GtkWidget* item, GtkWidget* app_item)
                 if (g_file_get_contents(usr_path, &contents, NULL, NULL))
                 {
                     char* start = NULL;
-                    if (str = strstr(contents, "\n<mime-type "))
+                    if ((str = strstr(contents, "\n<mime-type ")))
                     {
-                        if (str = strstr(str, ">\n"))
+                        if ((str = strstr(str, ">\n")))
                         {
                             str[1] = '\0';
                             start = contents;
-                            if (str = strstr(str + 2, "<!--Created automatically"))
+                            if ((str = strstr(str + 2, "<!--Created automatically")))
                             {
-                                if (str = strstr(str, "-->"))
+                                if ((str = strstr(str, "-->")))
                                     start = str + 4;
                             }
                         }
@@ -1755,6 +1751,8 @@ void app_job(GtkWidget* item, GtkWidget* app_item)
         case APP_JOB_HELP:
             xset_show_help(data->browser, NULL, "#designmode-mime");
             break;
+        default:
+            break;
     }
     if (mime_type)
         vfs_mime_type_unref(mime_type);
@@ -1788,7 +1786,7 @@ gboolean app_menu_keypress(GtkWidget* menu, GdkEventKey* event, PtkFileMenu* dat
     {
         if (event->keyval == GDK_KEY_F1)
         {
-            char* help = NULL;
+            const char* help = NULL;
             if (app_data)
             {
                 job = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item), "job"));
@@ -1827,6 +1825,8 @@ gboolean app_menu_keypress(GtkWidget* menu, GdkEventKey* event, PtkFileMenu* dat
                     case APP_JOB_VIEW_OVER:
                     case APP_JOB_BROWSE_MIME_USR:
                         help = "#designmode-mime-usr";
+                        break;
+                    default:
                         break;
                 }
             }

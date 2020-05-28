@@ -261,10 +261,10 @@ gboolean on_socket_event(GIOChannel* ioc, GIOCondition cond, gpointer data)
                     return TRUE;
                 case CMD_FIND_FILES:
                     find_files = TRUE;
-                    break;
                 case CMD_SOCKET_CMD:
                     g_string_free(args, TRUE);
                     return TRUE;
+                default:
                     break;
             }
 

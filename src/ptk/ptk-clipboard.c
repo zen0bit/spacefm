@@ -31,7 +31,7 @@ static void clipboard_get_data(GtkClipboard* clipboard, GtkSelectionData* select
     GdkAtom gnome_target = gdk_atom_intern("x-special/gnome-copied-files", FALSE);
     GList* l;
     gchar* file_name;
-    gchar* action;
+    const gchar* action;
     gboolean use_uri = FALSE;
 
     GString* list;
@@ -398,7 +398,8 @@ void ptk_clipboard_paste_links(GtkWindow* parent_win, const char* dest_dir, GtkT
         puri = uri_list = g_uri_list_extract_uris(uri_list_str);
         while (*puri)
         {
-            if (file_path = g_filename_from_uri(*puri, NULL, NULL))
+            file_path = g_filename_from_uri(*puri, NULL, NULL);
+            if (file_path)
                 files = g_list_prepend(files, file_path);
             ++puri;
         }

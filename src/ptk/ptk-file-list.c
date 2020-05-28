@@ -456,6 +456,8 @@ void ptk_file_list_get_value(GtkTreeModel* tree_model, GtkTreeIter* iter, gint c
         case COL_FILE_INFO:
             g_value_set_pointer(value, vfs_file_info_ref(info));
             break;
+        default:
+            break;
     }
 }
 
