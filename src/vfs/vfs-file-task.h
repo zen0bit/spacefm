@@ -186,6 +186,9 @@ struct _VFSFileTask
  */
 VFSFileTask* vfs_task_new(VFSFileTaskType task_type, GList* src_files, const char* dest_dir);
 
+void vfs_file_task_lock(VFSFileTask* task);
+void vfs_file_task_unlock(VFSFileTask* task);
+
 /* Set some actions for chmod, this array will be copied
  * and stored in VFSFileTask */
 void vfs_file_task_set_chmod(VFSFileTask* task, guchar* chmod_actions);

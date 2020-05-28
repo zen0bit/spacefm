@@ -74,13 +74,33 @@ void gx_free(gpointer x)
 {
 } // dummy free - test only
 
-void append_add_log(VFSFileTask* task, const char* msg, gint msg_len)
+static void vfs_file_task_init(VFSFileTask* task)
+{
+    g_mutex_init(&task->mutex);
+}
+
+void vfs_file_task_lock(VFSFileTask* task)
 {
     g_mutex_lock(task->mutex);
+}
+
+void vfs_file_task_unlock(VFSFileTask* task)
+{
+    g_mutex_unlock(task->mutex);
+}
+
+void vfs_file_task_clear(VFSFileTask* task)
+{
+    g_mutex_clear(&task->mutex);
+}
+
+void append_add_log(VFSFileTask* task, const char* msg, gint msg_len)
+{
+    vfs_file_task_lock(task);
     GtkTextIter iter;
     gtk_text_buffer_get_iter_at_mark(task->add_log_buf, &iter, task->add_log_end);
     gtk_text_buffer_insert(task->add_log_buf, &iter, msg, msg_len);
-    g_mutex_unlock(task->mutex);
+    vfs_file_task_unlock(task);
 }
 
 static void call_state_callback(VFSFileTask* task, VFSFileTaskState state)
@@ -94,9 +114,9 @@ static void call_state_callback(VFSFileTask* task, VFSFileTaskState state)
             if (task->type == VFS_FILE_TASK_EXEC && task->exec_cond)
             {
                 // this is used only if exec task run in non-main loop thread
-                g_mutex_lock(task->mutex);
+                vfs_file_task_lock(task);
                 g_cond_broadcast(task->exec_cond);
-                g_mutex_unlock(task->mutex);
+                vfs_file_task_unlock(task);
             }
         }
         else
@@ -109,7 +129,7 @@ static gboolean should_abort(VFSFileTask* task)
     if (task->state_pause != VFS_FILE_TASK_RUNNING)
     {
         // paused or queued - suspend thread
-        g_mutex_lock(task->mutex);
+        vfs_file_task_lock(task);
         g_timer_stop(task->timer);
         task->pause_cond = g_cond_new();
         g_cond_wait(task->pause_cond, task->mutex);
@@ -121,7 +141,7 @@ static gboolean should_abort(VFSFileTask* task)
         task->last_speed = 0;
         g_timer_continue(task->timer);
         task->state_pause = VFS_FILE_TASK_RUNNING;
-        g_mutex_unlock(task->mutex);
+        vfs_file_task_unlock(task);
     }
     return task->abort;
 }
@@ -348,11 +368,11 @@ static gboolean vfs_file_task_do_copy(VFSFileTask* task, const char* src_file,
     if (should_abort(task))
         return FALSE;
     // printf("vfs_file_task_do_copy( %s, %s )\n", src_file, dest_file );
-    g_mutex_lock(task->mutex);
+    vfs_file_task_lock(task);
     string_copy_free(&task->current_file, src_file);
     string_copy_free(&task->current_dest, dest_file);
     task->current_item++;
-    g_mutex_unlock(task->mutex);
+    vfs_file_task_unlock(task);
 
     if (lstat(src_file, &file_stat) == -1)
     {
@@ -371,9 +391,9 @@ static gboolean vfs_file_task_do_copy(VFSFileTask* task, const char* src_file,
         if (new_dest_file)
         {
             dest_file = new_dest_file;
-            g_mutex_lock(task->mutex);
+            vfs_file_task_lock(task);
             string_copy_free(&task->current_dest, dest_file);
-            g_mutex_unlock(task->mutex);
+            vfs_file_task_unlock(task);
         }
 
         if (!dest_exists)
@@ -382,9 +402,9 @@ static gboolean vfs_file_task_do_copy(VFSFileTask* task, const char* src_file,
         if (result == 0)
         {
             struct utimbuf times;
-            g_mutex_lock(task->mutex);
+            vfs_file_task_lock(task);
             task->progress += file_stat.st_size;
-            g_mutex_unlock(task->mutex);
+            vfs_file_task_unlock(task);
 
             error = NULL;
             dir = g_dir_open(src_file, 0, &error);
@@ -451,9 +471,9 @@ static gboolean vfs_file_task_do_copy(VFSFileTask* task, const char* src_file,
             if (new_dest_file)
             {
                 dest_file = new_dest_file;
-                g_mutex_lock(task->mutex);
+                vfs_file_task_lock(task);
                 string_copy_free(&task->current_dest, dest_file);
-                g_mutex_unlock(task->mutex);
+                vfs_file_task_unlock(task);
             }
 
             // MOD delete it first to prevent exists error
@@ -479,9 +499,9 @@ static gboolean vfs_file_task_do_copy(VFSFileTask* task, const char* src_file,
                         copy_fail = TRUE;
                     }
                 }
-                g_mutex_lock(task->mutex);
+                vfs_file_task_lock(task);
                 task->progress += file_stat.st_size;
-                g_mutex_unlock(task->mutex);
+                vfs_file_task_unlock(task);
             }
             else
             {
@@ -508,9 +528,9 @@ static gboolean vfs_file_task_do_copy(VFSFileTask* task, const char* src_file,
             if (new_dest_file)
             {
                 dest_file = new_dest_file;
-                g_mutex_lock(task->mutex);
+                vfs_file_task_lock(task);
                 string_copy_free(&task->current_dest, dest_file);
-                g_mutex_unlock(task->mutex);
+                vfs_file_task_unlock(task);
             }
 
             // MOD if dest is a symlink, delete it first to prevent overwriting target!
@@ -541,9 +561,9 @@ static gboolean vfs_file_task_do_copy(VFSFileTask* task, const char* src_file,
 
                     if (write(wfd, buffer, rsize) > 0)
                     {
-                        g_mutex_lock(task->mutex);
+                        vfs_file_task_lock(task);
                         task->progress += rsize;
-                        g_mutex_unlock(task->mutex);
+                        vfs_file_task_unlock(task);
                     }
                     else
                     {
@@ -637,11 +657,11 @@ static int vfs_file_task_do_move(VFSFileTask* task, const char* src_file,
     if (should_abort(task))
         return 0;
 
-    g_mutex_lock(task->mutex);
+    vfs_file_task_lock(task);
     string_copy_free(&task->current_file, src_file);
     string_copy_free(&task->current_dest, dest_file);
     task->current_item++;
-    g_mutex_unlock(task->mutex);
+    vfs_file_task_unlock(task);
 
     /* g_debug( "move \"%s\" to \"%s\"\n", src_file, dest_file ); */
     if (lstat(src_file, &file_stat) == -1)
@@ -662,9 +682,9 @@ static int vfs_file_task_do_move(VFSFileTask* task, const char* src_file,
     if (new_dest_file)
     {
         dest_file = new_dest_file;
-        g_mutex_lock(task->mutex);
+        vfs_file_task_lock(task);
         string_copy_free(&task->current_dest, dest_file);
-        g_mutex_unlock(task->mutex);
+        vfs_file_task_unlock(task);
     }
 
     if (S_ISDIR(file_stat.st_mode) && g_file_test(dest_file, G_FILE_TEST_IS_DIR))
@@ -719,11 +739,11 @@ static int vfs_file_task_do_move(VFSFileTask* task, const char* src_file,
     else if (!g_file_test(dest_file, G_FILE_TEST_IS_SYMLINK))
         chmod(dest_file, file_stat.st_mode);
 
-    g_mutex_lock(task->mutex);
+    vfs_file_task_lock(task);
     task->progress += file_stat.st_size;
     if (task->error_first)
         task->error_first = FALSE;
-    g_mutex_unlock(task->mutex);
+    vfs_file_task_unlock(task);
 
     if (new_dest_file)
         g_free(new_dest_file);
@@ -741,9 +761,9 @@ static void vfs_file_task_move(char* src_file, VFSFileTask* task)
     if (should_abort(task))
         return;
 
-    g_mutex_lock(task->mutex);
+    vfs_file_task_lock(task);
     string_copy_free(&task->current_file, src_file);
-    g_mutex_unlock(task->mutex);
+    vfs_file_task_unlock(task);
 
     file_name = g_path_get_basename(src_file);
 
@@ -786,10 +806,10 @@ static void vfs_file_task_delete(char* src_file, VFSFileTask* task)
     if (should_abort(task))
         return;
 
-    g_mutex_lock(task->mutex);
+    vfs_file_task_lock(task);
     string_copy_free(&task->current_file, src_file);
     task->current_item++;
-    g_mutex_unlock(task->mutex);
+    vfs_file_task_unlock(task);
 
     if (lstat(src_file, &file_stat) == -1)
     {
@@ -839,11 +859,11 @@ static void vfs_file_task_delete(char* src_file, VFSFileTask* task)
             return;
         }
     }
-    g_mutex_lock(task->mutex);
+    vfs_file_task_lock(task);
     task->progress += file_stat.st_size;
     if (task->error_first)
         task->error_first = FALSE;
-    g_mutex_unlock(task->mutex);
+    vfs_file_task_unlock(task);
 }
 
 static void vfs_file_task_link(char* src_file, VFSFileTask* task)
@@ -866,11 +886,11 @@ static void vfs_file_task_link(char* src_file, VFSFileTask* task)
     // MOD  setup task for check overwrite
     if (should_abort(task))
         return;
-    g_mutex_lock(task->mutex);
+    vfs_file_task_lock(task);
     string_copy_free(&task->current_file, src_file);
     string_copy_free(&task->current_dest, old_dest_file);
     task->current_item++;
-    g_mutex_unlock(task->mutex);
+    vfs_file_task_unlock(task);
 
     if (stat(src_file, &src_stat) == -1)
     {
@@ -890,9 +910,9 @@ static void vfs_file_task_link(char* src_file, VFSFileTask* task)
     if (new_dest_file)
     {
         dest_file = new_dest_file;
-        g_mutex_lock(task->mutex);
+        vfs_file_task_lock(task);
         string_copy_free(&task->current_dest, dest_file);
-        g_mutex_unlock(task->mutex);
+        vfs_file_task_unlock(task);
     }
 
     // MOD if dest exists, delete it first to prevent exists error
@@ -914,11 +934,11 @@ static void vfs_file_task_link(char* src_file, VFSFileTask* task)
             return;
     }
 
-    g_mutex_lock(task->mutex);
+    vfs_file_task_lock(task);
     task->progress += src_stat.st_size;
     if (task->error_first)
         task->error_first = FALSE;
-    g_mutex_unlock(task->mutex);
+    vfs_file_task_unlock(task);
 
     if (new_dest_file)
         g_free(new_dest_file);
@@ -938,10 +958,10 @@ static void vfs_file_task_chown_chmod(char* src_file, VFSFileTask* task)
 
     if (should_abort(task))
         return;
-    g_mutex_lock(task->mutex);
+    vfs_file_task_lock(task);
     string_copy_free(&task->current_file, src_file);
     task->current_item++;
-    g_mutex_unlock(task->mutex);
+    vfs_file_task_unlock(task);
     /* g_debug("chmod_chown: %s\n", src_file); */
 
     if (lstat(src_file, &src_stat) == 0)
@@ -983,9 +1003,9 @@ static void vfs_file_task_chown_chmod(char* src_file, VFSFileTask* task)
             }
         }
 
-        g_mutex_lock(task->mutex);
+        vfs_file_task_lock(task);
         task->progress += src_stat.st_size;
-        g_mutex_unlock(task->mutex);
+        vfs_file_task_unlock(task);
 
         if (task->avoid_changes)
             update_file_display(src_file);
@@ -1318,7 +1338,7 @@ static void vfs_file_task_exec(char* src_file, VFSFileTask* task)
     // printf("vfs_file_task_exec\n");
     // task->exec_keep_tmp = TRUE;
 
-    g_mutex_lock(task->mutex);
+    vfs_file_task_lock(task);
     value = task->current_dest; // variable value temp storage
     task->current_dest = NULL;
 
@@ -1331,7 +1351,7 @@ static void vfs_file_task_exec(char* src_file, VFSFileTask* task)
     string_copy_free(&task->current_file, src_file);
     task->total_size = 0;
     task->percent = 0;
-    g_mutex_unlock(task->mutex);
+    vfs_file_task_unlock(task);
 
     if (should_abort(task))
         return;
@@ -1830,11 +1850,11 @@ static gpointer vfs_file_task_thread(VFSFileTask* task)
     if (task->type < VFS_FILE_TASK_MOVE || task->type >= VFS_FILE_TASK_LAST)
         goto _exit_thread;
 
-    g_mutex_lock(task->mutex);
+    vfs_file_task_lock(task);
     task->state = VFS_FILE_TASK_RUNNING;
     string_copy_free(&task->current_file, task->src_paths ? (char*)task->src_paths->data : NULL);
     task->total_size = 0;
-    g_mutex_unlock(task->mutex);
+    vfs_file_task_unlock(task);
 
     if (task->abort)
         goto _exit_thread;
@@ -1857,9 +1877,9 @@ static gpointer vfs_file_task_thread(VFSFileTask* task)
             {
                 size = 0;
                 get_total_size_of_dir(task, (char*)l->data, &size, &file_stat);
-                g_mutex_lock(task->mutex);
+                vfs_file_task_lock(task);
                 task->total_size += size;
-                g_mutex_unlock(task->mutex);
+                vfs_file_task_unlock(task);
             }
             if (task->abort)
                 goto _exit_thread;
@@ -1897,15 +1917,15 @@ static gpointer vfs_file_task_thread(VFSFileTask* task)
                     // recursive size
                     size = 0;
                     get_total_size_of_dir(task, (char*)l->data, &size, &file_stat);
-                    g_mutex_lock(task->mutex);
+                    vfs_file_task_lock(task);
                     task->total_size += size;
-                    g_mutex_unlock(task->mutex);
+                    vfs_file_task_unlock(task);
                 }
                 else
                 {
-                    g_mutex_lock(task->mutex);
+                    vfs_file_task_lock(task);
                     task->total_size += file_stat.st_size;
-                    g_mutex_unlock(task->mutex);
+                    vfs_file_task_unlock(task);
                 }
             }
             if (task->abort)
@@ -2020,7 +2040,7 @@ VFSFileTask* vfs_task_new(VFSFileTaskType type, GList* src_files, const char* de
     task->queue_start = FALSE;
     task->devs = NULL;
 
-    g_mutex_init(&task->mutex);
+    vfs_file_task_init(task);
 
     GtkTextIter iter;
     task->add_log_buf = gtk_text_buffer_new(NULL);
@@ -2080,20 +2100,20 @@ void vfs_file_task_try_abort(VFSFileTask* task)
     task->abort = TRUE;
     if (task->pause_cond)
     {
-        g_mutex_lock(task->mutex);
+        vfs_file_task_lock(task);
         g_cond_broadcast(task->pause_cond);
         task->last_elapsed = g_timer_elapsed(task->timer, NULL);
         task->last_progress = task->progress;
         task->last_speed = 0;
-        g_mutex_unlock(task->mutex);
+        vfs_file_task_unlock(task);
     }
     else
     {
-        g_mutex_lock(task->mutex);
+        vfs_file_task_lock(task);
         task->last_elapsed = g_timer_elapsed(task->timer, NULL);
         task->last_progress = task->progress;
         task->last_speed = 0;
-        g_mutex_unlock(task->mutex);
+        vfs_file_task_unlock(task);
     }
     task->state_pause = VFS_FILE_TASK_RUNNING;
 }
@@ -2133,7 +2153,7 @@ void vfs_file_task_free(VFSFileTask* task)
     if (task->exec_script)
         g_free(task->exec_script);
 
-    g_mutex_clear(&task->mutex);
+    vfs_file_task_clear(task);
 
     gtk_text_buffer_set_text(task->add_log_buf, "", -1);
     g_object_unref(task->add_log_buf);
@@ -2150,14 +2170,14 @@ void add_task_dev(VFSFileTask* task, dev_t dev)
     {
         parent = get_device_parent(dev);
         // printf("add_task_dev %d:%d\n", major(dev), minor(dev) );
-        g_mutex_lock(task->mutex);
+        vfs_file_task_lock(task);
         task->devs = g_slist_append(task->devs, GUINT_TO_POINTER(dev));
         if (parent && !g_slist_find(task->devs, GUINT_TO_POINTER(parent)))
         {
             // printf("add_task_dev PARENT %d:%d\n", major(parent), minor(parent) );
             task->devs = g_slist_append(task->devs, GUINT_TO_POINTER(parent));
         }
-        g_mutex_unlock(task->mutex);
+        vfs_file_task_unlock(task);
     }
 }
 

@@ -4376,12 +4376,12 @@ void main_context_fill(PtkFileBrowser* file_browser, XSetContext* c)
         else
         {
             c->var[CONTEXT_TASK_NAME] = g_strdup("");
-            g_mutex_lock(ptask->task->mutex);
+            ptk_file_task_lock(ptask);
             if (ptask->task->current_file)
                 c->var[CONTEXT_TASK_DIR] = g_path_get_dirname(ptask->task->current_file);
             else
                 c->var[CONTEXT_TASK_DIR] = g_strdup("");
-            g_mutex_unlock(ptask->task->mutex);
+            ptk_file_task_unlock(ptask);
         }
     }
     else
@@ -5298,7 +5298,7 @@ void show_task_dialog(GtkWidget* widget, GtkWidget* view)
     if (!ptask)
         return;
 
-    g_mutex_lock(ptask->task->mutex);
+    ptk_file_task_lock(ptask);
     ptk_file_task_progress_open(ptask);
     if (ptask->task->state_pause != VFS_FILE_TASK_RUNNING)
     {
@@ -5308,7 +5308,7 @@ void show_task_dialog(GtkWidget* widget, GtkWidget* view)
     }
     if (ptask->progress_dlg)
         gtk_window_present(GTK_WINDOW(ptask->progress_dlg));
-    g_mutex_unlock(ptask->task->mutex);
+    ptk_file_task_unlock(ptask);
 }
 
 gboolean on_task_button_press_event(GtkWidget* view, GdkEventButton* event,
@@ -7042,11 +7042,11 @@ char main_window_socket_command(char* argv[], char** reply)
         // set model value
         if (!strcmp(argv[i + 1], "icon"))
         {
-            g_mutex_lock(ptask->task->mutex);
+            ptk_file_task_lock(ptask);
             g_free(ptask->task->exec_icon);
             ptask->task->exec_icon = g_strdup(argv[i + 2]);
             ptask->pause_change_view = ptask->pause_change = TRUE;
-            g_mutex_unlock(ptask->task->mutex);
+            ptk_file_task_unlock(ptask);
             return 0;
         }
         else if (!strcmp(argv[i + 1], "count"))
@@ -7160,10 +7160,10 @@ char main_window_socket_command(char* argv[], char** reply)
         // get model value
         if (!strcmp(argv[i + 1], "icon"))
         {
-            g_mutex_lock(ptask->task->mutex);
+            ptk_file_task_lock(ptask);
             if (ptask->task->exec_icon)
                 *reply = g_strdup_printf("%s\n", ptask->task->exec_icon);
-            g_mutex_unlock(ptask->task->mutex);
+            ptk_file_task_unlock(ptask);
             return 0;
         }
         else if (!strcmp(argv[i + 1], "count"))

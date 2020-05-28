@@ -48,6 +48,8 @@ struct _PtkFileTask
     GtkWidget* overwrite_combo;
     GtkWidget* error_combo;
 
+    GMutex* mutex;
+
     GtkTextBuffer* log_buf;
     GtkTextMark* log_end;
     gboolean log_appended;
@@ -85,6 +87,9 @@ struct _PtkFileTask
     char* dsp_avgspeed;
     char* dsp_avgest;
 };
+
+void ptk_file_task_lock(PtkFileTask* ptask);
+void ptk_file_task_unlock(PtkFileTask* ptask);
 
 PtkFileTask* ptk_file_task_new(VFSFileTaskType type, GList* src_files, const char* dest_dir,
                                GtkWindow* parent_window, GtkWidget* task_view);
