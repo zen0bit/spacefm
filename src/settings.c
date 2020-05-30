@@ -3441,7 +3441,7 @@ void on_install_plugin_cb(VFSFileTask* task, PluginData* plugin_data)
             if (!set)
             {
                 msg = g_strdup_printf(
-                    _("The imported plugin folder does not contain a valid plugin.\n\n(%s/)"),
+                    _("The imported plugin directory does not contain a valid plugin.\n\n(%s/)"),
                     plugin_data->plug_dir);
                 xset_msg_dialog(GTK_WIDGET(plugin_data->main_window),
                                 GTK_MESSAGE_ERROR,
@@ -5413,7 +5413,7 @@ void xset_design_job(GtkWidget* item, XSet* set)
                     folder = NULL;
                 file = xset_file_dialog(parent,
                                         GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
-                                        _("Choose Folder"),
+                                        _("Choose Directory"),
                                         folder,
                                         NULL);
                 if (!(file && file[0]))
@@ -9827,8 +9827,9 @@ void xset_defaults()
     xset_set_set(
         set,
         "desc",
-        _("Set window title format:\n\nUse:\n\t%%n\tcurrent folder name (eg bin)\n\t%%d\tcurrent "
-          "folder path (eg /usr/bin)\n\t%%p\tcurrent panel number (1-4)\n\t%%t\tcurrent tab "
+        _("Set window title format:\n\nUse:\n\t%%n\tcurrent directory name (eg "
+          "bin)\n\t%%d\tcurrent "
+          "directory path (eg /usr/bin)\n\t%%p\tcurrent panel number (1-4)\n\t%%t\tcurrent tab "
           "number\n\t%%P\ttotal number of panels visible\n\t%%T\ttotal number of tabs in current "
           "panel\n\t*\tasterisk shown if tasks running in window"));
     xset_set_set(set, "s", "%d");
@@ -10000,7 +10001,7 @@ void xset_defaults()
     set->x = g_strdup_printf("%d", 1);
     set->line = g_strdup("#tasks-menu-col");
 
-    set = xset_set("task_col_path", "lbl", _("_Folder"));
+    set = xset_set("task_col_path", "lbl", _("_Directory"));
     set->menu_style = XSET_MENU_CHECK;
     set->b = XSET_B_TRUE;
     set->x = g_strdup_printf("%d", 2);
@@ -10361,7 +10362,7 @@ void xset_defaults()
     set->menu_style = XSET_MENU_RADIO;
     set->line = g_strdup("#handlers-arc-arcdef");
 
-    set = xset_set("arc_def_parent", "lbl", _("_Create Subfolder"));
+    set = xset_set("arc_def_parent", "lbl", _("_Create Subdirectory"));
     set->menu_style = XSET_MENU_CHECK;
     set->b = XSET_B_TRUE;
     set->line = g_strdup("#handlers-arc-arcdef");
@@ -10383,14 +10384,14 @@ void xset_defaults()
     xset_set_set(
         set,
         "desc",
-        "new_file new_folder new_link new_archive sep_o1 tab_new tab_new_here new_bookmark");
+        "new_file new_directory new_link new_archive sep_o1 tab_new tab_new_here new_bookmark");
     xset_set_set(set, "icn", "gtk-new");
 
     set = xset_set("new_file", "lbl", _("_File"));
     xset_set_set(set, "icn", "gtk-file");
     set->line = g_strdup("#gui-newf");
 
-    set = xset_set("new_folder", "lbl", _("Fol_der"));
+    set = xset_set("new_directory", "lbl", _("Dir_ectory"));
     xset_set_set(set, "icn", "gtk-directory");
     set->line = g_strdup("#gui-newf");
 
@@ -10406,7 +10407,7 @@ void xset_defaults()
     xset_set_set(set, "icn", "gtk-save-as");
 
     set = xset_get("arc_dlg");
-    set->b = XSET_B_TRUE;   // Extract To - Create Subfolder
+    set->b = XSET_B_TRUE;   // Extract To - Create Subdirectory
     set->z = g_strdup("1"); // Extract To - Write Access
 
     set = xset_set("tab_new", "lbl", C_("New|", "_Tab"));
@@ -10514,7 +10515,7 @@ void xset_defaults()
                  "desc",
                  "sortby_name sortby_size sortby_type sortby_perm sortby_owner sortby_date sep_s1 "
                  "sortby_ascend sortby_descend sep_s2 sortx_natural sortx_case sep_s3 "
-                 "sortx_folders sortx_files sortx_mix sep_s4 sortx_hidfirst sortx_hidlast");
+                 "sortx_directories sortx_files sortx_mix sep_s4 sortx_hidfirst sortx_hidlast");
 
     set = xset_set("sortby_name", "lbl", _("_Name"));
     set->menu_style = XSET_MENU_RADIO;
@@ -10537,7 +10538,7 @@ void xset_defaults()
     set->menu_style = XSET_MENU_CHECK;
     set = xset_set("sortx_case", "lbl", _("_Case Sensitive"));
     set->menu_style = XSET_MENU_CHECK;
-    set = xset_set("sortx_folders", "lbl", _("Folders Fi_rst"));
+    set = xset_set("sortx_directories", "lbl", _("Directories Fi_rst"));
     set->menu_style = XSET_MENU_RADIO;
     set = xset_set("sortx_files", "lbl", _("F_iles First"));
     set->menu_style = XSET_MENU_RADIO;
@@ -11114,7 +11115,7 @@ void xset_default_keys()
     def_key("prop_perm", 112, 4);
     def_key("panel1_show_hidden", 104, 4);
     def_key("book_new", 100, 4);
-    def_key("new_folder", 102, 4);
+    def_key("new_directory", 102, 4);
     def_key("new_file", 70, 5);
     def_key("main_new_window", 110, 4);
     def_key("open_all", 65475, 0);   // F6

@@ -787,7 +787,7 @@ void vfs_file_info_load_special_info(VFSFileInfo* fi, const char* file_path)
         fi->flags |= VFS_FILE_INFO_DESKTOP_ENTRY;
         desktop = vfs_app_desktop_new(file_path);
 
-        // MOD  display real filenames of .desktop files not in desktop folder
+        // MOD  display real filenames of .desktop files not in desktop directory
         if (desktop_dir && !strcmp(file_dir, desktop_dir))
         {
             if (vfs_app_desktop_get_disp_name(desktop))

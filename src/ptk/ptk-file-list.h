@@ -32,7 +32,7 @@ G_BEGIN_DECLS
 #define PTK_FILE_LIST_GET_CLASS(obj) \
     (G_TYPE_INSTANCE_GET_CLASS((obj), PTK_TYPE_FILE_LIST, PtkFileListClass))
 
-/* Columns of folder view */
+/* Columns of directory view */
 enum
 {
     COL_FILE_BIG_ICON = 0,
@@ -47,7 +47,7 @@ enum
     N_FILE_LIST_COLS
 };
 
-// sort_dir of folder view - do not change order, saved
+// sort_dir of directory view - do not change order, saved
 // see also: main-window.c main_window_socket_command() get sort_first
 enum
 {

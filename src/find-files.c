@@ -102,8 +102,8 @@ typedef struct _FindFile
     /* places */
     GtkListStore* places_list;
     GtkWidget* places_view;
-    GtkWidget* add_folder_btn;
-    GtkWidget* remove_folder_btn;
+    GtkWidget* add_directory_btn;
+    GtkWidget* remove_directory_btn;
     GtkWidget* include_sub;
 
     /* search result pane */
@@ -131,7 +131,7 @@ typedef struct
 static const char menu_def[] = "<ui>"
                                "<popup name=\"Popup\">"
                                "<menuitem name=\"Open\" action=\"OpenAction\" />"
-                               "<menuitem name=\"OpenFolder\" action=\"OpenFolderAction\" />"
+                               "<menuitem name=\"OpenDirectory\" action=\"OpenDirectoryAction\" />"
                                "</popup>"
                                "</ui>";
 
@@ -212,7 +212,7 @@ static void on_open_files(GtkAction* action, FindFile* data)
         {
             if (open_files) /* open files */
                 gtk_tree_model_get(model, &it, COL_INFO, &fi, COL_DIR, &dir, -1);
-            else /* open containing folders */
+            else /* open containing directories */
                 gtk_tree_model_get(model, &it, COL_DIR, &dir, -1);
 
             if (open_files)
@@ -273,9 +273,9 @@ static void on_open_files(GtkAction* action, FindFile* data)
 
 static GtkActionEntry menu_actions[] = {
     {"OpenAction", GTK_STOCK_OPEN, N_("_Open"), NULL, NULL, G_CALLBACK(on_open_files)},
-    {"OpenFolderAction",
+    {"OpenDirectoryAction",
      GTK_STOCK_OPEN,
-     N_("Open Containing _Folder"),
+     N_("Open Containing _Directory"),
      NULL,
      NULL,
      G_CALLBACK(on_open_files)}};
@@ -763,7 +763,7 @@ static void add_search_dir(FindFile* data, const char* path)
 
 static void on_add_search_browse(GtkWidget* menu, FindFile* data)
 {
-    GtkWidget* dlg = gtk_file_chooser_dialog_new(_("Select a folder"),
+    GtkWidget* dlg = gtk_file_chooser_dialog_new(_("Select a directory"),
                                                  GTK_WINDOW(data->win),
                                                  GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
                                                  GTK_STOCK_CANCEL,
@@ -916,7 +916,7 @@ static void init_search_result(FindFile* data)
 
     render = gtk_cell_renderer_text_new();
     g_object_set(render, "ellipsize", PANGO_ELLIPSIZE_END, NULL);
-    col = gtk_tree_view_column_new_with_attributes(_("Folder"), render, "text", COL_DIR, NULL);
+    col = gtk_tree_view_column_new_with_attributes(_("Directory"), render, "text", COL_DIR, NULL);
     gtk_tree_view_column_set_expand(col, TRUE);
     gtk_tree_view_column_set_resizable(col, TRUE);
     gtk_tree_view_column_set_min_width(col, 200);
@@ -1032,7 +1032,7 @@ void fm_find_files(const char** search_dirs)
     FindFile* data = g_slice_new0(FindFile);
     GtkTreeIter it;
     GtkTreeViewColumn* col;
-    GtkWidget *add_folder_btn, *remove_folder_btn, *img;
+    GtkWidget *add_directory_btn, *remove_directory_btn, *img;
 
 #if (GTK_MAJOR_VERSION == 3)
     GtkBuilder* builder = _gtk_builder_new_from_file(PACKAGE_UI_DIR, "/find-files3.ui", NULL);
@@ -1097,8 +1097,8 @@ void fm_find_files(const char** search_dirs)
     /* places */
     data->places_list = gtk_list_store_new(1, G_TYPE_STRING);
     data->places_view = (GtkWidget*)gtk_builder_get_object(builder, "places_view");
-    add_folder_btn = (GtkWidget*)gtk_builder_get_object(builder, "add_folder_btn");
-    remove_folder_btn = (GtkWidget*)gtk_builder_get_object(builder, "remove_folder_btn");
+    add_directory_btn = (GtkWidget*)gtk_builder_get_object(builder, "add_directory_btn");
+    remove_directory_btn = (GtkWidget*)gtk_builder_get_object(builder, "remove_directory_btn");
     data->include_sub = (GtkWidget*)gtk_builder_get_object(builder, "include_sub");
 
     if (search_dirs)
@@ -1120,8 +1120,8 @@ void fm_find_files(const char** search_dirs)
                                                    NULL);
     gtk_tree_view_append_column((GtkTreeView*)data->places_view, col);
 
-    g_signal_connect(add_folder_btn, "clicked", G_CALLBACK(on_add_search_folder), data);
-    g_signal_connect(remove_folder_btn, "clicked", G_CALLBACK(on_remove_search_folder), data);
+    g_signal_connect(add_directory_btn, "clicked", G_CALLBACK(on_add_search_folder), data);
+    g_signal_connect(remove_directory_btn, "clicked", G_CALLBACK(on_remove_search_folder), data);
 
     /* search result pane */
     data->search_result = (GtkWidget*)gtk_builder_get_object(builder, "search_result");

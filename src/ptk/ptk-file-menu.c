@@ -462,7 +462,7 @@ void ptk_file_menu_add_panel_view_menu(PtkFileBrowser* browser, GtkWidget* menu,
         set->b = PTK_FILE_LIST(browser->file_list)->sort_case ? XSET_B_TRUE : XSET_B_FALSE;
         set->disable = !PTK_FILE_LIST(browser->file_list)->sort_natural;
 
-        set = xset_set_cb("sortx_folders", on_popup_sort_extra, browser);
+        set = xset_set_cb("sortx_directories", on_popup_sort_extra, browser);
         xset_set_ob2(set, NULL, NULL);
         set->b = PTK_FILE_LIST(browser->file_list)->sort_dir == PTK_LIST_SORT_DIR_FIRST
                      ? XSET_B_TRUE
@@ -1073,7 +1073,7 @@ GtkWidget* ptk_file_menu_new(PtkFileBrowser* browser, const char* file_path, VFS
 
         // New >
         set = xset_set_cb("new_file", on_popup_new_text_file_activate, data);
-        set = xset_set_cb("new_folder", on_popup_new_folder_activate, data);
+        set = xset_set_cb("new_directory", on_popup_new_folder_activate, data);
         set = xset_set_cb("new_link", on_popup_new_link_activate, data);
         set = xset_set_cb("new_archive", on_popup_compress_activate, data);
         set->disable = (!sel_files);
@@ -1089,7 +1089,7 @@ GtkWidget* ptk_file_menu_new(PtkFileBrowser* browser, const char* file_path, VFS
         xset_set_set(
             set,
             "desc",
-            "new_file new_folder new_link new_archive sep_o1 tab_new tab_new_here new_bookmark");
+            "new_file new_directory new_link new_archive sep_o1 tab_new tab_new_here new_bookmark");
 
         xset_add_menuitem(browser, popup, accel_group, set);
 
@@ -2528,7 +2528,7 @@ void ptk_file_menu_action(PtkFileBrowser* browser, char* setname)
         xname = set->name + 4;
         if (!strcmp(xname, "file"))
             on_popup_new_text_file_activate(NULL, data);
-        else if (!strcmp(xname, "folder"))
+        else if (!strcmp(xname, "directory"))
             on_popup_new_folder_activate(NULL, data);
         else if (!strcmp(xname, "link"))
             on_popup_new_link_activate(NULL, data);

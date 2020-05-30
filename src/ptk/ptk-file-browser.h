@@ -94,7 +94,7 @@ struct _PtkFileBrowser
     gboolean menu_shown : 1;
     char* book_set_name;
 
-    /* folder view */
+    /* directory view */
     GtkWidget* folder_view;
     GtkWidget* folder_view_scroll;
     GtkCellRenderer* icon_render;

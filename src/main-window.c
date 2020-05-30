@@ -4000,7 +4000,7 @@ const char* task_titles[] =
     // If you change "Status", also change it in on_task_button_press_event
     N_("Status"),
     N_("#"),
-    N_("Folder"),
+    N_("Directory"),
     N_("Item"),
     N_("To"),
     N_("Progress"),
@@ -6462,8 +6462,8 @@ char main_window_socket_command(char* argv[], char** reply)
             {
                 if (!g_strcmp0(argv[i + 1], "files"))
                     str = "sortx_files";
-                else if (!g_strcmp0(argv[i + 1], "folders"))
-                    str = "sortx_folders";
+                else if (!g_strcmp0(argv[i + 1], "directories"))
+                    str = "sortx_directories";
                 else if (!g_strcmp0(argv[i + 1], "mixed"))
                     str = "sortx_mix";
                 else
@@ -6857,7 +6857,7 @@ char main_window_socket_command(char* argv[], char** reply)
                         str = "mixed";
                         break;
                     case 1:
-                        str = "folders";
+                        str = "directories";
                         break;
                     case 2:
                         str = "files";
@@ -7051,7 +7051,7 @@ char main_window_socket_command(char* argv[], char** reply)
         }
         else if (!strcmp(argv[i + 1], "count"))
             j = TASK_COL_COUNT;
-        else if (!strcmp(argv[i + 1], "folder") || !strcmp(argv[i + 1], "from"))
+        else if (!strcmp(argv[i + 1], "directory") || !strcmp(argv[i + 1], "from"))
             j = TASK_COL_PATH;
         else if (!strcmp(argv[i + 1], "item"))
             j = TASK_COL_FILE;
@@ -7168,7 +7168,7 @@ char main_window_socket_command(char* argv[], char** reply)
         }
         else if (!strcmp(argv[i + 1], "count"))
             j = TASK_COL_COUNT;
-        else if (!strcmp(argv[i + 1], "folder") || !strcmp(argv[i + 1], "from"))
+        else if (!strcmp(argv[i + 1], "directory") || !strcmp(argv[i + 1], "from"))
             j = TASK_COL_PATH;
         else if (!strcmp(argv[i + 1], "item"))
             j = TASK_COL_FILE;

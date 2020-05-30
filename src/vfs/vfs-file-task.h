@@ -95,7 +95,7 @@ struct _VFSFileTask
     GSList* devs;
 
     VFSFileTaskOverwriteMode overwrite_mode;
-    gboolean recursive; /* Apply operation to all files under folders
+    gboolean recursive; /* Apply operation to all files under directories
                          * recursively. This is default to copy/delete,
                          * and should be set manually for chown/chmod. */
 

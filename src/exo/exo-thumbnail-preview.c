@@ -221,8 +221,8 @@ void _exo_thumbnail_preview_set_uri(ExoThumbnailPreview* thumbnail_preview, cons
                 }
                 else if (S_ISDIR(statb.st_mode))
                 {
-                    icon_name = g_strdup("folder");
-                    size_name = g_strdup(_("Folder"));
+                    icon_name = g_strdup("gtk-directory");
+                    size_name = g_strdup(_("Directory"));
                 }
                 else if (S_ISFIFO(statb.st_mode))
                 {

@@ -343,7 +343,7 @@ void ptk_dir_tree_get_value(GtkTreeModel* tree_model, GtkTreeIter* iter, gint co
             int icon_size = app_settings.small_icon_size;
             if (icon_size > PANE_MAX_ICON_SIZE)
                 icon_size = PANE_MAX_ICON_SIZE;
-            icon = vfs_load_icon(icon_theme, "folder", icon_size);
+            icon = vfs_load_icon(icon_theme, "directory", icon_size);
             if (G_UNLIKELY(!icon))
                 icon = vfs_load_icon(icon_theme, "gnome-fs-directory", icon_size);
             if (G_UNLIKELY(!icon))
@@ -358,7 +358,7 @@ void ptk_dir_tree_get_value(GtkTreeModel* tree_model, GtkTreeIter* iter, gint co
             if (G_LIKELY(info))
                 g_value_set_string(value, vfs_file_info_get_disp_name(info));
             else
-                g_value_set_string(value, _("( no subfolder )")); // no sub folder
+                g_value_set_string(value, _("( no subdirectory )")); // no sub directory
             break;
         case COL_DIR_TREE_INFO:
             if (G_UNLIKELY(!info))

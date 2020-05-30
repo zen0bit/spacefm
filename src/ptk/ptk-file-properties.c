@@ -177,8 +177,9 @@ gboolean on_update_labels(FilePropertiesDialogData* data)
     char* count_dir;
     if (data->total_count_dir)
     {
-        count_dir = g_strdup_printf(ngettext("%d folder", "%d folders", data->total_count_dir),
-                                    data->total_count_dir);
+        count_dir =
+            g_strdup_printf(ngettext("%d directory", "%d directories", data->total_count_dir),
+                            data->total_count_dir);
         count = g_strdup_printf(ngettext("%d file, %s", "%d files, %s", data->total_count),
                                 data->total_count,
                                 count_dir);
@@ -455,7 +456,7 @@ GtkWidget* file_properties_dlg_new(GtkWindow* parent, const char* dir_path, GLis
 
     /* Open with...
      * Don't show this option menu if files of different types are selected,
-     * ,the selected file is a folder, or its type is unknown.
+     * ,the selected file is a directory, or its type is unknown.
      */
     if (!same_type || vfs_file_info_is_desktop_entry(file) ||
         vfs_file_info_is_executable(file, NULL))
@@ -560,7 +561,7 @@ GtkWidget* file_properties_dlg_new(GtkWindow* parent, const char* dir_path, GLis
         {
             if (vfs_file_info_is_dir(file) && !vfs_file_info_is_symlink(file))
                 gtk_label_set_markup_with_mnemonic(GTK_LABEL(label_name),
-                                                   _("<b>Folder _Name:</b>"));
+                                                   _("<b>Directory _Name:</b>"));
             gtk_entry_set_text(GTK_ENTRY(name), vfs_file_info_get_disp_name(file));
         }
 

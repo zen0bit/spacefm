@@ -657,7 +657,7 @@ gpointer vfs_dir_load_thread(VFSAsyncTask* task, VFSDir* dir)
                 {
                     vfs_dir_lock(dir);
 
-                    /* Special processing for desktop folder */
+                    /* Special processing for desktop directory */
                     vfs_file_info_load_special_info(file, full_path);
 
                     dir->file_list = g_list_prepend(dir->file_list, file);

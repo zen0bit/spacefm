@@ -1201,7 +1201,7 @@ void on_browse_button_clicked(GtkWidget* widget, ContextData* ctxt)
         // Bookmark Browse
         char* add_path = xset_file_dialog(ctxt->dlg,
                                           GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
-                                          _("Choose Folder"),
+                                          _("Choose Directory"),
                                           ctxt->context->var[CONTEXT_DIR],
                                           NULL);
         if (add_path && add_path[0])
@@ -2161,7 +2161,7 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
                        4);
     gtk_box_pack_start(GTK_BOX(vbox_frame), GTK_WIDGET(ctxt->cmd_vbox_msg), TRUE, TRUE, 0);
 
-    // open folder
+    // open directory
     hbox = gtk_hbox_new(FALSE, 0);
     label = gtk_label_new(_("Open In Browser:"));
     gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);

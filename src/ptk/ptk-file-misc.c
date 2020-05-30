@@ -315,7 +315,7 @@ void on_move_change(GtkWidget* widget, MoveSet* mset)
                                     on_move_change,
                                     NULL);
 
-    // change is_dir to reflect state of new folder or link option
+    // change is_dir to reflect state of new directory or link option
     if (mset->create_new)
     {
         gboolean new_folder = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_new_folder));
@@ -646,11 +646,11 @@ void on_move_change(GtkWidget* widget, MoveSet* mset)
         {
             gtk_widget_set_sensitive(mset->next, FALSE);
             gtk_label_set_markup_with_mnemonic(mset->label_full_path,
-                                               _("<b>P_ath:</b>   <i>exists as folder</i>"));
+                                               _("<b>P_ath:</b>   <i>exists as directory</i>"));
             gtk_label_set_markup_with_mnemonic(mset->label_name,
-                                               _("<b>_Name:</b>   <i>exists as folder</i>"));
+                                               _("<b>_Name:</b>   <i>exists as directory</i>"));
             gtk_label_set_markup_with_mnemonic(mset->label_full_name,
-                                               _("<b>_Filename:</b>   <i>exists as folder</i>"));
+                                               _("<b>_Filename:</b>   <i>exists as directory</i>"));
             gtk_label_set_markup_with_mnemonic(mset->label_path, _("<b>_Parent:</b>"));
         }
         else if (full_path_exists)
@@ -913,7 +913,7 @@ void on_create_browse_button_press(GtkWidget* widget, MoveSet* mset)
     }
     else
     {
-        title = _("Select Template Folder");
+        title = _("Select Template Directory");
         action = GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER;
         text = gtk_entry_get_text(GTK_ENTRY(gtk_bin_get_child(GTK_BIN(mset->combo_template))));
         if (text && text[0] == '/')
@@ -1055,9 +1055,9 @@ void on_browse_button_press(GtkWidget* widget, MoveSet* mset)
     if (set->z)
         mode_default = xset_get_int("move_dlg_help", "z");
 
-    // action create folder does not work properly so not used:
-    //  it creates a folder by default with no way to stop it
-    //  it gives 'folder already exists' error popup
+    // action create directory does not work properly so not used:
+    //  it creates a directory by default with no way to stop it
+    //  it gives 'directory already exists' error popup
     GtkWidget* dlg = gtk_file_chooser_dialog_new(_("Browse"),
                                                  mset->parent ? GTK_WINDOW(mset->parent) : NULL,
                                                  mode_default == MODE_PARENT
@@ -1241,7 +1241,7 @@ void on_opt_toggled(GtkMenuItem* item, MoveSet* mset)
         if (new_file)
             desc = C_("Title|CreateNew|", "File");
         else if (new_folder)
-            desc = C_("Title|CreateNew|", "Folder");
+            desc = C_("Title|CreateNew|", "Directory");
         else
             desc = C_("Title|CreateNew|", "Link");
     }
@@ -1837,7 +1837,7 @@ char* get_template_dir()
     if (!g_strcmp0(templates_path, g_get_home_dir()))
     {
         /* If $XDG_TEMPLATES_DIR == $HOME this means it is disabled. Don't
-         * recurse it as this is too many files/folders and may slow
+         * recurse it as this is too many files/directories and may slow
          * dialog open and cause filesystem find loops.
          * https://wiki.freedesktop.org/www/Software/xdg-user-dirs/ */
         g_free(templates_path);
@@ -2088,7 +2088,7 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
     if (mset->is_link)
         mset->desc = _("Link");
     else if (mset->is_dir)
-        mset->desc = _("Folder");
+        mset->desc = _("Directory");
     else
         mset->desc = _("File");
 
@@ -2325,7 +2325,7 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
 
         // add entries
         gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(mset->combo_template_dir),
-                                       _("Empty Folder"));
+                                       _("Empty Directory"));
         templates = NULL;
         templates = get_templates(NULL, NULL, templates, TRUE);
         if (templates)
@@ -2515,7 +2515,7 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
     mset->opt_new_file = gtk_radio_button_new_with_mnemonic(NULL, C_("New|Radio", "Fil_e"));
     mset->opt_new_folder =
         gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(mset->opt_new_file),
-                                                       C_("New|Radio", "Fol_der"));
+                                                       C_("New|Radio", "Dir_ectory"));
     mset->opt_new_link =
         gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(mset->opt_new_file),
                                                        C_("New|Radio", "_Link"));
@@ -2754,15 +2754,15 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
 
             if (!g_file_test(path, G_FILE_TEST_EXISTS))
             {
-                // create parent folder
+                // create parent directory
                 if (xset_get_b("move_dlg_confirm_create"))
                 {
                     if (xset_msg_dialog(mset->parent,
                                         GTK_MESSAGE_QUESTION,
-                                        _("Create Parent Folder"),
+                                        _("Create Parent Directory"),
                                         NULL,
                                         GTK_BUTTONS_YES_NO,
-                                        _("The parent folder does not exist.  Create it?"),
+                                        _("The parent directory does not exist.  Create it?"),
                                         NULL,
                                         NULL) != GTK_RESPONSE_YES)
                         goto _continue_free;
@@ -2776,7 +2776,8 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
                 }
                 else if (g_mkdir_with_parents(path, 0755) != 0)
                 {
-                    msg = g_strdup_printf(_("Error creating parent folder\n\n%s"), strerror(errno));
+                    msg = g_strdup_printf(_("Error creating parent directory\n\n%s"),
+                                          strerror(errno));
                     ptk_show_error(GTK_WINDOW(mset->dlg), _("Mkdir Error"), msg);
                     g_free(msg);
                     goto _continue_free;
@@ -2925,7 +2926,7 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
             }
             else if (create_new)
             {
-                // new folder task
+                // new directory task
                 if (!new_folder)
                     goto _continue_free; // failsafe
                 if (gtk_widget_get_visible(
@@ -2936,7 +2937,7 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
                     g_strstrip(str);
                     if (str[0] == '/')
                         from_path = bash_quote(str);
-                    else if (!g_strcmp0(_("Empty Folder"), str) || str[0] == '\0')
+                    else if (!g_strcmp0(_("Empty Directory"), str) || str[0] == '\0')
                         from_path = NULL;
                     else
                     {
@@ -2968,7 +2969,7 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
                     from_path = NULL;
                 to_path = bash_quote(full_path);
 
-                task_name = g_strdup_printf(_("Create New Folder%s"), root_msg);
+                task_name = g_strdup_printf(_("Create New Directory%s"), root_msg);
                 PtkFileTask* task = ptk_file_exec_new(task_name, NULL, mset->parent, task_view);
                 g_free(task_name);
                 if (!from_path)
@@ -3222,9 +3223,9 @@ gboolean ptk_create_new_file(GtkWindow* parent_win, const char* cwd, gboolean cr
 
     if (create_folder)
     {
-        dlg = ptk_input_dialog_new(_("New Folder"),
-                                   _("New folder name:"),
-                                   _("New Folder"),
+        dlg = ptk_input_dialog_new(_("New Directory"),
+                                   _("New Directory name:"),
+                                   _("New Directory"),
                                    parent_win);
     }
     else

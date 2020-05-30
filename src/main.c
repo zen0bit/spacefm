@@ -119,11 +119,11 @@ static int n_pcmanfm_ref = 0;
 // clang-format off
 static GOptionEntry opt_entries[] =
 {
-    {"new-tab", 't', 0, G_OPTION_ARG_NONE, &new_tab, N_("Open folders in new tab of last window (default)"), NULL},
-    {"reuse-tab", 'r', 0, G_OPTION_ARG_NONE, &reuse_tab, N_("Open folder in current tab of last used window"), NULL},
+    {"new-tab", 't', 0, G_OPTION_ARG_NONE, &new_tab, N_("Open directories in new tab of last window (default)"), NULL},
+    {"reuse-tab", 'r', 0, G_OPTION_ARG_NONE, &reuse_tab, N_("Open directory in current tab of last used window"), NULL},
     {"no-saved-tabs", 'n', 0, G_OPTION_ARG_NONE, &no_tabs, N_("Don't load saved tabs"), NULL},
-    {"new-window", 'w', 0, G_OPTION_ARG_NONE, &new_window, N_("Open folders in new window"), NULL},
-    {"panel", 'p', 0, G_OPTION_ARG_INT, &panel, N_("Open folders in panel 'P' (1-4)"), "P"},
+    {"new-window", 'w', 0, G_OPTION_ARG_NONE, &new_window, N_("Open directories in new window"), NULL},
+    {"panel", 'p', 0, G_OPTION_ARG_INT, &panel, N_("Open directories in panel 'P' (1-4)"), "P"},
     {"show-pref", '\0', 0, G_OPTION_ARG_INT, &show_pref, N_("Show Preferences ('N' is the Pref tab number)"), "N"},
     {"daemon-mode", 'd', 0, G_OPTION_ARG_NONE, &daemon_mode, N_("Run as a daemon"), NULL},
     {"config-dir", 'c', 0, G_OPTION_ARG_STRING, &config_dir, N_("Use DIR as configuration directory"), "DIR"},
@@ -826,7 +826,7 @@ gboolean handle_parsed_commandline_args()
         fm_find_files((const char**)files);
         find_files = FALSE;
     }
-    else /* open files/folders */
+    else /* open files/directories */
     {
         if (daemon_mode && !daemon_initialized)
             init_daemon();

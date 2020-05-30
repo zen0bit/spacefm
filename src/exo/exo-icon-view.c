@@ -1140,7 +1140,7 @@ static void exo_icon_view_class_init(ExoIconViewClass* klass)
     gtk_binding_entry_add_signal(gtkbinding_set, GDK_KEY_ISO_Enter, 0, "activate-cursor-item", 0);
     gtk_binding_entry_add_signal(gtkbinding_set, GDK_KEY_KP_Enter, 0, "activate-cursor-item", 0);
     //  gtk_binding_entry_add_signal (gtkbinding_set, GDK_f, GDK_CONTROL_MASK,
-    //  "start-interactive-search", 0);   //MOD stole ctrl-f for create new folder
+    //  "start-interactive-search", 0);   //MOD stole ctrl-f for create new directory
     gtk_binding_entry_add_signal(gtkbinding_set,
                                  GDK_KEY_F,
                                  GDK_CONTROL_MASK,

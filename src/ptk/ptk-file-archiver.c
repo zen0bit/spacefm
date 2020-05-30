@@ -1089,7 +1089,7 @@ void ptk_file_archiver_extract(PtkFileBrowser* file_browser, GList* files, const
             FALSE);
 
         GtkWidget* hbox = gtk_hbox_new(FALSE, 10);
-        GtkWidget* chk_parent = gtk_check_button_new_with_mnemonic(_("Cre_ate subfolder(s)"));
+        GtkWidget* chk_parent = gtk_check_button_new_with_mnemonic(_("Cre_ate subdirectories"));
         GtkWidget* chk_write = gtk_check_button_new_with_mnemonic(_("Make contents "
                                                                     "user-_writable"));
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(chk_parent), xset_get_b("arc_dlg"));

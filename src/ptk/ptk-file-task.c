@@ -759,7 +759,7 @@ void ptk_file_task_progress_open(PtkFileTask* ptask)
 
     if (task->type != VFS_FILE_TASK_EXEC)
     {
-        // From: <src folder>
+        // From: <src directory>
         row++;
         label = GTK_LABEL(gtk_label_new(_("From:")));
         gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
@@ -771,7 +771,7 @@ void ptk_file_task_progress_open(PtkFileTask* ptask)
         gtk_table_attach(table, GTK_WIDGET(ptask->src_dir), 1, 2, row, row + 1, GTK_FILL, 0, 0, 0);
         if (task->dest_dir)
         {
-            /* To: <Destination folder>
+            /* To: <Destination directory>
             ex. Copy file to..., Move file to...etc. */
             row++;
             label = GTK_LABEL(gtk_label_new(_("To:")));
@@ -1957,11 +1957,11 @@ static void query_overwrite(PtkFileTask* ptask)
     char* message;
 
     if (ptask->task->type == VFS_FILE_TASK_MOVE)
-        from_disp = _("Moving from folder:");
+        from_disp = _("Moving from directory:");
     else if (ptask->task->type == VFS_FILE_TASK_LINK)
-        from_disp = _("Linking from folder:");
+        from_disp = _("Linking from directory:");
     else
-        from_disp = _("Copying from folder:");
+        from_disp = _("Copying from directory:");
 
     different_files = (0 != g_strcmp0(ptask->task->current_file, ptask->task->current_dest));
 
@@ -1976,8 +1976,8 @@ static void query_overwrite(PtkFileTask* ptask)
         if (is_dest_dir)
         {
             /* Ask the user whether to overwrite dir content or not */
-            title = _("Folder Exists");
-            message = _("<b>Folder already exists.</b>  Please rename or select an action.");
+            title = _("Directory Exists");
+            message = _("<b>Directory already exists.</b>  Please rename or select an action.");
         }
         else
         {
@@ -2071,7 +2071,7 @@ static void query_overwrite(PtkFileTask* ptask)
         has_overwrite_btn = FALSE;
         title = _("Rename Required");
         if (!different_files)
-            from_disp = _("In folder:");
+            from_disp = _("In directory:");
         message = _("<b>Filename already exists.</b>  Please rename or select an action.");
     }
 
@@ -2204,7 +2204,7 @@ static void query_overwrite(PtkFileTask* ptask)
     {
         gtk_box_pack_start(GTK_BOX(vbox), gtk_label_new(NULL), FALSE, TRUE, 0);
         GtkWidget* to_label = gtk_label_new(NULL);
-        gtk_label_set_markup(GTK_LABEL(to_label), _("To folder:"));
+        gtk_label_set_markup(GTK_LABEL(to_label), _("To directory:"));
         gtk_misc_set_alignment(GTK_MISC(to_label), 0, 0);
         gtk_box_pack_start(GTK_BOX(vbox), to_label, FALSE, TRUE, 0);
 
@@ -2227,7 +2227,7 @@ static void query_overwrite(PtkFileTask* ptask)
     gtk_box_pack_start(GTK_BOX(vbox), gtk_label_new(NULL), FALSE, TRUE, 0);
     GtkWidget* name_label = gtk_label_new(NULL);
     gtk_label_set_markup(GTK_LABEL(name_label),
-                         is_dest_dir ? _("<b>Folder Name:</b>") : _("<b>Filename:</b>"));
+                         is_dest_dir ? _("<b>Directory Name:</b>") : _("<b>Filename:</b>"));
     gtk_misc_set_alignment(GTK_MISC(name_label), 0, 0);
     gtk_box_pack_start(GTK_BOX(vbox), name_label, FALSE, TRUE, 0);
 

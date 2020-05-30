@@ -2286,9 +2286,9 @@ static void on_folder_content_changed(VFSDir* dir, VFSFileInfo* file, PtkFileBro
 {
     if (file == NULL)
     {
-        // The current folder itself changed
+        // The current directory itself changed
         if (!g_file_test(ptk_file_browser_get_cwd(file_browser), G_FILE_TEST_IS_DIR))
-            // current folder doesn't exist - was renamed
+            // current directory doesn't exist - was renamed
             on_close_notebook_page(NULL, file_browser);
     }
     else
@@ -2299,7 +2299,7 @@ static void on_file_deleted(VFSDir* dir, VFSFileInfo* file, PtkFileBrowser* file
 {
     if (file == NULL)
     {
-        // The folder itself was deleted
+        // The directory itself was deleted
         on_close_notebook_page(NULL, file_browser);
         // ptk_file_browser_chdir( file_browser, g_get_home_dir(), PTK_FB_CHDIR_ADD_HISTORY);
     }
@@ -2789,7 +2789,7 @@ void ptk_file_browser_select_pattern(GtkWidget* item, PtkFileBrowser* file_brows
                 _("Select By Pattern"),
                 NULL,
                 FALSE,
-                _("Enter pattern to select files and folders:\n\nIf your pattern contains any "
+                _("Enter pattern to select files and directories:\n\nIf your pattern contains any "
                   "uppercase characters, the matching will be case sensitive.\n\nExample:  "
                   "*sp*e?m*\n\nTIP: You can also enter '%% PATTERN' in the path bar."),
                 NULL,
@@ -3499,7 +3499,7 @@ gboolean on_folder_view_button_press_event(GtkWidget* widget, GdkEventButton* ev
         /* middle button */
         if (event->button == 2 && file_path) /* middle click on a item */
         {
-            /* open in new tab if its a folder */
+            /* open in new tab if its a directory */
             if (G_LIKELY(file_path))
             {
                 if (g_file_test(file_path, G_FILE_TEST_IS_DIR))
@@ -4428,7 +4428,7 @@ static char* folder_view_get_drop_dir(PtkFileBrowser* file_browser, int x, int y
                                 }
                 */
             }
-            else /* Drop on a file, not folder */
+            else /* Drop on a file, not directory */
             {
                 /* Return current directory */
                 dest_path = g_strdup(ptk_file_browser_get_cwd(file_browser));
@@ -5224,7 +5224,7 @@ void ptk_file_browser_hide_selected(PtkFileBrowser* file_browser, GList* files, 
             NULL,
             GTK_BUTTONS_OK_CANCEL,
             _("The names of the selected files will be added to the '.hidden' file located in this "
-              "folder, which will hide them from view in SpaceFM.  You may need to refresh the "
+              "directory, which will hide them from view in SpaceFM.  You may need to refresh the "
               "view or restart SpaceFM for the files to disappear.\n\nTo unhide a file, open the "
               ".hidden file in your text editor, remove the name of the file, and refresh."),
             NULL,
@@ -5462,7 +5462,7 @@ void ptk_file_browser_set_sort_extra(PtkFileBrowser* file_browser, const char* s
         val = g_strdup_printf("%d", set->b);
         xset_set_panel(panel, "sort_extra", "x", val);
     }
-    else if (!strcmp(name, "folders"))
+    else if (!strcmp(name, "directories"))
     {
         list->sort_dir = PTK_LIST_SORT_DIR_FIRST;
         val = g_strdup_printf("%d", PTK_LIST_SORT_DIR_FIRST);
@@ -5648,7 +5648,7 @@ void ptk_file_browser_create_new_file(PtkFileBrowser* file_browser, gboolean cre
             }
             else if (file_browser->view_mode == PTK_FB_LIST_VIEW)
             {
-                // MOD  give new folder/file focus
+                // MOD  give new directory/file focus
 
                 // GtkTreeSelection * tree_sel;
                 // tree_sel = gtk_tree_view_get_selection( GTK_TREE_VIEW( file_browser->folder_view

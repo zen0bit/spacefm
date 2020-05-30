@@ -514,7 +514,7 @@ void ptk_path_entry_help(GtkWidget* widget, GtkWidget* parent)
         GTK_DIALOG_MODAL,
         GTK_MESSAGE_INFO,
         GTK_BUTTONS_OK,
-        _("In addition to a folder or file path, commands can be entered in the Path Bar.  "
+        _("In addition to a directory or file path, commands can be entered in the Path Bar.  "
           "Prefixes:\n\t$\trun as task\n\t&\trun and forget\n\t+\trun in terminal\n\t!\trun as "
           "root\nUse:\n\t%%F\tselected files  or  %%f first selected file\n\t%%N\tselected "
           "filenames  or  %%n first selected filename\n\t%%d\tcurrent directory\n\t%%v\tselected "

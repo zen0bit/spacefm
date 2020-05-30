@@ -235,11 +235,11 @@ GdkPixbuf* vfs_mime_type_get_icon(VFSMimeType* mime_type, gboolean big)
 
     if (G_UNLIKELY(0 == strcmp(mime_type->type, XDG_MIME_TYPE_DIRECTORY)))
     {
-        icon = vfs_load_icon(icon_theme, "folder", size);
+        icon = vfs_load_icon(icon_theme, "gtk-directory", size);
         if (G_UNLIKELY(!icon))
             icon = vfs_load_icon(icon_theme, "gnome-fs-directory", size);
         if (G_UNLIKELY(!icon))
-            icon = vfs_load_icon(icon_theme, "gtk-directory", size);
+            icon = vfs_load_icon(icon_theme, "folder", size);
         if (big)
             mime_type->big_icon = icon;
         else
