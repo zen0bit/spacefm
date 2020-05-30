@@ -130,7 +130,7 @@ static GOptionEntry opt_entries[] =
     {"find-files", 'f', 0, G_OPTION_ARG_NONE, &find_files, N_("Show File Search"), NULL},
     {"dialog", 'g', 0, G_OPTION_ARG_NONE, &custom_dialog, N_("Show a custom dialog (See -g help)"), NULL},
     {"socket-cmd", 's', 0, G_OPTION_ARG_NONE, &socket_cmd, N_("Send a socket command (See -s help)"), NULL},
-    {"version", '\0', 0, G_OPTION_ARG_NONE, &version_opt, N_("Show version information"), NULL},
+    {"version", 'v', 0, G_OPTION_ARG_NONE, &version_opt, N_("Show version information"), NULL},
     {"sdebug", '\0', G_OPTION_FLAG_HIDDEN, G_OPTION_ARG_NONE, &sdebug, NULL, NULL},
     {G_OPTION_REMAINING, 0, 0, G_OPTION_ARG_FILENAME_ARRAY, &files, NULL, N_("[DIR | FILE | URL]...")},
     {NULL}
@@ -327,7 +327,6 @@ gboolean single_instance_check()
 #ifdef SUN_LEN
     addr_len = SUN_LEN(&addr);
 #else
-
     addr_len = strlen(addr.sun_path) + sizeof(addr.sun_family);
 #endif
 
@@ -1031,15 +1030,27 @@ int main(int argc, char* argv[])
     if (version_opt)
     {
         printf("spacefm %s\n", PACKAGE_VERSION);
-#if GTK_CHECK_VERSION(3, 0, 0)
+        printf("Features: ");
+#if (GTK_MAJOR_VERSION == 3)
         printf("GTK3 ");
-#else
+#elif (GTK_MAJOR_VERSION == 2)
         printf("GTK2 ");
 #endif
         printf("UDEV ");
         printf("INOTIFY ");
-#ifdef HAVE_SN
-        printf("SNOTIFY ");
+        printf("FFMPEG ");
+        printf("STATVFS ");
+#ifdef DEPRECATED_HW
+        printf("DEPRECATED_HW ");
+#endif
+#ifdef HAVE_MMAP
+        printf("MMAP ");
+#endif
+#ifdef SUN_LEN
+        printf("SUN_LEN ");
+#endif
+#ifdef _DEBUG_THREAD
+        printf("DEBUG_THREAD ");
 #endif
         printf("\n");
         return 0;
