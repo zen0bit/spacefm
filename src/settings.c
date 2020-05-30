@@ -10962,8 +10962,9 @@ void xset_default_keys()
     def_key("prop_perm", 112, 4);
     def_key("panel1_show_hidden", 104, 4);
     def_key("book_new", 100, 4);
-    def_key("new_directory", 102, 4);
-    def_key("new_file", 70, 5);
+    def_key("new_file", 70, 5);      // Shift+Ctrl+F
+    def_key("new_directory", 78, 5); // Shift+Ctrl+N
+    def_key("new_link", 76, 5);      // Shift+Ctrl+L
     def_key("main_new_window", 110, 4);
     def_key("open_all", 65475, 0);   // F6
     def_key("main_full", 0xffc8, 0); // F11
@@ -10973,6 +10974,7 @@ void xset_default_keys()
     def_key("panel4_show", 0x34, 4);
     def_key("main_help", 0xffbe, 0); // F1
     def_key("main_exit", 0x71, 4);   // Ctrl-Q
+    def_key("main_prefs", 65481, 0); // F12
     def_key("book_add", 0x64, 4);    // Ctrl-D
 
     if (keysets)
