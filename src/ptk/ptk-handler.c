@@ -3154,7 +3154,7 @@ void ptk_handler_show_config(int mode, PtkFileBrowser* file_browser, XSet* def_h
         gtk_button_set_image(GTK_BUTTON(hnd->icon_choose_btn),
                              xset_get_image(GTK_STOCK_OPEN, GTK_ICON_SIZE_BUTTON));
         gtk_button_set_focus_on_click(GTK_BUTTON(hnd->icon_choose_btn), FALSE);
-#if GTK_CHECK_VERSION(3, 6, 0)
+#if (GTK_MAJOR_VERSION == 3)
         // keep this
         gtk_button_set_always_show_image(GTK_BUTTON(hnd->icon_choose_btn), TRUE);
 #endif

@@ -1186,7 +1186,7 @@ void ptk_file_browser_init(PtkFileBrowser* file_browser)
                        TRUE,
                        TRUE,
                        0);
-#if GTK_CHECK_VERSION(3, 0, 0)
+#if (GTK_MAJOR_VERSION == 3)
     // see https://github.com/BwackNinja/spacefm/issues/21
     gtk_paned_pack1(GTK_PANED(file_browser->side_vpane_top),
                     file_browser->side_dev_scroll,
@@ -1204,7 +1204,7 @@ void ptk_file_browser_init(PtkFileBrowser* file_browser)
                     file_browser->side_dir_scroll,
                     TRUE,
                     FALSE);
-#else
+#elif (GTK_MAJOR_VERSION == 2)
     gtk_paned_pack1(GTK_PANED(file_browser->side_vpane_top),
                     file_browser->side_dev_scroll,
                     FALSE,
@@ -1243,7 +1243,7 @@ void ptk_file_browser_init(PtkFileBrowser* file_browser)
     // required for button event
     gtk_label_set_selectable(file_browser->status_label, TRUE);
     gtk_widget_set_can_focus(GTK_WIDGET(file_browser->status_label), FALSE);
-#if GTK_CHECK_VERSION(3, 0, 0)
+#if (GTK_MAJOR_VERSION == 3)
     gtk_widget_set_hexpand(GTK_WIDGET(file_browser->status_label), TRUE);
     gtk_widget_set_halign(GTK_WIDGET(file_browser->status_label), GTK_ALIGN_FILL);
     gtk_misc_set_alignment(GTK_MISC(file_browser->status_label), 0, 0.5);
@@ -1845,7 +1845,7 @@ void ptk_file_browser_update_tab_label(PtkFileBrowser* file_browser)
 
     name = g_path_get_basename(ptk_file_browser_get_cwd(file_browser));
     gtk_label_set_text(text, name);
-#if GTK_CHECK_VERSION(3, 0, 0)
+#if (GTK_MAJOR_VERSION == 3)
     gtk_label_set_ellipsize(text, PANGO_ELLIPSIZE_MIDDLE);
     if (strlen(name) < 30)
     {
@@ -2305,8 +2305,7 @@ static void on_file_deleted(VFSDir* dir, VFSFileInfo* file, PtkFileBrowser* file
     }
     else
     {
-#if GTK_CHECK_VERSION(3, 0, 0)
-#else
+#if (GTK_MAJOR_VERSION == 2)
         /* GTK2 does not select the next row in the list when a row is deleted,
          * so do so.  GTK3 does this automatically. */
         GList* sel_files = NULL;
