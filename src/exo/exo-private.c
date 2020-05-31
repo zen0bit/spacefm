@@ -19,11 +19,8 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifdef HAVE_LIBINTL_H
-#include <libintl.h>
-#endif
-
 #include <stdbool.h>
+#include <libintl.h>
 
 #include "exo-private.h"
 #include "exo-string.h"

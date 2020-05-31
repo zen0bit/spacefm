@@ -19,15 +19,9 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifdef HAVE_MEMORY_H
-#include <memory.h>
-#endif
-
-#ifdef HAVE_STRING_H
-#include <string.h>
-#endif
-
 #include <stdbool.h>
+#include <memory.h>
+#include <string.h>
 
 #include "exo-string.h"
 

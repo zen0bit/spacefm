@@ -22,9 +22,7 @@
 // sfm-gtk3
 #include <gtk/gtk.h>
 
-#ifdef HAVE_STRING_H
 #include <string.h>
-#endif
 
 #include "exo-gtk-extensions.h"
 #include "exo-private.h"
