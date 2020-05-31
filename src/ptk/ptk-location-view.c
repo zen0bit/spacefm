@@ -41,11 +41,8 @@
 #include "gtk2-compat.h"
 
 static GtkTreeModel* model = NULL;
-static GtkTreeModel* bookmodel = NULL;
 static int n_vols = 0;
 static guint theme_changed = 0; /* GtkIconTheme::"changed" handler */
-
-static gboolean has_desktop_dir = TRUE;
 
 GdkPixbuf* global_icon_bookmark = NULL;
 GdkPixbuf* global_icon_submenu = NULL;
@@ -120,7 +117,6 @@ void update_volume_icons()
     GtkTreeIter it;
     GdkPixbuf* icon;
     VFSVolume* vol;
-    int i;
 
     if (!model)
         return;
@@ -307,8 +303,6 @@ VFSVolume* ptk_location_view_get_selected_vol(GtkTreeView* location_view)
     // printf("ptk_location_view_get_selected_vol    view = %d\n", location_view );
     GtkTreeIter it;
     GtkTreeSelection* tree_sel;
-    GtkTreePath* tree_path;
-    char* real_path = NULL;
     VFSVolume* vol;
 
     tree_sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(location_view));
@@ -422,9 +416,6 @@ gboolean ptk_location_view_open_block(const char* block, gboolean new_tab)
 
 void ptk_location_view_init_model(GtkListStore* list)
 {
-    GtkTreeIter it;
-    gchar* name;
-    gchar* real_path;
     const GList* l;
 
     n_vols = 0;
@@ -950,7 +941,6 @@ void on_autoopen_net_cb(VFSFileTask* task, AutoOpen* ao)
 void ptk_location_view_mount_network(PtkFileBrowser* file_browser, const char* url,
                                      gboolean new_tab, gboolean force_new_mount)
 {
-    char* str;
     char* line;
     char* mount_point = NULL;
     netmount_t* netmount = NULL;
@@ -1106,7 +1096,6 @@ void ptk_location_view_mount_network(PtkFileBrowser* file_browser, const char* u
     // autoopen
     if (!ssh_udevil) // !sync
     {
-        const char* terminal;
         AutoOpen* ao;
         ao = g_slice_new0(AutoOpen);
         ao->device_file = g_strdup(netmount->url);
@@ -2645,7 +2634,6 @@ void ptk_location_view_on_action(GtkWidget* view, XSet* set)
 static void show_devices_menu(GtkTreeView* view, VFSVolume* vol, PtkFileBrowser* file_browser,
                               guint button, guint32 time)
 {
-    GtkWidget* item;
     XSet* set;
     char* str;
     GtkWidget* popup = gtk_menu_new();
@@ -2776,7 +2764,6 @@ gboolean on_button_press_event(GtkTreeView* view, GdkEventButton* evt, gpointer 
     GtkTreeIter it;
     GtkTreeSelection* tree_sel = NULL;
     GtkTreePath* tree_path = NULL;
-    int pos;
     VFSVolume* vol = NULL;
     gboolean ret = FALSE;
 
@@ -3093,7 +3080,6 @@ void ptk_location_view_dev_menu(GtkWidget* parent, PtkFileBrowser* file_browser,
 { // add currently visible devices to menu with dev design mode callback
     const GList* v;
     VFSVolume* vol;
-    GtkTreeIter it;
     GtkWidget* item;
     XSet* set;
     GList* names = NULL;
@@ -3170,7 +3156,7 @@ VFSVolume* ptk_location_view_get_volume(GtkTreeView* location_view, GtkTreeIter*
 void ptk_bookmark_view_import_gtk(const char* path, XSet* book_set)
 { // import bookmarks file from spacefm < 1.0 or gtk bookmarks file
     char line[2048];
-    gsize name_len, upath_len;
+    gsize upath_len;
     XSet* set;
     XSet* newset;
     XSet* set_prev = NULL;
@@ -3361,7 +3347,6 @@ static void update_bookmark_list_item(GtkListStore* list, GtkTreeIter* it, XSet*
     char* icon_file = NULL;
     int cmd_type;
     char* menu_label = NULL;
-    VFSAppDesktop* app = NULL;
     GdkPixbuf* icon = NULL;
     gboolean is_submenu = FALSE;
     gboolean is_sep = FALSE;
@@ -4330,9 +4315,6 @@ static gboolean on_bookmark_button_release_event(GtkTreeView* view, GdkEventButt
     GtkTreeSelection* tree_sel;
     GtkTreePath* tree_path;
     int pos;
-    GtkMenu* popup;
-    GtkWidget* item;
-    VFSVolume* vol;
 
     // don't activate row if drag was begun
     if (evt->type != GDK_BUTTON_RELEASE || !file_browser->bookmark_button_press)

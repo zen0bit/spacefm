@@ -665,7 +665,6 @@ char* ptk_handler_get_command(int mode, int cmd, XSet* handler_set)
         const Handler* handler;
         int i, nelements;
         const char* command;
-        char* str;
 
         if (mode == HANDLER_MODE_ARC)
             nelements = G_N_ELEMENTS(handlers_arc);
@@ -991,7 +990,6 @@ gboolean ptk_handler_values_in_list(const char* list, GSList* values, char** msg
 
 static gboolean value_in_list(const char* list, const char* value)
 { // this function must be FAST - is run multiple times on menu popup
-    gboolean supported = FALSE;
     char* ptr;
     char* delim;
     char ch;
@@ -1031,7 +1029,6 @@ GSList* ptk_handler_file_has_handlers(int mode, int cmd, const char* path, VFSMi
     const char* type;
     char* delim;
     char* ptr;
-    char* msg;
     XSet* handler_set;
     char* under_path;
     char* new_path = NULL;
@@ -1467,7 +1464,6 @@ static void config_load_handler_settings(XSet* handler_xset, gchar* handler_xset
     /* Configuring widgets with handler settings. Only name, MIME and
      * extension warrant a warning
      * Commands are prefixed with '+' when they are ran in a terminal */
-    int start;
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(hnd->chkbtn_handler_enabled),
                                  handler_xset->b == XSET_B_TRUE);
 
@@ -2167,7 +2163,6 @@ static gboolean on_handlers_button_press(GtkWidget* view, GdkEventButton* evt, H
     GtkTreeModel* model;
     GtkTreePath* tree_path = NULL;
     GtkTreeIter it;
-    GtkTreeIter it_sel;
     GtkTreeSelection* selection;
     gboolean item_clicked = FALSE;
     gboolean ret = FALSE;

@@ -328,7 +328,7 @@ char* replace_archive_subs(const char* line, const char* n, const char* N, const
 void ptk_file_archiver_create(PtkFileBrowser* file_browser, GList* files, const char* cwd)
 {
     GList* l;
-    GtkWidget *combo, *dlg, *hbox;
+    GtkWidget *combo, *dlg;
     GtkFileFilter* filter;
 
     char *cmd_to_run = NULL, *desc = NULL, *dest_file = NULL, *ext = NULL, *s1 = NULL, *str = NULL,
@@ -998,7 +998,7 @@ void ptk_file_archiver_extract(PtkFileBrowser* file_browser, GList* files, const
     GList* l;
     char *dest_quote = NULL, *full_path = NULL, *full_quote = NULL, *perm = NULL, *cmd = NULL,
          *str = NULL, *final_command = NULL, *s1 = NULL, *extension = NULL;
-    int i, n, j, res;
+    int i, n, res;
     struct stat statbuf;
     GSList* handlers_slist = NULL;
 

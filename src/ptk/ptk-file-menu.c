@@ -1752,7 +1752,6 @@ void app_job(GtkWidget* item, GtkWidget* app_item)
 gboolean app_menu_keypress(GtkWidget* menu, GdkEventKey* event, PtkFileMenu* data)
 {
     int job = -1;
-    XSet* set;
     PtkFileMenu* app_data = NULL;
     VFSAppDesktop* desktop_file = NULL;
 
@@ -2113,8 +2112,6 @@ static void show_app_menu(GtkWidget* menu, GtkWidget* app_item, PtkFileMenu* dat
 
 gboolean on_app_button_press(GtkWidget* item, GdkEventButton* event, PtkFileMenu* data)
 {
-    int job = -1;
-
     GtkWidget* menu = (GtkWidget*)g_object_get_data(G_OBJECT(item), "menu");
     int keymod = (event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK |
                                   GDK_SUPER_MASK | GDK_HYPER_MASK | GDK_META_MASK));
@@ -2384,8 +2381,6 @@ void on_autoopen_create_cb(gpointer task, AutoOpenCreate* ao)
 
 static void create_new_file(PtkFileMenu* data, int create_new)
 {
-    char* cwd;
-
     if (!data->cwd)
         return;
 

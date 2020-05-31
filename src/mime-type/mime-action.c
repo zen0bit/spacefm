@@ -598,7 +598,6 @@ char* mime_type_locate_desktop_file(const char* dir, const char* desktop_id)
 static char* get_default_action(const char* dir, const char* type, gpointer user_data)
 {
     GKeyFile* file;
-    char* path;
     char** apps;
     gsize n_apps, i;
     int n, k;

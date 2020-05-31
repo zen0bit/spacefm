@@ -121,10 +121,8 @@ static void get_width_height_pad(char* val, int* width, int* height, int* pad)
 
 static void fill_combo_box(CustomElement* el, GList* arglist)
 {
-    GList* l;
     GList* args;
     char* arg;
-    char* str;
     GtkTreeIter iter;
     GtkTreeModel* model;
     char* default_value = NULL;
@@ -258,7 +256,6 @@ char* get_tree_view_selected(CustomElement* el, const char* prefix)
     GtkTreeIter iter;
     GtkTreeModel* model;
     GtkTreeSelection* tree_sel;
-    GtkTreePath* tree_path;
     char* selected = NULL;
     char* indices = NULL;
     char* str;
@@ -1043,7 +1040,6 @@ static char* get_element_value(CustomElement* el, const char* name)
     int width, height, pad;
     char* str;
     char* str2;
-    GList* l;
     CustomElement* el_name;
 
     if (!g_strcmp0(el->name, name))
@@ -1146,7 +1142,6 @@ static char* get_command_value(CustomElement* el, char* cmdline, char* xvalue)
 {
     char* stdout = NULL;
     gboolean ret;
-    gint exit_status;
     GError* error = NULL;
     char* argv[4];
 
@@ -1477,10 +1472,6 @@ static void internal_command(CustomElement* el, int icmd, GList* args, char* xva
 
 static void run_command(CustomElement* el, GList* argslist, char* xvalue)
 {
-    char* str;
-    char* line;
-    char* arg;
-    GList* l;
     int i, icmd = -1;
     GList* args;
     GError* error;
@@ -3515,8 +3506,6 @@ static void build_dialog(GList* elements)
     GtkWidget* dlg;
     CustomElement* el;
     CustomElement* focus_el = NULL;
-    char* str;
-    char* sep;
     GSList* radio = NULL;
     GtkWidget* box;
     int pad = DEFAULT_PAD;
@@ -3670,7 +3659,6 @@ int custom_dialog_init(int argc, char* argv[])
     int ac, i, j;
     GList* elements = NULL;
     CustomElement* el = NULL;
-    GList* l;
     char* num;
     char* str;
     int type_count[G_N_ELEMENTS(cdlg_option) / 3] = {0};

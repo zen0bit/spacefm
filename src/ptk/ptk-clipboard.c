@@ -161,7 +161,6 @@ void ptk_clipboard_cut_or_copy_files(const char* working_dir, GList* files, gboo
 {
     GtkClipboard* clip = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);
     GtkTargetList* target_list = gtk_target_list_new(NULL, 0);
-    GList* target;
     gint n_targets;
     GtkTargetEntry* new_target;
     GtkTargetEntry* targets;
@@ -207,12 +206,9 @@ void ptk_clipboard_copy_file_list(char** path, gboolean copy)
 {
     GtkClipboard* clip = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);
     GtkTargetList* target_list = gtk_target_list_new(NULL, 0);
-    GList* target;
     gint n_targets;
     GtkTargetEntry* new_target;
     GtkTargetEntry* targets;
-    GList* l;
-    VFSFileInfo* file;
     char** file_path;
     GList* file_list = NULL;
 

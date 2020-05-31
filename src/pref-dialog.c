@@ -101,9 +101,7 @@ static void on_response(GtkDialog* dlg, int response, FMPrefDlg* user_data)
 
 {
     int i, n;
-    gboolean b;
     int ibig_icon = -1, ismall_icon = -1, itool_icon = -1;
-    const char* filename_encoding;
 
     int max_thumb;
     gboolean show_thumbnail;
@@ -111,14 +109,13 @@ static void on_response(GtkDialog* dlg, int response, FMPrefDlg* user_data)
     int small_icon;
     int tool_icon;
     gboolean single_click;
-    gboolean single_hover;
     gboolean root_bar;
     gboolean root_set_change = FALSE;
     const GList* l;
     PtkFileBrowser* file_browser;
     gboolean use_si_prefix;
     GtkNotebook* notebook;
-    int cur_tabx, p;
+    int p;
     FMMainWindow* a_window;
     char* str;
 
@@ -497,7 +494,6 @@ void on_show_thumbnail_toggled(GtkWidget* widget, FMPrefDlg* data)
 
 gboolean fm_edit_preference(GtkWindow* parent, int page)
 {
-    const char* filename_encoding;
     int i;
     int ibig_icon = -1, ismall_icon = -1, itool_icon = -1;
     GtkWidget* dlg;

@@ -1027,8 +1027,6 @@ void ptk_file_task_progress_update(PtkFileTask* ptask)
     char percent_str[16];
     char* stats;
     char* errs;
-    GtkTextIter iter, siter;
-    GdkPixbuf* pixbuf;
 
     if (!ptask->progress_dlg)
     {
@@ -1692,10 +1690,7 @@ gboolean on_vfs_file_task_state_cb(VFSFileTask* task, VFSFileTaskState state, gp
                                    gpointer user_data)
 {
     PtkFileTask* ptask = (PtkFileTask*)user_data;
-    GtkWidget* dlg;
-    int response;
     gboolean ret = TRUE;
-    char** new_dest;
 
     switch (state)
     {
@@ -1783,7 +1778,6 @@ static gboolean on_query_input_keypress(GtkWidget* widget, GdkEventKey* event, P
     if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter)
     {
         // User pressed enter in rename/overwrite dialog
-        gboolean can_rename;
         char* new_name = multi_input_get_text(widget);
         const char* old_name = (const char*)g_object_get_data(G_OBJECT(widget), "old_name");
         GtkWidget* dlg = gtk_widget_get_toplevel(widget);
@@ -1947,7 +1941,6 @@ static void query_overwrite(PtkFileTask* ptask)
     GtkWidget* parent_win;
     GtkTextIter iter;
 
-    int response;
     gboolean has_overwrite_btn = TRUE;
     gboolean different_files, is_src_dir, is_dest_dir;
     struct stat src_stat, dest_stat;
@@ -2199,7 +2192,6 @@ static void query_overwrite(PtkFileTask* ptask)
         gtk_box_pack_start(GTK_BOX(vbox), from_size, FALSE, TRUE, 0);
     }
 
-    GtkWidget* to_dir = NULL;
     if (has_overwrite_btn || different_files)
     {
         gtk_box_pack_start(GTK_BOX(vbox), gtk_label_new(NULL), FALSE, TRUE, 0);

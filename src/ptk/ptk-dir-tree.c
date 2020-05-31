@@ -343,11 +343,11 @@ void ptk_dir_tree_get_value(GtkTreeModel* tree_model, GtkTreeIter* iter, gint co
             int icon_size = app_settings.small_icon_size;
             if (icon_size > PANE_MAX_ICON_SIZE)
                 icon_size = PANE_MAX_ICON_SIZE;
-            icon = vfs_load_icon(icon_theme, "directory", icon_size);
+            icon = vfs_load_icon(icon_theme, "gtk-directory", icon_size);
             if (G_UNLIKELY(!icon))
                 icon = vfs_load_icon(icon_theme, "gnome-fs-directory", icon_size);
             if (G_UNLIKELY(!icon))
-                icon = vfs_load_icon(icon_theme, "gtk-directory", icon_size);
+                icon = vfs_load_icon(icon_theme, "folder", icon_size);
             if (icon)
             {
                 g_value_set_object(value, icon);
@@ -770,8 +770,6 @@ void on_file_monitor_event(VFSFileMonitor* fm, VFSFileMonitorEvent event, const 
 {
     PtkDirTreeNode* node = (PtkDirTreeNode*)user_data;
     PtkDirTreeNode* child;
-    GtkTreeIter it;
-    GtkTreePath* tree_path;
     char* file_path;
     g_return_if_fail(node);
     GDK_THREADS_ENTER();

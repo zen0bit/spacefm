@@ -404,7 +404,6 @@ void info_drive_connection(device_t* device)
 {
     char* s;
     char* p;
-    char* q;
     char* model;
     char* vendor;
     char* subsystem;
@@ -2002,7 +2001,6 @@ void vfs_free_volume_members(VFSVolume* volume)
 
 char* free_slash_total(const char* dir)
 {
-    guint64 total_size;
     char size_str[64];
     struct statvfs fs_stat = {0};
 
@@ -2345,8 +2343,6 @@ gboolean path_is_mounted_mtab(const char* mtab_file, const char* path, char** de
     GError* error;
     guint n;
     gboolean ret = FALSE;
-    char* str;
-    char* file;
     char* point;
     gchar encoded_file[PATH_MAX];
     gchar encoded_point[PATH_MAX];
@@ -2523,13 +2519,13 @@ int split_network_url(const char* url, netmount_t** netmount)
     // user:pass
     if ((str = strchr(xurl, '@')))
     {
-        if (str2 = strchr(str + 1, '@'))
+        if ((str2 = strchr(str + 1, '@')))
         {
             // there is a second @ - assume username contains email address
             str = str2;
         }
         str[0] = '\0';
-        if (str2 = strchr(xurl, ':'))
+        if ((str2 = strchr(xurl, ':')))
         {
             str2[0] = '\0';
             if (str2[1] != '\0')
@@ -2610,16 +2606,14 @@ VFSVolume* vfs_volume_read_by_mount(dev_t devnum, const char* mount_points)
     VFSVolume* volume;
     char* str;
     int i;
-    struct stat statbuf;
     netmount_t* netmount = NULL;
-    XSet* set;
 
     if (devnum == 0 || !mount_points)
         return NULL;
 
     // get single mount point
     char* point = g_strdup(mount_points);
-    if (str = strchr(point, ','))
+    if ((str = strchr(point, ',')))
         str[0] = '\0';
     g_strstrip(point);
     if (!(point && point[0] == '/'))

@@ -756,7 +756,6 @@ static void vfs_file_task_move(char* src_file, VFSFileTask* task)
     struct stat dest_stat;
     gchar* file_name;
     gchar* dest_file;
-    int tmpfd = -1;
 
     if (should_abort(task))
         return;
@@ -1210,9 +1209,7 @@ static gboolean cb_exec_out_watch(GIOChannel* channel, GIOCondition cond, VFSFil
     }
     */
 
-    gchar* line;
     gsize size;
-    GtkTextIter iter;
 
     if ((cond & G_IO_NVAL))
     {

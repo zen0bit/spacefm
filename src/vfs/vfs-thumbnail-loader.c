@@ -344,7 +344,7 @@ static GdkPixbuf* _vfs_thumbnail_load(const char* file_path, const char* uri, in
     char* thumbnail_file;
     char mtime_str[md5_len];
     const char* thumb_mtime;
-    int i, w, h;
+    int w, h;
     struct stat statbuf;
     GdkPixbuf *thumbnail, *result = NULL;
     int create_size;

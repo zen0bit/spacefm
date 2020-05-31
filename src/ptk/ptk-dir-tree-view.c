@@ -462,7 +462,6 @@ gboolean on_dir_tree_view_button_press(GtkWidget* view, GdkEventButton* evt,
 
 gboolean on_dir_tree_view_key_press(GtkWidget* view, GdkEventKey* evt, PtkFileBrowser* browser)
 {
-    VFSFileInfo* file;
     GtkTreeModel* model;
     GtkTreeIter iter;
     GtkTreeSelection* select = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));

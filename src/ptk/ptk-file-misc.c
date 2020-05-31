@@ -197,9 +197,7 @@ void ptk_delete_files(GtkWindow* parent_win, const char* cwd, GList* sel_files,
 char* get_real_link_target(const char* link_path)
 {
     char buf[PATH_MAX + 1];
-    char* canon;
     ssize_t len;
-    struct stat stat;
     char* target_path;
 
     if (!link_path)
@@ -2022,7 +2020,6 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
     int ret = 1;
     gboolean target_missing = FALSE;
     GList* templates;
-    FILE* touchfile;
     struct stat statbuf;
 
     if (!file_dir)
@@ -3553,7 +3550,6 @@ static gboolean open_files_with_app(ParentInfo* parent, GList* files, const char
 static void open_files_with_each_app(gpointer key, gpointer value, gpointer user_data)
 {
     char* app_desktop = (char*)key; // is const unless handler
-    const char* cwd;
     GList* files = (GList*)value;
     ParentInfo* parent = (ParentInfo*)user_data;
     open_files_with_app(parent, files, app_desktop);
@@ -3585,7 +3581,6 @@ void ptk_open_files_with_app(const char* cwd, GList* sel_files, const char* app_
     char* new_dir = NULL;
     char* alloc_desktop;
     GtkWidget* toplevel;
-    PtkFileBrowser* fb;
 
     ParentInfo* parent = g_slice_new0(ParentInfo);
     parent->file_browser = file_browser;
@@ -3799,7 +3794,6 @@ void ptk_open_files_with_app(const char* cwd, GList* sel_files, const char* app_
 void ptk_file_misc_paste_as(PtkFileBrowser* file_browser, const char* cwd, GFunc callback)
 {
     gchar* file_path;
-    char* str;
     gboolean is_cut = FALSE;
     gint missing_targets;
     VFSFileInfo* file;

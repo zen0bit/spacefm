@@ -148,7 +148,6 @@ static gboolean handle_parsed_commandline_args();
 
 static void open_file(const char* path);
 
-static GList* get_file_info_list(char** files);
 static char* dup_to_absolute_file_path(char** file);
 void receive_socket_command(int client, GString* args); // sfm
 
@@ -174,7 +173,6 @@ gboolean on_socket_event(GIOChannel* ioc, GIOCondition cond, gpointer data)
     static char buf[1024];
     GString* args;
     char** file;
-    SocketEvent cmd;
 
     if (cond & G_IO_IN)
     {
@@ -458,7 +456,6 @@ void single_instance_finalize()
 void receive_socket_command(int client, GString* args) // sfm
 {
     char** argv;
-    char** arg;
     char cmd;
     char* reply = NULL;
 
@@ -642,24 +639,6 @@ void init_folder()
     folder_initialized = TRUE;
 }
 
-GList* get_file_info_list(char** file_paths)
-{
-    GList* file_list = NULL;
-    char** file;
-    VFSFileInfo* fi;
-
-    for (file = file_paths; *file; ++file)
-    {
-        fi = vfs_file_info_new();
-        if (vfs_file_info_get(fi, *file, NULL))
-            file_list = g_list_append(file_list, fi);
-        else
-            vfs_file_info_unref(fi);
-    }
-
-    return file_list;
-}
-
 gboolean delayed_popup(GtkWidget* popup)
 {
     GDK_THREADS_ENTER();
@@ -792,7 +771,6 @@ gboolean handle_parsed_commandline_args()
     char** file;
     gboolean ret = TRUE;
     XSet* set;
-    int p;
     struct stat statbuf;
 
     app_settings.load_saved_tabs = !no_tabs;
@@ -916,7 +894,6 @@ gboolean handle_parsed_commandline_args()
     }
     // printf("    handle_parsed_commandline_args mw = %p\n\n", main_window );
 
-out:
     if (files != default_files)
         g_strfreev(files);
 

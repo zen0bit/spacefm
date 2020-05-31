@@ -320,8 +320,6 @@ static GList* vfs_dir_find_file(VFSDir* dir, const char* file_name, VFSFileInfo*
 /* signal handlers */
 void vfs_dir_emit_file_created(VFSDir* dir, const char* file_name, gboolean force)
 {
-    GList* l;
-
     // Ignore avoid_changes for creation of files
     // if ( !force && dir->avoid_changes )
     //    return;
@@ -632,8 +630,6 @@ gpointer vfs_dir_load_thread(VFSAsyncTask* task, VFSDir* dir)
 
         if (dir_content)
         {
-            GKeyFile* kf;
-
             // MOD  dir contains .hidden file?
             hidden = gethidden(dir->path);
 
@@ -978,8 +974,6 @@ static void on_mime_type_reload(gpointer user_data)
 /* Thanks to the freedesktop.org, things are much more complicated now... */
 const char* vfs_get_desktop_dir()
 {
-    static const char* def;
-
     if (G_LIKELY(is_desktop_set))
         return desktop_dir;
 

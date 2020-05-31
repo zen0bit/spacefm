@@ -1185,7 +1185,6 @@ gboolean xset_get_b_set(XSet* set)
 
 XSet* xset_is(const char* name)
 {
-    XSet* set;
     GList* l;
 
     if (!name)
@@ -3049,7 +3048,6 @@ void clean_plugin_mirrors()
 { // remove plugin mirrors for non-existent plugins
     GList* l;
     XSet* set;
-    XSet* set_key;
     gboolean redo = TRUE;
 
     while (redo)
@@ -3487,7 +3485,7 @@ void on_install_plugin_cb(VFSFileTask* task, PluginData* plugin_data)
                             set->tool = XSET_TOOL_NOT;
                         if (!set->next)
                             break;
-                    } while (set = xset_get(set->next));
+                    } while ((set = xset_get(set->next)));
                     // set now points to last bookmark
                     newset->prev = g_strdup(plugin_data->set->name);
                     set->next = plugin_data->set->next; // steal
@@ -4243,7 +4241,6 @@ void xset_custom_activate(GtkWidget* item, XSet* set)
                 }
                 GList* file_paths = NULL;
                 GList* l;
-                char* path;
                 for (l = sel_files; l; l = l->next)
                 {
                     file_paths = g_list_prepend(
@@ -5169,10 +5166,6 @@ void xset_set_key(GtkWidget* parent, XSet* set)
 
 void xset_design_job(GtkWidget* item, XSet* set)
 {
-    char* keymsg;
-    GtkWidget* vbox;
-    int newkey = 0, newkeymod = 0;
-    XSet* keyset;
     XSet* newset;
     XSet* mset;
     XSet* childset;
@@ -6032,10 +6025,8 @@ void on_design_radio_toggled(GtkCheckMenuItem* item, XSet* set)
 gboolean xset_job_is_valid(XSet* set, int job)
 {
     gboolean no_remove = FALSE;
-    gboolean toolexecsub = FALSE;
     gboolean no_paste = FALSE;
     gboolean open_all = FALSE;
-    XSet* sett;
 
     if (!set)
         return FALSE;
@@ -6365,18 +6356,12 @@ GtkWidget* xset_design_show_menu(GtkWidget* menu, XSet* set, XSet* book_insert, 
                                  guint32 time)
 {
     GtkWidget* newitem;
-    GtkWidget* newitem2;
-    GtkWidget* newitem3;
-    GtkWidget* newitem4;
     GtkWidget* submenu;
     GtkWidget* submenu2;
-    GSList* radio_group;
-    char* label;
-    char* path;
     gboolean no_remove = FALSE;
     gboolean no_paste = FALSE;
     gboolean open_all = FALSE;
-    XSet* sett;
+
     XSet* mset;
     XSet* insert_set;
     int i;
@@ -7182,7 +7167,7 @@ int xset_msg_dialog(GtkWidget* parent, int action, const char* title, GtkWidget*
 
     gtk_widget_show_all(dlg);
     int response;
-    while (response = gtk_dialog_run(GTK_DIALOG(dlg)))
+    while ((response = gtk_dialog_run(GTK_DIALOG(dlg))))
     {
         if (response == GTK_RESPONSE_HELP)
         {
@@ -7409,7 +7394,6 @@ static void on_icon_buffer_changed(GtkTextBuffer* buf, GtkWidget* button)
 
 char* xset_icon_chooser_dialog(GtkWindow* parent, const char* def_icon)
 {
-    GtkTextIter iter, siter;
     GtkAllocation allocation;
     int width, height;
     char* icon = NULL;
@@ -7884,7 +7868,6 @@ char* xset_color_dialog(GtkWidget* parent, char* title, char* defcolor)
 {
     GdkColor color;
     char* scolor = NULL;
-    GtkWidget* dlgparent = parent ? gtk_widget_get_toplevel(parent) : NULL;
     GtkWidget* dlg = gtk_color_selection_dialog_new(title);
     GtkWidget* color_sel = NULL;
     GtkWidget* help_button;
@@ -10681,7 +10664,7 @@ void xset_defaults()
     xset_set("rown_root_user2", "lbl", "root:user2");
 
     // PANELS
-    int p, i;
+    int p;
     for (p = 1; p < 5; p++)
     {
         set = xset_set_panel(p, "show_toolbox", "lbl", _("_Toolbar"));
@@ -10898,7 +10881,6 @@ void def_key(const char* name, int key, int keymod)
 
 void xset_default_keys()
 {
-    XSet* set;
     GList* l;
 
     // read all currently set or unset keys

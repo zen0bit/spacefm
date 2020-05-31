@@ -182,7 +182,7 @@ static void on_open_files(GtkAction* action, FindFile* data)
     GtkTreeModel* model;
     GtkTreeSelection* sel;
     GtkTreeIter it;
-    GList *row, *rows, *sel_files;
+    GList *row, *rows;
     GHashTable* hash;
     GtkWidget* w;
     VFSFileInfo* fi;
@@ -521,7 +521,6 @@ static void finish_search(FindFile* data)
 static void process_found_files(FindFile* data, GQueue* queue, const char* path)
 {
     char* name;
-    gsize len, term;
     GtkTreeIter it;
     VFSFileInfo* fi;
     GdkPixbuf* icon;
@@ -643,7 +642,6 @@ static void on_start_search(GtkWidget* btn, FindFile* data)
 {
     char** argv;
     GError* err = NULL;
-    int stdo, stde;
     char* cmd_line;
     GtkAllocation allocation;
 
@@ -883,7 +881,6 @@ static void free_data(FindFile* data)
 
 static void init_search_result(FindFile* data)
 {
-    GtkTreeIter it;
     GtkTreeViewColumn* col;
     GtkCellRenderer* render;
 

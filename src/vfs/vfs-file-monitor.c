@@ -110,7 +110,6 @@ VFSFileMonitor* vfs_file_monitor_add(char* path, gboolean is_dir, VFSFileMonitor
 {
     VFSFileMonitor* monitor;
     VFSFileMonitorCallbackEntry cb_ent;
-    struct stat file_stat; // skip stat
     char resolved_path[PATH_MAX];
     char* real_path;
 
