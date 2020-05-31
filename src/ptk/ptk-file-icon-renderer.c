@@ -13,6 +13,7 @@
  *
  */
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #include "ptk-file-icon-renderer.h"
@@ -362,7 +363,7 @@ static void ptk_file_icon_renderer_render(GtkCellRenderer* cell, GdkWindow* wind
     GdkRectangle draw_rect;
     VFSFileInfo* file;
     int xpad, ypad;
-    gboolean is_expander, is_expanded;
+    bool is_expander, is_expanded;
 
     GtkCellRendererClass* parent_renderer_class;
 

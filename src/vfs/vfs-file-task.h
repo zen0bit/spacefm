@@ -12,6 +12,8 @@
 #ifndef _VFS_FILE_TASK_H
 #define _VFS_FILE_TASK_H
 
+#include <stdbool.h>
+
 #include <glib.h>
 #include <sys/types.h>
 #include <gtk/gtk.h>
@@ -82,8 +84,8 @@ typedef struct _VFSFileTask VFSFileTask;
 
 typedef void (*VFSFileTaskProgressCallback)(VFSFileTask* task);
 
-typedef gboolean (*VFSFileTaskStateCallback)(VFSFileTask*, VFSFileTaskState state, void* state_data,
-                                             void* user_data);
+typedef bool (*VFSFileTaskStateCallback)(VFSFileTask*, VFSFileTaskState state, void* state_data,
+                                         void* user_data);
 
 struct _VFSFileTask
 {
@@ -91,13 +93,13 @@ struct _VFSFileTask
     GList* src_paths; /* All source files. This list will be freed
                                  after file operation is completed. */
     char* dest_dir;   /* Destinaton directory */
-    gboolean avoid_changes;
+    bool avoid_changes;
     GSList* devs;
 
     VFSFileTaskOverwriteMode overwrite_mode;
-    gboolean recursive; /* Apply operation to all files under directories
-                         * recursively. This is default to copy/delete,
-                         * and should be set manually for chown/chmod. */
+    bool recursive; /* Apply operation to all files under directories
+                     * recursively. This is default to copy/delete,
+                     * and should be set manually for chown/chmod. */
 
     /* For chown */
     uid_t uid;
@@ -109,7 +111,7 @@ struct _VFSFileTask
     off_t total_size; /* Total size of the files to be processed, in bytes */
     off_t progress;   /* Total size of current processed files, in btytes */
     int percent;      /* progress (percentage) */
-    gboolean custom_percent;
+    bool custom_percent;
     time_t start_time;
     off_t last_speed;
     off_t last_progress;
@@ -122,14 +124,14 @@ struct _VFSFileTask
     char* current_dest; /* copy of Current destination file */
 
     int error;
-    gboolean error_first;
+    bool error_first;
 
     GThread* thread;
     VFSFileTaskState state;
     VFSFileTaskState state_pause;
-    gboolean abort;
+    bool abort;
     GCond* pause_cond;
-    gboolean queue_start;
+    bool queue_start;
 
     VFSFileTaskProgressCallback progress_cb;
     void* progress_cb_data;
@@ -147,19 +149,19 @@ struct _VFSFileTask
     VFSExecType exec_type;
     char* exec_action;
     char* exec_command;
-    gboolean exec_sync;
-    gboolean exec_popup;
-    gboolean exec_show_output;
-    gboolean exec_show_error;
-    gboolean exec_terminal;
-    gboolean exec_keep_terminal;
-    gboolean exec_export;
-    gboolean exec_direct;
+    bool exec_sync;
+    bool exec_popup;
+    bool exec_show_output;
+    bool exec_show_error;
+    bool exec_terminal;
+    bool exec_keep_terminal;
+    bool exec_export;
+    bool exec_direct;
     char* exec_argv[7]; // for exec_direct, command ignored
                         // for su commands, must use bash -c
                         // as su does not execute binaries
     char* exec_script;
-    gboolean exec_keep_tmp; // diagnostic to keep temp files
+    bool exec_keep_tmp; // diagnostic to keep temp files
     void* exec_browser;
     void* exec_desktop;
     char* exec_as_user;
@@ -167,14 +169,14 @@ struct _VFSFileTask
     GPid exec_pid;
     int exec_exit_status;
     unsigned int child_watch;
-    gboolean exec_is_error;
+    bool exec_is_error;
     GIOChannel* exec_channel_out;
     GIOChannel* exec_channel_err;
     // GtkTextBuffer* exec_err_buf;  //copy from ptk task
     // GtkTextMark* exec_mark_end;  //copy from ptk task
-    gboolean exec_scroll_lock;
-    gboolean exec_write_root;
-    gboolean exec_checksum;
+    bool exec_scroll_lock;
+    bool exec_write_root;
+    bool exec_checksum;
     void* exec_set;
     GCond* exec_cond;
     void* exec_ptask;
@@ -201,7 +203,7 @@ void vfs_file_task_set_progress_callback(VFSFileTask* task, VFSFileTaskProgressC
 void vfs_file_task_set_state_callback(VFSFileTask* task, VFSFileTaskStateCallback cb,
                                       void* user_data);
 
-void vfs_file_task_set_recursive(VFSFileTask* task, gboolean recursive);
+void vfs_file_task_set_recursive(VFSFileTask* task, bool recursive);
 
 void vfs_file_task_set_overwrite_mode(VFSFileTask* task, VFSFileTaskOverwriteMode mode);
 

@@ -22,6 +22,8 @@
 #ifndef __VFS_ASYNC_TASK_H__
 #define __VFS_ASYNC_TASK_H__
 
+#include <stdbool.h>
+
 #include <glib.h>
 #include <glib-object.h>
 
@@ -50,15 +52,15 @@ struct _VFSAsyncTask
     GMutex* lock;
 
     unsigned int idle_id;
-    gboolean cancel : 1;
-    gboolean cancelled : 1;
-    gboolean finished : 1;
+    bool cancel : 1;
+    bool cancelled : 1;
+    bool finished : 1;
 };
 
 struct _VFSAsyncTaskClass
 {
     GObjectClass parent_class;
-    void (*finish)(VFSAsyncTask* task, gboolean is_cancelled);
+    void (*finish)(VFSAsyncTask* task, bool is_cancelled);
 };
 
 GType vfs_async_task_get_type(void);
@@ -71,8 +73,8 @@ void* vfs_async_task_get_return_value(VFSAsyncTask* task);
 /* Execute the async task */
 void vfs_async_task_execute(VFSAsyncTask* task);
 
-gboolean vfs_async_task_is_finished(VFSAsyncTask* task);
-gboolean vfs_async_task_is_cancelled(VFSAsyncTask* task);
+bool vfs_async_task_is_finished(VFSAsyncTask* task);
+bool vfs_async_task_is_cancelled(VFSAsyncTask* task);
 
 /*
  * Cancel the async task running in another thread.

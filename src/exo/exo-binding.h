@@ -23,6 +23,8 @@
 #ifndef __EXO_BINDING_H__
 #define __EXO_BINDING_H__
 
+#include <stdbool.h>
+
 #include <glib-object.h>
 
 G_BEGIN_DECLS
@@ -44,8 +46,7 @@ typedef struct _ExoMutualBinding ExoMutualBinding;
  *
  * Returns: %FALSE if transformation failed, else %TRUE.
  **/
-typedef gboolean (*ExoBindingTransform)(const GValue* src_value, GValue* dst_value,
-                                        void* user_data);
+typedef bool (*ExoBindingTransform)(const GValue* src_value, GValue* dst_value, void* user_data);
 
 ExoBinding* exo_binding_new(GObject* src_object, const char* src_property, GObject* dst_object,
                             const char* dst_property);

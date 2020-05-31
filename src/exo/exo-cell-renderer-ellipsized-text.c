@@ -24,6 +24,8 @@
 #include <config.h>
 #endif
 
+#include <stdbool.h>
+
 #include "exo-cell-renderer-ellipsized-text.h"
 #include "exo-private.h"
 #include "exo-common.h"
@@ -104,7 +106,7 @@ static void exo_cell_renderer_ellipsized_text_render(GtkCellRenderer* renderer,
 
 struct _ExoCellRendererEllipsizedTextPrivate
 {
-    gboolean follow_state;
+    bool follow_state;
 };
 
 G_DEFINE_TYPE_WITH_PRIVATE(ExoCellRendererEllipsizedText, exo_cell_renderer_ellipsized_text,

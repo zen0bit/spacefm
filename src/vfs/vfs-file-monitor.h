@@ -23,6 +23,8 @@
 #ifndef _VFS_FILE_MONITOR_H_
 #define _VFS_FILE_MONITOR_H_
 
+#include <stdbool.h>
+
 #include <glib.h>
 
 #include <unistd.h>
@@ -60,7 +62,7 @@ typedef void (*VFSFileMonitorCallback)(VFSFileMonitor* fm, VFSFileMonitorEvent e
  * Init monitor:
  * Establish connection with gamin/fam.
  */
-gboolean vfs_file_monitor_init();
+bool vfs_file_monitor_init();
 
 /*
  * Monitor changes of a file or directory.
@@ -70,7 +72,7 @@ gboolean vfs_file_monitor_init();
  * cb: callback function to be called when file event happens.
  * user_data: user data to be passed to callback function.
  */
-VFSFileMonitor* vfs_file_monitor_add(char* path, gboolean is_dir, VFSFileMonitorCallback cb,
+VFSFileMonitor* vfs_file_monitor_add(char* path, bool is_dir, VFSFileMonitorCallback cb,
                                      void* user_data);
 
 /*

@@ -1,4 +1,6 @@
 
+#include <stdbool.h>
+
 #include <glib-object.h>
 
 /* WARNING: This code accesses GValues directly, which is UNSUPPORTED API.
@@ -148,12 +150,12 @@ void _exo_marshal_BOOLEAN__VOID(GClosure* closure, GValue* return_value,
                                 unsigned int n_param_values, const GValue* param_values,
                                 void* invocation_hint, void* marshal_data)
 {
-    typedef gboolean (*GMarshalFunc_BOOLEAN__VOID)(void* data1, void* data2);
+    typedef bool (*GMarshalFunc_BOOLEAN__VOID)(void* data1, void* data2);
     register GMarshalFunc_BOOLEAN__VOID callback;
     register GCClosure* cc = (GCClosure*)closure;
     register void* data1;
     register void* data2;
-    gboolean v_return;
+    bool v_return;
 
     g_return_if_fail(return_value != NULL);
     g_return_if_fail(n_param_values == 1);
@@ -180,13 +182,12 @@ void _exo_marshal_BOOLEAN__ENUM_INT(GClosure* closure, GValue* return_value,
                                     unsigned int n_param_values, const GValue* param_values,
                                     void* invocation_hint, void* marshal_data)
 {
-    typedef gboolean (
-        *GMarshalFunc_BOOLEAN__ENUM_INT)(void* data1, int arg1, int arg2, void* data2);
+    typedef bool (*GMarshalFunc_BOOLEAN__ENUM_INT)(void* data1, int arg1, int arg2, void* data2);
     GCClosure* cc = (GCClosure*)closure;
     void* data1;
     void* data2;
     GMarshalFunc_BOOLEAN__ENUM_INT callback;
-    gboolean v_return;
+    bool v_return;
 
     g_return_if_fail(return_value != NULL);
     g_return_if_fail(n_param_values == 3);
@@ -217,18 +218,18 @@ void _exo_marshal_BOOLEAN__INT_ENUM_BOOLEAN_ENUM_BOOLEAN(GClosure* closure, GVal
                                                          const GValue* param_values,
                                                          void* invocation_hint, void* marshal_data)
 {
-    typedef gboolean (*GMarshalFunc_BOOLEAN__INT_ENUM_BOOLEAN_ENUM_BOOLEAN)(void* data1,
-                                                                            int arg1,
-                                                                            int arg2,
-                                                                            gboolean arg3,
-                                                                            int arg4,
-                                                                            gboolean arg5,
-                                                                            void* data2);
+    typedef bool (*GMarshalFunc_BOOLEAN__INT_ENUM_BOOLEAN_ENUM_BOOLEAN)(void* data1,
+                                                                        int arg1,
+                                                                        int arg2,
+                                                                        bool arg3,
+                                                                        int arg4,
+                                                                        bool arg5,
+                                                                        void* data2);
     GCClosure* cc = (GCClosure*)closure;
     void* data1;
     void* data2;
     GMarshalFunc_BOOLEAN__INT_ENUM_BOOLEAN_ENUM_BOOLEAN callback;
-    gboolean v_return;
+    bool v_return;
 
     g_return_if_fail(return_value != NULL);
     g_return_if_fail(n_param_values == 6);

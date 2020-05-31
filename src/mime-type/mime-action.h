@@ -22,6 +22,8 @@
 #ifndef _MIME_ACTION_H_INCLUDED_
 #define _MIME_ACTION_H_INCLUDED_
 
+#include <stdbool.h>
+
 #include <glib.h>
 
 G_BEGIN_DECLS
@@ -52,7 +54,7 @@ void mime_type_add_action(const char* type, const char* desktop_id, char** custo
  * Check if an applications currently set to open this mime-type
  * desktop_id is the name of *.desktop file.
  */
-gboolean mime_type_has_action(const char* type, const char* desktop_id);
+bool mime_type_has_action(const char* type, const char* desktop_id);
 
 /*
  * Get default applications used to open this mime-type

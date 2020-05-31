@@ -20,6 +20,8 @@
 #include "config.h"
 #endif
 
+#include <stdbool.h>
+
 #include "vfs-file-monitor.h"
 #include "vfs-file-info.h"
 #include <sys/types.h> /* for stat */
@@ -43,9 +45,9 @@ static unsigned int fam_io_watch = 0;
 static int inotify_fd = -1;
 
 /* event handler of all FAM events */
-static gboolean on_fam_event(GIOChannel* channel, GIOCondition cond, void* user_data);
+static bool on_fam_event(GIOChannel* channel, GIOCondition cond, void* user_data);
 
-static gboolean connect_to_fam()
+static bool connect_to_fam()
 {
     inotify_fd = inotify_init();
     if (inotify_fd < 0)
@@ -97,7 +99,7 @@ void vfs_file_monitor_clean()
  * Init monitor:
  * Establish connection with gamin/fam.
  */
-gboolean vfs_file_monitor_init()
+bool vfs_file_monitor_init()
 {
     monitor_hash = g_hash_table_new(g_str_hash, g_str_equal);
     if (!connect_to_fam())
@@ -105,7 +107,7 @@ gboolean vfs_file_monitor_init()
     return TRUE;
 }
 
-VFSFileMonitor* vfs_file_monitor_add(char* path, gboolean is_dir, VFSFileMonitorCallback cb,
+VFSFileMonitor* vfs_file_monitor_add(char* path, bool is_dir, VFSFileMonitorCallback cb,
                                      void* user_data)
 {
     VFSFileMonitor* monitor;
@@ -259,7 +261,7 @@ static void reconnect_fam(void* key, void* value, void* user_data)
     }
 }
 
-static gboolean find_monitor(void* key, void* value, void* user_data)
+static bool find_monitor(void* key, void* value, void* user_data)
 {
     int wd = GPOINTER_TO_INT(user_data);
     VFSFileMonitor* monitor = (VFSFileMonitor*)value;
@@ -300,7 +302,7 @@ static void dispatch_event(VFSFileMonitor* monitor, VFSFileMonitorEvent evt, con
 }
 
 /* event handler of all FAM events */
-static gboolean on_fam_event(GIOChannel* channel, GIOCondition cond, void* user_data)
+static bool on_fam_event(GIOChannel* channel, GIOCondition cond, void* user_data)
 {
 #define BUF_LEN (1024 * (sizeof(struct inotify_event) + 16))
     char buf[BUF_LEN];

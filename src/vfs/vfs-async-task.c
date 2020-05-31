@@ -19,6 +19,8 @@
  *      MA 02110-1301, USA.
  */
 
+#include <stdbool.h>
+
 #include "vfs-async-task.h"
 #include <gtk/gtk.h>
 
@@ -26,10 +28,10 @@ static void vfs_async_task_class_init(VFSAsyncTaskClass* klass);
 static void vfs_async_task_init(VFSAsyncTask* task);
 static void vfs_async_task_finalize(GObject* object);
 
-static void vfs_async_task_finish(VFSAsyncTask* task, gboolean is_cancelled);
-static void vfs_async_thread_cleanup(VFSAsyncTask* task, gboolean finalize);
+static void vfs_async_task_finish(VFSAsyncTask* task, bool is_cancelled);
+static void vfs_async_thread_cleanup(VFSAsyncTask* task, bool finalize);
 
-void vfs_async_task_real_cancel(VFSAsyncTask* task, gboolean finalize);
+void vfs_async_task_real_cancel(VFSAsyncTask* task, bool finalize);
 
 /* Local data */
 static GObjectClass* parent_class = NULL;
@@ -142,7 +144,7 @@ void vfs_async_task_finalize(GObject* object)
         (*G_OBJECT_CLASS(parent_class)->finalize)(object);
 }
 
-gboolean on_idle(void* _task)
+bool on_idle(void* _task)
 {
     VFSAsyncTask* task = VFS_ASYNC_TASK(_task);
     // GDK_THREADS_ENTER();   // not needed because this runs in main thread
@@ -171,7 +173,7 @@ void vfs_async_task_execute(VFSAsyncTask* task)
     task->thread = g_thread_new("async_task", vfs_async_task_thread, task);
 }
 
-void vfs_async_thread_cleanup(VFSAsyncTask* task, gboolean finalize)
+void vfs_async_thread_cleanup(VFSAsyncTask* task, bool finalize)
 {
     if (task->idle_id)
     {
@@ -190,7 +192,7 @@ void vfs_async_thread_cleanup(VFSAsyncTask* task, gboolean finalize)
     }
 }
 
-void vfs_async_task_real_cancel(VFSAsyncTask* task, gboolean finalize)
+void vfs_async_task_real_cancel(VFSAsyncTask* task, bool finalize)
 {
     if (!task->thread)
         return;
@@ -227,17 +229,17 @@ void vfs_async_task_cancel(VFSAsyncTask* task)
     vfs_async_task_real_cancel(task, FALSE);
 }
 
-void vfs_async_task_finish(VFSAsyncTask* task, gboolean is_cancelled)
+void vfs_async_task_finish(VFSAsyncTask* task, bool is_cancelled)
 {
     /* default handler of "finish" signal. */
 }
 
-gboolean vfs_async_task_is_finished(VFSAsyncTask* task)
+bool vfs_async_task_is_finished(VFSAsyncTask* task)
 {
     return task->finished;
 }
 
-gboolean vfs_async_task_is_cancelled(VFSAsyncTask* task)
+bool vfs_async_task_is_cancelled(VFSAsyncTask* task)
 {
     return task->cancel;
 }

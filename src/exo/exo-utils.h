@@ -20,14 +20,16 @@
 #ifndef __EXO_UTILS_H__
 #define __EXO_UTILS_H__
 
+#include <stdbool.h>
+
 #include <glib.h>
 
 G_BEGIN_DECLS
 
 void exo_noop(void);
 void* exo_noop_null(void) G_GNUC_PURE;
-gboolean exo_noop_true(void) G_GNUC_PURE;
-gboolean exo_noop_false(void) G_GNUC_PURE;
+bool exo_noop_true(void) G_GNUC_PURE;
+bool exo_noop_false(void) G_GNUC_PURE;
 
 G_END_DECLS
 

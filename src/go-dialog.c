@@ -2,6 +2,8 @@
 #include <config.h>
 #endif
 
+#include <stdbool.h>
+
 #include <string.h>
 #include <gtk/gtk.h>
 
@@ -18,7 +20,7 @@
 
 static const char* chosen_path;
 
-static gboolean show_go_dialog(GtkWindow* parent, char* initial_path)
+static bool show_go_dialog(GtkWindow* parent, char* initial_path)
 {
     GtkBuilder* builder = _gtk_builder_new_from_file(PACKAGE_UI_DIR, "/godlg.ui", NULL);
     GtkDialog* dlg = GTK_DIALOG(gtk_builder_get_object(builder, "godlg"));
@@ -31,7 +33,7 @@ static gboolean show_go_dialog(GtkWindow* parent, char* initial_path)
     gtk_widget_show_all(gtk_dialog_get_content_area(dlg));
     gtk_widget_grab_focus(GTK_WIDGET(path_entry));
 
-    gboolean ret = (gtk_dialog_run(GTK_DIALOG(dlg)) == GTK_RESPONSE_OK);
+    bool ret = (gtk_dialog_run(GTK_DIALOG(dlg)) == GTK_RESPONSE_OK);
     if (ret)
     {
         chosen_path = strdup(gtk_entry_get_text(path_entry));
@@ -40,7 +42,7 @@ static gboolean show_go_dialog(GtkWindow* parent, char* initial_path)
     return ret;
 }
 
-gboolean fm_go(FMMainWindow* main_window)
+bool fm_go(FMMainWindow* main_window)
 {
     int i = gtk_notebook_get_current_page(GTK_NOTEBOOK(main_window->notebook));
     PtkFileBrowser* file_browser =

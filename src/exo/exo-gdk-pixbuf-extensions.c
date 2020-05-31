@@ -39,6 +39,8 @@
 #include <unistd.h>
 #endif
 
+#include <stdbool.h>
+
 /* required for GdkPixbufFormat */
 #ifndef GDK_PIXBUF_ENABLE_BACKEND
 #define GDK_PIXBUF_ENABLE_BACKEND
@@ -89,7 +91,7 @@
 GdkPixbuf* exo_gdk_pixbuf_colorize(const GdkPixbuf* source, const GdkColor* color)
 {
     GdkPixbuf* dst;
-    gboolean has_alpha;
+    bool has_alpha;
     int dst_row_stride;
     int src_row_stride;
     int width;
@@ -386,7 +388,7 @@ static inline unsigned char lighten_channel(unsigned char cur_value)
 GdkPixbuf* exo_gdk_pixbuf_spotlight(const GdkPixbuf* source)
 {
     GdkPixbuf* dst;
-    gboolean has_alpha;
+    bool has_alpha;
     int dst_row_stride;
     int src_row_stride;
     int width;
@@ -511,8 +513,8 @@ GdkPixbuf* exo_gdk_pixbuf_spotlight(const GdkPixbuf* source)
  *
  * Since: 0.3.1.1
  **/
-GdkPixbuf* exo_gdk_pixbuf_scale_down(GdkPixbuf* source, gboolean preserve_aspect_ratio,
-                                     int dest_width, int dest_height)
+GdkPixbuf* exo_gdk_pixbuf_scale_down(GdkPixbuf* source, bool preserve_aspect_ratio, int dest_width,
+                                     int dest_height)
 {
     int source_width;
     int source_height;

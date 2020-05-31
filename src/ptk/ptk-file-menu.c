@@ -16,6 +16,8 @@
 #define _GNU_SOURCE
 #endif
 
+#include <stdbool.h>
+
 #include <stdint.h>
 
 #include <unistd.h> /* for access */
@@ -46,8 +48,8 @@
 #include "utils.h"
 #include "gtk2-compat.h"
 
-gboolean on_app_button_press(GtkWidget* item, GdkEventButton* event, PtkFileMenu* data);
-gboolean app_menu_keypress(GtkWidget* widget, GdkEventKey* event, PtkFileMenu* data);
+bool on_app_button_press(GtkWidget* item, GdkEventButton* event, PtkFileMenu* data);
+bool app_menu_keypress(GtkWidget* widget, GdkEventKey* event, PtkFileMenu* data);
 static void show_app_menu(GtkWidget* menu, GtkWidget* app_item, PtkFileMenu* data,
                           unsigned int button, uint32_t time);
 
@@ -342,7 +344,7 @@ void ptk_file_menu_add_panel_view_menu(PtkFileBrowser* browser, GtkWidget* menu,
     FMMainWindow* main_window = (FMMainWindow*)browser->main_window;
     char mode = main_window->panel_context[p - 1];
 
-    gboolean show_side = FALSE;
+    bool show_side = FALSE;
     xset_set_cb("view_refresh", ptk_file_browser_refresh, browser);
     set = xset_set_cb_panel(p, "show_toolbox", on_popup_toggle_view, browser);
     set->b = xset_get_panel_mode(p, "show_toolbox", mode)->b;
@@ -552,9 +554,9 @@ GtkWidget* ptk_file_menu_new(PtkFileBrowser* browser, const char* file_path, VFS
     VFSMimeType* mime_type;
     GtkWidget* app_menu_item;
     GtkWidget* submenu;
-    gboolean is_dir;
-    gboolean is_text;
-    gboolean is_clip;
+    bool is_dir;
+    bool is_text;
+    bool is_clip;
     char **apps, **app;
     const char* app_name = NULL;
     VFSAppDesktop* desktop_file;
@@ -1169,7 +1171,7 @@ GtkWidget* ptk_file_menu_new(PtkFileBrowser* browser, const char* file_path, VFS
         set = xset_get("move_panel_next");
         set->disable = (panel_count < 2);
 
-        gboolean b;
+        bool b;
         for (i = 1; i < 11; i++)
         {
             str = g_strdup_printf("copy_tab_%d", i);
@@ -1751,7 +1753,7 @@ void app_job(GtkWidget* item, GtkWidget* app_item)
         vfs_mime_type_unref(mime_type);
 }
 
-gboolean app_menu_keypress(GtkWidget* menu, GdkEventKey* event, PtkFileMenu* data)
+bool app_menu_keypress(GtkWidget* menu, GdkEventKey* event, PtkFileMenu* data)
 {
     int job = -1;
     PtkFileMenu* app_data = NULL;
@@ -2112,7 +2114,7 @@ static void show_app_menu(GtkWidget* menu, GtkWidget* app_item, PtkFileMenu* dat
     gtk_menu_shell_select_first(GTK_MENU_SHELL(app_menu), TRUE);
 }
 
-gboolean on_app_button_press(GtkWidget* item, GdkEventButton* event, PtkFileMenu* data)
+bool on_app_button_press(GtkWidget* item, GdkEventButton* event, PtkFileMenu* data)
 {
     GtkWidget* menu = (GtkWidget*)g_object_get_data(G_OBJECT(item), "menu");
     int keymod = (event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK |

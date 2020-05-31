@@ -10,6 +10,7 @@
  * and adding non-HAL device manager features
  */
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #include <glib.h>
@@ -53,19 +54,19 @@ static void ptk_location_view_init_model(GtkListStore* list);
 
 static void on_volume_event(VFSVolume* vol, VFSVolumeState state, void* user_data);
 
-static void add_volume(VFSVolume* vol, gboolean set_icon);
+static void add_volume(VFSVolume* vol, bool set_icon);
 static void remove_volume(VFSVolume* vol);
 static void update_volume(VFSVolume* vol);
 
-static gboolean on_button_press_event(GtkTreeView* view, GdkEventButton* evt, void* user_data);
-gboolean on_key_press_event(GtkWidget* w, GdkEventKey* event, PtkFileBrowser* file_browser);
+static bool on_button_press_event(GtkTreeView* view, GdkEventButton* evt, void* user_data);
+bool on_key_press_event(GtkWidget* w, GdkEventKey* event, PtkFileBrowser* file_browser);
 
 static void on_bookmark_model_destroy(void* data, GObject* object);
 static void on_bookmark_device(GtkMenuItem* item, VFSVolume* vol);
 static void on_bookmark_row_inserted(GtkTreeModel* list, GtkTreePath* tree_path, GtkTreeIter* iter,
                                      PtkFileBrowser* file_browser);
 
-static gboolean try_mount(GtkTreeView* view, VFSVolume* vol);
+static bool try_mount(GtkTreeView* view, VFSVolume* vol);
 
 static void on_open_tab(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2);
 static void on_open(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2);
@@ -85,12 +86,12 @@ typedef struct _AutoOpen
     char* device_file;
     dev_t devnum;
     char* mount_point;
-    gboolean keep_point;
+    bool keep_point;
     int job;
 } AutoOpen;
 
-gboolean volume_is_visible(VFSVolume* vol);
-gboolean run_command(char* command, char** output);
+bool volume_is_visible(VFSVolume* vol);
+bool run_command(char* command, char** output);
 void update_all();
 
 // do not translate - bash security
@@ -195,7 +196,7 @@ void update_all()
     VFSVolume* vol;
     GtkTreeIter it;
     VFSVolume* v = NULL;
-    gboolean havevol;
+    bool havevol;
 
     if (!model)
         return;
@@ -266,7 +267,7 @@ static void update_names()
     }
 }
 
-gboolean ptk_location_view_chdir(GtkTreeView* location_view, const char* cur_dir)
+bool ptk_location_view_chdir(GtkTreeView* location_view, const char* cur_dir)
 {
     GtkTreeIter it;
     GtkTreeSelection* tree_sel;
@@ -392,7 +393,7 @@ void on_row_activated(GtkTreeView* view, GtkTreePath* tree_path, GtkTreeViewColu
     }
 }
 
-gboolean ptk_location_view_open_block(const char* block, gboolean new_tab)
+bool ptk_location_view_open_block(const char* block, bool new_tab)
 {
     // open block device file if in volumes list
 
@@ -524,7 +525,7 @@ void on_volume_event(VFSVolume* vol, VFSVolumeState state, void* user_data)
     }
 }
 
-void add_volume(VFSVolume* vol, gboolean set_icon)
+void add_volume(VFSVolume* vol, bool set_icon)
 {
     GtkIconTheme* icon_theme;
     GdkPixbuf* icon;
@@ -940,8 +941,8 @@ void on_autoopen_net_cb(VFSFileTask* task, AutoOpen* ao)
     g_slice_free(AutoOpen, ao);
 }
 
-void ptk_location_view_mount_network(PtkFileBrowser* file_browser, const char* url,
-                                     gboolean new_tab, gboolean force_new_mount)
+void ptk_location_view_mount_network(PtkFileBrowser* file_browser, const char* url, bool new_tab,
+                                     bool force_new_mount)
 {
     char* line;
     char* mount_point = NULL;
@@ -1006,8 +1007,8 @@ void ptk_location_view_mount_network(PtkFileBrowser* file_browser, const char* u
     }
 
     // get mount command
-    gboolean run_in_terminal;
-    gboolean ssh_udevil = FALSE;
+    bool run_in_terminal;
+    bool ssh_udevil = FALSE;
     char* cmd = vfs_volume_handler_cmd(HANDLER_MODE_NET,
                                        HANDLER_MOUNT,
                                        NULL,
@@ -1162,7 +1163,7 @@ static void on_mount(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2)
         file_browser = NULL;
 
     // task
-    gboolean run_in_terminal;
+    bool run_in_terminal;
     char* line =
         vfs_volume_get_mount_command(vol, xset_get_s("dev_mount_options"), &run_in_terminal);
     if (!line)
@@ -1234,7 +1235,7 @@ static void on_mount_root(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2)
                          set->line) &&
         set->s)
     {
-        gboolean change_root = (!old_set_s || strcmp(old_set_s, set->s));
+        bool change_root = (!old_set_s || strcmp(old_set_s, set->s));
 
         char* s1 = replace_string(set->s, "%v", vol->device_file, FALSE);
         char* cmd = replace_string(s1, "%o", options, FALSE);
@@ -1296,7 +1297,7 @@ static void on_umount_root(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2)
                          set->line) &&
         set->s)
     {
-        gboolean change_root = (!old_set_s || strcmp(old_set_s, set->s));
+        bool change_root = (!old_set_s || strcmp(old_set_s, set->s));
 
         // task
         char* s1 = replace_string(set->s, "%v", vol->device_file, FALSE);
@@ -1338,7 +1339,7 @@ static void on_umount(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2)
         file_browser = NULL;
 
     // task
-    gboolean run_in_terminal;
+    bool run_in_terminal;
     char* line = vfs_volume_device_unmount_cmd(vol, &run_in_terminal);
     if (!line)
     {
@@ -1391,7 +1392,7 @@ static void on_eject(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2)
         char* wait;
         char* wait_done;
         char* eject;
-        gboolean run_in_terminal;
+        bool run_in_terminal;
 
         char* unmount = vfs_volume_device_unmount_cmd(vol, &run_in_terminal);
         if (!unmount)
@@ -1488,7 +1489,7 @@ static void on_eject(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2)
     ptk_file_task_run(task);
 }
 
-gboolean on_autoopen_cb(VFSFileTask* task, AutoOpen* ao)
+bool on_autoopen_cb(VFSFileTask* task, AutoOpen* ao)
 {
     const GList* l;
     VFSVolume* vol;
@@ -1523,7 +1524,7 @@ gboolean on_autoopen_cb(VFSFileTask* task, AutoOpen* ao)
     return FALSE;
 }
 
-static gboolean try_mount(GtkTreeView* view, VFSVolume* vol)
+static bool try_mount(GtkTreeView* view, VFSVolume* vol)
 {
     if (!view || !vol)
         return FALSE;
@@ -1532,7 +1533,7 @@ static gboolean try_mount(GtkTreeView* view, VFSVolume* vol)
     if (!file_browser)
         return FALSE;
     // task
-    gboolean run_in_terminal;
+    bool run_in_terminal;
     char* line =
         vfs_volume_get_mount_command(vol, xset_get_s("dev_mount_options"), &run_in_terminal);
     if (!line)
@@ -1602,7 +1603,7 @@ static void on_open_tab(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2)
     if (!vol->is_mounted)
     {
         // get mount command
-        gboolean run_in_terminal;
+        bool run_in_terminal;
         char* line =
             vfs_volume_get_mount_command(vol, xset_get_s("dev_mount_options"), &run_in_terminal);
         if (!line)
@@ -1674,7 +1675,7 @@ static void on_open(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2)
     if (!vol->is_mounted)
     {
         // get mount command
-        gboolean run_in_terminal;
+        bool run_in_terminal;
         char* line =
             vfs_volume_get_mount_command(vol, xset_get_s("dev_mount_options"), &run_in_terminal);
         if (!line)
@@ -1752,8 +1753,8 @@ static void on_remount(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2)
                           set->line))
         return;
 
-    gboolean mount_in_terminal;
-    gboolean unmount_in_terminal = FALSE;
+    bool mount_in_terminal;
+    bool unmount_in_terminal = FALSE;
     char* mount_command = vfs_volume_get_mount_command(vol, set->s, &mount_in_terminal);
     if (!mount_command)
     {
@@ -1823,7 +1824,7 @@ static void on_reload(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2)
     {
         // task
         char* eject;
-        gboolean run_in_terminal;
+        bool run_in_terminal;
         char* unmount = vfs_volume_device_unmount_cmd(vol, &run_in_terminal);
         if (!unmount)
         {
@@ -1953,7 +1954,7 @@ static void on_prop(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2)
         (PtkFileBrowser*)g_object_get_data(G_OBJECT(view), "file_browser");
 
     // use handler command if available
-    gboolean run_in_terminal;
+    bool run_in_terminal;
     if (vol->device_type == DEVICE_TYPE_NETWORK)
     {
         // is a network - try to get prop command
@@ -2479,7 +2480,7 @@ void open_external_tab(const char* path)
     g_free(command);
 }
 
-gboolean volume_is_visible(VFSVolume* vol)
+bool volume_is_visible(VFSVolume* vol)
 {
     // check show/hide
     int i, j;
@@ -2687,9 +2688,9 @@ static void show_devices_menu(GtkTreeView* view, VFSVolume* vol, PtkFileBrowser*
     xset_set_cb("dev_ignore_udisks_hide", update_all, NULL);
     xset_set_cb("dev_show_hide_volumes", on_showhide, vol);
     set = xset_set_cb("dev_automount_optical", update_all, NULL);
-    gboolean auto_optical = set->b == XSET_B_TRUE;
+    bool auto_optical = set->b == XSET_B_TRUE;
     set = xset_set_cb("dev_automount_removable", update_all, NULL);
-    gboolean auto_removable = set->b == XSET_B_TRUE;
+    bool auto_removable = set->b == XSET_B_TRUE;
     xset_set_cb("dev_ignore_udisks_nopolicy", update_all, NULL);
     set = xset_set_cb("dev_automount_volumes", on_automountlist, vol);
     xset_set_ob1(set, "view", view);
@@ -2761,13 +2762,13 @@ static void show_devices_menu(GtkTreeView* view, VFSVolume* vol, PtkFileBrowser*
     gtk_menu_popup(GTK_MENU(popup), NULL, NULL, NULL, NULL, button, time);
 }
 
-gboolean on_button_press_event(GtkTreeView* view, GdkEventButton* evt, void* user_data)
+bool on_button_press_event(GtkTreeView* view, GdkEventButton* evt, void* user_data)
 {
     GtkTreeIter it;
     GtkTreeSelection* tree_sel = NULL;
     GtkTreePath* tree_path = NULL;
     VFSVolume* vol = NULL;
-    gboolean ret = FALSE;
+    bool ret = FALSE;
 
     if (evt->type != GDK_BUTTON_PRESS)
         return FALSE;
@@ -2833,7 +2834,7 @@ gboolean on_button_press_event(GtkTreeView* view, GdkEventButton* evt, void* use
     return ret;
 }
 
-gboolean on_key_press_event(GtkWidget* w, GdkEventKey* event, PtkFileBrowser* file_browser)
+bool on_key_press_event(GtkWidget* w, GdkEventKey* event, PtkFileBrowser* file_browser)
 {
     int keymod = (event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK |
                                   GDK_SUPER_MASK | GDK_HYPER_MASK | GDK_META_MASK));
@@ -3010,7 +3011,7 @@ static void show_dev_design_menu(GtkWidget* menu, GtkWidget* dev_item, VFSVolume
     gtk_menu_shell_select_first(GTK_MENU_SHELL(popup), TRUE);
 }
 
-gboolean on_dev_menu_keypress(GtkWidget* menu, GdkEventKey* event, void* user_data)
+bool on_dev_menu_keypress(GtkWidget* menu, GdkEventKey* event, void* user_data)
 {
     GtkWidget* item = gtk_menu_shell_get_selected_item(GTK_MENU_SHELL(menu));
     if (item)
@@ -3032,7 +3033,7 @@ gboolean on_dev_menu_keypress(GtkWidget* menu, GdkEventKey* event, void* user_da
     return FALSE;
 }
 
-gboolean on_dev_menu_button_press(GtkWidget* item, GdkEventButton* event, VFSVolume* vol)
+bool on_dev_menu_button_press(GtkWidget* item, GdkEventButton* event, VFSVolume* vol)
 {
     GtkWidget* menu = (GtkWidget*)g_object_get_data(G_OBJECT(item), "menu");
     int keymod = (event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK |
@@ -3128,9 +3129,9 @@ void ptk_location_view_dev_menu(GtkWidget* parent, PtkFileBrowser* file_browser,
     xset_set_cb("dev_ignore_udisks_hide", update_all, NULL);
     xset_set_cb("dev_show_hide_volumes", on_showhide, vol);
     set = xset_set_cb("dev_automount_optical", update_all, NULL);
-    gboolean auto_optical = set->b == XSET_B_TRUE;
+    bool auto_optical = set->b == XSET_B_TRUE;
     set = xset_set_cb("dev_automount_removable", update_all, NULL);
-    gboolean auto_removable = set->b == XSET_B_TRUE;
+    bool auto_removable = set->b == XSET_B_TRUE;
     xset_set_cb("dev_ignore_udisks_nopolicy", update_all, NULL);
     xset_set_cb("dev_automount_volumes", on_automountlist, vol);
     xset_set_cb("dev_change", update_change_detection, NULL);
@@ -3350,8 +3351,8 @@ static void update_bookmark_list_item(GtkListStore* list, GtkTreeIter* it, XSet*
     int cmd_type;
     char* menu_label = NULL;
     GdkPixbuf* icon = NULL;
-    gboolean is_submenu = FALSE;
-    gboolean is_sep = FALSE;
+    bool is_submenu = FALSE;
+    bool is_sep = FALSE;
     XSet* set2;
 
     int icon_size = app_settings.small_icon_size;
@@ -3664,7 +3665,7 @@ XSet* ptk_bookmark_view_get_first_bookmark(XSet* book_set)
     return child_set;
 }
 
-static XSet* find_cwd_match_bookmark(XSet* parent_set, const char* cwd, gboolean recurse,
+static XSet* find_cwd_match_bookmark(XSet* parent_set, const char* cwd, bool recurse,
                                      XSet* skip_set, XSet** found_parent_set)
 { // This function must be as FAST as possible
     XSet* set;
@@ -3676,7 +3677,7 @@ static XSet* find_cwd_match_bookmark(XSet* parent_set, const char* cwd, gboolean
 
     // if !no_skip, items in this parent are considered already examined, but
     // submenus are recursed if recurse
-    gboolean no_skip = skip_set != parent_set;
+    bool no_skip = skip_set != parent_set;
     if (!no_skip && !recurse)
         return NULL;
 
@@ -3715,7 +3716,7 @@ static XSet* find_cwd_match_bookmark(XSet* parent_set, const char* cwd, gboolean
     return NULL;
 }
 
-gboolean ptk_bookmark_view_chdir(GtkTreeView* view, PtkFileBrowser* file_browser, gboolean recurse)
+bool ptk_bookmark_view_chdir(GtkTreeView* view, PtkFileBrowser* file_browser, bool recurse)
 {
     // select bookmark of cur dir if recurse and option 'Follow Dir'
     // select bookmark of cur dir if !recurse, ignoring option 'Follow Dir'
@@ -3904,7 +3905,7 @@ void ptk_bookmark_view_xset_changed(GtkTreeView* view, PtkFileBrowser* file_brow
     }
 
     // is changed_set currently a child of book set ?
-    gboolean is_child = FALSE;
+    bool is_child = FALSE;
     if (changed_set)
     {
         set = changed_set;
@@ -3955,7 +3956,7 @@ void ptk_bookmark_view_xset_changed(GtkTreeView* view, PtkFileBrowser* file_brow
 }
 
 static void activate_bookmark_item(XSet* sel_set, GtkTreeView* view, PtkFileBrowser* file_browser,
-                                   gboolean reverse)
+                                   bool reverse)
 {
     XSet* set;
 
@@ -4102,7 +4103,7 @@ static void on_bookmark_drag_end(GtkWidget* widget, GdkDragContext* drag_context
 
     // Get previous iter
     int pos = 0;
-    gboolean found = FALSE;
+    bool found = FALSE;
     if (gtk_tree_model_get_iter_first(GTK_TREE_MODEL(list), &it))
     {
         do
@@ -4202,7 +4203,7 @@ static void show_bookmarks_menu(GtkTreeView* view, PtkFileBrowser* file_browser,
     GtkWidget* popup;
     XSet* set;
     XSet* insert_set = NULL;
-    gboolean bookmark_selected = TRUE;
+    bool bookmark_selected = TRUE;
 
     set = get_selected_bookmark_set(view);
     if (!set)
@@ -4256,8 +4257,8 @@ static void show_bookmarks_menu(GtkTreeView* view, PtkFileBrowser* file_browser,
     gtk_menu_shell_select_first(GTK_MENU_SHELL(popup), TRUE);
 }
 
-static gboolean on_bookmark_button_press_event(GtkTreeView* view, GdkEventButton* evt,
-                                               PtkFileBrowser* file_browser)
+static bool on_bookmark_button_press_event(GtkTreeView* view, GdkEventButton* evt,
+                                           PtkFileBrowser* file_browser)
 {
     if (evt->type != GDK_BUTTON_PRESS)
         return FALSE;
@@ -4310,8 +4311,8 @@ static gboolean on_bookmark_button_press_event(GtkTreeView* view, GdkEventButton
     return FALSE;
 }
 
-static gboolean on_bookmark_button_release_event(GtkTreeView* view, GdkEventButton* evt,
-                                                 PtkFileBrowser* file_browser)
+static bool on_bookmark_button_release_event(GtkTreeView* view, GdkEventButton* evt,
+                                             PtkFileBrowser* file_browser)
 {
     GtkTreeIter it;
     GtkTreeSelection* tree_sel;
@@ -4348,7 +4349,7 @@ static gboolean on_bookmark_button_release_event(GtkTreeView* view, GdkEventButt
     return FALSE;
 }
 
-gboolean on_bookmark_key_press_event(GtkWidget* w, GdkEventKey* event, PtkFileBrowser* file_browser)
+bool on_bookmark_key_press_event(GtkWidget* w, GdkEventKey* event, PtkFileBrowser* file_browser)
 {
     int keymod = (event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK |
                                   GDK_SUPER_MASK | GDK_HYPER_MASK | GDK_META_MASK));
@@ -4362,9 +4363,9 @@ gboolean on_bookmark_key_press_event(GtkWidget* w, GdkEventKey* event, PtkFileBr
     return FALSE;
 }
 
-static gboolean is_row_separator(GtkTreeModel* model, GtkTreeIter* it, PtkFileBrowser* file_browser)
+static bool is_row_separator(GtkTreeModel* model, GtkTreeIter* it, PtkFileBrowser* file_browser)
 {
-    gboolean is_sep = FALSE;
+    bool is_sep = FALSE;
     gtk_tree_model_get(model, it, COL_DATA, &is_sep, -1);
     return is_sep;
 }

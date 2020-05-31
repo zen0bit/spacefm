@@ -27,6 +27,8 @@
 #include <config.h>
 #endif
 
+#include <stdbool.h>
+
 #include <glib/gi18n.h>
 #include <gtk/gtk.h>
 #include <string.h>
@@ -135,7 +137,7 @@ static const char menu_def[] = "<ui>"
                                "</popup>"
                                "</ui>";
 
-static gboolean open_file(char* dir, GList* files, PtkFileBrowser* file_browser)
+static bool open_file(char* dir, GList* files, PtkFileBrowser* file_browser)
 {
     if (files)
     {
@@ -186,9 +188,9 @@ static void on_open_files(GtkAction* action, FindFile* data)
     GHashTable* hash;
     GtkWidget* w;
     VFSFileInfo* fi;
-    gboolean open_files_has_dir = FALSE; // sfm
+    bool open_files_has_dir = FALSE;     // sfm
     PtkFileBrowser* file_browser = NULL; // sfm
-    gboolean open_files = TRUE;
+    bool open_files = TRUE;
 
     if (action)
         open_files = (0 == strcmp(gtk_action_get_name(action), "OpenAction"));
@@ -309,7 +311,7 @@ static char** compose_command(FindFile* data)
     GtkTreeIter it;
     char size_units[] = {"ckMG"};
     int idx;
-    gboolean print = FALSE;
+    bool print = FALSE;
 
     arg = g_strdup("find");
     g_array_append_val(argv, arg);
@@ -633,7 +635,7 @@ static void* search_thread(VFSAsyncTask* task, FindFile* data)
     return NULL;
 }
 
-static void on_search_finish(VFSAsyncTask* task, gboolean cancelled, FindFile* data)
+static void on_search_finish(VFSAsyncTask* task, bool cancelled, FindFile* data)
 {
     finish_search(data);
 }
@@ -739,7 +741,7 @@ static void on_search_again(GtkWidget* btn, FindFile* data)
     g_object_unref(data->result_list);
 }
 
-static void menu_pos(GtkMenu* menu, int* x, int* y, gboolean* push_in, GtkWidget* btn)
+static void menu_pos(GtkMenu* menu, int* x, int* y, bool* push_in, GtkWidget* btn)
 {
     GtkAllocation allocation;
 
@@ -869,7 +871,7 @@ static void on_remove_search_folder(GtkWidget* btn, FindFile* data)
 static void on_date_limit_changed(GtkWidget* date_limit, FindFile* data)
 {
     int sel = gtk_combo_box_get_active((GtkComboBox*)date_limit);
-    gboolean sensitive = (sel == 5); /* date range */
+    bool sensitive = (sel == 5); /* date range */
     gtk_widget_set_sensitive(data->date1, sensitive);
     gtk_widget_set_sensitive(data->date2, sensitive);
 }
@@ -946,7 +948,7 @@ static void init_search_result(FindFile* data)
     gtk_tree_view_append_column((GtkTreeView*)data->result_view, col);
 }
 
-static gboolean on_view_button_press(GtkTreeView* view, GdkEventButton* evt, FindFile* data)
+static bool on_view_button_press(GtkTreeView* view, GdkEventButton* evt, FindFile* data)
 {
     if (evt->type == GDK_BUTTON_PRESS)
     {

@@ -13,6 +13,8 @@
 #include <config.h>
 #endif
 
+#include <stdbool.h>
+
 #include "pcmanfm.h"
 
 #include <string.h>
@@ -74,7 +76,7 @@ struct _FMPrefDlg
     GtkWidget* root_editor_terminal;
 };
 
-extern gboolean daemon_mode; /* defined in main.c */
+extern bool daemon_mode; /* defined in main.c */
 
 static FMPrefDlg* data = NULL;
 static const int tool_icon_sizes[] = {0,
@@ -104,16 +106,16 @@ static void on_response(GtkDialog* dlg, int response, FMPrefDlg* user_data)
     int ibig_icon = -1, ismall_icon = -1, itool_icon = -1;
 
     int max_thumb;
-    gboolean show_thumbnail;
+    bool show_thumbnail;
     int big_icon;
     int small_icon;
     int tool_icon;
-    gboolean single_click;
-    gboolean root_bar;
-    gboolean root_set_change = FALSE;
+    bool single_click;
+    bool root_bar;
+    bool root_set_change = FALSE;
     const GList* l;
     PtkFileBrowser* file_browser;
-    gboolean use_si_prefix;
+    bool use_si_prefix;
     GtkNotebook* notebook;
     int p;
     FMMainWindow* a_window;
@@ -121,8 +123,8 @@ static void on_response(GtkDialog* dlg, int response, FMPrefDlg* user_data)
 
     GtkWidget* tab_label;
     /* interface settings */
-    gboolean always_show_tabs;
-    gboolean hide_close_tab_buttons;
+    bool always_show_tabs;
+    bool hide_close_tab_buttons;
 
     /* built-in response codes of GTK+ are all negative */
     if (response >= 0)
@@ -251,7 +253,7 @@ static void on_response(GtkDialog* dlg, int response, FMPrefDlg* user_data)
         }
 
         /* unit settings changed? */
-        gboolean need_refresh = FALSE;
+        bool need_refresh = FALSE;
         use_si_prefix = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->use_si_prefix));
         if (use_si_prefix != app_settings.use_si_prefix)
         {
@@ -300,8 +302,7 @@ static void on_response(GtkDialog* dlg, int response, FMPrefDlg* user_data)
         }
 
         /* single click - hover selects changed? */
-        gboolean no_single_hover =
-            !gtk_toggle_button_get_active((GtkToggleButton*)data->single_hover);
+        bool no_single_hover = !gtk_toggle_button_get_active((GtkToggleButton*)data->single_hover);
         if (no_single_hover != app_settings.no_single_hover)
         {
             app_settings.no_single_hover = no_single_hover;
@@ -492,7 +493,7 @@ void on_show_thumbnail_toggled(GtkWidget* widget, FMPrefDlg* data)
                              gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->show_thumbnail)));
 }
 
-gboolean fm_edit_preference(GtkWindow* parent, int page)
+bool fm_edit_preference(GtkWindow* parent, int page)
 {
     int i;
     int ibig_icon = -1, ismall_icon = -1, itool_icon = -1;

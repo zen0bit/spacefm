@@ -13,6 +13,8 @@
 #ifndef _VFS_MIME_TYPE_H_
 #define _VFS_MIME_TYPE_H_
 
+#include <stdbool.h>
+
 #include <gdk/gdk.h>
 
 #include "../mime-type/mime-type.h"
@@ -51,7 +53,7 @@ VFSMimeType* vfs_mime_type_new(const char* type_name);
 void vfs_mime_type_ref(VFSMimeType* mime_type);
 void vfs_mime_type_unref(void* mime_type_);
 
-GdkPixbuf* vfs_mime_type_get_icon(VFSMimeType* mime_type, gboolean big);
+GdkPixbuf* vfs_mime_type_get_icon(VFSMimeType* mime_type, bool big);
 
 void vfs_mime_type_set_icon_size(int big, int small);
 void vfs_mime_type_get_icon_size(int* big, int* small);
@@ -92,7 +94,7 @@ void vfs_mime_type_remove_reload_cb(GList* cb);
 
 char* vfs_mime_type_locate_desktop_file(const char* dir, const char* desktop_id);
 
-gboolean vfs_mime_type_is_iso(VFSMimeType* vfs_mime_type, const char* path);
+bool vfs_mime_type_is_iso(VFSMimeType* vfs_mime_type, const char* path);
 
 G_END_DECLS
 

@@ -22,6 +22,8 @@
 #ifndef _VFS_THUMBNAIL_LOADER_H_
 #define _VFS_THUMBNAIL_LOADER_H_
 
+#include <stdbool.h>
+
 #include <glib.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include "vfs-dir.h"
@@ -35,8 +37,8 @@ typedef struct _VFSThumbnailLoader VFSThumbnailLoader;
 VFSThumbnailLoader* vfs_thumbnail_loader_new(VFSDir* dir);
 void vfs_thumbnail_loader_free(VFSThumbnailLoader* loader);
 
-void vfs_thumbnail_loader_request(VFSDir* dir, VFSFileInfo* file, gboolean is_big);
-void vfs_thumbnail_loader_cancel_all_requests(VFSDir* dir, gboolean is_big);
+void vfs_thumbnail_loader_request(VFSDir* dir, VFSFileInfo* file, bool is_big);
+void vfs_thumbnail_loader_cancel_all_requests(VFSDir* dir, bool is_big);
 
 /* Load thumbnail for the specified file
  *  If the caller knows mtime of the file, it should pass mtime to this function to

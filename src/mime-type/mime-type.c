@@ -29,6 +29,7 @@
 #include <config.h>
 #endif
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #include "mime-type.h"
@@ -82,7 +83,7 @@ static void mime_cache_load_all();
 /* free all mime.cache files on the system */
 static void mime_cache_free_all();
 
-static gboolean mime_type_is_data_plain_text(const char* data, int len);
+static bool mime_type_is_data_plain_text(const char* data, int len);
 
 /*
  * Get mime-type of the specified file (quick, but less accurate):
@@ -257,7 +258,7 @@ const char* mime_type_get_by_file(const char* filepath, struct stat* statbuf, co
     return type && *type ? type : XDG_MIME_TYPE_UNKNOWN;
 }
 
-static char* parse_xml_icon(const char* buf, size_t len, gboolean is_local)
+static char* parse_xml_icon(const char* buf, size_t len, bool is_local)
 { // Note: This function modifies contents of buf
     char* icon_tag = NULL;
     char* end_tag;
@@ -345,7 +346,7 @@ static char* parse_xml_desc(const char* buf, size_t len, const char* locale)
     return g_strndup(eng_comment, eng_comment_len);
 }
 
-static char* _mime_type_get_desc_icon(const char* file_path, const char* locale, gboolean is_local,
+static char* _mime_type_get_desc_icon(const char* file_path, const char* locale, bool is_local,
                                       char** icon_name)
 {
     int fd;
@@ -529,10 +530,10 @@ void mime_cache_foreach(GFunc func, void* user_data)
         func(caches[i], user_data);
 }
 
-gboolean mime_cache_reload(MimeCache* cache)
+bool mime_cache_reload(MimeCache* cache)
 {
     int i;
-    gboolean ret = mime_cache_load(cache, cache->file_path);
+    bool ret = mime_cache_load(cache, cache->file_path);
     /* recalculate max magic extent */
     for (i = 0; i < n_caches; ++i)
     {
@@ -549,7 +550,7 @@ gboolean mime_cache_reload(MimeCache* cache)
     return ret;
 }
 
-gboolean mime_type_is_data_plain_text(const char* data, int len)
+bool mime_type_is_data_plain_text(const char* data, int len)
 {
     int i;
     if (G_LIKELY(len >= 0 && data))
@@ -564,11 +565,11 @@ gboolean mime_type_is_data_plain_text(const char* data, int len)
     return FALSE;
 }
 
-gboolean mime_type_is_text_file(const char* file_path, const char* mime_type)
+bool mime_type_is_text_file(const char* file_path, const char* mime_type)
 {
     int file;
     int rlen;
-    gboolean ret = FALSE;
+    bool ret = FALSE;
 
     if (mime_type)
     {
@@ -610,7 +611,7 @@ gboolean mime_type_is_text_file(const char* file_path, const char* mime_type)
     return ret;
 }
 
-gboolean mime_type_is_executable_file(const char* file_path, const char* mime_type)
+bool mime_type_is_executable_file(const char* file_path, const char* mime_type)
 {
     if (!mime_type)
     {
@@ -637,7 +638,7 @@ gboolean mime_type_is_executable_file(const char* file_path, const char* mime_ty
 }
 
 /* Check if the specified mime_type is the subclass of the specified parent type */
-gboolean mime_type_is_subclass(const char* type, const char* parent)
+bool mime_type_is_subclass(const char* type, const char* parent)
 {
     int i;
     const char** parents = NULL;

@@ -22,12 +22,12 @@
 #ifndef __EXO_GDK_PIXBUF_EXTENSIONS_H__
 #define __EXO_GDK_PIXBUF_EXTENSIONS_H__
 
+#include <stdbool.h>
 #include <gdk/gdk.h>
 
 G_BEGIN_DECLS
 
-GdkPixbuf* exo_gdk_pixbuf_scale_down(GdkPixbuf* source, gboolean preserve_aspect_ratio,
-                                     int dest_width,
+GdkPixbuf* exo_gdk_pixbuf_scale_down(GdkPixbuf* source, bool preserve_aspect_ratio, int dest_width,
                                      int dest_height) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
 GdkPixbuf* exo_gdk_pixbuf_colorize(const GdkPixbuf* source,

@@ -10,6 +10,8 @@
  *
  */
 
+#include <stdbool.h>
+
 #include <glib/gi18n.h>
 #include <string.h>
 
@@ -74,7 +76,7 @@ static char* archive_handler_get_first_extension(XSet* handler_xset)
         return g_strdup("");
 }
 
-static gboolean archive_handler_run_in_term(XSet* handler_xset, int operation)
+static bool archive_handler_run_in_term(XSet* handler_xset, int operation)
 {
     // Making sure a valid handler_xset has been passed
     if (!handler_xset)
@@ -221,7 +223,7 @@ static void on_format_changed(GtkComboBox* combo, void* user_data)
     }
 }
 
-static char* generate_bash_error_function(gboolean run_in_terminal, char* parent_quote)
+static char* generate_bash_error_function(bool run_in_terminal, char* parent_quote)
 {
     /* When ran in a terminal, errors need to result in a pause so that
      * the user can review the situation. Even outside a terminal, IG
@@ -598,7 +600,7 @@ void ptk_file_archiver_create(PtkFileBrowser* file_browser, GList* files, const 
 
     // Displaying dialog
     char* command = NULL;
-    gboolean run_in_terminal;
+    bool run_in_terminal;
     gtk_widget_show_all(dlg);
 
     while ((res = gtk_dialog_run(GTK_DIALOG(dlg))))
@@ -979,18 +981,18 @@ void ptk_file_archiver_create(PtkFileBrowser* file_browser, GList* files, const 
 
 static void on_create_subfolder_toggled(GtkToggleButton* togglebutton, GtkWidget* chk_write)
 {
-    gboolean enabled = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton));
+    bool enabled = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton));
     gtk_widget_set_sensitive(chk_write, enabled && geteuid() != 0);
 }
 
 void ptk_file_archiver_extract(PtkFileBrowser* file_browser, GList* files, const char* cwd,
-                               const char* dest_dir, int job, gboolean archive_presence_checked)
+                               const char* dest_dir, int job, bool archive_presence_checked)
 { /* This function is also used to list the contents of archives */
     GtkWidget* dlg;
     GtkWidget* dlgparent = NULL;
     char* choose_dir = NULL;
-    gboolean create_parent = FALSE, in_term = FALSE, keep_term = FALSE;
-    gboolean write_access = FALSE, list_contents = FALSE;
+    bool create_parent = FALSE, in_term = FALSE, keep_term = FALSE;
+    bool write_access = FALSE, list_contents = FALSE;
     char* parent_quote = NULL;
     VFSFileInfo* file;
     VFSMimeType* mime_type;
@@ -1019,7 +1021,7 @@ void ptk_file_archiver_extract(PtkFileBrowser* file_browser, GList* files, const
      * been verified - i.e. the function was triggered by a keyboard shortcut */
     if (!archive_presence_checked)
     {
-        gboolean archive_found = FALSE;
+        bool archive_found = FALSE;
 
         // Looping for all files to attempt to list/extract
         for (l = files; l; l = l->next)

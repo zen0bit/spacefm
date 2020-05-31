@@ -22,6 +22,7 @@
 #include <config.h>
 #endif
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #include "mime-cache.h"
@@ -74,7 +75,7 @@ MimeCache* mime_cache_new(const char* file_path)
     return cache;
 }
 
-static void mime_cache_unload(MimeCache* cache, gboolean clear)
+static void mime_cache_unload(MimeCache* cache, bool clear)
 {
     if (G_LIKELY(cache->buffer))
     {
@@ -95,7 +96,7 @@ void mime_cache_free(MimeCache* cache)
     g_slice_free(MimeCache, cache);
 }
 
-gboolean mime_cache_load(MimeCache* cache, const char* file_path)
+bool mime_cache_load(MimeCache* cache, const char* file_path)
 {
     unsigned int majv, minv;
     int fd = -1;
@@ -191,9 +192,9 @@ gboolean mime_cache_load(MimeCache* cache, const char* file_path)
     return TRUE;
 }
 
-static gboolean magic_rule_match(const char* buf, const char* rule, const char* data, int len)
+static bool magic_rule_match(const char* buf, const char* rule, const char* data, int len)
 {
-    gboolean match = FALSE;
+    bool match = FALSE;
     uint32_t offset = VAL32(rule, 0);
     uint32_t range = VAL32(rule, 4);
 
@@ -247,7 +248,7 @@ static gboolean magic_rule_match(const char* buf, const char* rule, const char* 
     return FALSE;
 }
 
-static gboolean magic_match(const char* buf, const char* magic, const char* data, int len)
+static bool magic_match(const char* buf, const char* magic, const char* data, int len)
 {
     uint32_t n_rules = VAL32(magic, 8);
     uint32_t rules_off = VAL32(magic, 12);

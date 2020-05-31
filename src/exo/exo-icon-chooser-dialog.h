@@ -20,6 +20,8 @@
 #ifndef __EXO_ICON_CHOOSER_DIALOG_H__
 #define __EXO_ICON_CHOOSER_DIALOG_H__
 
+#include <stdbool.h>
+
 #include <gtk/gtk.h>
 
 G_BEGIN_DECLS
@@ -62,8 +64,7 @@ exo_icon_chooser_dialog_new(const char* title, GtkWindow* parent, const char* fi
 
 char* exo_icon_chooser_dialog_get_icon(ExoIconChooserDialog* icon_chooser_dialog)
     G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
-gboolean exo_icon_chooser_dialog_set_icon(ExoIconChooserDialog* icon_chooser_dialog,
-                                          const char* icon);
+bool exo_icon_chooser_dialog_set_icon(ExoIconChooserDialog* icon_chooser_dialog, const char* icon);
 
 G_END_DECLS
 

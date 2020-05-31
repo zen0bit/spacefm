@@ -8,6 +8,8 @@
 #include <config.h>
 #endif
 
+#include <stdbool.h>
+
 #include <errno.h>
 
 #include "settings.h"
@@ -94,23 +96,23 @@ char* replace_line_subs(const char* line)
     return s;
 }
 
-gboolean have_x_access(const char* path)
+bool have_x_access(const char* path)
 {
     if (!path)
         return FALSE;
     return (access(path, R_OK | X_OK) == 0);
 }
 
-gboolean have_rw_access(const char* path)
+bool have_rw_access(const char* path)
 {
     if (!path)
         return FALSE;
     return (access(path, R_OK | W_OK) == 0);
 }
 
-gboolean dir_has_files(const char* path)
+bool dir_has_files(const char* path)
 {
-    gboolean ret = FALSE;
+    bool ret = FALSE;
 
     if (!(path && g_file_test(path, G_FILE_TEST_IS_DIR)))
         return FALSE;
@@ -125,7 +127,7 @@ gboolean dir_has_files(const char* path)
     return ret;
 }
 
-char* get_name_extension(char* full_name, gboolean is_dir, char** ext)
+char* get_name_extension(char* full_name, bool is_dir, char** ext)
 {
     char* str;
     char* full = g_strdup(full_name);
@@ -185,7 +187,7 @@ void open_in_prog(const char* path)
     g_free(prog);
 }
 
-char* replace_string(const char* orig, const char* str, const char* replace, gboolean quote)
+char* replace_string(const char* orig, const char* str, const char* replace, bool quote)
 { // replace all occurrences of str in orig with replace, optionally quoting
     char* rep;
     char* result = NULL;
@@ -249,7 +251,7 @@ char* plain_ascii_name(const char* orig_name)
     return s;
 }
 
-char* clean_label(const char* menu_label, gboolean kill_special, gboolean escape)
+char* clean_label(const char* menu_label, bool kill_special, bool escape)
 {
     char* s1;
     char* s2;

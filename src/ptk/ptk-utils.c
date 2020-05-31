@@ -10,6 +10,8 @@
  *
  */
 
+#include <stdbool.h>
+
 #include "ptk-utils.h"
 #include <glib.h>
 #include <glib/gi18n.h>
@@ -137,7 +139,7 @@ typedef struct
     int response;
 } DlgRunData;
 
-static gboolean on_dlg_delete_event(GtkWidget* dlg, GdkEvent* evt, DlgRunData* data)
+static bool on_dlg_delete_event(GtkWidget* dlg, GdkEvent* evt, DlgRunData* data)
 {
     return TRUE;
 }

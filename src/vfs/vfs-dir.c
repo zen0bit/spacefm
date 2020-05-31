@@ -13,6 +13,8 @@
 #define _GNU_SOURCE // euidaccess
 #endif
 
+#include <stdbool.h>
+
 #include "vfs-dir.h"
 #include "vfs-thumbnail-loader.h"
 
@@ -38,8 +40,8 @@ static void vfs_dir_set_property(GObject* obj, unsigned int prop_id, const GValu
 static void vfs_dir_get_property(GObject* obj, unsigned int prop_id, GValue* value,
                                  GParamSpec* pspec);
 
-char* gethidden(const char* path);                            // MOD added
-gboolean ishidden(const char* hidden, const char* file_name); // MOD added
+char* gethidden(const char* path);                        // MOD added
+bool ishidden(const char* hidden, const char* file_name); // MOD added
 
 /* constructor is private */
 static VFSDir* vfs_dir_new(const char* path);
@@ -53,10 +55,10 @@ static void vfs_dir_monitor_callback(VFSFileMonitor* fm, VFSFileMonitorEvent eve
 static void on_mime_type_reload(void* user_data);
 
 static void update_changed_files(void* key, void* data, void* user_data);
-static gboolean notify_file_change(void* user_data);
-static gboolean update_file_info(VFSDir* dir, VFSFileInfo* file);
+static bool notify_file_change(void* user_data);
+static bool update_file_info(VFSDir* dir, VFSFileInfo* file);
 
-static void on_list_task_finished(VFSAsyncTask* task, gboolean is_cancelled, VFSDir* dir);
+static void on_list_task_finished(VFSAsyncTask* task, bool is_cancelled, VFSDir* dir);
 
 enum
 {
@@ -78,7 +80,7 @@ static unsigned int theme_change_notify = 0;
 
 static char* desktop_dir = NULL;
 
-static gboolean is_desktop_set = FALSE;
+static bool is_desktop_set = FALSE;
 
 GType vfs_dir_get_type(void)
 {
@@ -320,7 +322,7 @@ static GList* vfs_dir_find_file(VFSDir* dir, const char* file_name, VFSFileInfo*
 }
 
 /* signal handlers */
-void vfs_dir_emit_file_created(VFSDir* dir, const char* file_name, gboolean force)
+void vfs_dir_emit_file_created(VFSDir* dir, const char* file_name, bool force)
 {
     // Ignore avoid_changes for creation of files
     // if ( !force && dir->avoid_changes )
@@ -378,8 +380,7 @@ void vfs_dir_emit_file_deleted(VFSDir* dir, const char* file_name, VFSFileInfo* 
     }
 }
 
-void vfs_dir_emit_file_changed(VFSDir* dir, const char* file_name, VFSFileInfo* file,
-                               gboolean force)
+void vfs_dir_emit_file_changed(VFSDir* dir, const char* file_name, VFSFileInfo* file, bool force)
 {
     GList* l;
     // printf("vfs_dir_emit_file_changed dir=%s file_name=%s avoid=%s\n", dir->path, file_name,
@@ -465,7 +466,7 @@ VFSDir* vfs_dir_new(const char* path)
     return dir;
 }
 
-void on_list_task_finished(VFSAsyncTask* task, gboolean is_cancelled, VFSDir* dir)
+void on_list_task_finished(VFSAsyncTask* task, bool is_cancelled, VFSDir* dir)
 {
     g_object_unref(dir->task);
     dir->task = NULL;
@@ -474,17 +475,17 @@ void on_list_task_finished(VFSAsyncTask* task, gboolean is_cancelled, VFSDir* di
     dir->load_complete = 1;
 }
 
-static gboolean is_dir_mount_point(const char* path)
+static bool is_dir_mount_point(const char* path)
 {
     return FALSE; /* FIXME: not implemented */
 }
 
-static gboolean is_dir_remote(const char* path)
+static bool is_dir_remote(const char* path)
 {
     return FALSE; /* FIXME: not implemented */
 }
 
-static gboolean is_dir_virtual(const char* path)
+static bool is_dir_virtual(const char* path)
 {
     return FALSE; /* FIXME: not implemented */
 }
@@ -532,8 +533,8 @@ char* gethidden(const char* path) // MOD added
     return NULL;
 }
 
-gboolean ishidden(const char* hidden, const char* file_name) // MOD added
-{                                                            // assumes hidden,file_name != NULL
+bool ishidden(const char* hidden, const char* file_name) // MOD added
+{                                                        // assumes hidden,file_name != NULL
     char* str;
     char c;
     str = strstr(hidden, file_name);
@@ -557,9 +558,9 @@ gboolean ishidden(const char* hidden, const char* file_name) // MOD added
     return FALSE;
 }
 
-gboolean vfs_dir_add_hidden(const char* path, const char* file_name)
+bool vfs_dir_add_hidden(const char* path, const char* file_name)
 {
-    gboolean ret = TRUE;
+    bool ret = TRUE;
     char* hidden = gethidden(path);
 
     if (!(hidden && ishidden(hidden, file_name)))
@@ -677,12 +678,12 @@ void* vfs_dir_load_thread(VFSAsyncTask* task, VFSDir* dir)
     return NULL;
 }
 
-gboolean vfs_dir_is_loading(VFSDir* dir)
+bool vfs_dir_is_loading(VFSDir* dir)
 {
     return dir->task ? TRUE : FALSE;
 }
 
-gboolean vfs_dir_is_file_listed(VFSDir* dir)
+bool vfs_dir_is_file_listed(VFSDir* dir)
 {
     return dir->file_listed;
 }
@@ -700,11 +701,11 @@ void vfs_cancel_load(VFSDir* dir)
     }
 }
 
-gboolean update_file_info(VFSDir* dir, VFSFileInfo* file)
+bool update_file_info(VFSDir* dir, VFSFileInfo* file)
 {
     char* full_path;
     char* file_name;
-    gboolean ret = FALSE;
+    bool ret = FALSE;
 
     /* FIXME: Dirty hack: steal the string to prevent memory allocation */
     file_name = file->name;
@@ -816,7 +817,7 @@ void update_created_files(void* key, void* data, void* user_data)
     }
 }
 
-gboolean notify_file_change(void* user_data)
+bool notify_file_change(void* user_data)
 {
     // GDK_THREADS_ENTER();  //sfm not needed because in main thread?
     g_hash_table_foreach(dir_hash, update_changed_files, NULL);
@@ -993,7 +994,7 @@ void vfs_dir_foreach(GHFunc func, void* user_data)
     g_hash_table_foreach(dir_hash, (GHFunc)func, user_data);
 }
 
-void vfs_dir_unload_thumbnails(VFSDir* dir, gboolean is_big)
+void vfs_dir_unload_thumbnails(VFSDir* dir, bool is_big)
 {
     GList* l;
     VFSFileInfo* file;
@@ -1054,7 +1055,7 @@ void vfs_dir_unload_thumbnails(VFSDir* dir, gboolean is_big)
 unsigned int mime_change_timer = 0;
 VFSDir* mime_dir = NULL;
 
-gboolean on_mime_change_timer(void* user_data)
+bool on_mime_change_timer(void* user_data)
 {
     // printf("MIME-UPDATE on_timer\n" );
     char* command = g_strdup_printf("update-mime-database %s/mime", g_get_user_data_dir());

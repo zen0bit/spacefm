@@ -13,6 +13,7 @@
 #ifndef _VFS_FILE_INFO_H_
 #define _VFS_FILE_INFO_H_
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #include <sys/types.h>
@@ -77,13 +78,13 @@ struct _VFSFileInfo
     int n_ref;
 };
 
-void vfs_file_info_set_utf8_filename(gboolean is_utf8);
+void vfs_file_info_set_utf8_filename(bool is_utf8);
 
 VFSFileInfo* vfs_file_info_new();
 VFSFileInfo* vfs_file_info_ref(VFSFileInfo* fi);
 void vfs_file_info_unref(VFSFileInfo* fi);
 
-gboolean vfs_file_info_get(VFSFileInfo* fi, const char* file_path, const char* base_name);
+bool vfs_file_info_get(VFSFileInfo* fi, const char* file_path, const char* base_name);
 
 const char* vfs_file_info_get_name(VFSFileInfo* fi);
 const char* vfs_file_info_get_disp_name(VFSFileInfo* fi);
@@ -111,8 +112,8 @@ time_t* vfs_file_info_get_mtime(VFSFileInfo* fi);
 time_t* vfs_file_info_get_atime(VFSFileInfo* fi);
 
 void vfs_file_info_set_thumbnail_size(int big, int small);
-gboolean vfs_file_info_load_thumbnail(VFSFileInfo* fi, const char* full_path, gboolean big);
-gboolean vfs_file_info_is_thumbnail_loaded(VFSFileInfo* fi, gboolean big);
+bool vfs_file_info_load_thumbnail(VFSFileInfo* fi, const char* full_path, bool big);
+bool vfs_file_info_is_thumbnail_loaded(VFSFileInfo* fi, bool big);
 
 GdkPixbuf* vfs_file_info_get_big_icon(VFSFileInfo* fi);
 GdkPixbuf* vfs_file_info_get_small_icon(VFSFileInfo* fi);
@@ -124,29 +125,29 @@ void vfs_file_size_to_string_format(char* buf, uint64_t size, char* format);
 
 void vfs_file_size_to_string(char* buf, uint64_t size);
 
-gboolean vfs_file_info_is_dir(VFSFileInfo* fi);
+bool vfs_file_info_is_dir(VFSFileInfo* fi);
 
-gboolean vfs_file_info_is_symlink(VFSFileInfo* fi);
+bool vfs_file_info_is_symlink(VFSFileInfo* fi);
 
-gboolean vfs_file_info_is_image(VFSFileInfo* fi);
+bool vfs_file_info_is_image(VFSFileInfo* fi);
 
-gboolean vfs_file_info_is_video(VFSFileInfo* fi);
+bool vfs_file_info_is_video(VFSFileInfo* fi);
 
-gboolean vfs_file_info_is_desktop_entry(VFSFileInfo* fi);
+bool vfs_file_info_is_desktop_entry(VFSFileInfo* fi);
 
-gboolean vfs_file_info_is_unknown_type(VFSFileInfo* fi);
-
-/* Full path of the file is required by this function */
-gboolean vfs_file_info_is_executable(VFSFileInfo* fi, const char* file_path);
+bool vfs_file_info_is_unknown_type(VFSFileInfo* fi);
 
 /* Full path of the file is required by this function */
-gboolean vfs_file_info_is_text(VFSFileInfo* fi, const char* file_path);
+bool vfs_file_info_is_executable(VFSFileInfo* fi, const char* file_path);
+
+/* Full path of the file is required by this function */
+bool vfs_file_info_is_text(VFSFileInfo* fi, const char* file_path);
 
 /*
  * Run default action of specified file.
  * Full path of the file is required by this function.
  */
-gboolean vfs_file_info_open_file(VFSFileInfo* fi, const char* file_path, GError** err);
+bool vfs_file_info_open_file(VFSFileInfo* fi, const char* file_path, GError** err);
 
 void vfs_file_info_load_special_info(VFSFileInfo* fi, const char* file_path);
 

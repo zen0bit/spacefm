@@ -7,6 +7,7 @@
 #include <config.h>
 #endif
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #include <gdk/gdk.h>
@@ -39,19 +40,18 @@
 
 static void update_element(CustomElement* el, GtkWidget* box, GSList** radio, int pad);
 static char* replace_vars(CustomElement* el, char* value, char* xvalue);
-static void fill_buffer_from_file(CustomElement* el, GtkTextBuffer* buf, char* path,
-                                  gboolean watch);
-static void write_source(GtkWidget* dlg, CustomElement* el_pressed, FILE* out, gboolean is_cancel);
-static gboolean destroy_dlg(GtkWidget* dlg);
+static void fill_buffer_from_file(CustomElement* el, GtkTextBuffer* buf, char* path, bool watch);
+static void write_source(GtkWidget* dlg, CustomElement* el_pressed, FILE* out, bool is_cancel);
+static bool destroy_dlg(GtkWidget* dlg);
 static void on_button_clicked(GtkButton* button, CustomElement* el);
 void on_combo_changed(GtkComboBox* box, CustomElement* el);
-static gboolean on_timeout_timer(CustomElement* el);
-static gboolean press_last_button(GtkWidget* dlg);
-static gboolean on_progress_timer(CustomElement* el);
+static bool on_timeout_timer(CustomElement* el);
+static bool press_last_button(GtkWidget* dlg);
+static bool on_progress_timer(CustomElement* el);
 
 // make these lists if supporting multiple dialogs
 GtkWidget* signal_dialog = NULL;
-gboolean enable_click_event = FALSE;
+bool enable_click_event = FALSE;
 
 static void set_font(GtkWidget* w, const char* font)
 {
@@ -275,7 +275,7 @@ char* get_tree_view_selected(CustomElement* el, const char* prefix)
 
     int row = -1;
     char* value;
-    gboolean valid_iter = gtk_tree_model_get_iter_first(model, &iter);
+    bool valid_iter = gtk_tree_model_get_iter_first(model, &iter);
     while (valid_iter)
     {
         row++;
@@ -348,7 +348,7 @@ static void fill_tree_view(CustomElement* el, GList* arglist)
     GType coltypes[MAX_LIST_COLUMNS];
     int colcount;
     int i;
-    gboolean headers = FALSE;
+    bool headers = FALSE;
 
     if (!el->widgets->next)
         return;
@@ -477,8 +477,8 @@ static void fill_tree_view(CustomElement* el, GList* arglist)
     g_object_unref(list);
 
     int colx = 0;
-    gboolean start = FALSE;
-    gboolean valid_iter = FALSE;
+    bool start = FALSE;
+    bool valid_iter = FALSE;
     args = arglist;
     while (args)
     {
@@ -557,7 +557,7 @@ static void fill_tree_view(CustomElement* el, GList* arglist)
     */
 }
 
-static void select_in_tree_view(CustomElement* el, const char* value, gboolean select)
+static void select_in_tree_view(CustomElement* el, const char* value, bool select)
 {
     GtkTreeModel* model;
     GtkTreePath* tree_path;
@@ -1143,7 +1143,7 @@ static char* get_element_value(CustomElement* el, const char* name)
 static char* get_command_value(CustomElement* el, char* cmdline, char* xvalue)
 {
     char* stdout = NULL;
-    gboolean ret;
+    bool ret;
     GError* error = NULL;
     char* argv[4];
 
@@ -1274,7 +1274,7 @@ static void internal_command(CustomElement* el, int icmd, GList* args, char* xva
     char* cvalue = NULL;
     CustomElement* el_name = NULL;
     FILE* out;
-    gboolean reverse = FALSE;
+    bool reverse = FALSE;
 
     if (args->next)
     {
@@ -1620,7 +1620,7 @@ static void write_file_value(const char* path, const char* val)
     close(f);
 }
 
-static char* read_file_value(const char* path, gboolean multi)
+static char* read_file_value(const char* path, bool multi)
 {
     FILE* file;
     int f, bytes;
@@ -1682,7 +1682,7 @@ static char* read_file_value(const char* path, gboolean multi)
     return line[0] != '\0' ? g_strdup(line) : NULL;
 }
 
-static gboolean cb_pipe_watch(GIOChannel* channel, GIOCondition cond, CustomElement* el)
+static bool cb_pipe_watch(GIOChannel* channel, GIOCondition cond, CustomElement* el)
 {
     /*
     fprintf( stderr, "cb_pipe_watch %d\n", channel);
@@ -1810,7 +1810,7 @@ static gboolean cb_pipe_watch(GIOChannel* channel, GIOCondition cond, CustomElem
     return TRUE;
 }
 
-static gboolean delayed_update_false(CustomElement* el)
+static bool delayed_update_false(CustomElement* el)
 {
     if (el->update_timeout)
     {
@@ -1820,7 +1820,7 @@ static gboolean delayed_update_false(CustomElement* el)
     return FALSE;
 }
 
-static gboolean delayed_update(CustomElement* el)
+static bool delayed_update(CustomElement* el)
 {
     if (el->update_timeout)
     {
@@ -1861,7 +1861,7 @@ static void cb_file_value_change(VFSFileMonitor* fm, VFSFileMonitorEvent event,
     }
 }
 
-static void fill_buffer_from_file(CustomElement* el, GtkTextBuffer* buf, char* path, gboolean watch)
+static void fill_buffer_from_file(CustomElement* el, GtkTextBuffer* buf, char* path, bool watch)
 {
     char line[4096];
     FILE* file;
@@ -1903,7 +1903,7 @@ static void fill_buffer_from_file(CustomElement* el, GtkTextBuffer* buf, char* p
     }
 }
 
-static void get_text_value(CustomElement* el, const char* val, gboolean multi, gboolean watch)
+static void get_text_value(CustomElement* el, const char* val, bool multi, bool watch)
 {
     if (!val)
         return;
@@ -1950,7 +1950,7 @@ static void free_elements(GList* elements)
     g_list_free(elements);
 }
 
-static gboolean destroy_dlg(GtkWidget* dlg)
+static bool destroy_dlg(GtkWidget* dlg)
 {
     GList* elements = (GList*)g_object_get_data(G_OBJECT(dlg), "elements");
     gtk_widget_destroy(GTK_WIDGET(dlg));
@@ -1980,7 +1980,7 @@ static void write_value(FILE* file, const char* prefix, const char* name, const 
     g_free(quoted);
 }
 
-static void write_source(GtkWidget* dlg, CustomElement* el_pressed, FILE* out, gboolean is_cancel)
+static void write_source(GtkWidget* dlg, CustomElement* el_pressed, FILE* out, bool is_cancel)
 {
     GList* l;
     CustomElement* el;
@@ -2274,13 +2274,13 @@ static void write_source(GtkWidget* dlg, CustomElement* el_pressed, FILE* out, g
     g_free(str);
 }
 
-static gboolean on_progress_timer(CustomElement* el)
+static bool on_progress_timer(CustomElement* el)
 {
     gtk_progress_bar_pulse(GTK_PROGRESS_BAR(el->widgets->next->data));
     return TRUE;
 }
 
-static gboolean on_timeout_timer(CustomElement* el)
+static bool on_timeout_timer(CustomElement* el)
 {
     el->option--;
     if (el->option <= 0)
@@ -2351,8 +2351,7 @@ static void on_list_row_activated(GtkTreeView* view, GtkTreePath* tree_path, Gtk
     run_command(el, el->cmd_args, NULL);
 }
 
-static gboolean on_widget_button_press_event(GtkWidget* widget, GdkEventButton* evt,
-                                             CustomElement* el)
+static bool on_widget_button_press_event(GtkWidget* widget, GdkEventButton* evt, CustomElement* el)
 {
     if (evt->type == GDK_BUTTON_PRESS)
     {
@@ -2415,7 +2414,7 @@ static void on_button_clicked(GtkButton* button, CustomElement* el)
     }
 }
 
-static gboolean press_last_button(GtkWidget* dlg)
+static bool press_last_button(GtkWidget* dlg)
 {
     // find last (default) button and press it
     GList* elements = (GList*)g_object_get_data(G_OBJECT(dlg), "elements");
@@ -2456,7 +2455,7 @@ void on_chooser_activated(GtkFileChooser* chooser, CustomElement* el)
         press_last_button(el->widgets->data);
 }
 
-gboolean on_window_delete(GtkWidget* widget, GdkEvent* event, CustomElement* el)
+bool on_window_delete(GtkWidget* widget, GdkEvent* event, CustomElement* el)
 {
     if (el && el->cmd_args)
     {
@@ -2469,7 +2468,7 @@ gboolean on_window_delete(GtkWidget* widget, GdkEvent* event, CustomElement* el)
     return FALSE;
 }
 
-static gboolean on_dlg_key_press(GtkWidget* entry, GdkEventKey* evt, CustomElement* el)
+static bool on_dlg_key_press(GtkWidget* entry, GdkEventKey* evt, CustomElement* el)
 {
     int keymod = (evt->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK | GDK_SUPER_MASK |
                                 GDK_HYPER_MASK | GDK_META_MASK));
@@ -2485,7 +2484,7 @@ static gboolean on_dlg_key_press(GtkWidget* entry, GdkEventKey* evt, CustomEleme
     return FALSE;
 }
 
-static gboolean on_input_key_press(GtkWidget* entry, GdkEventKey* evt, CustomElement* el)
+static bool on_input_key_press(GtkWidget* entry, GdkEventKey* evt, CustomElement* el)
 {
     int keymod = (evt->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK | GDK_SUPER_MASK |
                                 GDK_HYPER_MASK | GDK_META_MASK));
@@ -2534,15 +2533,15 @@ static void update_element(CustomElement* el, GtkWidget* box, GSList** radio, in
     int i;
     GList* l;
     char* font = NULL;
-    gboolean viewer_scroll = FALSE;
-    gboolean chooser_save = FALSE;
-    gboolean chooser_dir = FALSE;
-    gboolean chooser_multi = FALSE;
+    bool viewer_scroll = FALSE;
+    bool chooser_save = FALSE;
+    bool chooser_dir = FALSE;
+    bool chooser_multi = FALSE;
     GList* chooser_filters = NULL;
-    gboolean compact = FALSE;
-    gboolean expand = FALSE;
-    gboolean wrap = FALSE;
-    gboolean nowrap = FALSE;
+    bool compact = FALSE;
+    bool expand = FALSE;
+    bool wrap = FALSE;
+    bool nowrap = FALSE;
     int selstart = -1;
     int selend = -1;
 
@@ -3516,10 +3515,10 @@ static void build_dialog(GList* elements)
     int pad = DEFAULT_PAD;
     int width = DEFAULT_WIDTH;
     int height = DEFAULT_HEIGHT;
-    gboolean timeout_added = FALSE;
-    gboolean is_sized = FALSE;
-    gboolean is_large = FALSE;
-    gboolean has_delete_handler = FALSE;
+    bool timeout_added = FALSE;
+    bool is_sized = FALSE;
+    bool is_large = FALSE;
+    bool has_delete_handler = FALSE;
 
     // create dialog
     dlg = gtk_dialog_new();

@@ -32,6 +32,8 @@
 #include <string.h>
 #endif
 
+#include <stdbool.h>
+
 #include "exo-string.h"
 
 /**
@@ -47,7 +49,7 @@
 char* exo_str_elide_underscores(const char* text)
 {
     const char* s;
-    gboolean last_underscore = FALSE;
+    bool last_underscore = FALSE;
     char* result;
     char* t;
 
@@ -83,7 +85,7 @@ char* exo_str_elide_underscores(const char* text)
  *
  * Returns: %TRUE if @a equals @b, else %FALSE.
  **/
-gboolean exo_str_is_equal(const char* a, const char* b)
+bool exo_str_is_equal(const char* a, const char* b)
 {
     if (a == NULL || b == NULL)
         return (a == b);

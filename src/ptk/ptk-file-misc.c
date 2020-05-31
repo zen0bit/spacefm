@@ -9,6 +9,8 @@
  *
  */
 
+#include <stdbool.h>
+
 #include "ptk-file-misc.h"
 
 #include <glib.h>
@@ -56,9 +58,9 @@ typedef struct
     const char* old_path;
     char* new_path;
     char* desc;
-    gboolean is_dir;
-    gboolean is_link;
-    gboolean clip_copy;
+    bool is_dir;
+    bool is_link;
+    bool clip_copy;
     PtkRenameMode create_new;
 
     GtkWidget* dlg;
@@ -128,13 +130,13 @@ typedef struct
 
     GtkWidget* last_widget;
 
-    gboolean full_path_exists;
-    gboolean full_path_exists_dir;
-    gboolean full_path_same;
-    gboolean path_missing;
-    gboolean path_exists_file;
-    gboolean mode_change;
-    gboolean is_move;
+    bool full_path_exists;
+    bool full_path_exists_dir;
+    bool full_path_same;
+    bool path_missing;
+    bool path_exists_file;
+    bool mode_change;
+    bool is_move;
 } MoveSet;
 
 void on_toggled(GtkMenuItem* item, MoveSet* mset);
@@ -222,7 +224,7 @@ void on_help_activate(GtkMenuItem* item, MoveSet* mset)
     xset_show_help(GTK_WIDGET(mset->dlg), NULL, mset->create_new ? "#gui-newf" : "#gui-rename");
 }
 
-static gboolean on_move_keypress(GtkWidget* widget, GdkEventKey* event, MoveSet* mset)
+static bool on_move_keypress(GtkWidget* widget, GdkEventKey* event, MoveSet* mset)
 {
     int keymod = (event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK |
                                   GDK_SUPER_MASK | GDK_HYPER_MASK | GDK_META_MASK));
@@ -244,7 +246,7 @@ static gboolean on_move_keypress(GtkWidget* widget, GdkEventKey* event, MoveSet*
     return FALSE;
 }
 
-static gboolean on_move_entry_keypress(GtkWidget* widget, GdkEventKey* event, MoveSet* mset)
+static bool on_move_entry_keypress(GtkWidget* widget, GdkEventKey* event, MoveSet* mset)
 {
     int keymod = (event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK |
                                   GDK_SUPER_MASK | GDK_HYPER_MASK | GDK_META_MASK));
@@ -316,8 +318,8 @@ void on_move_change(GtkWidget* widget, MoveSet* mset)
     // change is_dir to reflect state of new directory or link option
     if (mset->create_new)
     {
-        gboolean new_folder = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_new_folder));
-        gboolean new_link = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_new_link));
+        bool new_folder = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_new_folder));
+        bool new_link = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_new_link));
         if (new_folder ||
             (new_link &&
              g_file_test(gtk_entry_get_text(GTK_ENTRY(mset->entry_target)), G_FILE_TEST_IS_DIR) &&
@@ -561,12 +563,12 @@ void on_move_change(GtkWidget* widget, MoveSet* mset)
 
     // tests
     struct stat statbuf;
-    gboolean full_path_exists = FALSE;
-    gboolean full_path_exists_dir = FALSE;
-    gboolean full_path_same = FALSE;
-    gboolean path_missing = FALSE;
-    gboolean path_exists_file = FALSE;
-    gboolean is_move = FALSE;
+    bool full_path_exists = FALSE;
+    bool full_path_exists_dir = FALSE;
+    bool full_path_same = FALSE;
+    bool path_missing = FALSE;
+    bool path_exists_file = FALSE;
+    bool is_move = FALSE;
 
     if (!strcmp(full_path, mset->full_path))
     {
@@ -800,13 +802,13 @@ void select_input(GtkWidget* widget, MoveSet* mset)
     }
 }
 
-static gboolean on_focus(GtkWidget* widget, GtkDirectionType direction, MoveSet* mset)
+static bool on_focus(GtkWidget* widget, GtkDirectionType direction, MoveSet* mset)
 {
     select_input(widget, mset);
     return FALSE;
 }
 
-static gboolean on_button_focus(GtkWidget* widget, GtkDirectionType direction, MoveSet* mset)
+static bool on_button_focus(GtkWidget* widget, GtkDirectionType direction, MoveSet* mset)
 {
     if (direction == GTK_DIR_TAB_FORWARD || direction == GTK_DIR_TAB_BACKWARD)
     {
@@ -1220,16 +1222,16 @@ void on_opt_toggled(GtkMenuItem* item, MoveSet* mset)
     char* title;
     GtkTextIter iter, siter;
 
-    gboolean move = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_move));
-    gboolean copy = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_copy));
-    gboolean link = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_link));
-    gboolean copy_target = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_copy_target));
-    gboolean link_target = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_link_target));
-    gboolean as_root = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_as_root));
+    bool move = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_move));
+    bool copy = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_copy));
+    bool link = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_link));
+    bool copy_target = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_copy_target));
+    bool link_target = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_link_target));
+    bool as_root = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_as_root));
 
-    gboolean new_file = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_new_file));
-    gboolean new_folder = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_new_folder));
-    gboolean new_link = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_new_link));
+    bool new_file = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_new_file));
+    bool new_folder = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_new_folder));
+    bool new_link = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_new_link));
 
     const char* desc = NULL;
     if (mset->create_new)
@@ -1250,7 +1252,7 @@ void on_opt_toggled(GtkMenuItem* item, MoveSet* mset)
         char* full_path = gtk_text_buffer_get_text(mset->buf_full_path, &siter, &iter, FALSE);
         char* new_path = g_path_get_dirname(full_path);
 
-        gboolean rename = (!strcmp(mset->old_path, new_path) || !strcmp(new_path, "."));
+        bool rename = (!strcmp(mset->old_path, new_path) || !strcmp(new_path, "."));
         g_free(new_path);
         g_free(full_path);
 
@@ -1328,8 +1330,8 @@ void on_toggled(GtkMenuItem* item, MoveSet* mset)
 {
     // int (*show) () = NULL;
     void (*show)() = NULL;
-    gboolean someone_is_visible = FALSE;
-    gboolean opts_visible = FALSE;
+    bool someone_is_visible = FALSE;
+    bool opts_visible = FALSE;
 
     // opts
     if (xset_get_b("move_copy") || mset->clip_copy)
@@ -1444,9 +1446,9 @@ void on_toggled(GtkMenuItem* item, MoveSet* mset)
         show = (GFunc)gtk_widget_hide;
     show(mset->hbox_type);
 
-    gboolean new_file = FALSE;
-    gboolean new_folder = FALSE;
-    gboolean new_link = FALSE;
+    bool new_file = FALSE;
+    bool new_folder = FALSE;
+    bool new_link = FALSE;
     if (mset->create_new)
     {
         new_file = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_new_file));
@@ -1506,7 +1508,7 @@ void on_toggled(GtkMenuItem* item, MoveSet* mset)
     }
 }
 
-gboolean on_mnemonic_activate(GtkWidget* widget, gboolean arg1, MoveSet* mset)
+bool on_mnemonic_activate(GtkWidget* widget, bool arg1, MoveSet* mset)
 {
     select_input(widget, mset);
     return FALSE;
@@ -1564,7 +1566,7 @@ void on_options_button_press(GtkWidget* btn, MoveSet* mset)
     gtk_menu_popup(GTK_MENU(popup), NULL, NULL, NULL, NULL, 0, gtk_get_current_event_time());
 }
 
-static gboolean on_label_focus(GtkWidget* widget, GtkDirectionType direction, MoveSet* mset)
+static bool on_label_focus(GtkWidget* widget, GtkDirectionType direction, MoveSet* mset)
 {
     GtkWidget* input = NULL;
 
@@ -1744,7 +1746,7 @@ void copy_entry_to_clipboard(GtkWidget* widget, MoveSet* mset)
     g_free(text);
 }
 
-gboolean on_label_button_press(GtkWidget* widget, GdkEventButton* event, MoveSet* mset)
+bool on_label_button_press(GtkWidget* widget, GdkEventButton* event, MoveSet* mset)
 {
     if (event->type == GDK_BUTTON_PRESS)
     {
@@ -1859,8 +1861,7 @@ char* get_template_dir()
     return templates_path;
 }
 
-GList* get_templates(const char* templates_dir, const char* subdir, GList* templates,
-                     gboolean getdir)
+GList* get_templates(const char* templates_dir, const char* subdir, GList* templates, bool getdir)
 {
     const char* name;
     char* path;
@@ -1974,7 +1975,7 @@ void on_template_changed(GtkWidget* widget, MoveSet* mset)
     g_free(text);
 }
 
-gboolean update_new_display_delayed(char* path)
+bool update_new_display_delayed(char* path)
 {
     char* dir_path = g_path_get_dirname(path);
     VFSDir* vdir = vfs_dir_get_by_path_soft(dir_path);
@@ -2003,7 +2004,7 @@ void update_new_display(const char* path)
 }
 
 int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileInfo* file,
-                    const char* dest_dir, gboolean clip_copy, PtkRenameMode create_new,
+                    const char* dest_dir, bool clip_copy, PtkRenameMode create_new,
                     AutoOpenCreate* auto_open)
 {
     char* full_name;
@@ -2018,7 +2019,7 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
     GtkTextIter iter, siter;
     GtkWidget* task_view = NULL;
     int ret = 1;
-    gboolean target_missing = FALSE;
+    bool target_missing = FALSE;
     GList* templates;
     struct stat statbuf;
 
@@ -2714,7 +2715,7 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
             full_name = g_path_get_basename(full_path);
             path = g_path_get_dirname(full_path);
             old_path = g_path_get_dirname(mset->full_path);
-            gboolean overwrite = FALSE;
+            bool overwrite = FALSE;
             char* msg;
 
             if (response == GTK_RESPONSE_APPLY)
@@ -2731,18 +2732,17 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
             }
 
             // determine job
-            gboolean move = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_move));
-            gboolean copy = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_copy));
-            gboolean link = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_link));
-            gboolean copy_target =
+            bool move = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_move));
+            bool copy = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_copy));
+            bool link = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_link));
+            bool copy_target =
                 gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_copy_target));
-            gboolean link_target =
+            bool link_target =
                 gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_link_target));
-            gboolean as_root = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_as_root));
-            gboolean new_file = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_new_file));
-            gboolean new_folder =
-                gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_new_folder));
-            gboolean new_link = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_new_link));
+            bool as_root = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_as_root));
+            bool new_file = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_new_file));
+            bool new_folder = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_new_folder));
+            bool new_link = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_new_link));
 
             if (as_root)
                 root_msg = _(" As Root");
@@ -3206,8 +3206,8 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
     return ret;
 }
 
-gboolean ptk_create_new_file(GtkWindow* parent_win, const char* cwd, gboolean create_folder,
-                             VFSFileInfo** file)
+bool ptk_create_new_file(GtkWindow* parent_win, const char* cwd, bool create_folder,
+                         VFSFileInfo** file)
 {
     char* full_path;
     char* ufile_name;
@@ -3215,8 +3215,8 @@ gboolean ptk_create_new_file(GtkWindow* parent_win, const char* cwd, gboolean cr
     GtkLabel* prompt;
     int result;
     GtkWidget* dlg;
-    gboolean ret = FALSE;
-    gboolean looponce = FALSE; // MOD
+    bool ret = FALSE;
+    bool looponce = FALSE; // MOD
 
     if (create_folder)
     {
@@ -3307,10 +3307,10 @@ void ptk_show_file_properties(GtkWindow* parent_win, const char* cwd, GList* sel
     gtk_widget_show(dlg);
 }
 
-static gboolean open_archives_with_handler(ParentInfo* parent, GList* sel_files, char* full_path,
-                                           VFSMimeType* mime_type)
+static bool open_archives_with_handler(ParentInfo* parent, GList* sel_files, char* full_path,
+                                       VFSMimeType* mime_type)
 {
-    gboolean extract_here = xset_get_b("arc_def_ex");
+    bool extract_here = xset_get_b("arc_def_ex");
     const char* dest_dir = NULL;
     int cmd;
 
@@ -3407,8 +3407,8 @@ static void open_files_with_handler(ParentInfo* parent, GList* files, XSet* hand
     GString* fm_filenames = g_string_new("fm_filenames=(\n");
     GString* fm_files = g_string_new("fm_files=(\n");
     // command looks like it handles multiple files ?
-    gboolean multiple = (strstr(command, "%N") || strstr(command, "%F") ||
-                         strstr(command, "fm_files[") || strstr(command, "fm_filenames["));
+    bool multiple = (strstr(command, "%N") || strstr(command, "%F") ||
+                     strstr(command, "fm_files[") || strstr(command, "fm_filenames["));
     if (multiple)
     {
         for (l = files; l; l = l->next)
@@ -3487,7 +3487,7 @@ static void open_files_with_handler(ParentInfo* parent, GList* files, XSet* hand
     g_free(command);
 }
 
-static gboolean open_files_with_app(ParentInfo* parent, GList* files, const char* app_desktop)
+static bool open_files_with_app(ParentInfo* parent, GList* files, const char* app_desktop)
 {
     char* name;
     GError* err = NULL;
@@ -3567,7 +3567,7 @@ static void free_file_list_hash(void* key, void* value, void* user_data)
 }
 
 void ptk_open_files_with_app(const char* cwd, GList* sel_files, const char* app_desktop,
-                             PtkFileBrowser* file_browser, gboolean xforce, gboolean xnever)
+                             PtkFileBrowser* file_browser, bool xforce, bool xnever)
 {
     // if xnever, never execute an executable
     // if xforce, force execute of executable ignoring app_settings.no_execute
@@ -3794,7 +3794,7 @@ void ptk_open_files_with_app(const char* cwd, GList* sel_files, const char* app_
 void ptk_file_misc_paste_as(PtkFileBrowser* file_browser, const char* cwd, GFunc callback)
 {
     char* file_path;
-    gboolean is_cut = FALSE;
+    bool is_cut = FALSE;
     int missing_targets;
     VFSFileInfo* file;
     char* file_dir;

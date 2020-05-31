@@ -10,6 +10,8 @@
  *
  */
 
+#include <stdbool.h>
+
 #include "vfs-app-desktop.h"
 #include <glib/gi18n.h>
 
@@ -31,7 +33,7 @@ const char desktop_entry_name[] = "Desktop Entry";
 VFSAppDesktop* vfs_app_desktop_new(const char* file_name)
 {
     GKeyFile* file;
-    gboolean load;
+    bool load;
     char* relative_path;
 
     VFSAppDesktop* app = g_slice_new0(VFSAppDesktop);
@@ -112,7 +114,7 @@ void vfs_app_desktop_unref(void* data)
         vfs_app_desktop_free(app);
 }
 
-gboolean vfs_app_desktop_rename(char* desktop_file_path, char* new_name) // sfm
+bool vfs_app_desktop_rename(char* desktop_file_path, char* new_name) // sfm
 {
     if (!desktop_file_path || !new_name)
         return FALSE;
@@ -216,7 +218,7 @@ static GdkPixbuf* load_icon_file(const char* file_name, int size)
     return icon;
 }
 
-GdkPixbuf* vfs_app_desktop_get_icon(VFSAppDesktop* app, int size, gboolean use_fallback)
+GdkPixbuf* vfs_app_desktop_get_icon(VFSAppDesktop* app, int size, bool use_fallback)
 {
     GtkIconTheme* theme;
     char *icon_name = NULL, *suffix;
@@ -268,7 +270,7 @@ GdkPixbuf* vfs_app_desktop_get_icon(VFSAppDesktop* app, int size, gboolean use_f
     return icon;
 }
 
-gboolean vfs_app_desktop_open_multiple_files(VFSAppDesktop* app)
+bool vfs_app_desktop_open_multiple_files(VFSAppDesktop* app)
 {
     if (app->exec)
     {
@@ -279,17 +281,17 @@ gboolean vfs_app_desktop_open_multiple_files(VFSAppDesktop* app)
     return FALSE;
 }
 
-gboolean vfs_app_desktop_open_in_terminal(VFSAppDesktop* app)
+bool vfs_app_desktop_open_in_terminal(VFSAppDesktop* app)
 {
     return app->terminal;
 }
 
-gboolean vfs_app_desktop_is_hidden(VFSAppDesktop* app)
+bool vfs_app_desktop_is_hidden(VFSAppDesktop* app)
 {
     return app->hidden;
 }
 
-gboolean vfs_app_desktop_uses_startup_notify(VFSAppDesktop* app)
+bool vfs_app_desktop_uses_startup_notify(VFSAppDesktop* app)
 {
     return app->startup;
 }
@@ -308,7 +310,7 @@ static char* translate_app_exec_to_command_line(VFSAppDesktop* app, GList* file_
     GList* l;
     char* tmp;
     GString* cmd = g_string_new("");
-    gboolean add_files = FALSE;
+    bool add_files = FALSE;
 
     for (; *pexec; ++pexec)
     {
@@ -458,8 +460,8 @@ void exec_in_terminal(const char* app_name, const char* cwd, const char* cmd)
     ptk_file_task_run(task);
 }
 
-gboolean vfs_app_desktop_open_files(GdkScreen* screen, const char* working_dir, VFSAppDesktop* app,
-                                    GList* file_paths, GError** err)
+bool vfs_app_desktop_open_files(GdkScreen* screen, const char* working_dir, VFSAppDesktop* app,
+                                GList* file_paths, GError** err)
 {
     char* exec = NULL;
     char* cmd;

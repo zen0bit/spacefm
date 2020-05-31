@@ -8,6 +8,8 @@
  *
  */
 
+#include <stdbool.h>
+
 #include "ptk-path-entry.h"
 #include <gdk/gdkkeysyms.h>
 
@@ -52,7 +54,7 @@ static char* get_cwd(GtkEntry* entry)
     return NULL;
 }
 
-gboolean seek_path(GtkEntry* entry)
+bool seek_path(GtkEntry* entry)
 {
     if (!GTK_IS_ENTRY(entry))
         return FALSE;
@@ -143,8 +145,8 @@ void seek_path_delayed(GtkEntry* entry, unsigned int delay)
     edata->seek_timer = g_timeout_add(delay ? delay : 250, (GSourceFunc)seek_path, entry);
 }
 
-static gboolean match_func_cmd(GtkEntryCompletion* completion, const char* key, GtkTreeIter* it,
-                               void* user_data)
+static bool match_func_cmd(GtkEntryCompletion* completion, const char* key, GtkTreeIter* it,
+                           void* user_data)
 {
     char* name = NULL;
     GtkTreeModel* model = gtk_entry_completion_get_model(completion);
@@ -159,8 +161,8 @@ static gboolean match_func_cmd(GtkEntryCompletion* completion, const char* key, 
     return FALSE;
 }
 
-static gboolean match_func(GtkEntryCompletion* completion, const char* key, GtkTreeIter* it,
-                           void* user_data)
+static bool match_func(GtkEntryCompletion* completion, const char* key, GtkTreeIter* it,
+                       void* user_data)
 {
     char* name = NULL;
     GtkTreeModel* model = gtk_entry_completion_get_model(completion);
@@ -389,7 +391,7 @@ void insert_complete(GtkEntry* entry)
     g_free(dir_path);
 }
 
-static gboolean on_key_press(GtkWidget* entry, GdkEventKey* evt, EntryData* edata)
+static bool on_key_press(GtkWidget* entry, GdkEventKey* evt, EntryData* edata)
 {
     int keymod = (evt->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK | GDK_SUPER_MASK |
                                 GDK_HYPER_MASK | GDK_META_MASK));
@@ -409,14 +411,14 @@ static gboolean on_key_press(GtkWidget* entry, GdkEventKey* evt, EntryData* edat
     return FALSE;
 }
 
-gboolean on_insert_prefix(GtkEntryCompletion* completion, char* prefix, GtkWidget* entry)
+bool on_insert_prefix(GtkEntryCompletion* completion, char* prefix, GtkWidget* entry)
 {
     // don't use the default handler because it inserts partial names
     return TRUE;
 }
 
-gboolean on_match_selected(GtkEntryCompletion* completion, GtkTreeModel* model, GtkTreeIter* iter,
-                           GtkWidget* entry)
+bool on_match_selected(GtkEntryCompletion* completion, GtkTreeModel* model, GtkTreeIter* iter,
+                       GtkWidget* entry)
 {
     char* path = NULL;
     gtk_tree_model_get(model, iter, COL_PATH, &path, -1);
@@ -446,7 +448,7 @@ gboolean on_match_selected(GtkEntryCompletion* completion, GtkTreeModel* model, 
     return TRUE;
 }
 
-static gboolean on_focus_in(GtkWidget* entry, GdkEventFocus* evt, void* user_data)
+static bool on_focus_in(GtkWidget* entry, GdkEventFocus* evt, void* user_data)
 {
     GtkEntryCompletion* completion = gtk_entry_completion_new();
     GtkListStore* list = gtk_list_store_new(N_COLS, G_TYPE_STRING, G_TYPE_STRING);
@@ -476,7 +478,7 @@ static gboolean on_focus_in(GtkWidget* entry, GdkEventFocus* evt, void* user_dat
     return FALSE;
 }
 
-static gboolean on_focus_out(GtkWidget* entry, GdkEventFocus* evt, void* user_data)
+static bool on_focus_out(GtkWidget* entry, GdkEventFocus* evt, void* user_data)
 {
     g_signal_handlers_disconnect_by_func(entry, on_changed, NULL);
     gtk_entry_set_completion(GTK_ENTRY(entry), NULL);
@@ -523,7 +525,7 @@ void ptk_path_entry_help(GtkWidget* widget, GtkWidget* parent)
     gtk_widget_destroy(dlg);
 }
 
-static gboolean on_button_press(GtkWidget* entry, GdkEventButton* evt, void* user_data)
+static bool on_button_press(GtkWidget* entry, GdkEventButton* evt, void* user_data)
 {
     if ((evt_win_click->s || evt_win_click->ob2_data) && main_window_event(NULL,
                                                                            evt_win_click,
@@ -539,7 +541,7 @@ static gboolean on_button_press(GtkWidget* entry, GdkEventButton* evt, void* use
     return FALSE;
 }
 
-static gboolean on_button_release(GtkEntry* entry, GdkEventButton* evt, void* user_data)
+static bool on_button_release(GtkEntry* entry, GdkEventButton* evt, void* user_data)
 {
     if (GDK_BUTTON_RELEASE != evt->type)
         return FALSE;

@@ -20,6 +20,8 @@
 #ifndef __EXO_ICON_CHOOSER_MODEL_H__
 #define __EXO_ICON_CHOOSER_MODEL_H__
 
+#include <stdbool.h>
+
 #include <gtk/gtk.h>
 
 G_BEGIN_DECLS
@@ -83,9 +85,9 @@ _exo_icon_chooser_model_get_for_widget(GtkWidget* widget) G_GNUC_WARN_UNUSED_RES
 G_GNUC_INTERNAL ExoIconChooserModel*
 _exo_icon_chooser_model_get_for_icon_theme(GtkIconTheme* icon_theme) G_GNUC_WARN_UNUSED_RESULT;
 
-G_GNUC_INTERNAL gboolean _exo_icon_chooser_model_get_iter_for_icon_name(ExoIconChooserModel* model,
-                                                                        GtkTreeIter* iter,
-                                                                        const char* icon_name);
+G_GNUC_INTERNAL bool _exo_icon_chooser_model_get_iter_for_icon_name(ExoIconChooserModel* model,
+                                                                    GtkTreeIter* iter,
+                                                                    const char* icon_name);
 
 G_END_DECLS
 

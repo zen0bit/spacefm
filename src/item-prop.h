@@ -1,6 +1,8 @@
 #ifndef _ITEM_PROP_H_
 #define _ITEM_PROP_H_
 
+#include <stdbool.h>
+
 #include <settings.h>
 
 G_BEGIN_DECLS
@@ -57,7 +59,7 @@ enum
 };
 
 void xset_item_prop_dlg(XSetContext* context, XSet* set, int page);
-int xset_context_test(XSetContext* context, char* rules, gboolean def_disable);
+int xset_context_test(XSetContext* context, char* rules, bool def_disable);
 
 G_END_DECLS
 

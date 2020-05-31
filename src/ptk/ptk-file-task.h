@@ -10,6 +10,8 @@
  *
  */
 
+#include <stdbool.h>
+
 #include "../vfs/vfs-file-task.h"
 
 #include <gtk/gtk.h>
@@ -52,32 +54,32 @@ struct _PtkFileTask
 
     GtkTextBuffer* log_buf;
     GtkTextMark* log_end;
-    gboolean log_appended;
+    bool log_appended;
     unsigned int err_count;
     char err_mode;
 
-    gboolean complete;
-    gboolean aborted;
-    gboolean pause_change;
-    gboolean pause_change_view;
-    gboolean force_scroll;
+    bool complete;
+    bool aborted;
+    bool pause_change;
+    bool pause_change_view;
+    bool force_scroll;
 
     /* <private> */
     unsigned int timeout;
-    gboolean restart_timeout;
+    bool restart_timeout;
     unsigned int progress_timer;
     char progress_count;
     GFunc complete_notify;
     void* user_data;
-    gboolean keep_dlg;
-    gboolean pop_detail;
+    bool keep_dlg;
+    bool pop_detail;
     char* pop_handler;
 
     GCond* query_cond;
     GCond* query_cond_last;
     char** query_new_dest;
     GtkEntry* query_entry;
-    gboolean query_ret;
+    bool query_ret;
 
     char* dsp_file_count;
     char* dsp_size_tally;
@@ -104,11 +106,11 @@ void ptk_file_task_set_chmod(PtkFileTask* ptask, unsigned char* chmod_actions);
 
 void ptk_file_task_set_chown(PtkFileTask* ptask, uid_t uid, gid_t gid);
 
-void ptk_file_task_set_recursive(PtkFileTask* ptask, gboolean recursive);
+void ptk_file_task_set_recursive(PtkFileTask* ptask, bool recursive);
 
 void ptk_file_task_run(PtkFileTask* ptask);
 
-gboolean ptk_file_task_cancel(PtkFileTask* ptask);
+bool ptk_file_task_cancel(PtkFileTask* ptask);
 
 void ptk_file_task_pause(PtkFileTask* ptask, int state);
 

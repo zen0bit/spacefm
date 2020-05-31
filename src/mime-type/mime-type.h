@@ -22,6 +22,7 @@
 #ifndef _MIME_TYPE_H_INCLUDED_
 #define _MIME_TYPE_H_INCLUDED_
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #include <sys/stat.h>
@@ -49,7 +50,7 @@ extern const char xdg_mime_type_plain_text[];
 void mime_type_init();
 
 /* Reload the shared-mime-database */
-gboolean mime_type_reload();
+bool mime_type_reload();
 
 /* Finalize the library and free related resources */
 void mime_type_finalize();
@@ -80,12 +81,12 @@ const char* mime_type_get_by_filename(const char* filename, struct stat* statbuf
  */
 const char* mime_type_get_by_file(const char* filepath, struct stat* statbuf, const char* basename);
 
-gboolean mime_type_is_text_file(const char* file_path, const char* mime_type);
+bool mime_type_is_text_file(const char* file_path, const char* mime_type);
 
-gboolean mime_type_is_executable_file(const char* file_path, const char* mime_type);
+bool mime_type_is_executable_file(const char* file_path, const char* mime_type);
 
 /* Check if the specified mime_type is the subclass of the specified parent type */
-gboolean mime_type_is_subclass(const char* type, const char* parent);
+bool mime_type_is_subclass(const char* type, const char* parent);
 
 /*
  * Get all parent type of this mime_type

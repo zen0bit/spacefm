@@ -10,9 +10,10 @@
  *
  */
 
-#include "vfs-file-info.h"
-
+#include <stdbool.h>
 #include <stdint.h>
+
+#include "vfs-file-info.h"
 
 #include <glib.h>
 #include <glib/gi18n.h>
@@ -26,10 +27,10 @@
 #include "vfs-utils.h" /* for vfs_load_icon */
 
 static int big_thumb_size = 48, small_thumb_size = 20;
-static gboolean utf8_file_name = FALSE;
+static bool utf8_file_name = FALSE;
 static const char* desktop_dir = NULL; // MOD added
 
-void vfs_file_info_set_utf8_filename(gboolean is_utf8)
+void vfs_file_info_set_utf8_filename(bool is_utf8)
 {
     utf8_file_name = is_utf8;
 }
@@ -114,7 +115,7 @@ void vfs_file_info_unref(VFSFileInfo* fi)
     }
 }
 
-gboolean vfs_file_info_get(VFSFileInfo* fi, const char* file_path, const char* base_name)
+bool vfs_file_info_get(VFSFileInfo* fi, const char* file_path, const char* base_name)
 {
     struct stat file_stat;
     vfs_file_info_clear(fi);
@@ -620,7 +621,7 @@ void vfs_file_size_to_string(char* buf, uint64_t size)
     sprintf(buf, "%.1f %s", val, unit);
 }
 
-gboolean vfs_file_info_is_dir(VFSFileInfo* fi)
+bool vfs_file_info_is_dir(VFSFileInfo* fi)
 {
     if (S_ISDIR(fi->mode))
         return TRUE;
@@ -632,12 +633,12 @@ gboolean vfs_file_info_is_dir(VFSFileInfo* fi)
     return FALSE;
 }
 
-gboolean vfs_file_info_is_symlink(VFSFileInfo* fi)
+bool vfs_file_info_is_symlink(VFSFileInfo* fi)
 {
     return S_ISLNK(fi->mode) ? TRUE : FALSE;
 }
 
-gboolean vfs_file_info_is_image(VFSFileInfo* fi)
+bool vfs_file_info_is_image(VFSFileInfo* fi)
 {
     /* FIXME: We had better use functions of xdg_mime to check this */
     if (!strncmp("image/", vfs_mime_type_get_type(fi->mime_type), 6))
@@ -645,7 +646,7 @@ gboolean vfs_file_info_is_image(VFSFileInfo* fi)
     return FALSE;
 }
 
-gboolean vfs_file_info_is_video(VFSFileInfo* fi)
+bool vfs_file_info_is_video(VFSFileInfo* fi)
 {
     /* FIXME: We had better use functions of xdg_mime to check this */
     if (!strncmp("video/", vfs_mime_type_get_type(fi->mime_type), 6))
@@ -653,12 +654,12 @@ gboolean vfs_file_info_is_video(VFSFileInfo* fi)
     return FALSE;
 }
 
-gboolean vfs_file_info_is_desktop_entry(VFSFileInfo* fi)
+bool vfs_file_info_is_desktop_entry(VFSFileInfo* fi)
 {
     return 0 != (fi->flags & VFS_FILE_INFO_DESKTOP_ENTRY);
 }
 
-gboolean vfs_file_info_is_unknown_type(VFSFileInfo* fi)
+bool vfs_file_info_is_unknown_type(VFSFileInfo* fi)
 {
     if (!strcmp(XDG_MIME_TYPE_UNKNOWN, vfs_mime_type_get_type(fi->mime_type)))
         return TRUE;
@@ -666,13 +667,13 @@ gboolean vfs_file_info_is_unknown_type(VFSFileInfo* fi)
 }
 
 /* full path of the file is required by this function */
-gboolean vfs_file_info_is_executable(VFSFileInfo* fi, const char* file_path)
+bool vfs_file_info_is_executable(VFSFileInfo* fi, const char* file_path)
 {
     return mime_type_is_executable_file(file_path, fi->mime_type->type);
 }
 
 /* full path of the file is required by this function */
-gboolean vfs_file_info_is_text(VFSFileInfo* fi, const char* file_path)
+bool vfs_file_info_is_text(VFSFileInfo* fi, const char* file_path)
 {
     return mime_type_is_text_file(file_path, fi->mime_type->type);
 }
@@ -681,13 +682,13 @@ gboolean vfs_file_info_is_text(VFSFileInfo* fi, const char* file_path)
  * Run default action of specified file.
  * Full path of the file is required by this function.
  */
-gboolean vfs_file_info_open_file(VFSFileInfo* fi, const char* file_path, GError** err)
+bool vfs_file_info_open_file(VFSFileInfo* fi, const char* file_path, GError** err)
 {
     VFSMimeType* mime_type;
     char* app_name;
     VFSAppDesktop* app;
     GList* files = NULL;
-    gboolean ret = FALSE;
+    bool ret = FALSE;
     char* argv[2];
 
     if (vfs_file_info_is_executable(fi, file_path))
@@ -729,14 +730,14 @@ mode_t vfs_file_info_get_mode(VFSFileInfo* fi)
     return fi->mode;
 }
 
-gboolean vfs_file_info_is_thumbnail_loaded(VFSFileInfo* fi, gboolean big)
+bool vfs_file_info_is_thumbnail_loaded(VFSFileInfo* fi, bool big)
 {
     if (big)
         return (fi->big_thumbnail != NULL);
     return (fi->small_thumbnail != NULL);
 }
 
-gboolean vfs_file_info_load_thumbnail(VFSFileInfo* fi, const char* full_path, gboolean big)
+bool vfs_file_info_load_thumbnail(VFSFileInfo* fi, const char* full_path, bool big)
 {
     GdkPixbuf* thumbnail;
 
@@ -832,7 +833,7 @@ char* vfs_file_resolve_path(const char* cwd, const char* relative_path)
 {
     GString* ret = g_string_sized_new(4096);
     int len;
-    gboolean strip_tail;
+    bool strip_tail;
 
     g_return_val_if_fail(G_LIKELY(relative_path), NULL);
 

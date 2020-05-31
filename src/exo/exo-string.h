@@ -25,13 +25,15 @@
 #ifndef __EXO_STRING_H__
 #define __EXO_STRING_H__
 
+#include <stdbool.h>
+
 #include <glib.h>
 
 G_BEGIN_DECLS
 
 char* exo_str_elide_underscores(const char* text) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
-gboolean exo_str_is_equal(const char* a, const char* b);
+bool exo_str_is_equal(const char* a, const char* b);
 
 /*
 char   **exo_strndupv               (char      **strv,

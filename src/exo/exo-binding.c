@@ -24,6 +24,8 @@
 #include <config.h>
 #endif
 
+#include <stdbool.h>
+
 #include "exo-binding.h"
 #include "exo-private.h"
 
@@ -118,7 +120,7 @@ static void exo_bind_properties_transfer(GObject* src_object, GParamSpec* src_ps
 {
     const char* src_name;
     const char* dst_name;
-    gboolean result;
+    bool result;
     GValue src_value = {
         0,
     };

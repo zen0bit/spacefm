@@ -20,6 +20,8 @@
 #include <config.h>
 #endif
 
+#include <stdbool.h>
+
 #include "mime-action.h"
 #include <string.h>
 #include <unistd.h>
@@ -27,7 +29,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-gboolean save_to_file(const char* path, const char* data, long len)
+bool save_to_file(const char* path, const char* data, long len)
 {
     int fd = creat(path, 0644);
     if (fd == -1)
@@ -182,11 +184,11 @@ static char* get_actions(const char* dir, const char* type, GArray* actions)
 {
     // g_print( "get_actions( %s, %s )\n", dir, type );
     GKeyFile* file;
-    gboolean opened;
+    bool opened;
     int n, k;
     char** apps = NULL;
     char** removed = NULL;
-    gboolean is_removed;
+    bool is_removed;
     unsigned long n_removed = 0, r;
     unsigned long n_apps, i;
 
@@ -318,12 +320,12 @@ char** mime_type_get_actions(const char* type)
  * This API is very time consuming, but unfortunately, due to the damn poor design of
  * Freedesktop.org spec, all the insane checks here are necessary.  Sigh...  :-(
  */
-gboolean mime_type_has_action(const char* type, const char* desktop_id)
+bool mime_type_has_action(const char* type, const char* desktop_id)
 {
     char **actions, **action;
     char *cmd = NULL, *name = NULL;
-    gboolean found = FALSE;
-    gboolean is_desktop = g_str_has_suffix(desktop_id, ".desktop");
+    bool found = FALSE;
+    bool is_desktop = g_str_has_suffix(desktop_id, ".desktop");
 
     if (is_desktop)
     {
@@ -517,8 +519,7 @@ void mime_type_add_action(const char* type, const char* desktop_id, char** custo
         g_free(cust);
 }
 
-static char* _locate_desktop_file_recursive(const char* path, const char* desktop_id,
-                                            gboolean first)
+static char* _locate_desktop_file_recursive(const char* path, const char* desktop_id, bool first)
 { // if first is true, just search for subdirs not desktop_id (already searched)
     const char* name;
     char* sub_path;
@@ -553,7 +554,7 @@ static char* _locate_desktop_file_recursive(const char* path, const char* deskto
 
 static char* _locate_desktop_file(const char* dir, const char* unused, const void* desktop_id)
 { // sfm 0.7.8 modified + 0.8.7 modified
-    gboolean found = FALSE;
+    bool found = FALSE;
 
     char* path = g_build_filename(dir, "applications", (const char*)desktop_id, NULL);
 
@@ -601,7 +602,7 @@ static char* get_default_action(const char* dir, const char* type, void* user_da
     char** apps;
     unsigned long n_apps, i;
     int n, k;
-    gboolean opened;
+    bool opened;
 
     // g_print( "get_default_action( %s, %s )\n", dir, type );
     // search these files in dir for the first existing default app
@@ -688,8 +689,8 @@ void mime_type_update_association(const char* type, const char* desktop_id, int 
     unsigned long n_apps, i, k;
     char* str;
     char* new_action;
-    gboolean is_present;
-    gboolean data_changed = FALSE;
+    bool is_present;
+    bool data_changed = FALSE;
 
     if (!(type && type[0] != '\0' && desktop_id && desktop_id[0] != '\0'))
     {

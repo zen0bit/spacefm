@@ -13,12 +13,14 @@
 #ifndef _PTK_CLIPBOARD_H_
 #define _PTK_CLIPBOARD_H_
 
+#include <stdbool.h>
+
 #include <glib.h>
 #include <gtk/gtk.h>
 
 G_BEGIN_DECLS
 
-void ptk_clipboard_cut_or_copy_files(const char* working_dir, GList* files, gboolean copy);
+void ptk_clipboard_cut_or_copy_files(const char* working_dir, GList* files, bool copy);
 
 void ptk_clipboard_copy_as_text(const char* working_dir,
                                 GList* files); // MOD added
@@ -37,9 +39,9 @@ void ptk_clipboard_paste_targets(GtkWindow* parent_win, const char* dest_dir,
 
 void ptk_clipboard_copy_text(const char* text); // MOD added
 
-void ptk_clipboard_copy_file_list(char** path, gboolean copy); // sfm
+void ptk_clipboard_copy_file_list(char** path, bool copy); // sfm
 
-GList* ptk_clipboard_get_file_paths(const char* cwd, gboolean* is_cut,
+GList* ptk_clipboard_get_file_paths(const char* cwd, bool* is_cut,
                                     int* missing_targets); // sfm
 
 G_END_DECLS

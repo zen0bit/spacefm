@@ -8,6 +8,8 @@
  *
  */
 
+#include <stdbool.h>
+
 #include "ptk-clipboard.h"
 
 #include <string.h>
@@ -32,7 +34,7 @@ static void clipboard_get_data(GtkClipboard* clipboard, GtkSelectionData* select
     GList* l;
     char* file_name;
     const char* action;
-    gboolean use_uri = FALSE;
+    bool use_uri = FALSE;
 
     GString* list;
 
@@ -157,7 +159,7 @@ void ptk_clipboard_copy_text(const char* text) // MOD added
     gtk_clipboard_set_text(clip_primary, text, -1);
 }
 
-void ptk_clipboard_cut_or_copy_files(const char* working_dir, GList* files, gboolean copy)
+void ptk_clipboard_cut_or_copy_files(const char* working_dir, GList* files, bool copy)
 {
     GtkClipboard* clip = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);
     GtkTargetList* target_list = gtk_target_list_new(NULL, 0);
@@ -202,7 +204,7 @@ void ptk_clipboard_cut_or_copy_files(const char* working_dir, GList* files, gboo
     clipboard_action = copy ? GDK_ACTION_COPY : GDK_ACTION_MOVE;
 }
 
-void ptk_clipboard_copy_file_list(char** path, gboolean copy)
+void ptk_clipboard_copy_file_list(char** path, bool copy)
 {
     GtkClipboard* clip = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);
     GtkTargetList* target_list = gtk_target_list_new(NULL, 0);
@@ -526,7 +528,7 @@ void ptk_clipboard_paste_targets(GtkWindow* parent_win, const char* dest_dir,
     gtk_selection_data_free(sel_data);
 }
 
-GList* ptk_clipboard_get_file_paths(const char* cwd, gboolean* is_cut, int* missing_targets)
+GList* ptk_clipboard_get_file_paths(const char* cwd, bool* is_cut, int* missing_targets)
 {
     GtkClipboard* clip = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);
     GdkAtom gnome_target;

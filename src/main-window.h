@@ -1,6 +1,8 @@
 #ifndef _MAIN_WINDOW_H_
 #define _MAIN_WINDOW_H_
 
+#include <stdbool.h>
+
 #include <gtk/gtk.h>
 #include "ptk/ptk-file-browser.h"
 #include "ptk/ptk-file-task.h"
@@ -48,7 +50,7 @@ typedef struct _FMMainWindow
     int panel_slide_y[4];
     int panel_slide_s[4];
     char panel_context[4];
-    gboolean panel_change;
+    bool panel_change;
     GtkWidget* panelbar;
     GtkWidget* panel_btn[4];
     GtkWidget* panel_image[4];
@@ -65,9 +67,9 @@ typedef struct _FMMainWindow
     GtkWindowGroup* wgroup;
     int n_busy_tasks;
     unsigned int configure_evt_timer;
-    gboolean maximized;
-    gboolean opened_maximized;
-    gboolean fullscreen;
+    bool maximized;
+    bool opened_maximized;
+    bool fullscreen;
 } FMMainWindow;
 
 typedef struct _FMMainWindowClass
@@ -122,7 +124,7 @@ char* main_window_get_tab_cwd(PtkFileBrowser* file_browser, int tab_num);
 char* main_window_get_panel_cwd(PtkFileBrowser* file_browser, int panel_num);
 void main_window_get_counts(PtkFileBrowser* file_browser, int* panel_count, int* tab_count,
                             int* tab_num);
-gboolean main_window_panel_is_visible(PtkFileBrowser* file_browser, int panel);
+bool main_window_panel_is_visible(PtkFileBrowser* file_browser, int panel);
 void main_window_open_in_panel(PtkFileBrowser* file_browser, int panel_num, char* file_path);
 void main_window_autosave(PtkFileBrowser* file_browser);
 void main_window_root_bar_all();
@@ -133,10 +135,10 @@ void main_context_fill(PtkFileBrowser* file_browser, XSetContext* c);
 void set_panel_focus(FMMainWindow* main_window, PtkFileBrowser* file_browser);
 void focus_panel(GtkMenuItem* item, void* mw, int p);
 void main_window_open_path_in_current_tab(FMMainWindow* main_window, const char* path);
-void main_window_open_network(FMMainWindow* main_window, const char* path, gboolean new_tab);
+void main_window_open_network(FMMainWindow* main_window, const char* path, bool new_tab);
 char main_window_socket_command(char* argv[], char** reply);
-gboolean main_window_event(void* mw, XSet* preset, const char* event, int panel, int tab,
-                           const char* focus, int keyval, int button, int state, gboolean visible);
+bool main_window_event(void* mw, XSet* preset, const char* event, int panel, int tab,
+                       const char* focus, int keyval, int button, int state, bool visible);
 void fm_main_window_store_positions(FMMainWindow* main_window);
 
 G_END_DECLS

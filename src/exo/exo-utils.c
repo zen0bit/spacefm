@@ -21,6 +21,8 @@
 #include <config.h>
 #endif
 
+#include <stdbool.h>
+
 /* implement exo-utils's inline functions */
 #define __EXO_UTILS_C__
 #include "exo-utils.h"
@@ -121,7 +123,7 @@ void* exo_noop_null(void)
  *
  * Since: 0.3.1
  **/
-gboolean exo_noop_true(void)
+bool exo_noop_true(void)
 {
     return TRUE;
 }
@@ -139,7 +141,7 @@ gboolean exo_noop_true(void)
  *
  * Since: 0.3.1
  **/
-gboolean exo_noop_false(void)
+bool exo_noop_false(void)
 {
     return FALSE;
 }

@@ -22,8 +22,9 @@
     2006.07.16 modified by Hong Jen Yee to produce a simplified text renderer
     which supports center alignment of text to be used in PCMan File Manager.
 */
-
+#include <stdbool.h>
 #include <stdlib.h>
+
 #include <gtk/gtk.h>
 #include <glib/gi18n.h>
 
@@ -644,7 +645,7 @@ static void add_attr(PangoAttrList* attr_list, PangoAttribute* attr)
     pango_attr_list_insert(attr_list, attr);
 }
 
-static PangoLayout* get_layout(PtkTextRenderer* celltext, GtkWidget* widget, gboolean will_render,
+static PangoLayout* get_layout(PtkTextRenderer* celltext, GtkWidget* widget, bool will_render,
                                GtkCellRendererState flags)
 {
     PangoAttrList* attr_list;

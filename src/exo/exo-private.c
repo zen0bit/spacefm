@@ -27,10 +27,12 @@
 #include <libintl.h>
 #endif
 
+#include <stdbool.h>
+
 #include "exo-private.h"
 #include "exo-string.h"
 
-void _exo_gtk_widget_send_focus_change(GtkWidget* widget, gboolean in)
+void _exo_gtk_widget_send_focus_change(GtkWidget* widget, bool in)
 {
 #if (GTK_MAJOR_VERSION == 2)
     if (in)

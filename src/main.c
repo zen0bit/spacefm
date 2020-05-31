@@ -11,6 +11,8 @@
 /* turn on to debug GDK_THREADS_ENTER/GDK_THREADS_LEAVE related deadlocks */
 #undef _DEBUG_THREAD
 
+#include <stdbool.h>
+
 #include "private.h"
 
 #include <gtk/gtk.h>
@@ -58,8 +60,8 @@
 
 #include "cust-dialog.h"
 
-// gboolean startup_mode = TRUE;  //MOD
-// gboolean design_mode = TRUE;  //MOD
+// bool startup_mode = TRUE;  //MOD
+// bool design_mode = TRUE;  //MOD
 
 char* run_cmd = NULL; // MOD
 
@@ -87,31 +89,31 @@ typedef enum
     SOCKET_RESPONSE_DATA
 } SocketEvent;
 
-static gboolean folder_initialized = FALSE;
-static gboolean daemon_initialized = FALSE;
+static bool folder_initialized = FALSE;
+static bool daemon_initialized = FALSE;
 
 static int sock;
 GIOChannel* io_channel = NULL;
 
-gboolean daemon_mode = FALSE;
+bool daemon_mode = FALSE;
 
 static char* default_files[2] = {NULL, NULL};
 static char** files = NULL;
 
-static gboolean new_tab = TRUE;
-static gboolean reuse_tab = FALSE; // sfm
-static gboolean no_tabs = FALSE;   // sfm
-static gboolean new_window = FALSE;
-static gboolean custom_dialog = FALSE; // sfm
-static gboolean socket_cmd = FALSE;    // sfm
-static gboolean version_opt = FALSE;   // sfm
-static gboolean sdebug = FALSE;        // sfm
-static gboolean socket_daemon = FALSE; // sfm
+static bool new_tab = TRUE;
+static bool reuse_tab = FALSE; // sfm
+static bool no_tabs = FALSE;   // sfm
+static bool new_window = FALSE;
+static bool custom_dialog = FALSE; // sfm
+static bool socket_cmd = FALSE;    // sfm
+static bool version_opt = FALSE;   // sfm
+static bool sdebug = FALSE;        // sfm
+static bool socket_daemon = FALSE; // sfm
 
 static int show_pref = 0;
 static int panel = -1;
 
-static gboolean find_files = FALSE;
+static bool find_files = FALSE;
 static char* config_dir = NULL;
 
 static int n_pcmanfm_ref = 0;
@@ -137,14 +139,14 @@ static GOptionEntry opt_entries[] =
 };
 // clang-format on
 
-static gboolean single_instance_check();
+static bool single_instance_check();
 static void single_instance_finalize();
 static void get_socket_name(char* buf, int len);
-static gboolean on_socket_event(GIOChannel* ioc, GIOCondition cond, void* data);
+static bool on_socket_event(GIOChannel* ioc, GIOCondition cond, void* data);
 
 static void init_folder();
 
-static gboolean handle_parsed_commandline_args();
+static bool handle_parsed_commandline_args();
 
 static void open_file(const char* path);
 
@@ -165,7 +167,7 @@ char* get_inode_tag()
                            stat_buf.st_ino);
 }
 
-gboolean on_socket_event(GIOChannel* ioc, GIOCondition cond, void* data)
+bool on_socket_event(GIOChannel* ioc, GIOCondition cond, void* data)
 {
     int client, r;
     socklen_t addr_len = 0;
@@ -306,7 +308,7 @@ void get_socket_name(char* buf, int len)
     g_free(dpy);
 }
 
-gboolean single_instance_check()
+bool single_instance_check()
 {
     struct sockaddr_un addr;
     int addr_len;
@@ -639,7 +641,7 @@ void init_folder()
     folder_initialized = TRUE;
 }
 
-gboolean delayed_popup(GtkWidget* popup)
+bool delayed_popup(GtkWidget* popup)
 {
     GDK_THREADS_ENTER();
 
@@ -728,7 +730,7 @@ static void open_in_tab(FMMainWindow** main_window, const char* real_path)
     else
     {
         // existing window
-        gboolean tab_added = FALSE;
+        bool tab_added = FALSE;
         if (panel > 0 && panel < 5)
         {
             // change to user-specified panel
@@ -765,11 +767,11 @@ static void open_in_tab(FMMainWindow** main_window, const char* real_path)
     gtk_window_present(GTK_WINDOW(*main_window));
 }
 
-gboolean handle_parsed_commandline_args()
+bool handle_parsed_commandline_args()
 {
     FMMainWindow* main_window = NULL;
     char** file;
-    gboolean ret = TRUE;
+    bool ret = TRUE;
     XSet* set;
     struct stat statbuf;
 
@@ -911,7 +913,7 @@ void tmp_clean()
 
 int main(int argc, char* argv[])
 {
-    gboolean run = FALSE;
+    bool run = FALSE;
     GError* err = NULL;
 
 #ifdef ENABLE_NLS
@@ -1119,7 +1121,7 @@ void open_file(const char* path)
     char *msg, *error_msg;
     VFSFileInfo* file;
     VFSMimeType* mime_type;
-    gboolean opened;
+    bool opened;
     char* app_name;
 
     file = vfs_file_info_new();
@@ -1186,7 +1188,7 @@ void pcmanfm_ref()
 /* After closing any window/dialog/tool, this should be called.
  * If the last window is closed and we are not a deamon, pcmanfm will quit.
  */
-gboolean pcmanfm_unref()
+bool pcmanfm_unref()
 {
     --n_pcmanfm_ref;
     if (0 == n_pcmanfm_ref && !daemon_mode)

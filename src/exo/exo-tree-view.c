@@ -25,6 +25,8 @@
 #include <config.h>
 #endif
 
+#include <stdbool.h>
+
 #include <glib/gi18n.h>
 #include "exo-tree-view.h"
 #include "exo-string.h"
@@ -73,13 +75,13 @@ static void exo_tree_view_get_property(GObject* object, unsigned int prop_id, GV
                                        GParamSpec* pspec);
 static void exo_tree_view_set_property(GObject* object, unsigned int prop_id, const GValue* value,
                                        GParamSpec* pspec);
-static gboolean exo_tree_view_button_press_event(GtkWidget* widget, GdkEventButton* event);
-static gboolean exo_tree_view_button_release_event(GtkWidget* widget, GdkEventButton* event);
-static gboolean exo_tree_view_motion_notify_event(GtkWidget* widget, GdkEventMotion* event);
-static gboolean exo_tree_view_leave_notify_event(GtkWidget* widget, GdkEventCrossing* event);
+static bool exo_tree_view_button_press_event(GtkWidget* widget, GdkEventButton* event);
+static bool exo_tree_view_button_release_event(GtkWidget* widget, GdkEventButton* event);
+static bool exo_tree_view_motion_notify_event(GtkWidget* widget, GdkEventMotion* event);
+static bool exo_tree_view_leave_notify_event(GtkWidget* widget, GdkEventCrossing* event);
 static void exo_tree_view_drag_begin(GtkWidget* widget, GdkDragContext* context);
-static gboolean exo_tree_view_move_cursor(GtkTreeView* view, GtkMovementStep step, int count);
-static gboolean exo_tree_view_single_click_timeout(void* user_data);
+static bool exo_tree_view_move_cursor(GtkTreeView* view, GtkMovementStep step, int count);
+static bool exo_tree_view_single_click_timeout(void* user_data);
 static void exo_tree_view_single_click_timeout_destroy(void* user_data);
 
 struct _ExoTreeViewPrivate
@@ -255,16 +257,16 @@ static void exo_tree_view_set_property(GObject* object, unsigned int prop_id, co
     }
 }
 
-static gboolean exo_tree_view_button_press_event(GtkWidget* widget, GdkEventButton* event)
+static bool exo_tree_view_button_press_event(GtkWidget* widget, GdkEventButton* event)
 {
     GtkTreeSelection* selection;
     ExoTreeView* tree_view = EXO_TREE_VIEW(widget);
     GtkTreePath* path = NULL;
-    gboolean result;
+    bool result;
     GList* selected_paths = NULL;
     GList* lp;
     GtkTreeViewColumn* col;
-    gboolean treat_as_blank = FALSE;
+    bool treat_as_blank = FALSE;
     void* drag_data;
 
     /* by default we won't emit "row-activated" on button-release-events */
@@ -425,7 +427,7 @@ static gboolean exo_tree_view_button_press_event(GtkWidget* widget, GdkEventButt
     return result;
 }
 
-static gboolean exo_tree_view_button_release_event(GtkWidget* widget, GdkEventButton* event)
+static bool exo_tree_view_button_release_event(GtkWidget* widget, GdkEventButton* event)
 {
     GtkTreeViewColumn* column;
     GtkTreeSelection* selection;
@@ -520,7 +522,7 @@ static gboolean exo_tree_view_button_release_event(GtkWidget* widget, GdkEventBu
     return (*GTK_WIDGET_CLASS(exo_tree_view_parent_class)->button_release_event)(widget, event);
 }
 
-static gboolean exo_tree_view_motion_notify_event(GtkWidget* widget, GdkEventMotion* event)
+static bool exo_tree_view_motion_notify_event(GtkWidget* widget, GdkEventMotion* event)
 {
     ExoTreeView* tree_view = EXO_TREE_VIEW(widget);
     GtkTreePath* path;
@@ -630,7 +632,7 @@ static gboolean exo_tree_view_motion_notify_event(GtkWidget* widget, GdkEventMot
     return (*GTK_WIDGET_CLASS(exo_tree_view_parent_class)->motion_notify_event)(widget, event);
 }
 
-static gboolean exo_tree_view_leave_notify_event(GtkWidget* widget, GdkEventCrossing* event)
+static bool exo_tree_view_leave_notify_event(GtkWidget* widget, GdkEventCrossing* event)
 {
     ExoTreeView* tree_view = EXO_TREE_VIEW(widget);
 
@@ -667,7 +669,7 @@ static void exo_tree_view_drag_begin(GtkWidget* widget, GdkDragContext* context)
     (*GTK_WIDGET_CLASS(exo_tree_view_parent_class)->drag_begin)(widget, context);
 }
 
-static gboolean exo_tree_view_move_cursor(GtkTreeView* view, GtkMovementStep step, int count)
+static bool exo_tree_view_move_cursor(GtkTreeView* view, GtkMovementStep step, int count)
 {
     ExoTreeView* tree_view = EXO_TREE_VIEW(view);
 
@@ -690,7 +692,7 @@ static gboolean exo_tree_view_move_cursor(GtkTreeView* view, GtkMovementStep ste
     return (*GTK_TREE_VIEW_CLASS(exo_tree_view_parent_class)->move_cursor)(view, step, count);
 }
 
-static gboolean exo_tree_view_single_click_timeout(void* user_data)
+static bool exo_tree_view_single_click_timeout(void* user_data)
 {
     GtkTreeViewColumn* cursor_column;
     GtkTreeSelection* selection;
@@ -698,7 +700,7 @@ static gboolean exo_tree_view_single_click_timeout(void* user_data)
     GtkTreePath* cursor_path;
     GtkTreeIter iter;
     ExoTreeView* tree_view = EXO_TREE_VIEW(user_data);
-    gboolean hover_path_selected;
+    bool hover_path_selected;
     GList* rows;
     GList* lp;
 
@@ -844,7 +846,7 @@ GtkWidget* exo_tree_view_new(void)
  *
  * Since: 0.3.1.3
  **/
-gboolean exo_tree_view_get_single_click(const ExoTreeView* tree_view)
+bool exo_tree_view_get_single_click(const ExoTreeView* tree_view)
 {
     g_return_val_if_fail(EXO_IS_TREE_VIEW(tree_view), FALSE);
     return tree_view->priv->single_click;
@@ -860,7 +862,7 @@ gboolean exo_tree_view_get_single_click(const ExoTreeView* tree_view)
  *
  * Since: 0.3.1.3
  **/
-void exo_tree_view_set_single_click(ExoTreeView* tree_view, gboolean single_click)
+void exo_tree_view_set_single_click(ExoTreeView* tree_view, bool single_click)
 {
     g_return_if_fail(EXO_IS_TREE_VIEW(tree_view));
 

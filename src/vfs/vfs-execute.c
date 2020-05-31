@@ -10,6 +10,8 @@
  *
  */
 
+#include <stdbool.h>
+
 #include "vfs-execute.h"
 
 #ifdef HAVE_SN
@@ -25,8 +27,8 @@
 #include <string.h>
 #include <stdlib.h>
 
-gboolean vfs_exec(const char* work_dir, char** argv, char** envp, const char* disp_name,
-                  GSpawnFlags flags, GError** err)
+bool vfs_exec(const char* work_dir, char** argv, char** envp, const char* disp_name,
+              GSpawnFlags flags, GError** err)
 {
     return vfs_exec_on_screen(gdk_screen_get_default(),
                               work_dir,
@@ -39,7 +41,7 @@ gboolean vfs_exec(const char* work_dir, char** argv, char** envp, const char* di
 }
 
 #ifdef HAVE_SN
-static gboolean sn_timeout(void* user_data)
+static bool sn_timeout(void* user_data)
 {
     SnLauncherContext* ctx = (SnLauncherContext*)user_data;
     gdk_threads_enter();
@@ -118,15 +120,15 @@ static int tvsn_get_active_workspace_number(GdkScreen* screen)
 }
 #endif
 
-gboolean vfs_exec_on_screen(GdkScreen* screen, const char* work_dir, char** argv, char** envp,
-                            const char* disp_name, GSpawnFlags flags, gboolean use_startup_notify,
-                            GError** err)
+bool vfs_exec_on_screen(GdkScreen* screen, const char* work_dir, char** argv, char** envp,
+                        const char* disp_name, GSpawnFlags flags, bool use_startup_notify,
+                        GError** err)
 {
 #ifdef HAVE_SN
     SnLauncherContext* ctx = NULL;
     SnDisplay* display;
 #endif
-    gboolean ret;
+    bool ret;
     extern char** environ;
     char** new_env = envp;
     int i, n_env = 0;

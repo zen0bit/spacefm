@@ -2,6 +2,8 @@
 #include <config.h>
 #endif
 
+#include <stdbool.h>
+
 //#include <string.h>
 #include <gtk/gtk.h>
 #include "gtk2-compat.h"
@@ -46,8 +48,8 @@ typedef struct
     XSet* set;
     char* temp_cmd_line;
     struct stat script_stat;
-    gboolean script_stat_valid;
-    gboolean reset_command;
+    bool script_stat_valid;
+    bool reset_command;
 
     // Menu Item Page
     GtkWidget* item_type;
@@ -264,7 +266,7 @@ static char* get_element_next(char** s)
     return ret;
 }
 
-gboolean get_rule_next(char** s, int* sub, int* comp, char** value)
+bool get_rule_next(char** s, int* sub, int* comp, char** value)
 {
     char* vs;
     vs = get_element_next(s);
@@ -284,7 +286,7 @@ gboolean get_rule_next(char** s, int* sub, int* comp, char** value)
     return TRUE;
 }
 
-int xset_context_test(XSetContext* context, char* rules, gboolean def_disable)
+int xset_context_test(XSetContext* context, char* rules, bool def_disable)
 {
     // assumes valid xset_context and rules != NULL and no global ignore
     int i, sep_type, sub, comp;
@@ -293,7 +295,7 @@ int xset_context_test(XSetContext* context, char* rules, gboolean def_disable)
     char* s;
     char* eleval;
     char* sep;
-    gboolean test;
+    bool test;
     enum
     {
         ANY,
@@ -322,10 +324,10 @@ int xset_context_test(XSetContext* context, char* rules, gboolean def_disable)
         return CONTEXT_DISABLE;
 
     // parse rules
-    gboolean is_rules = FALSE;
-    gboolean all_match = TRUE;
-    gboolean no_match = TRUE;
-    gboolean any_match = FALSE;
+    bool is_rules = FALSE;
+    bool all_match = TRUE;
+    bool no_match = TRUE;
+    bool any_match = FALSE;
     while (get_rule_next(&elements, &sub, &comp, &value))
     {
         is_rules = TRUE;
@@ -444,7 +446,7 @@ int xset_context_test(XSetContext* context, char* rules, gboolean def_disable)
     if (!is_rules)
         return CONTEXT_SHOW;
 
-    gboolean is_match;
+    bool is_match;
     if (match == ALL)
         is_match = all_match;
     else if (match == NALL)
@@ -505,7 +507,7 @@ char* context_build(ContextData* ctxt)
 
 void enable_context(ContextData* ctxt)
 {
-    gboolean is_sel =
+    bool is_sel =
         gtk_tree_selection_get_selected(gtk_tree_view_get_selection(GTK_TREE_VIEW(ctxt->view)),
                                         NULL,
                                         NULL);
@@ -656,7 +658,7 @@ void on_context_row_activated(GtkTreeView* view, GtkTreePath* tree_path, GtkTree
     // enable_context( ctxt );
 }
 
-gboolean on_current_value_button_press(GtkWidget* widget, GdkEventButton* event, ContextData* ctxt)
+bool on_current_value_button_press(GtkWidget* widget, GdkEventButton* event, ContextData* ctxt)
 {
     if (event->type == GDK_2BUTTON_PRESS && event->button == 1)
     {
@@ -679,13 +681,13 @@ void on_context_entry_insert(GtkEntryBuffer* buf, unsigned int position, char* c
     g_free(new_text);
 }
 
-gboolean on_context_selection_change(GtkTreeSelection* tree_sel, ContextData* ctxt)
+bool on_context_selection_change(GtkTreeSelection* tree_sel, ContextData* ctxt)
 {
     enable_context(ctxt);
     return FALSE;
 }
 
-static gboolean on_context_entry_keypress(GtkWidget* entry, GdkEventKey* event, ContextData* ctxt)
+static bool on_context_entry_keypress(GtkWidget* entry, GdkEventKey* event, ContextData* ctxt)
 {
     if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter)
     {
@@ -702,7 +704,7 @@ void enable_options(ContextData* ctxt)
 {
     gtk_widget_set_sensitive(ctxt->opt_keep_term,
                              gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ctxt->opt_terminal)));
-    gboolean as_task = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ctxt->opt_task));
+    bool as_task = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ctxt->opt_task));
     gtk_widget_set_sensitive(ctxt->opt_task_pop, as_task);
     gtk_widget_set_sensitive(ctxt->opt_task_err, as_task);
     gtk_widget_set_sensitive(ctxt->opt_task_out, as_task);
@@ -738,7 +740,7 @@ void enable_options(ContextData* ctxt)
     }
 }
 
-gboolean is_command_script_newer(ContextData* ctxt)
+bool is_command_script_newer(ContextData* ctxt)
 {
     struct stat statbuf;
 
@@ -800,7 +802,7 @@ char* get_text_view(GtkTextView* view)
 
 void load_command_script(ContextData* ctxt, XSet* set)
 {
-    gboolean modified = FALSE;
+    bool modified = FALSE;
     FILE* file = 0;
     GtkTextBuffer* buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(ctxt->cmd_script));
     char* script = xset_custom_get_script(set, !set->plugin);
@@ -832,7 +834,7 @@ void load_command_script(ContextData* ctxt, XSet* set)
             fclose(file);
         }
     }
-    gboolean have_access = script && have_rw_access(script);
+    bool have_access = script && have_rw_access(script);
     gtk_text_view_set_editable(GTK_TEXT_VIEW(ctxt->cmd_script),
                                !set->plugin && (!file || have_access));
     gtk_text_buffer_set_modified(buf, modified);
@@ -844,7 +846,7 @@ void load_command_script(ContextData* ctxt, XSet* set)
         gtk_widget_show(ctxt->cmd_edit_root);
 }
 
-void save_command_script(ContextData* ctxt, gboolean query)
+void save_command_script(ContextData* ctxt, bool query)
 {
     GtkTextBuffer* buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(ctxt->cmd_script));
     if (!gtk_text_buffer_get_modified(buf))
@@ -1269,7 +1271,7 @@ void replace_item_props(ContextData* ctxt)
         rset->tool <= XSET_TOOL_CUSTOM)
     {
         // custom bookmark, app, or command
-        gboolean is_bookmark_or_app = FALSE;
+        bool is_bookmark_or_app = FALSE;
         int item_type = gtk_combo_box_get_active(GTK_COMBO_BOX(ctxt->item_type));
         if (item_type == ITEM_TYPE_COMMAND)
         {
@@ -1456,7 +1458,7 @@ void on_script_popup(GtkTextView* input, GtkMenu* menu, void* user_data)
     gtk_widget_show_all(GTK_WIDGET(menu));
 }
 
-static gboolean delayed_focus(GtkWidget* widget)
+static bool delayed_focus(GtkWidget* widget)
 {
     if (GTK_IS_WIDGET(widget))
         gtk_widget_grab_focus(widget);
@@ -1512,7 +1514,7 @@ void on_entry_activate(GtkWidget* entry, ContextData* ctxt)
     gtk_button_clicked(GTK_BUTTON(ctxt->btn_ok));
 }
 
-static gboolean on_target_keypress(GtkWidget* widget, GdkEventKey* event, ContextData* ctxt)
+static bool on_target_keypress(GtkWidget* widget, GdkEventKey* event, ContextData* ctxt)
 {
     if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter)
     {
@@ -1522,7 +1524,7 @@ static gboolean on_target_keypress(GtkWidget* widget, GdkEventKey* event, Contex
     return FALSE;
 }
 
-static gboolean on_dlg_keypress(GtkWidget* widget, GdkEventKey* event, ContextData* ctxt)
+static bool on_dlg_keypress(GtkWidget* widget, GdkEventKey* event, ContextData* ctxt)
 {
     int keymod = (event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK |
                                   GDK_SUPER_MASK | GDK_HYPER_MASK | GDK_META_MASK));

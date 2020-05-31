@@ -13,15 +13,16 @@
 #ifndef _APP_CHOOSER_DLG_H_
 #define _APP_CHOOSER_DLG_H_
 
+#include <stdbool.h>
+
 #include <gtk/gtk.h>
 #include "../vfs/vfs-mime-type.h"
 
 G_BEGIN_DECLS
 
 /* Let the user choose a application */
-char* ptk_choose_app_for_mime_type(GtkWindow* parent, VFSMimeType* mime_type,
-                                   gboolean focus_all_apps, gboolean show_command,
-                                   gboolean show_default, gboolean dir_default);
+char* ptk_choose_app_for_mime_type(GtkWindow* parent, VFSMimeType* mime_type, bool focus_all_apps,
+                                   bool show_command, bool show_default, bool dir_default);
 
 /*
  * Return selected application in a ``newly allocated'' string.
@@ -34,7 +35,7 @@ char* app_chooser_dialog_get_selected_app(GtkWidget* dlg);
 /*
  * Check if the user set the selected app default handler.
  */
-gboolean app_chooser_dialog_get_set_default(GtkWidget* dlg);
+bool app_chooser_dialog_get_set_default(GtkWidget* dlg);
 void ptk_app_chooser_has_handler_warn(GtkWidget* parent, VFSMimeType* mime_type);
 
 void on_notebook_switch_page(GtkNotebook* notebook, GtkWidget* page, unsigned int page_num,

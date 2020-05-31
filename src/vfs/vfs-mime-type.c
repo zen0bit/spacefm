@@ -10,6 +10,8 @@
  *
  */
 
+#include <stdbool.h>
+
 #include "vfs-mime-type.h"
 #include "vfs-file-monitor.h"
 
@@ -45,7 +47,7 @@ typedef struct
     void* user_data;
 } VFSMimeReloadCbEnt;
 
-static gboolean vfs_mime_type_reload(void* user_data)
+static bool vfs_mime_type_reload(void* user_data)
 {
     GList* l;
     /* FIXME: process mime database reloading properly. */
@@ -210,7 +212,7 @@ void vfs_mime_type_unref(void* mime_type_)
     }
 }
 
-GdkPixbuf* vfs_mime_type_get_icon(VFSMimeType* mime_type, gboolean big)
+GdkPixbuf* vfs_mime_type_get_icon(VFSMimeType* mime_type, bool big)
 {
     GdkPixbuf* icon = NULL;
     const char* sep;
@@ -340,7 +342,7 @@ GdkPixbuf* vfs_mime_type_get_icon(VFSMimeType* mime_type, gboolean big)
 static void free_cached_icons(void* key, void* value, void* user_data)
 {
     VFSMimeType* mime_type = (VFSMimeType*)value;
-    gboolean big = GPOINTER_TO_INT(user_data);
+    bool big = GPOINTER_TO_INT(user_data);
     if (big)
     {
         if (mime_type->big_icon)

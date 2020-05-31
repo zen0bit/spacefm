@@ -13,6 +13,8 @@
 #ifndef _VFS_DIR_H_
 #define _VFS_DIR_H_
 
+#include <stdbool.h>
+
 #include <glib.h>
 #include <glib-object.h>
 
@@ -46,11 +48,11 @@ struct _VFSDir
         int flags;
         struct
         {
-            gboolean is_home : 1;
-            gboolean is_desktop : 1;
-            gboolean is_mount_point : 1;
-            gboolean is_remote : 1;
-            gboolean is_virtual : 1;
+            bool is_home : 1;
+            bool is_desktop : 1;
+            bool is_mount_point : 1;
+            bool is_remote : 1;
+            bool is_virtual : 1;
         };
     };
 
@@ -60,11 +62,11 @@ struct _VFSDir
     GMutex* mutex; /* Used to guard file_list */
 
     VFSAsyncTask* task;
-    gboolean file_listed : 1;
-    gboolean load_complete : 1;
-    gboolean cancel : 1;
-    gboolean show_hidden : 1;
-    gboolean avoid_changes : 1; // sfm
+    bool file_listed : 1;
+    bool load_complete : 1;
+    bool cancel : 1;
+    bool show_hidden : 1;
+    bool avoid_changes : 1; // sfm
 
     struct _VFSThumbnailLoader* thumbnail_loader;
 
@@ -97,24 +99,23 @@ GType vfs_dir_get_type(void);
 VFSDir* vfs_dir_get_by_path(const char* path);
 VFSDir* vfs_dir_get_by_path_soft(const char* path);
 
-gboolean vfs_dir_is_loading(VFSDir* dir);
+bool vfs_dir_is_loading(VFSDir* dir);
 void vfs_dir_cancel_load(VFSDir* dir);
-gboolean vfs_dir_is_file_listed(VFSDir* dir);
+bool vfs_dir_is_file_listed(VFSDir* dir);
 
-void vfs_dir_unload_thumbnails(VFSDir* dir, gboolean is_big);
+void vfs_dir_unload_thumbnails(VFSDir* dir, bool is_big);
 
 /* emit signals */
-void vfs_dir_emit_file_created(VFSDir* dir, const char* file_name, gboolean force);
+void vfs_dir_emit_file_created(VFSDir* dir, const char* file_name, bool force);
 void vfs_dir_emit_file_deleted(VFSDir* dir, const char* file_name, VFSFileInfo* file);
-void vfs_dir_emit_file_changed(VFSDir* dir, const char* file_name, VFSFileInfo* file,
-                               gboolean force);
+void vfs_dir_emit_file_changed(VFSDir* dir, const char* file_name, VFSFileInfo* file, bool force);
 void vfs_dir_emit_thumbnail_loaded(VFSDir* dir, VFSFileInfo* file);
 void vfs_dir_flush_notify_cache();
 
 /* get the path of desktop dir */
 const char* vfs_get_desktop_dir();
 
-gboolean vfs_dir_add_hidden(const char* path, const char* file_name); // MOD added
+bool vfs_dir_add_hidden(const char* path, const char* file_name); // MOD added
 
 /* call function "func" for every VFSDir instances */
 void vfs_dir_foreach(GHFunc func, void* user_data);

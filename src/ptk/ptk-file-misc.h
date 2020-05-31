@@ -13,6 +13,8 @@
 #ifndef _PTK_FILE_MISC_H_
 #define _PTK_FILE_MISC_H_
 
+#include <stdbool.h>
+
 #include <gtk/gtk.h>
 #include "ptk-file-browser.h"
 
@@ -25,7 +27,7 @@ typedef struct _AutoOpenCreate
     char* path;
     PtkFileBrowser* file_browser;
     GFunc callback;
-    gboolean open_file;
+    bool open_file;
 } AutoOpenCreate;
 
 typedef enum
@@ -40,11 +42,11 @@ void ptk_delete_files(GtkWindow* parent_win, const char* cwd, GList* sel_files,
                       GtkTreeView* task_view);
 
 int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileInfo* file,
-                    const char* dest_dir, gboolean clip_copy, PtkRenameMode create_new,
+                    const char* dest_dir, bool clip_copy, PtkRenameMode create_new,
                     AutoOpenCreate* auto_open);
 
-gboolean ptk_create_new_file(GtkWindow* parent_win, const char* cwd, gboolean create_folder,
-                             VFSFileInfo** file);
+bool ptk_create_new_file(GtkWindow* parent_win, const char* cwd, bool create_folder,
+                         VFSFileInfo** file);
 
 void ptk_show_file_properties(GtkWindow* parent_win, const char* cwd, GList* sel_files, int page);
 
@@ -53,7 +55,7 @@ void ptk_show_file_properties(GtkWindow* parent_win, const char* cwd, GList* sel
  * If app_desktop == NULL, each file will be opened with its
  * default application. */
 void ptk_open_files_with_app(const char* cwd, GList* sel_files, const char* app_desktop,
-                             PtkFileBrowser* file_browser, gboolean xforce, gboolean xnever);
+                             PtkFileBrowser* file_browser, bool xforce, bool xnever);
 
 void ptk_file_misc_paste_as(PtkFileBrowser* file_browser, const char* cwd, GFunc callback); // sfm
 

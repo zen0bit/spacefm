@@ -13,6 +13,8 @@
 #ifndef _FILE_PROPERTIES_H_
 #define _FILE_PROPERTIES_H_
 
+#include <stdbool.h>
+
 #include <gtk/gtk.h>
 
 G_BEGIN_DECLS

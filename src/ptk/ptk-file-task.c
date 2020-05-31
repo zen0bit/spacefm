@@ -8,6 +8,8 @@
  *
  */
 
+#include <stdbool.h>
+
 #include <glib.h>
 #include <glib/gi18n.h>
 #include <sys/types.h>
@@ -28,13 +30,13 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
-static gboolean on_vfs_file_task_state_cb(VFSFileTask* task, VFSFileTaskState state,
-                                          void* state_data, void* user_data);
+static bool on_vfs_file_task_state_cb(VFSFileTask* task, VFSFileTaskState state, void* state_data,
+                                      void* user_data);
 
 static void query_overwrite(PtkFileTask* ptask);
 
 void ptk_file_task_update(PtkFileTask* ptask);
-gboolean ptk_file_task_add_main(PtkFileTask* ptask);
+bool ptk_file_task_add_main(PtkFileTask* ptask);
 void on_progress_dlg_response(GtkDialog* dlg, int response, PtkFileTask* ptask);
 
 void ptk_file_task_lock(PtkFileTask* ptask)
@@ -47,7 +49,7 @@ void ptk_file_task_unlock(PtkFileTask* ptask)
     g_mutex_unlock(ptask->task->mutex);
 }
 
-gboolean ptk_file_task_trylock(PtkFileTask* ptask)
+bool ptk_file_task_trylock(PtkFileTask* ptask)
 {
     return g_mutex_trylock(ptask->task->mutex);
 }
@@ -218,7 +220,7 @@ void ptk_file_task_set_complete_notify(PtkFileTask* ptask, GFunc callback, void*
     ptask->user_data = user_data;
 }
 
-gboolean on_progress_timer(PtkFileTask* ptask)
+bool on_progress_timer(PtkFileTask* ptask)
 {
     // GThread *self = g_thread_self ();
     // printf("PROGRESS_TIMER_THREAD = %#x\n", self );
@@ -304,7 +306,7 @@ gboolean on_progress_timer(PtkFileTask* ptask)
     return !ptask->complete;
 }
 
-gboolean ptk_file_task_add_main(PtkFileTask* ptask)
+bool ptk_file_task_add_main(PtkFileTask* ptask)
 {
     // printf("ptk_file_task_add_main ptask=%#x\n", ptask);
     if (ptask->timeout)
@@ -349,21 +351,21 @@ void ptk_file_task_run(PtkFileTask* ptask)
     // printf("ptk_file_task_run DONE ptask=%#x\n", ptask);
 }
 
-gboolean ptk_file_task_kill(void* pid)
+bool ptk_file_task_kill(void* pid)
 {
     // printf("SIGKILL %d\n", GPOINTER_TO_INT( pid ) );
     kill(GPOINTER_TO_INT(pid), SIGKILL);
     return FALSE;
 }
 
-gboolean ptk_file_task_kill_cpids(char* cpids)
+bool ptk_file_task_kill_cpids(char* cpids)
 {
     vfs_file_task_kill_cpids(cpids, SIGKILL);
     g_free(cpids);
     return FALSE;
 }
 
-gboolean ptk_file_task_cancel(PtkFileTask* ptask)
+bool ptk_file_task_cancel(PtkFileTask* ptask)
 {
     // GThread *self = g_thread_self ();
     // printf("CANCEL_THREAD = %#x\n", self );
@@ -425,7 +427,7 @@ void set_button_states(PtkFileTask* ptask)
     const char* icon;
     const char* iconset;
     char* label;
-    gboolean sens = !ptask->complete;
+    bool sens = !ptask->complete;
 
     if (!ptask->progress_dlg)
         return;
@@ -518,7 +520,7 @@ void ptk_file_task_pause(PtkFileTask* ptask, int state)
     ptask->progress_count = 50; // trigger fast display
 }
 
-gboolean on_progress_dlg_delete_event(GtkWidget* widget, GdkEvent* event, PtkFileTask* ptask)
+bool on_progress_dlg_delete_event(GtkWidget* widget, GdkEvent* event, PtkFileTask* ptask)
 {
     save_progress_dialog_size(ptask);
     return !(ptask->complete || ptask->task_view);
@@ -884,8 +886,8 @@ void ptk_file_task_progress_open(PtkFileTask* ptask)
                                               N_("Stop On Any Error"),
                                               N_("Continue")};
 
-        gboolean overtask = task->type == VFS_FILE_TASK_MOVE || task->type == VFS_FILE_TASK_COPY ||
-                            task->type == VFS_FILE_TASK_LINK;
+        bool overtask = task->type == VFS_FILE_TASK_MOVE || task->type == VFS_FILE_TASK_COPY ||
+                        task->type == VFS_FILE_TASK_LINK;
         ptask->overwrite_combo = gtk_combo_box_text_new();
         gtk_combo_box_set_focus_on_click(GTK_COMBO_BOX(ptask->overwrite_combo), FALSE);
         gtk_widget_set_sensitive(ptask->overwrite_combo, overtask);
@@ -1362,7 +1364,7 @@ void ptk_file_task_set_chown(PtkFileTask* ptask, uid_t uid, gid_t gid)
     vfs_file_task_set_chown(ptask->task, uid, gid);
 }
 
-void ptk_file_task_set_recursive(PtkFileTask* ptask, gboolean recursive)
+void ptk_file_task_set_recursive(PtkFileTask* ptask, bool recursive)
 {
     vfs_file_task_set_recursive(ptask->task, recursive);
 }
@@ -1688,11 +1690,11 @@ void ptk_file_task_update(PtkFileTask* ptask)
     // printf("ptk_file_task_update DONE ptask=%#x\n", ptask);
 }
 
-gboolean on_vfs_file_task_state_cb(VFSFileTask* task, VFSFileTaskState state, void* state_data,
-                                   void* user_data)
+bool on_vfs_file_task_state_cb(VFSFileTask* task, VFSFileTaskState state, void* state_data,
+                               void* user_data)
 {
     PtkFileTask* ptask = (PtkFileTask*)user_data;
-    gboolean ret = TRUE;
+    bool ret = TRUE;
 
     switch (state)
     {
@@ -1775,7 +1777,7 @@ enum
     RESPONSE_PAUSE = 1 << 7
 };
 
-static gboolean on_query_input_keypress(GtkWidget* widget, GdkEventKey* event, PtkFileTask* ptask)
+static bool on_query_input_keypress(GtkWidget* widget, GdkEventKey* event, PtkFileTask* ptask)
 {
     if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter)
     {
@@ -1799,7 +1801,7 @@ static void on_multi_input_changed(GtkWidget* input_buf, GtkWidget* query_input)
 {
     char* new_name = multi_input_get_text(query_input);
     const char* old_name = (const char*)g_object_get_data(G_OBJECT(query_input), "old_name");
-    gboolean can_rename = new_name && (0 != strcmp(new_name, old_name));
+    bool can_rename = new_name && (0 != strcmp(new_name, old_name));
     g_free(new_name);
     GtkWidget* dlg = gtk_widget_get_toplevel(query_input);
     if (!GTK_IS_DIALOG(dlg))
@@ -1943,8 +1945,8 @@ static void query_overwrite(PtkFileTask* ptask)
     GtkWidget* parent_win;
     GtkTextIter iter;
 
-    gboolean has_overwrite_btn = TRUE;
-    gboolean different_files, is_src_dir, is_dest_dir;
+    bool has_overwrite_btn = TRUE;
+    bool different_files, is_src_dir, is_dest_dir;
     struct stat src_stat, dest_stat;
     char* from_size_str = NULL;
     char* to_size_str = NULL;

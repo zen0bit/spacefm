@@ -22,6 +22,7 @@
 #ifndef _MIME_CACHE_H_INCLUDED_
 #define _MIME_CACHE_H_INCLUDED_
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #include <sys/stat.h>
@@ -33,8 +34,8 @@ G_BEGIN_DECLS
 struct _MimeCache
 {
     char* file_path;
-    gboolean has_reverse_suffix : 1; /* since mime.cache v1.1, shared mime info v0.4 */
-    gboolean has_str_weight : 1;     /* since mime.cache v1.1, shared mime info v0.4 */
+    bool has_reverse_suffix : 1; /* since mime.cache v1.1, shared mime info v0.4 */
+    bool has_str_weight : 1;     /* since mime.cache v1.1, shared mime info v0.4 */
     const char* buffer;
     unsigned int size;
 
@@ -60,8 +61,8 @@ struct _MimeCache
 typedef struct _MimeCache MimeCache;
 
 MimeCache* mime_cache_new(const char* file_path);
-gboolean mime_cache_load(MimeCache* cache, const char* file_path);
-gboolean mime_cache_reload(MimeCache* cache);
+bool mime_cache_load(MimeCache* cache, const char* file_path);
+bool mime_cache_reload(MimeCache* cache);
 void mime_cache_free(MimeCache* cache);
 
 const char* mime_cache_lookup_literal(MimeCache* cache, const char* filename);

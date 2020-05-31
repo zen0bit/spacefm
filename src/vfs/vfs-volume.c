@@ -14,6 +14,7 @@
 #include <config.h>
 #endif
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #include "vfs-volume.h"
@@ -62,9 +63,9 @@
 void vfs_volume_monitor_start();
 VFSVolume* vfs_volume_read_by_device(struct udev_device* udevice);
 VFSVolume* vfs_volume_read_by_mount(dev_t devnum, const char* mount_points);
-static void vfs_volume_device_added(VFSVolume* volume, gboolean automount);
+static void vfs_volume_device_added(VFSVolume* volume, bool automount);
 static void vfs_volume_device_removed(struct udev_device* udevice);
-static gboolean vfs_volume_nonblock_removed(dev_t devnum);
+static bool vfs_volume_nonblock_removed(dev_t devnum);
 static void call_callbacks(VFSVolume* vol, VFSVolumeState state);
 void unmount_if_mounted(VFSVolume* vol);
 
@@ -77,7 +78,7 @@ typedef struct _VFSVolumeCallbackData
 static GList* volumes = NULL;
 static GArray* callbacks = NULL;
 GPid monpid = 0;
-gboolean global_inhibit_auto = FALSE;
+bool global_inhibit_auto = FALSE;
 
 typedef struct devmount_t
 {
@@ -106,15 +107,15 @@ typedef struct device_t
     char* native_path;
     char* mount_points;
 
-    gboolean device_is_system_internal;
-    gboolean device_is_partition;
-    gboolean device_is_partition_table;
-    gboolean device_is_removable;
-    gboolean device_is_media_available;
-    gboolean device_is_read_only;
-    gboolean device_is_drive;
-    gboolean device_is_optical_disc;
-    gboolean device_is_mounted;
+    bool device_is_system_internal;
+    bool device_is_partition;
+    bool device_is_partition_table;
+    bool device_is_removable;
+    bool device_is_media_available;
+    bool device_is_read_only;
+    bool device_is_drive;
+    bool device_is_optical_disc;
+    bool device_is_mounted;
     char* device_presentation_hide;
     char* device_presentation_nopolicy;
     char* device_presentation_name;
@@ -138,8 +139,8 @@ typedef struct device_t
     uint64_t drive_connection_speed;
     char* drive_media_compatibility;
     char* drive_media;
-    gboolean drive_is_media_ejectable;
-    gboolean drive_can_detach;
+    bool drive_is_media_ejectable;
+    bool drive_can_detach;
 
     char* partition_scheme;
     char* partition_number;
@@ -154,9 +155,9 @@ typedef struct device_t
     char* partition_table_scheme;
     char* partition_table_count;
 
-    gboolean optical_disc_is_blank;
-    gboolean optical_disc_is_appendable;
-    gboolean optical_disc_is_closed;
+    bool optical_disc_is_blank;
+    bool optical_disc_is_appendable;
+    bool optical_disc_is_closed;
     char* optical_disc_num_tracks;
     char* optical_disc_num_audio_tracks;
     char* optical_disc_num_sessions;
@@ -309,9 +310,9 @@ static uint64_t sysfs_get_uint64(const char* dir, const char* attribute)
     return result;
 }
 
-static gboolean sysfs_file_exists(const char* dir, const char* attribute)
+static bool sysfs_file_exists(const char* dir, const char* attribute)
 {
-    gboolean result;
+    bool result;
     char* filename;
 
     result = FALSE;
@@ -331,7 +332,7 @@ static char* sysfs_resolve_link(const char* sysfs_path, const char* name)
     char link_path[PATH_MAX];
     char resolved_path[PATH_MAX];
     ssize_t num;
-    gboolean found_it;
+    bool found_it;
 
     found_it = FALSE;
 
@@ -364,7 +365,7 @@ static char* sysfs_resolve_link(const char* sysfs_path, const char* name)
         return NULL;
 }
 
-gboolean info_is_system_internal(device_t* device)
+bool info_is_system_internal(device_t* device)
 {
     const char* value;
 
@@ -674,8 +675,8 @@ void info_drive_properties(device_t* device)
 {
     GPtrArray* media_compat_array;
     const char* media_in_drive;
-    gboolean drive_is_ejectable;
-    gboolean drive_can_detach;
+    bool drive_is_ejectable;
+    bool drive_can_detach;
     char* decoded_string;
     unsigned int n;
     const char* value;
@@ -895,7 +896,7 @@ void info_device_properties(device_t* device)
     }
 
     // device_is_media_available
-    gboolean media_available = FALSE;
+    bool media_available = FALSE;
 
     if ((device->id_usage && device->id_usage[0] != '\0') ||
         (device->id_type && device->id_type[0] != '\0') ||
@@ -908,7 +909,7 @@ void info_device_properties(device_t* device)
         media_available = FALSE;
     else if (device->device_is_removable)
     {
-        gboolean is_cd, is_floppy;
+        bool is_cd, is_floppy;
         if ((value = udev_device_get_property_value(device->udevice, "ID_CDROM")))
             is_cd = atoi(value) != 0;
         else
@@ -1092,7 +1093,7 @@ char* info_mount_points(device_t* device)
 
 void info_partition_table(device_t* device)
 {
-    gboolean is_partition_table = FALSE;
+    bool is_partition_table = FALSE;
     const char* value;
 
     /* Check if udisks-part-id identified the device as a partition table.. this includes
@@ -1165,7 +1166,7 @@ void info_partition_table(device_t* device)
 
 void info_partition(device_t* device)
 {
-    gboolean is_partition = FALSE;
+    bool is_partition = FALSE;
 
     /* Check if udisks-part-id identified the device as a partition.. this includes
      * identifying partitions set up by kpartx for multipath
@@ -1412,7 +1413,7 @@ device_t* device_alloc(struct udev_device* udevice)
     return device;
 }
 
-gboolean device_get_info(device_t* device)
+bool device_get_info(device_t* device)
 {
     info_device_properties(device);
     if (!device->native_path || device->devnum == 0)
@@ -1534,7 +1535,7 @@ int cmp_devmounts(devmount_t* a, devmount_t* b)
     return 1;
 }
 
-void parse_mounts(gboolean report)
+void parse_mounts(bool report)
 {
     char* contents;
     char** lines;
@@ -1560,7 +1561,7 @@ void parse_mounts(gboolean report)
     GList* l;
     GList* changed = NULL;
     devmount_t* devmount;
-    gboolean subdir_mount;
+    bool subdir_mount;
 
     /* See Documentation/filesystems/proc.txt for the format of /proc/self/mountinfo
      *
@@ -1885,7 +1886,7 @@ const char* get_devmount_fstype(int major, int minor)
     return NULL;
 }
 
-static gboolean cb_mount_monitor_watch(GIOChannel* channel, GIOCondition cond, void* user_data)
+static bool cb_mount_monitor_watch(GIOChannel* channel, GIOCondition cond, void* user_data)
 {
     if (cond & ~G_IO_ERR)
         return TRUE;
@@ -1896,7 +1897,7 @@ static gboolean cb_mount_monitor_watch(GIOChannel* channel, GIOCondition cond, v
     return TRUE;
 }
 
-static gboolean cb_udev_monitor_watch(GIOChannel* channel, GIOCondition cond, void* user_data)
+static bool cb_udev_monitor_watch(GIOChannel* channel, GIOCondition cond, void* user_data)
 {
     /*
     printf("cb_monitor_watch %d\n", channel);
@@ -2337,14 +2338,14 @@ VFSVolume* vfs_volume_read_by_device(struct udev_device* udevice)
     return volume;
 }
 
-gboolean path_is_mounted_mtab(const char* mtab_file, const char* path, char** device_file,
-                              char** fs_type)
+bool path_is_mounted_mtab(const char* mtab_file, const char* path, char** device_file,
+                          char** fs_type)
 {
     char* contents;
     char** lines;
     GError* error;
     unsigned int n;
-    gboolean ret = FALSE;
+    bool ret = FALSE;
     char* point;
     char encoded_file[PATH_MAX];
     char encoded_point[PATH_MAX];
@@ -2408,11 +2409,11 @@ gboolean path_is_mounted_mtab(const char* mtab_file, const char* path, char** de
     return ret;
 }
 
-gboolean mtab_fstype_is_handled_by_protocol(const char* mtab_fstype)
+bool mtab_fstype_is_handled_by_protocol(const char* mtab_fstype)
 {
     int i;
     XSet* set;
-    gboolean found = FALSE;
+    bool found = FALSE;
     const char* handlers_list;
     if (mtab_fstype && mtab_fstype[0] && (handlers_list = xset_get_s("dev_net_cnf")))
     {
@@ -2465,7 +2466,7 @@ int split_network_url(const char* url, netmount_t** netmount)
     nm->url = g_strdup(url);
 
     // get protocol
-    gboolean is_colon;
+    bool is_colon;
     if (g_str_has_prefix(xurl, "//"))
     { // //host...
         if (xurl[2] == '\0')
@@ -2699,7 +2700,7 @@ VFSVolume* vfs_volume_read_by_mount(dev_t devnum, const char* mount_points)
     {
         // a non-block device is mounted - do we want to include it?
         // is a protocol handler present?
-        gboolean keep = mtab_fstype_is_handled_by_protocol(mtab_fstype);
+        bool keep = mtab_fstype_is_handled_by_protocol(mtab_fstype);
         if (!keep && !strstr(HIDDEN_NON_BLOCK_FS, mtab_fstype))
         {
             // no protocol handler and not blacklisted - show anyway?
@@ -2750,7 +2751,7 @@ VFSVolume* vfs_volume_read_by_mount(dev_t devnum, const char* mount_points)
 }
 
 char* vfs_volume_handler_cmd(int mode, int action, VFSVolume* vol, const char* options,
-                             netmount_t* netmount, gboolean* run_in_terminal, char** mount_point)
+                             netmount_t* netmount, bool* run_in_terminal, char** mount_point)
 {
     char* str;
     const char* handlers_list;
@@ -2842,7 +2843,7 @@ char* vfs_volume_handler_cmd(int mode, int action, VFSVolume* vol, const char* o
         return NULL;
 
     // test handlers
-    gboolean found = FALSE;
+    bool found = FALSE;
     char* msg = NULL;
     for (i = 0; handlers[i]; i++)
     {
@@ -2883,7 +2884,7 @@ char* vfs_volume_handler_cmd(int mode, int action, VFSVolume* vol, const char* o
     // get command for action
     char* command = NULL;
     const char* action_s;
-    gboolean terminal;
+    bool terminal;
     char* err_msg = ptk_handler_load_script(mode, action, set, NULL, &command);
     if (err_msg)
     {
@@ -3120,7 +3121,7 @@ char* vfs_volume_handler_cmd(int mode, int action, VFSVolume* vol, const char* o
     return command;
 }
 
-gboolean vfs_volume_is_automount(VFSVolume* vol)
+bool vfs_volume_is_automount(VFSVolume* vol)
 { // determine if volume should be automounted or auto-unmounted
     int i, j;
     char* test;
@@ -3205,7 +3206,7 @@ char* vfs_volume_device_info(VFSVolume* vol)
     return info;
 }
 
-char* vfs_volume_device_mount_cmd(VFSVolume* vol, const char* options, gboolean* run_in_terminal)
+char* vfs_volume_device_mount_cmd(VFSVolume* vol, const char* options, bool* run_in_terminal)
 {
     char* command = NULL;
     char* s1;
@@ -3262,7 +3263,7 @@ char* vfs_volume_device_mount_cmd(VFSVolume* vol, const char* options, gboolean*
     return command;
 }
 
-char* vfs_volume_device_unmount_cmd(VFSVolume* vol, gboolean* run_in_terminal)
+char* vfs_volume_device_unmount_cmd(VFSVolume* vol, bool* run_in_terminal)
 {
     char* command = NULL;
     char* s1;
@@ -3375,8 +3376,8 @@ char* vfs_volume_get_mount_options(VFSVolume* vol, char* options)
     if (!options)
         return NULL;
     // change spaces to commas
-    gboolean leading = TRUE;
-    gboolean trailing = FALSE;
+    bool leading = TRUE;
+    bool trailing = FALSE;
     int j = -1;
     int i;
     char news[strlen(options) + 1];
@@ -3479,7 +3480,7 @@ char* vfs_volume_get_mount_options(VFSVolume* vol, char* options)
         return g_strdup(newo + 1);
 }
 
-char* vfs_volume_get_mount_command(VFSVolume* vol, char* default_options, gboolean* run_in_terminal)
+char* vfs_volume_get_mount_command(VFSVolume* vol, char* default_options, bool* run_in_terminal)
 {
     char* options = vfs_volume_get_mount_options(vol, default_options);
     char* command = vfs_volume_device_mount_cmd(vol, options, run_in_terminal);
@@ -3487,7 +3488,7 @@ char* vfs_volume_get_mount_command(VFSVolume* vol, char* default_options, gboole
     return command;
 }
 
-void exec_task(const char* command, gboolean run_in_terminal)
+void exec_task(const char* command, bool run_in_terminal)
 { // run command as async task with optional terminal
     if (!(command && command[0]))
         return;
@@ -3598,7 +3599,7 @@ void vfs_volume_autounmount(VFSVolume* vol)
 {
     if (!vol->is_mounted || !vfs_volume_is_automount(vol))
         return;
-    gboolean run_in_terminal;
+    bool run_in_terminal;
     char* line = vfs_volume_device_unmount_cmd(vol, &run_in_terminal);
     if (line)
     {
@@ -3620,7 +3621,7 @@ void vfs_volume_automount(VFSVolume* vol)
         return;
     vol->automount_time = time(NULL);
 
-    gboolean run_in_terminal;
+    bool run_in_terminal;
     char* line =
         vfs_volume_get_mount_command(vol, xset_get_s("dev_mount_options"), &run_in_terminal);
     if (line)
@@ -3633,10 +3634,10 @@ void vfs_volume_automount(VFSVolume* vol)
         printf(_("\nAutomount: error: no mount command available\n"));
 }
 
-static void vfs_volume_device_added(VFSVolume* volume, gboolean automount)
+static void vfs_volume_device_added(VFSVolume* volume, bool automount)
 { // frees volume if needed
     GList* l;
-    gboolean was_mounted, was_audiocd, was_mountable;
+    bool was_mounted, was_audiocd, was_mountable;
     char* changed_mount_point = NULL;
 
     if (!volume || !volume->udi || !volume->device_file)
@@ -3751,7 +3752,7 @@ static void vfs_volume_device_added(VFSVolume* volume, gboolean automount)
         main_window_refresh_all_tabs_matching(volume->mount_point);
 }
 
-static gboolean vfs_volume_nonblock_removed(dev_t devnum)
+static bool vfs_volume_nonblock_removed(dev_t devnum)
 {
     GList* l;
     VFSVolume* volume;
@@ -3816,7 +3817,7 @@ void unmount_if_mounted(VFSVolume* vol)
 {
     if (!vol->device_file)
         return;
-    gboolean run_in_terminal;
+    bool run_in_terminal;
     char* str = vfs_volume_device_unmount_cmd(vol, &run_in_terminal);
     if (!str)
         return;
@@ -3838,13 +3839,13 @@ void unmount_if_mounted(VFSVolume* vol)
     g_free(line);
 }
 
-gboolean on_cancel_inhibit_timer(void* user_data)
+bool on_cancel_inhibit_timer(void* user_data)
 {
     global_inhibit_auto = FALSE;
     return FALSE;
 }
 
-gboolean vfs_volume_init()
+bool vfs_volume_init()
 {
     struct udev_device* udevice;
     struct udev_enumerate* enumerate;
@@ -3962,7 +3963,7 @@ finish_:
     return TRUE;
 }
 
-gboolean vfs_volume_finalize()
+bool vfs_volume_finalize()
 {
     // stop mount monitor
     if (mchannel)
@@ -3995,7 +3996,7 @@ gboolean vfs_volume_finalize()
 
     // free volumes / unmount all ?
     GList* l;
-    gboolean unmount_all = xset_get_b("dev_unmount_quit");
+    bool unmount_all = xset_get_b("dev_unmount_quit");
     if (G_LIKELY(volumes))
     {
         for (l = volumes; l; l = l->next)
@@ -4106,17 +4107,17 @@ void vfs_volume_remove_callback(VFSVolumeCallback cb, void* user_data)
     }
 }
 
-gboolean vfs_volume_mount(VFSVolume* vol, GError** err)
+bool vfs_volume_mount(VFSVolume* vol, GError** err)
 {
     return TRUE;
 }
 
-gboolean vfs_volume_umount(VFSVolume* vol, GError** err)
+bool vfs_volume_umount(VFSVolume* vol, GError** err)
 {
     return TRUE;
 }
 
-gboolean vfs_volume_eject(VFSVolume* vol, GError** err)
+bool vfs_volume_eject(VFSVolume* vol, GError** err)
 {
     return TRUE;
 }
@@ -4148,29 +4149,29 @@ const char* vfs_volume_get_icon(VFSVolume* vol)
     return set->icon;
 }
 
-gboolean vfs_volume_is_removable(VFSVolume* vol)
+bool vfs_volume_is_removable(VFSVolume* vol)
 {
     return vol->is_removable;
 }
 
-gboolean vfs_volume_is_mounted(VFSVolume* vol)
+bool vfs_volume_is_mounted(VFSVolume* vol)
 {
     return vol->is_mounted;
 }
 
-gboolean vfs_volume_requires_eject(VFSVolume* vol)
+bool vfs_volume_requires_eject(VFSVolume* vol)
 {
     return vol->requires_eject;
 }
 
-gboolean vfs_volume_dir_avoid_changes(const char* dir)
+bool vfs_volume_dir_avoid_changes(const char* dir)
 {
     // determines if file change detection should be disabled for this
     // dir (eg nfs stat calls block when a write is in progress so file
     // change detection is unwanted)
     // return FALSE to detect changes in this dir, TRUE to avoid change detection
     const char* devnode;
-    gboolean ret;
+    bool ret;
 
     // printf("vfs_volume_dir_avoid_changes( %s )\n", dir );
     if (!udev || !dir)

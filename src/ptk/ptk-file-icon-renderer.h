@@ -13,6 +13,8 @@
 #ifndef _PTK_FILE_ICON_RENDERER_H_
 #define _PTK_FILE_ICON_RENDERER_H_
 
+#include <stdbool.h>
+
 #include <gtk/gtk.h>
 
 #include "../vfs/vfs-file-info.h"
@@ -42,7 +44,7 @@ struct _PtkFileIconRenderer
     /* FIXME: draw some additional marks for symlinks */
     VFSFileInfo* info;
     /* long flags; */
-    gboolean follow_state;
+    bool follow_state;
 };
 
 struct _PtkFileIconRendererClass

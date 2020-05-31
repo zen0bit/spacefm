@@ -20,6 +20,8 @@
  *      MA 02110-1301, USA.
  */
 
+#include <stdbool.h>
+
 #include "vfs-mime-type.h"
 #include "vfs-thumbnail-loader.h"
 #include <string.h>
@@ -51,10 +53,10 @@ typedef struct _ThumbnailRequest
 } ThumbnailRequest;
 
 static void* thumbnail_loader_thread(VFSAsyncTask* task, VFSThumbnailLoader* loader);
-/* static void on_load_finish( VFSAsyncTask* task, gboolean is_cancelled, VFSThumbnailLoader* loader
+/* static void on_load_finish( VFSAsyncTask* task, bool is_cancelled, VFSThumbnailLoader* loader
  * ); */
 static void thumbnail_request_free(ThumbnailRequest* req);
-static gboolean on_thumbnail_idle(VFSThumbnailLoader* loader);
+static bool on_thumbnail_idle(VFSThumbnailLoader* loader);
 
 VFSThumbnailLoader* vfs_thumbnail_loader_new(VFSDir* dir)
 {
@@ -106,7 +108,7 @@ void vfs_thumbnail_loader_free(VFSThumbnailLoader* loader)
 }
 
 #if 0 /* This is not used in the program. For debug only */
-void on_load_finish( VFSAsyncTask* task, gboolean is_cancelled, VFSThumbnailLoader* loader )
+void on_load_finish( VFSAsyncTask* task, bool is_cancelled, VFSThumbnailLoader* loader )
 {
     g_debug( "TASK FINISHED" );
 }
@@ -119,7 +121,7 @@ void thumbnail_request_free(ThumbnailRequest* req)
     /* g_debug( "FREE REQUEST!" ); */
 }
 
-gboolean on_thumbnail_idle(VFSThumbnailLoader* loader)
+bool on_thumbnail_idle(VFSThumbnailLoader* loader)
 {
     VFSFileInfo* file;
 
@@ -153,7 +155,7 @@ void* thumbnail_loader_thread(VFSAsyncTask* task, VFSThumbnailLoader* loader)
 {
     ThumbnailRequest* req;
     int i;
-    gboolean load_big, need_update;
+    bool load_big, need_update;
 
     while (G_LIKELY(!vfs_async_task_is_cancelled(task)))
     {
@@ -238,11 +240,11 @@ void* thumbnail_loader_thread(VFSAsyncTask* task, VFSThumbnailLoader* loader)
     return NULL;
 }
 
-void vfs_thumbnail_loader_request(VFSDir* dir, VFSFileInfo* file, gboolean is_big)
+void vfs_thumbnail_loader_request(VFSDir* dir, VFSFileInfo* file, bool is_big)
 {
     VFSThumbnailLoader* loader;
     ThumbnailRequest* req;
-    gboolean new_task = FALSE;
+    bool new_task = FALSE;
     GList* l;
 
     /* g_debug( "request thumbnail: %s, is_big: %d", file->name, is_big ); */
@@ -288,7 +290,7 @@ void vfs_thumbnail_loader_request(VFSDir* dir, VFSFileInfo* file, gboolean is_bi
         vfs_async_task_execute(loader->task);
 }
 
-void vfs_thumbnail_loader_cancel_all_requests(VFSDir* dir, gboolean is_big)
+void vfs_thumbnail_loader_cancel_all_requests(VFSDir* dir, bool is_big)
 {
     GList* l;
     VFSThumbnailLoader* loader;
@@ -356,7 +358,7 @@ static GdkPixbuf* _vfs_thumbnail_load(const char* file_path, const char* uri, in
     else
         create_size = 128;
 
-    gboolean file_is_video = FALSE;
+    bool file_is_video = FALSE;
     VFSMimeType* mimetype = vfs_mime_type_get_from_file_name(file_path);
     if (mimetype)
     {

@@ -34,6 +34,8 @@
 #include <string.h>
 #endif
 
+#include <stdbool.h>
+
 #include <gdk/gdkkeysyms.h>
 // sfm-gtk3
 #include <gtk/gtk.h>
@@ -73,11 +75,11 @@ static void exo_icon_chooser_dialog_style_set(GtkWidget* widget, GtkStyle* previ
 static void exo_icon_chooser_dialog_screen_changed(GtkWidget* widget, GdkScreen* previous_screen);
 static void exo_icon_chooser_dialog_close(GtkDialog* dialog);
 static void exo_icon_chooser_dialog_set_model(ExoIconChooserDialog* dialog);
-static gboolean exo_icon_chooser_dialog_separator_func(GtkTreeModel* model, GtkTreeIter* iter,
-                                                       void* user_data);
-static gboolean exo_icon_chooser_dialog_visible_func(GtkTreeModel* model, GtkTreeIter* iter,
-                                                     void* user_data);
-static gboolean
+static bool exo_icon_chooser_dialog_separator_func(GtkTreeModel* model, GtkTreeIter* iter,
+                                                   void* user_data);
+static bool exo_icon_chooser_dialog_visible_func(GtkTreeModel* model, GtkTreeIter* iter,
+                                                 void* user_data);
+static bool
 exo_icon_chooser_dialog_start_interactive_search(ExoIconChooserDialog* icon_chooser_dialog);
 static void exo_icon_chooser_dialog_combo_changed(GtkWidget* combo,
                                                   ExoIconChooserDialog* icon_chooser_dialog);
@@ -474,10 +476,10 @@ static void exo_icon_chooser_dialog_set_model(ExoIconChooserDialog* dialog)
     g_object_unref(G_OBJECT(model));
 }
 
-static gboolean exo_icon_chooser_dialog_separator_func(GtkTreeModel* model, GtkTreeIter* iter,
-                                                       void* user_data)
+static bool exo_icon_chooser_dialog_separator_func(GtkTreeModel* model, GtkTreeIter* iter,
+                                                   void* user_data)
 {
-    gboolean separator;
+    bool separator;
     char* title;
 
     /* check if we have a separator here */
@@ -488,8 +490,8 @@ static gboolean exo_icon_chooser_dialog_separator_func(GtkTreeModel* model, GtkT
     return separator;
 }
 
-static gboolean exo_icon_chooser_dialog_visible_func(GtkTreeModel* model, GtkTreeIter* iter,
-                                                     void* user_data)
+static bool exo_icon_chooser_dialog_visible_func(GtkTreeModel* model, GtkTreeIter* iter,
+                                                 void* user_data)
 {
     ExoIconChooserDialogPrivate* priv =
         exo_icon_chooser_dialog_get_instance_private(EXO_ICON_CHOOSER_DIALOG(user_data));
@@ -498,7 +500,7 @@ static gboolean exo_icon_chooser_dialog_visible_func(GtkTreeModel* model, GtkTre
     char* normalized;
     char* name;
     char* name_casefolded;
-    gboolean visible;
+    bool visible;
 
     /* check if we need to test the context */
     icon_chooser_context = gtk_combo_box_get_active(GTK_COMBO_BOX(priv->combo));
@@ -534,7 +536,7 @@ static gboolean exo_icon_chooser_dialog_visible_func(GtkTreeModel* model, GtkTre
     return TRUE;
 }
 
-static gboolean
+static bool
 exo_icon_chooser_dialog_start_interactive_search(ExoIconChooserDialog* icon_chooser_dialog)
 {
     ExoIconChooserDialogPrivate* priv =
@@ -783,8 +785,7 @@ char* exo_icon_chooser_dialog_get_icon(ExoIconChooserDialog* icon_chooser_dialog
  *
  * Since: 0.3.1.9
  **/
-gboolean exo_icon_chooser_dialog_set_icon(ExoIconChooserDialog* icon_chooser_dialog,
-                                          const char* icon)
+bool exo_icon_chooser_dialog_set_icon(ExoIconChooserDialog* icon_chooser_dialog, const char* icon)
 {
     ExoIconChooserDialogPrivate* priv = EXO_ICON_CHOOSER_DIALOG_GET_PRIVATE(icon_chooser_dialog);
     GtkTreeModel* filter;

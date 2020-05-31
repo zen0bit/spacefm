@@ -13,6 +13,8 @@
 #ifndef _PTK_FILE_LIST_H_
 #define _PTK_FILE_LIST_H_
 
+#include <stdbool.h>
+
 #include <gtk/gtk.h>
 #include <glib.h>
 #include <glib-object.h>
@@ -67,16 +69,16 @@ struct _PtkFileList
     GList* files;
     unsigned int n_files;
 
-    gboolean show_hidden : 1;
-    gboolean big_thumbnail : 1;
+    bool show_hidden : 1;
+    bool big_thumbnail : 1;
     int max_thumbnail;
 
     int sort_col;
     GtkSortType sort_order;
-    gboolean sort_natural;      // sfm
-    gboolean sort_case;         // sfm
-    gboolean sort_hidden_first; // sfm
-    char sort_dir;              // sfm
+    bool sort_natural;      // sfm
+    bool sort_case;         // sfm
+    bool sort_hidden_first; // sfm
+    char sort_dir;          // sfm
     /* Random integer to check whether an iter belongs to our model */
     int stamp;
 };
@@ -93,11 +95,11 @@ struct _PtkFileListClass
 
 GType ptk_file_list_get_type(void);
 
-PtkFileList* ptk_file_list_new(VFSDir* dir, gboolean show_hidden);
+PtkFileList* ptk_file_list_new(VFSDir* dir, bool show_hidden);
 
 void ptk_file_list_set_dir(PtkFileList* list, VFSDir* dir);
 
-gboolean ptk_file_list_find_iter(PtkFileList* list, GtkTreeIter* it, VFSFileInfo* fi);
+bool ptk_file_list_find_iter(PtkFileList* list, GtkTreeIter* it, VFSFileInfo* fi);
 
 void ptk_file_list_file_created(VFSDir* dir, VFSFileInfo* file, PtkFileList* list);
 
@@ -105,7 +107,7 @@ void ptk_file_list_file_deleted(VFSDir* dir, VFSFileInfo* file, PtkFileList* lis
 
 void ptk_file_list_file_changed(VFSDir* dir, VFSFileInfo* file, PtkFileList* list);
 
-void ptk_file_list_show_thumbnails(PtkFileList* list, gboolean is_big, int max_file_size);
+void ptk_file_list_show_thumbnails(PtkFileList* list, bool is_big, int max_file_size);
 void ptk_file_list_sort(PtkFileList* list); // sfm
 
 G_END_DECLS

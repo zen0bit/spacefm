@@ -13,6 +13,8 @@
 #include <config.h>
 #endif
 
+#include <stdbool.h>
+
 #include "vfs-file-task.h"
 
 #include <unistd.h>
@@ -68,7 +70,7 @@ static void get_total_size_of_dir(VFSFileTask* task, const char* path, off_t* si
 void vfs_file_task_error(VFSFileTask* task, int errnox, const char* action, const char* target);
 void vfs_file_task_exec_error(VFSFileTask* task, int errnox, char* action);
 void add_task_dev(VFSFileTask* task, dev_t dev);
-static gboolean should_abort(VFSFileTask* task);
+static bool should_abort(VFSFileTask* task);
 
 void gx_free(void* x)
 {
@@ -124,7 +126,7 @@ static void call_state_callback(VFSFileTask* task, VFSFileTaskState state)
     }
 }
 
-static gboolean should_abort(VFSFileTask* task)
+static bool should_abort(VFSFileTask* task)
 {
     if (task->state_pause != VFS_FILE_TASK_RUNNING)
     {
@@ -179,8 +181,8 @@ char* vfs_file_task_get_unique_name(const char* dest_dir, const char* base_name,
  * skip/overwrite/auto-rename/all, pause, or cancel.
  * The returned string is the new destination file chosen by the user
  */
-static gboolean check_overwrite(VFSFileTask* task, const char* dest_file, gboolean* dest_exists,
-                                char** new_dest_file)
+static bool check_overwrite(VFSFileTask* task, const char* dest_file, bool* dest_exists,
+                            char** new_dest_file)
 {
     struct stat dest_stat;
     const char* use_dest_file;
@@ -295,7 +297,7 @@ static gboolean check_overwrite(VFSFileTask* task, const char* dest_file, gboole
     }
 }
 
-gboolean check_dest_in_src(VFSFileTask* task, const char* src_dir)
+bool check_dest_in_src(VFSFileTask* task, const char* src_dir)
 {
     char real_src_path[PATH_MAX];
     char real_dest_path[PATH_MAX];
@@ -347,8 +349,7 @@ void update_file_display(const char* path)
     GDK_THREADS_LEAVE();
 }
 
-static gboolean vfs_file_task_do_copy(VFSFileTask* task, const char* src_file,
-                                      const char* dest_file)
+static bool vfs_file_task_do_copy(VFSFileTask* task, const char* src_file, const char* dest_file)
 {
     GDir* dir;
     const char* file_name;
@@ -360,8 +361,8 @@ static gboolean vfs_file_task_do_copy(VFSFileTask* task, const char* src_file,
     int wfd;
     ssize_t rsize;
     char* new_dest_file = NULL;
-    gboolean dest_exists;
-    gboolean copy_fail = FALSE;
+    bool dest_exists;
+    bool copy_fail = FALSE;
     int result;
     GError* error;
 
@@ -648,7 +649,7 @@ static int vfs_file_task_do_move(VFSFileTask* task, const char* src_file,
                                  const char* dest_file) // MOD void to int
 {
     char* new_dest_file = NULL;
-    gboolean dest_exists;
+    bool dest_exists;
     struct stat file_stat;
     GDir* dir;
     int result;
@@ -872,7 +873,7 @@ static void vfs_file_task_link(char* src_file, VFSFileTask* task)
     char* old_dest_file;
     char* dest_file;
     char* file_name;
-    gboolean dest_exists;       // MOD
+    bool dest_exists;           // MOD
     char* new_dest_file = NULL; // MOD
 
     if (should_abort(task))
@@ -1062,7 +1063,7 @@ char* vfs_file_task_get_cpids(GPid pid)
 
     char* command = g_strdup_printf("/bin/ps h --ppid %d -o pid", pid);
     print_command(command);
-    gboolean ret = g_spawn_command_line_sync(command, &stdout, NULL, NULL, NULL);
+    bool ret = g_spawn_command_line_sync(command, &stdout, NULL, NULL, NULL);
     g_free(command);
     if (ret && stdout && stdout[0] != '\0' && strchr(stdout, '\n'))
     {
@@ -1139,7 +1140,7 @@ static void cb_exec_child_cleanup(GPid pid, int status, char* tmp_file)
 
 static void cb_exec_child_watch(GPid pid, int status, VFSFileTask* task)
 {
-    gboolean bad_status = FALSE;
+    bool bad_status = FALSE;
     g_spawn_close_pid(pid);
     task->exec_pid = 0;
     task->child_watch = 0;
@@ -1177,7 +1178,7 @@ static void cb_exec_child_watch(GPid pid, int status, VFSFileTask* task)
         call_state_callback(task, VFS_FILE_TASK_FINISH);
 }
 
-static gboolean cb_exec_out_watch(GIOChannel* channel, GIOCondition cond, VFSFileTask* task)
+static bool cb_exec_out_watch(GIOChannel* channel, GIOCondition cond, VFSFileTask* task)
 {
     /*
     printf("cb_exec_out_watch %p\n", channel);
@@ -1562,7 +1563,7 @@ static void vfs_file_task_exec(char* src_file, VFSFileTask* task)
     int out, err;
     int a = 0;
     char* use_su;
-    gboolean single_arg = FALSE;
+    bool single_arg = FALSE;
     char* auth = NULL;
 
     if (terminal)
@@ -1823,7 +1824,7 @@ _exit_with_error_lean:
     // printf("vfs_file_task_exec DONE ERROR\n");
 }
 
-gboolean on_size_timeout(VFSFileTask* task)
+bool on_size_timeout(VFSFileTask* task)
 {
     if (!task->abort)
         task->state = VFS_FILE_TASK_SIZE_TIMEOUT;
@@ -2237,7 +2238,7 @@ void get_total_size_of_dir(VFSFileTask* task, const char* path, off_t* size, str
     }
 }
 
-void vfs_file_task_set_recursive(VFSFileTask* task, gboolean recursive)
+void vfs_file_task_set_recursive(VFSFileTask* task, bool recursive)
 {
     task->recursive = recursive;
 }

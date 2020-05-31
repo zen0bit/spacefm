@@ -12,6 +12,8 @@
 #include <config.h>
 #endif
 
+#include <stdbool.h>
+
 #include <libintl.h>
 
 #include "private.h"
@@ -76,8 +78,8 @@ typedef struct
     off_t size_on_disk;
     unsigned int total_count;
     unsigned int total_count_dir;
-    gboolean cancel;
-    gboolean done;
+    bool cancel;
+    bool done;
     GThread* calc_size_thread;
     unsigned int update_label_timer;
     GtkWidget* recurse;
@@ -158,7 +160,7 @@ static void* calc_size(void* user_data)
     return NULL;
 }
 
-gboolean on_update_labels(FilePropertiesDialogData* data)
+bool on_update_labels(FilePropertiesDialogData* data)
 {
     char buf[64];
     char buf2[32];
@@ -232,7 +234,7 @@ static void on_chmod_btn_toggled(GtkToggleButton* btn, FilePropertiesDialogData*
                                       NULL);
 }
 
-static gboolean combo_sep(GtkTreeModel* model, GtkTreeIter* it, void* user_data)
+static bool combo_sep(GtkTreeModel* model, GtkTreeIter* it, void* user_data)
 {
     int i;
     for (i = 2; i > 0; --i)
@@ -266,7 +268,7 @@ static void on_combo_change(GtkComboBox* combo, void* user_data)
                 ptk_choose_app_for_mime_type(GTK_WINDOW(parent), mime, FALSE, TRUE, TRUE, TRUE);
             if (action)
             {
-                gboolean exist = FALSE;
+                bool exist = FALSE;
                 /* check if the action is already in the list */
                 if (gtk_tree_model_get_iter_first(model, &it))
                 {
@@ -347,7 +349,7 @@ GtkWidget* file_properties_dlg_new(GtkWindow* parent, const char* dir_path, GLis
     xset_set_window_icon(GTK_WINDOW(dlg));
 
     FilePropertiesDialogData* data;
-    gboolean need_calc_size = TRUE;
+    bool need_calc_size = TRUE;
 
     VFSFileInfo* file;
     VFSMimeType* mime;
@@ -373,8 +375,8 @@ GtkWidget* file_properties_dlg_new(GtkWindow* parent, const char* dir_path, GLis
 
     int i;
     GList* l;
-    gboolean same_type = TRUE;
-    gboolean is_dirs = FALSE;
+    bool same_type = TRUE;
+    bool is_dirs = FALSE;
     char *owner_group, *tmp;
 
     gtk_dialog_set_alternative_button_order(GTK_DIALOG(dlg),
@@ -731,7 +733,7 @@ void on_dlg_response(GtkDialog* dialog, int response_id, void* user_data)
 {
     FilePropertiesDialogData* data;
     PtkFileTask* task;
-    gboolean mod_change;
+    bool mod_change;
     uid_t uid = -1;
     gid_t gid = -1;
     const char* owner_name;
