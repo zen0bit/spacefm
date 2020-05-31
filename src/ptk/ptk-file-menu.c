@@ -1781,69 +1781,77 @@ bool app_menu_keypress(GtkWidget* menu, GdkEventKey* event, PtkFileMenu* data)
 
     if (keymod == 0)
     {
-        if (event->keyval == GDK_KEY_F1)
+        const char* help = NULL;
+        switch (event->keyval)
         {
-            const char* help = NULL;
-            if (app_data)
-            {
-                job = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item), "job"));
-                switch (job)
+            case GDK_KEY_F1:
+                if (app_data)
                 {
-                    case APP_JOB_DEFAULT:
-                        help = "#designmode-mime-set";
-                        break;
-                    case APP_JOB_REMOVE:
-                        help = "#designmode-mime-remove";
-                        break;
-                    case APP_JOB_ADD:
-                        help = "#designmode-mime-add";
-                        break;
-                    case APP_JOB_EDIT:
-                        help = "#designmode-mime-appdesktop";
-                        break;
-                    case APP_JOB_EDIT_LIST:
-                        help = "#designmode-mime-mimeappslist";
-                        break;
-                    case APP_JOB_BROWSE:
-                        help = "#designmode-mime-appdir";
-                        break;
-                    case APP_JOB_EDIT_TYPE:
-                        help = "#designmode-mime-xml";
-                        break;
-                    case APP_JOB_BROWSE_MIME:
-                        help = "#designmode-mime-mimedir";
-                        break;
-                    case APP_JOB_USR:
-                        help = "#designmode-mime-usr";
-                        break;
-                    case APP_JOB_BROWSE_SHARED:
-                    case APP_JOB_VIEW:
-                    case APP_JOB_VIEW_TYPE:
-                    case APP_JOB_VIEW_OVER:
-                    case APP_JOB_BROWSE_MIME_USR:
-                        help = "#designmode-mime-usr";
-                        break;
-                    default:
-                        break;
+                    job = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item), "job"));
+                    switch (job)
+                    {
+                        case APP_JOB_DEFAULT:
+                            help = "#designmode-mime-set";
+                            break;
+                        case APP_JOB_REMOVE:
+                            help = "#designmode-mime-remove";
+                            break;
+                        case APP_JOB_ADD:
+                            help = "#designmode-mime-add";
+                            break;
+                        case APP_JOB_EDIT:
+                            help = "#designmode-mime-appdesktop";
+                            break;
+                        case APP_JOB_EDIT_LIST:
+                            help = "#designmode-mime-mimeappslist";
+                            break;
+                        case APP_JOB_BROWSE:
+                            help = "#designmode-mime-appdir";
+                            break;
+                        case APP_JOB_EDIT_TYPE:
+                            help = "#designmode-mime-xml";
+                            break;
+                        case APP_JOB_BROWSE_MIME:
+                            help = "#designmode-mime-mimedir";
+                            break;
+                        case APP_JOB_USR:
+                            help = "#designmode-mime-usr";
+                            break;
+                        case APP_JOB_BROWSE_SHARED:
+                        case APP_JOB_VIEW:
+                        case APP_JOB_VIEW_TYPE:
+                        case APP_JOB_VIEW_OVER:
+                        case APP_JOB_BROWSE_MIME_USR:
+                            help = "#designmode-mime-usr";
+                            break;
+                        default:
+                            break;
+                    }
                 }
-            }
-            if (!help)
-                help = "#designmode-mime";
-            gtk_menu_shell_deactivate(GTK_MENU_SHELL(menu));
-            xset_show_help(data->browser, NULL, help);
-            return TRUE;
+                if (!help)
+                    help = "#designmode-mime";
+                gtk_menu_shell_deactivate(GTK_MENU_SHELL(menu));
+                xset_show_help(data->browser, NULL, help);
+                return TRUE;
+                break;
+            case GDK_KEY_F2:
+                // fallthrough
+            case GDK_KEY_Menu:
+                if (desktop_file)
+                    show_app_menu(menu, item, data, 0, event->time);
+                return TRUE;
+            case GDK_KEY_F4:
+                job = APP_JOB_EDIT;
+                break;
+            case GDK_KEY_Delete:
+                job = APP_JOB_REMOVE;
+                break;
+            case GDK_KEY_Insert:
+                job = APP_JOB_ADD;
+                break;
+            default:
+                break;
         }
-        else if (desktop_file && (event->keyval == GDK_KEY_F2 || event->keyval == GDK_KEY_Menu))
-        {
-            show_app_menu(menu, item, data, 0, event->time);
-            return TRUE;
-        }
-        else if (event->keyval == GDK_KEY_F4)
-            job = APP_JOB_EDIT;
-        else if (event->keyval == GDK_KEY_Delete)
-            job = APP_JOB_REMOVE;
-        else if (event->keyval == GDK_KEY_Insert)
-            job = APP_JOB_ADD;
     }
     if (desktop_file && job != -1)
     {
@@ -2131,51 +2139,59 @@ bool on_app_button_press(GtkWidget* item, GdkEventButton* event, PtkFileMenu* da
     int keymod = (event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK |
                                   GDK_SUPER_MASK | GDK_HYPER_MASK | GDK_META_MASK));
 
-    if (event->type == GDK_BUTTON_RELEASE)
+    switch (event->type)
     {
-        if (event->button == 1 && keymod == 0)
-        {
-            // user released left button - due to an apparent gtk bug, activate
-            // doesn't always fire on this event so handle it ourselves
-            // see also settings.c xset_design_cb()
-            // test: gtk2 Crux theme with touchpad on Edit|Copy To|Location
-            // https://github.com/IgnorantGuru/spacefm/issues/31
-            // https://github.com/IgnorantGuru/spacefm/issues/228
-            if (menu)
-                gtk_menu_shell_deactivate(GTK_MENU_SHELL(menu));
-            gtk_menu_item_activate(GTK_MENU_ITEM(item));
-            return TRUE;
-        }
-        // TRUE for issue #521 where a right-click also left-clicks the first
-        // menu item in some GTK2/3 themes.
-        return TRUE;
-    }
-    else if (event->type != GDK_BUTTON_PRESS)
-        return FALSE;
-
-    if (event->button == 1 || event->button == 3)
-    {
-        // left or right click
-        if (keymod == 0)
-        {
-            // no modifier
-            if (event->button == 3)
+        case GDK_BUTTON_RELEASE:
+            if (event->button == 1 && keymod == 0)
             {
-                // right
+                // user released left button - due to an apparent gtk bug, activate
+                // doesn't always fire on this event so handle it ourselves
+                // see also settings.c xset_design_cb()
+                // test: gtk2 Crux theme with touchpad on Edit|Copy To|Location
+                // https://github.com/IgnorantGuru/spacefm/issues/31
+                // https://github.com/IgnorantGuru/spacefm/issues/228
+                if (menu)
+                    gtk_menu_shell_deactivate(GTK_MENU_SHELL(menu));
+                gtk_menu_item_activate(GTK_MENU_ITEM(item));
+                return TRUE;
+            }
+            // TRUE for issue #521 where a right-click also left-clicks the first
+            // menu item in some GTK2/3 themes.
+            return TRUE;
+            break;
+        default:
+            return FALSE;
+            break;
+    }
+
+    switch (event->button)
+    {
+        case 1:
+            // fallthrough
+        case 3:
+            // left or right click
+            if (keymod == 0)
+            {
+                // no modifier
+                if (event->button == 3)
+                {
+                    // right
+                    show_app_menu(menu, item, data, event->button, event->time);
+                    return TRUE;
+                }
+            }
+            break;
+        case 2:
+            // middle click
+            if (keymod == 0)
+            {
+                // no modifier
                 show_app_menu(menu, item, data, event->button, event->time);
                 return TRUE;
             }
-        }
-    }
-    else if (event->button == 2)
-    {
-        // middle click
-        if (keymod == 0)
-        {
-            // no modifier
-            show_app_menu(menu, item, data, event->button, event->time);
-            return TRUE;
-        }
+            break;
+        default:
+            break;
     }
     return FALSE; // TRUE won't stop activate on button-press (will on release)
 }

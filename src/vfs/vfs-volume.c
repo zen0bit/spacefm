@@ -1955,94 +1955,103 @@ void vfs_volume_set_info(VFSVolume* volume)
         return;
 
     // set device icon
-    if (volume->device_type == DEVICE_TYPE_BLOCK)
+    switch (volume->device_type)
     {
-        if (volume->is_audiocd)
-            volume->icon = g_strdup_printf("dev_icon_audiocd");
-        else if (volume->is_optical)
-        {
-            if (volume->is_mounted)
-                volume->icon = g_strdup_printf("dev_icon_optical_mounted");
-            else if (volume->is_mountable)
-                volume->icon = g_strdup_printf("dev_icon_optical_media");
-            else
-                volume->icon = g_strdup_printf("dev_icon_optical_nomedia");
-        }
-        else if (volume->is_floppy)
-        {
-            if (volume->is_mounted)
-                volume->icon = g_strdup_printf("dev_icon_floppy_mounted");
-            else
-                volume->icon = g_strdup_printf("dev_icon_floppy_unmounted");
-            volume->is_mountable = TRUE;
-        }
-        else if (volume->is_removable)
-        {
-            if (volume->is_mounted)
-                volume->icon = g_strdup_printf("dev_icon_remove_mounted");
-            else
-                volume->icon = g_strdup_printf("dev_icon_remove_unmounted");
-        }
-        else
-        {
-            if (volume->is_mounted)
+        case DEVICE_TYPE_BLOCK:
+            if (volume->is_audiocd)
+                volume->icon = g_strdup_printf("dev_icon_audiocd");
+            else if (volume->is_optical)
             {
-                if (g_str_has_prefix(volume->device_file, "/dev/loop"))
-                    volume->icon = g_strdup_printf("dev_icon_file");
+                if (volume->is_mounted)
+                    volume->icon = g_strdup_printf("dev_icon_optical_mounted");
+                else if (volume->is_mountable)
+                    volume->icon = g_strdup_printf("dev_icon_optical_media");
                 else
-                    volume->icon = g_strdup_printf("dev_icon_internal_mounted");
+                    volume->icon = g_strdup_printf("dev_icon_optical_nomedia");
+            }
+            else if (volume->is_floppy)
+            {
+                if (volume->is_mounted)
+                    volume->icon = g_strdup_printf("dev_icon_floppy_mounted");
+                else
+                    volume->icon = g_strdup_printf("dev_icon_floppy_unmounted");
+                volume->is_mountable = TRUE;
+            }
+            else if (volume->is_removable)
+            {
+                if (volume->is_mounted)
+                    volume->icon = g_strdup_printf("dev_icon_remove_mounted");
+                else
+                    volume->icon = g_strdup_printf("dev_icon_remove_unmounted");
             }
             else
-                volume->icon = g_strdup_printf("dev_icon_internal_unmounted");
-        }
+            {
+                if (volume->is_mounted)
+                {
+                    if (g_str_has_prefix(volume->device_file, "/dev/loop"))
+                        volume->icon = g_strdup_printf("dev_icon_file");
+                    else
+                        volume->icon = g_strdup_printf("dev_icon_internal_mounted");
+                }
+                else
+                    volume->icon = g_strdup_printf("dev_icon_internal_unmounted");
+            }
+            break;
+        case DEVICE_TYPE_NETWORK:
+            volume->icon = g_strdup_printf("dev_icon_network");
+            break;
+        case DEVICE_TYPE_OTHER:
+            volume->icon = g_strdup_printf("dev_icon_file");
+            break;
+        default:
+            break;
     }
-    else if (volume->device_type == DEVICE_TYPE_NETWORK)
-        volume->icon = g_strdup_printf("dev_icon_network");
-    else if (volume->device_type == DEVICE_TYPE_OTHER)
-        volume->icon = g_strdup_printf("dev_icon_file");
 
     // set disp_id using by-id
-    if (volume->device_type == DEVICE_TYPE_BLOCK)
+    switch (volume->device_type)
     {
-        if (volume->is_floppy && !volume->udi)
-            disp_id = g_strdup_printf(_(":floppy"));
-        else if (volume->udi)
-        {
-            if ((lastcomma = strrchr(volume->udi, '/')))
+        case DEVICE_TYPE_BLOCK:
+            if (volume->is_floppy && !volume->udi)
+                disp_id = g_strdup_printf(_(":floppy"));
+            else if (volume->udi)
             {
-                lastcomma++;
-                if (!strncmp(lastcomma, "usb-", 4))
-                    lastcomma += 4;
-                else if (!strncmp(lastcomma, "ata-", 4))
-                    lastcomma += 4;
-                else if (!strncmp(lastcomma, "scsi-", 5))
-                    lastcomma += 5;
+                if ((lastcomma = strrchr(volume->udi, '/')))
+                {
+                    lastcomma++;
+                    if (!strncmp(lastcomma, "usb-", 4))
+                        lastcomma += 4;
+                    else if (!strncmp(lastcomma, "ata-", 4))
+                        lastcomma += 4;
+                    else if (!strncmp(lastcomma, "scsi-", 5))
+                        lastcomma += 5;
+                }
+                else
+                    lastcomma = volume->udi;
+                if (lastcomma[0] != '\0')
+                {
+                    disp_id = g_strdup_printf(":%.16s", lastcomma);
+                }
             }
-            else
-                lastcomma = volume->udi;
-            if (lastcomma[0] != '\0')
+            else if (volume->is_optical)
+                disp_id = g_strdup_printf(_(":optical"));
+            if (!disp_id)
+                disp_id = g_strdup("");
+            // table type
+            if (volume->is_table)
             {
-                disp_id = g_strdup_printf(":%.16s", lastcomma);
+                if (volume->fs_type && volume->fs_type[0] == '\0')
+                {
+                    g_free(volume->fs_type);
+                    volume->fs_type = NULL;
+                }
+                if (!volume->fs_type)
+                    volume->fs_type = g_strdup("table");
             }
-        }
-        else if (volume->is_optical)
-            disp_id = g_strdup_printf(_(":optical"));
-        if (!disp_id)
-            disp_id = g_strdup("");
-        // table type
-        if (volume->is_table)
-        {
-            if (volume->fs_type && volume->fs_type[0] == '\0')
-            {
-                g_free(volume->fs_type);
-                volume->fs_type = NULL;
-            }
-            if (!volume->fs_type)
-                volume->fs_type = g_strdup("table");
-        }
+            break;
+        default:
+            disp_id = g_strdup(volume->udi);
+            break;
     }
-    else
-        disp_id = g_strdup(volume->udi);
 
     // set display name
     if (volume->is_mounted)
@@ -2671,75 +2680,77 @@ char* vfs_volume_handler_cmd(int mode, int action, VFSVolume* vol, const char* o
     if (mount_point)
         *mount_point = NULL;
 
-    if (mode == HANDLER_MODE_FS)
+    switch (mode)
     {
-        if (!vol)
-            return NULL;
+        case HANDLER_MODE_FS:
+            if (!vol)
+                return NULL;
 
-        // fs values
-        // change spaces in label to underscores for testing
-        if (vol->label && vol->label[0])
-            values =
-                g_slist_prepend(values,
-                                g_strdelimit(g_strconcat("label=", vol->label, NULL), " ", '_'));
-        if (vol->udi && vol->udi[0])
-            values = g_slist_prepend(values, g_strconcat("id=", vol->udi, NULL));
-        values =
-            g_slist_prepend(values, g_strconcat("audiocd=", vol->is_audiocd ? "1" : "0", NULL));
-        values =
-            g_slist_prepend(values, g_strconcat("optical=", vol->is_optical ? "1" : "0", NULL));
-        values =
-            g_slist_prepend(values, g_strconcat("removable=", vol->is_removable ? "1" : "0", NULL));
-        values = g_slist_prepend(
-            values,
-            g_strconcat("mountable=", vol->is_mountable && !vol->is_blank ? "1" : "0", NULL));
-        // change spaces in device to underscores for testing - for ISO files
-        values =
-            g_slist_prepend(values,
-                            g_strdelimit(g_strconcat("dev=", vol->device_file, NULL), " ", '_'));
-        if (vol->fs_type)
-            values = g_slist_prepend(values, g_strdup(vol->fs_type));
+            // fs values
+            // change spaces in label to underscores for testing
+            // clang-format off
+            if (vol->label && vol->label[0])
+                values = g_slist_prepend(values, g_strdelimit(g_strconcat("label=", vol->label, NULL), " ", '_'));
+            if (vol->udi && vol->udi[0])
+                values = g_slist_prepend(values, g_strconcat("id=", vol->udi, NULL));
+            values = g_slist_prepend(values, g_strconcat("audiocd=", vol->is_audiocd ? "1" : "0", NULL));
+            values = g_slist_prepend(values, g_strconcat("optical=", vol->is_optical ? "1" : "0", NULL));
+            values = g_slist_prepend(values, g_strconcat("removable=", vol->is_removable ? "1" : "0", NULL));
+            values = g_slist_prepend(values, g_strconcat("mountable=", vol->is_mountable && !vol->is_blank ? "1" : "0", NULL));
+            // change spaces in device to underscores for testing - for ISO files
+            values = g_slist_prepend(values, g_strdelimit(g_strconcat("dev=", vol->device_file, NULL), " ", '_'));
+            // clang-format on
+            if (vol->fs_type)
+                values = g_slist_prepend(values, g_strdup(vol->fs_type));
+            break;
+        case HANDLER_MODE_NET:
+            // for DEVICE_TYPE_NETWORK
+            if (netmount)
+            {
+                // net values
+                if (netmount->host && netmount->host[0])
+                    values = g_slist_prepend(values, g_strconcat("host=", netmount->host, NULL));
+                if (netmount->user && netmount->user[0])
+                    values = g_slist_prepend(values, g_strconcat("user=", netmount->user, NULL));
+                if (action != HANDLER_MOUNT && vol && vol->is_mounted)
+                {
+                    // clang-format off
+                    // user-entered url (or mtab url if not available)
+                    values = g_slist_prepend(values, g_strconcat("url=", vol->udi, NULL));
+                    // mtab fs type (fuse.ssh)
+                    values = g_slist_prepend(values, g_strconcat("mtab_fs=", vol->fs_type, NULL));
+                    // mtab_url == url if mounted
+                    values = g_slist_prepend(values, g_strconcat("mtab_url=", vol->device_file, NULL));
+                    // clang-format on
+                }
+                else if (netmount->url && netmount->url[0])
+                    // user-entered url
+                    values = g_slist_prepend(values, g_strconcat("url=", netmount->url, NULL));
+                // url-derived protocol
+                if (netmount->fstype && netmount->fstype[0])
+                    values = g_slist_prepend(values, g_strdup(netmount->fstype));
+            }
+            else
+            {
+                // for DEVICE_TYPE_OTHER unmount or prop that has protocol handler in mtab_fs
+                if (action != HANDLER_MOUNT && vol && vol->is_mounted)
+                {
+                    // clang-format off
+                    // user-entered url (or mtab url if not available)
+                    values = g_slist_prepend(values, g_strconcat("url=", vol->udi, NULL));
+                    // mtab fs type (fuse.ssh)
+                    values = g_slist_prepend(values, g_strconcat("mtab_fs=", vol->fs_type, NULL));
+                    // mtab_url == url if mounted
+                    values = g_slist_prepend(values, g_strconcat("mtab_url=", vol->device_file, NULL));
+                    // clang-format on
+                }
+            }
+            break;
+        default:
+            g_warning("vfs_volume_handler_cmd invalid mode %d\n", mode);
+            return NULL;
     }
-    else if (mode == HANDLER_MODE_NET && netmount)
-    { // for DEVICE_TYPE_NETWORK
-        // net values
-        if (netmount->host && netmount->host[0])
-            values = g_slist_prepend(values, g_strconcat("host=", netmount->host, NULL));
-        if (netmount->user && netmount->user[0])
-            values = g_slist_prepend(values, g_strconcat("user=", netmount->user, NULL));
-        if (action != HANDLER_MOUNT && vol && vol->is_mounted)
-        {
-            // user-entered url (or mtab url if not available)
-            values = g_slist_prepend(values, g_strconcat("url=", vol->udi, NULL));
-            // mtab fs type (fuse.ssh)
-            values = g_slist_prepend(values, g_strconcat("mtab_fs=", vol->fs_type, NULL));
-            // mtab_url == url if mounted
-            values = g_slist_prepend(values, g_strconcat("mtab_url=", vol->device_file, NULL));
-        }
-        else if (netmount->url && netmount->url[0])
-            // user-entered url
-            values = g_slist_prepend(values, g_strconcat("url=", netmount->url, NULL));
-        // url-derived protocol
-        if (netmount->fstype && netmount->fstype[0])
-            values = g_slist_prepend(values, g_strdup(netmount->fstype));
-    }
-    else if (mode == HANDLER_MODE_NET)
-    { // for DEVICE_TYPE_OTHER unmount or prop that has protocol handler in mtab_fs
-        if (action != HANDLER_MOUNT && vol && vol->is_mounted)
-        {
-            // user-entered url (or mtab url if not available)
-            values = g_slist_prepend(values, g_strconcat("url=", vol->udi, NULL));
-            // mtab fs type (fuse.ssh)
-            values = g_slist_prepend(values, g_strconcat("mtab_fs=", vol->fs_type, NULL));
-            // mtab_url == url if mounted
-            values = g_slist_prepend(values, g_strconcat("mtab_url=", vol->device_file, NULL));
-        }
-    }
-    else
-    {
-        g_warning("vfs_volume_handler_cmd invalid mode %d\n", mode);
-        return NULL;
-    }
+
     // universal values
     if (vol && vol->is_mounted && vol->mount_point && vol->mount_point[0])
         values = g_slist_prepend(values, g_strconcat("point=", vol->mount_point, NULL));
@@ -2759,29 +2770,32 @@ char* vfs_volume_handler_cmd(int mode, int action, VFSVolume* vol, const char* o
         if (!handlers[i][0] || !(set = xset_is(handlers[i])) ||
             set->b != XSET_B_TRUE /* disabled */)
             continue;
-        if (mode == HANDLER_MODE_FS)
+        switch (mode)
         {
-            // test blacklist
-            if (ptk_handler_values_in_list(set->x, values, NULL))
+            case HANDLER_MODE_FS:
+                // test blacklist
+                if (ptk_handler_values_in_list(set->x, values, NULL))
+                    break;
+                // test whitelist
+                if (ptk_handler_values_in_list(set->s, values, &msg))
+                {
+                    found = TRUE;
+                    break;
+                }
                 break;
-            // test whitelist
-            if (ptk_handler_values_in_list(set->s, values, &msg))
-            {
-                found = TRUE;
+            case HANDLER_MODE_NET:
+                // test blacklist
+                if (ptk_handler_values_in_list(set->x, values, NULL))
+                    break;
+                // test whitelist
+                if (ptk_handler_values_in_list(set->s, values, &msg))
+                {
+                    found = TRUE;
+                    break;
+                }
                 break;
-            }
-        }
-        else // if ( mode == HANDLER_MODE_NET )
-        {
-            // test blacklist
-            if (ptk_handler_values_in_list(set->x, values, NULL))
+            default:
                 break;
-            // test whitelist
-            if (ptk_handler_values_in_list(set->s, values, &msg))
-            {
-                found = TRUE;
-                break;
-            }
         }
     }
     g_slist_foreach(values, (GFunc)g_free, NULL);
@@ -2801,23 +2815,24 @@ char* vfs_volume_handler_cmd(int mode, int action, VFSVolume* vol, const char* o
         g_free(err_msg);
         return NULL;
     }
-    if (action == HANDLER_MOUNT)
+
+    switch (action)
     {
-        terminal = set->in_terminal == XSET_B_TRUE;
-        action_s = "MOUNT";
+        case HANDLER_MOUNT:
+            terminal = set->in_terminal == XSET_B_TRUE;
+            action_s = "MOUNT";
+            break;
+        case HANDLER_UNMOUNT:
+            terminal = set->keep_terminal == XSET_B_TRUE;
+            action_s = "UNMOUNT";
+            break;
+        case HANDLER_PROP:
+            terminal = set->scroll_lock == XSET_B_TRUE;
+            action_s = "PROPERTIES";
+            break;
+        default:
+            return NULL;
     }
-    else if (action == HANDLER_UNMOUNT)
-    {
-        terminal = set->keep_terminal == XSET_B_TRUE;
-        action_s = "UNMOUNT";
-    }
-    else if (action == HANDLER_PROP)
-    {
-        terminal = set->scroll_lock == XSET_B_TRUE;
-        action_s = "PROPERTIES";
-    }
-    else
-        return NULL;
 
     // show selected handler
     printf("\n%s '%s': %s%s %s\n",
@@ -2835,197 +2850,206 @@ char* vfs_volume_handler_cmd(int mode, int action, VFSVolume* vol, const char* o
     }
 
     // replace sub vars
-    if (mode == HANDLER_MODE_FS)
+    char* fileq = NULL;
+    switch (mode)
     {
-        /*
-         *      %v  device
-         *      %o  volume-specific mount options (use in mount command only)
-         *      %t  filesystem type being mounted (eg vfat)
-         *      %a  mount point, or create auto mount point
-         */
-        char* fileq = bash_quote(vol->device_file); // for iso files
-        str = command;
-        command = replace_string(command, "%v", fileq, FALSE);
-        g_free(fileq);
-        g_free(str);
-        if (action == HANDLER_MOUNT)
-        {
+        case HANDLER_MODE_FS:
+            /*
+             *      %v  device
+             *      %o  volume-specific mount options (use in mount command only)
+             *      %t  filesystem type being mounted (eg vfat)
+             *      %a  mount point, or create auto mount point
+             */
+            fileq = bash_quote(vol->device_file); // for iso files
             str = command;
-            command = replace_string(command, "%o", options ? options : "", FALSE);
+            command = replace_string(command, "%v", fileq, FALSE);
+            g_free(fileq);
             g_free(str);
-            str = command;
-            command = replace_string(command, "%t", vol->fs_type ? vol->fs_type : "", FALSE);
-            g_free(str);
-        }
-        if (strstr(command, "%a"))
-        {
             if (action == HANDLER_MOUNT)
             {
-                // create mount point
-                char* point_dir =
-                    ptk_location_view_create_mount_point(HANDLER_MODE_FS, vol, NULL, NULL);
                 str = command;
-                command = replace_string(command, "%a", point_dir, FALSE);
+                command = replace_string(command, "%o", options ? options : "", FALSE);
                 g_free(str);
-                if (mount_point)
-                    *mount_point = point_dir;
+                str = command;
+                command = replace_string(command, "%t", vol->fs_type ? vol->fs_type : "", FALSE);
+                g_free(str);
+            }
+            if (strstr(command, "%a"))
+            {
+                if (action == HANDLER_MOUNT)
+                {
+                    // create mount point
+                    char* point_dir =
+                        ptk_location_view_create_mount_point(HANDLER_MODE_FS, vol, NULL, NULL);
+                    str = command;
+                    command = replace_string(command, "%a", point_dir, FALSE);
+                    g_free(str);
+                    if (mount_point)
+                        *mount_point = point_dir;
+                    else
+                        g_free(point_dir);
+                }
                 else
-                    g_free(point_dir);
+                {
+                    str = command;
+                    command =
+                        replace_string(command,
+                                       "%a",
+                                       vol->is_mounted && vol->mount_point && vol->mount_point[0]
+                                           ? vol->mount_point
+                                           : "",
+                                       FALSE);
+                    g_free(str);
+                }
             }
-            else
-            {
-                str = command;
-                command = replace_string(command,
-                                         "%a",
-                                         vol->is_mounted && vol->mount_point && vol->mount_point[0]
-                                             ? vol->mount_point
-                                             : "",
-                                         FALSE);
-                g_free(str);
-            }
-        }
-        // standard sub vars
-        str = command;
-        command = replace_line_subs(command);
-        g_free(str);
-    }
-    else // if ( mode == HANDLER_MODE_NET )
-    {    // also used for DEVICE_TYPE_OTHER unmount and prop
-        /*
-         *       %url%     $fm_url
-         *       %proto%   $fm_url_proto
-         *       %host%    $fm_url_host
-         *       %port%    $fm_url_port
-         *       %user%    $fm_url_user
-         *       %pass%    $fm_url_pass
-         *       %path%    $fm_url_path
-         *       %a        mount point, or create auto mount point
-         */
-
-        if (netmount)
-        {
-            // replace sub vars
-            if (strstr(command, "%url%"))
-            {
-                str = command;
-                if (action != HANDLER_MOUNT && vol && vol->is_mounted)
-                    // user-entered url (or mtab url if not available)
-                    command = replace_string(command, "%url%", vol->udi, FALSE);
-                else
-                    // user-entered url
-                    command = replace_string(command, "%url%", netmount->url, FALSE);
-                g_free(str);
-            }
-            if (strstr(command, "%proto%"))
-            {
-                str = command;
-                command = replace_string(command, "%proto%", netmount->fstype, FALSE);
-                g_free(str);
-            }
-            if (strstr(command, "%host%"))
-            {
-                str = command;
-                command = replace_string(command, "%host%", netmount->host, FALSE);
-                g_free(str);
-            }
-            if (strstr(command, "%port%"))
-            {
-                str = command;
-                command = replace_string(command, "%port%", netmount->port, FALSE);
-                g_free(str);
-            }
-            if (strstr(command, "%user%"))
-            {
-                str = command;
-                command = replace_string(command, "%user%", netmount->user, FALSE);
-                g_free(str);
-            }
-            if (strstr(command, "%pass%"))
-            {
-                str = command;
-                command = replace_string(command, "%pass%", netmount->pass, FALSE);
-                g_free(str);
-            }
-            if (strstr(command, "%path%"))
-            {
-                str = command;
-                command = replace_string(command, "%path%", netmount->path, FALSE);
-                g_free(str);
-            }
-        }
-        if (strstr(command, "%a"))
-        {
-            if (action == HANDLER_MOUNT && netmount)
-            {
-                // create mount point
-                char* point_dir =
-                    ptk_location_view_create_mount_point(HANDLER_MODE_NET, NULL, netmount, NULL);
-                str = command;
-                command = replace_string(command, "%a", point_dir, FALSE);
-                g_free(str);
-                if (mount_point)
-                    *mount_point = point_dir;
-                else
-                    g_free(point_dir);
-            }
-            else
-            {
-                str = command;
-                command =
-                    replace_string(command,
-                                   "%a",
-                                   vol && vol->is_mounted && vol->mount_point && vol->mount_point[0]
-                                       ? vol->mount_point
-                                       : "",
-                                   FALSE);
-                g_free(str);
-            }
-        }
-
-        if (netmount)
-        {
-            // add bash variables
-            // urlq is user-entered url or (if mounted) mtab url
-            char* urlq = bash_quote(
-                action != HANDLER_MOUNT && vol && vol->is_mounted ? vol->udi : netmount->url);
-            char* protoq = bash_quote(netmount->fstype); // url-derived protocol (ssh)
-            char* hostq = bash_quote(netmount->host);
-            char* portq = bash_quote(netmount->port);
-            char* userq = bash_quote(netmount->user);
-            char* passq = bash_quote(netmount->pass);
-            char* pathq = bash_quote(netmount->path);
-            // mtab fs type (fuse.ssh)
-            char* mtabfsq =
-                bash_quote(action != HANDLER_MOUNT && vol && vol->is_mounted ? vol->fs_type : NULL);
-            // urlq and mtaburlq will both be the same mtab url if mounted
-            char* mtaburlq = bash_quote(
-                action != HANDLER_MOUNT && vol && vol->is_mounted ? vol->device_file : NULL);
+            // standard sub vars
             str = command;
-            command = g_strdup_printf(
-                "fm_url_proto=%s; fm_url=%s; fm_url_host=%s; fm_url_port=%s; fm_url_user=%s; "
-                "fm_url_pass=%s; fm_url_path=%s; fm_mtab_fs=%s; fm_mtab_url=%s\n%s",
-                protoq,
-                urlq,
-                hostq,
-                portq,
-                userq,
-                passq,
-                pathq,
-                mtabfsq,
-                mtaburlq,
-                command);
+            command = replace_line_subs(command);
             g_free(str);
-            g_free(urlq);
-            g_free(protoq);
-            g_free(hostq);
-            g_free(portq);
-            g_free(userq);
-            g_free(passq);
-            g_free(pathq);
-            g_free(mtabfsq);
-            g_free(mtaburlq);
-        }
+            break;
+        case HANDLER_MODE_NET:
+            // also used for DEVICE_TYPE_OTHER unmount and prop
+            /*
+             *       %url%     $fm_url
+             *       %proto%   $fm_url_proto
+             *       %host%    $fm_url_host
+             *       %port%    $fm_url_port
+             *       %user%    $fm_url_user
+             *       %pass%    $fm_url_pass
+             *       %path%    $fm_url_path
+             *       %a        mount point, or create auto mount point
+             */
+
+            if (netmount)
+            {
+                // replace sub vars
+                if (strstr(command, "%url%"))
+                {
+                    str = command;
+                    if (action != HANDLER_MOUNT && vol && vol->is_mounted)
+                        // user-entered url (or mtab url if not available)
+                        command = replace_string(command, "%url%", vol->udi, FALSE);
+                    else
+                        // user-entered url
+                        command = replace_string(command, "%url%", netmount->url, FALSE);
+                    g_free(str);
+                }
+                if (strstr(command, "%proto%"))
+                {
+                    str = command;
+                    command = replace_string(command, "%proto%", netmount->fstype, FALSE);
+                    g_free(str);
+                }
+                if (strstr(command, "%host%"))
+                {
+                    str = command;
+                    command = replace_string(command, "%host%", netmount->host, FALSE);
+                    g_free(str);
+                }
+                if (strstr(command, "%port%"))
+                {
+                    str = command;
+                    command = replace_string(command, "%port%", netmount->port, FALSE);
+                    g_free(str);
+                }
+                if (strstr(command, "%user%"))
+                {
+                    str = command;
+                    command = replace_string(command, "%user%", netmount->user, FALSE);
+                    g_free(str);
+                }
+                if (strstr(command, "%pass%"))
+                {
+                    str = command;
+                    command = replace_string(command, "%pass%", netmount->pass, FALSE);
+                    g_free(str);
+                }
+                if (strstr(command, "%path%"))
+                {
+                    str = command;
+                    command = replace_string(command, "%path%", netmount->path, FALSE);
+                    g_free(str);
+                }
+            }
+            if (strstr(command, "%a"))
+            {
+                if (action == HANDLER_MOUNT && netmount)
+                {
+                    // create mount point
+                    char* point_dir = ptk_location_view_create_mount_point(HANDLER_MODE_NET,
+                                                                           NULL,
+                                                                           netmount,
+                                                                           NULL);
+                    str = command;
+                    command = replace_string(command, "%a", point_dir, FALSE);
+                    g_free(str);
+                    if (mount_point)
+                        *mount_point = point_dir;
+                    else
+                        g_free(point_dir);
+                }
+                else
+                {
+                    str = command;
+                    command = replace_string(command,
+                                             "%a",
+                                             vol && vol->is_mounted && vol->mount_point &&
+                                                     vol->mount_point[0]
+                                                 ? vol->mount_point
+                                                 : "",
+                                             FALSE);
+                    g_free(str);
+                }
+            }
+
+            if (netmount)
+            {
+                // add bash variables
+                // urlq is user-entered url or (if mounted) mtab url
+                char* urlq = bash_quote(
+                    action != HANDLER_MOUNT && vol && vol->is_mounted ? vol->udi : netmount->url);
+                char* protoq = bash_quote(netmount->fstype); // url-derived protocol (ssh)
+                char* hostq = bash_quote(netmount->host);
+                char* portq = bash_quote(netmount->port);
+                char* userq = bash_quote(netmount->user);
+                char* passq = bash_quote(netmount->pass);
+                char* pathq = bash_quote(netmount->path);
+                // mtab fs type (fuse.ssh)
+                char* mtabfsq = bash_quote(
+                    action != HANDLER_MOUNT && vol && vol->is_mounted ? vol->fs_type : NULL);
+                // urlq and mtaburlq will both be the same mtab url if mounted
+                char* mtaburlq = bash_quote(
+                    action != HANDLER_MOUNT && vol && vol->is_mounted ? vol->device_file : NULL);
+                str = command;
+                command = g_strdup_printf(
+                    "fm_url_proto=%s; fm_url=%s; fm_url_host=%s; fm_url_port=%s; fm_url_user=%s; "
+                    "fm_url_pass=%s; fm_url_path=%s; fm_mtab_fs=%s; fm_mtab_url=%s\n%s",
+                    protoq,
+                    urlq,
+                    hostq,
+                    portq,
+                    userq,
+                    passq,
+                    pathq,
+                    mtabfsq,
+                    mtaburlq,
+                    command);
+                g_free(str);
+                g_free(urlq);
+                g_free(protoq);
+                g_free(hostq);
+                g_free(portq);
+                g_free(userq);
+                g_free(passq);
+                g_free(pathq);
+                g_free(mtabfsq);
+                g_free(mtaburlq);
+            }
+            break;
+        default:
+            break;
     }
+
     *run_in_terminal = terminal;
     return command;
 }
@@ -3164,71 +3188,78 @@ char* vfs_volume_device_unmount_cmd(VFSVolume* vol, bool* run_in_terminal)
     char* pointq;
     *run_in_terminal = FALSE;
 
+    netmount_t* netmount = NULL;
+
     // unmounting a network ?
-    if (vol->device_type == DEVICE_TYPE_NETWORK)
+    switch (vol->device_type)
     {
-        // is a network - try to get unmount command
-        netmount_t* netmount = NULL;
-        if (split_network_url(vol->udi, &netmount) == 1)
-        {
-            command = vfs_volume_handler_cmd(HANDLER_MODE_NET,
+        case DEVICE_TYPE_NETWORK:
+            // is a network - try to get unmount command
+            if (split_network_url(vol->udi, &netmount) == 1)
+            {
+                command = vfs_volume_handler_cmd(HANDLER_MODE_NET,
+                                                 HANDLER_UNMOUNT,
+                                                 vol,
+                                                 NULL,
+                                                 netmount,
+                                                 run_in_terminal,
+                                                 NULL);
+                g_free(netmount->url);
+                g_free(netmount->fstype);
+                g_free(netmount->host);
+                g_free(netmount->ip);
+                g_free(netmount->port);
+                g_free(netmount->user);
+                g_free(netmount->pass);
+                g_free(netmount->path);
+                g_slice_free(netmount_t, netmount);
+
+                // igtodo is this redundant?
+                // replace mount point sub var
+                if (command && strstr(command, "%a"))
+                {
+                    pointq = bash_quote(vol->is_mounted ? vol->mount_point : NULL);
+                    s1 = command;
+                    command = replace_string(command, "%a", pointq, FALSE);
+                    g_free(s1);
+                    g_free(pointq);
+                }
+            }
+            break;
+
+        case DEVICE_TYPE_OTHER:
+            if (mtab_fstype_is_handled_by_protocol(vol->fs_type))
+            {
+                command = vfs_volume_handler_cmd(HANDLER_MODE_NET,
+                                                 HANDLER_UNMOUNT,
+                                                 vol,
+                                                 NULL,
+                                                 NULL,
+                                                 run_in_terminal,
+                                                 NULL);
+                // igtodo is this redundant?
+                // replace mount point sub var
+                if (command && strstr(command, "%a"))
+                {
+                    pointq = bash_quote(vol->is_mounted ? vol->mount_point : NULL);
+                    s1 = command;
+                    command = replace_string(command, "%a", pointq, FALSE);
+                    g_free(s1);
+                    g_free(pointq);
+                }
+            }
+            break;
+        default:
+            command = vfs_volume_handler_cmd(HANDLER_MODE_FS,
                                              HANDLER_UNMOUNT,
                                              vol,
                                              NULL,
                                              netmount,
                                              run_in_terminal,
                                              NULL);
-            g_free(netmount->url);
-            g_free(netmount->fstype);
-            g_free(netmount->host);
-            g_free(netmount->ip);
-            g_free(netmount->port);
-            g_free(netmount->user);
-            g_free(netmount->pass);
-            g_free(netmount->path);
-            g_slice_free(netmount_t, netmount);
+            break;
+    }
 
-            // igtodo is this redundant?
-            // replace mount point sub var
-            if (command && strstr(command, "%a"))
-            {
-                pointq = bash_quote(vol->is_mounted ? vol->mount_point : NULL);
-                s1 = command;
-                command = replace_string(command, "%a", pointq, FALSE);
-                g_free(s1);
-                g_free(pointq);
-            }
-        }
-    }
-    else if (vol->device_type == DEVICE_TYPE_OTHER &&
-             mtab_fstype_is_handled_by_protocol(vol->fs_type))
-    {
-        command = vfs_volume_handler_cmd(HANDLER_MODE_NET,
-                                         HANDLER_UNMOUNT,
-                                         vol,
-                                         NULL,
-                                         NULL,
-                                         run_in_terminal,
-                                         NULL);
-        // igtodo is this redundant?
-        // replace mount point sub var
-        if (command && strstr(command, "%a"))
-        {
-            pointq = bash_quote(vol->is_mounted ? vol->mount_point : NULL);
-            s1 = command;
-            command = replace_string(command, "%a", pointq, FALSE);
-            g_free(s1);
-            g_free(pointq);
-        }
-    }
-    else
-        command = vfs_volume_handler_cmd(HANDLER_MODE_FS,
-                                         HANDLER_UNMOUNT,
-                                         vol,
-                                         NULL,
-                                         NULL,
-                                         run_in_terminal,
-                                         NULL);
     if (!command)
     {
         // discovery

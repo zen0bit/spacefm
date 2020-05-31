@@ -661,37 +661,62 @@ char* ptk_handler_get_command(int mode, int cmd, XSet* handler_set)
         int nelements;
         const char* command;
 
-        if (mode == HANDLER_MODE_ARC)
-            nelements = G_N_ELEMENTS(handlers_arc);
-        else if (mode == HANDLER_MODE_FS)
-            nelements = G_N_ELEMENTS(handlers_fs);
-        else if (mode == HANDLER_MODE_NET)
-            nelements = G_N_ELEMENTS(handlers_net);
-        else if (mode == HANDLER_MODE_FILE)
-            nelements = G_N_ELEMENTS(handlers_file);
-        else
-            return NULL;
+        switch (mode)
+        {
+            case HANDLER_MODE_ARC:
+                nelements = G_N_ELEMENTS(handlers_arc);
+                break;
+            case HANDLER_MODE_FS:
+                nelements = G_N_ELEMENTS(handlers_fs);
+                break;
+            case HANDLER_MODE_NET:
+                nelements = G_N_ELEMENTS(handlers_net);
+                break;
+            case HANDLER_MODE_FILE:
+                nelements = G_N_ELEMENTS(handlers_file);
+                break;
+            default:
+                return NULL;
+        }
 
         for (i = 0; i < nelements; i++)
         {
-            if (mode == HANDLER_MODE_ARC)
-                handler = &handlers_arc[i];
-            else if (mode == HANDLER_MODE_FS)
-                handler = &handlers_fs[i];
-            else if (mode == HANDLER_MODE_NET)
-                handler = &handlers_net[i];
-            else
-                handler = &handlers_file[i];
+            switch (mode)
+            {
+                case HANDLER_MODE_ARC:
+                    handler = &handlers_arc[i];
+                    break;
+                case HANDLER_MODE_FS:
+                    handler = &handlers_fs[i];
+                    break;
+                case HANDLER_MODE_NET:
+                    handler = &handlers_net[i];
+                    break;
+                case HANDLER_MODE_FILE:
+                    handler = &handlers_file[i];
+                    break;
+                default:
+                    break;
+            }
 
             if (!strcmp(handler->xset_name, handler_set->name))
             {
                 // found default handler
-                if (cmd == HANDLER_COMPRESS)
-                    command = handler->compress_cmd;
-                else if (cmd == HANDLER_EXTRACT)
-                    command = handler->extract_cmd;
-                else
-                    command = handler->list_cmd;
+                switch (cmd)
+                {
+                    case HANDLER_COMPRESS:
+                        command = handler->compress_cmd;
+                        break;
+                    case HANDLER_EXTRACT:
+                        command = handler->extract_cmd;
+                        break;
+                    case HANDLER_LIST:
+                        command = handler->list_cmd;
+                        break;
+                    default:
+                        break;
+                }
+
                 return g_strdup(command);
             }
         }
@@ -1112,16 +1137,24 @@ void ptk_handler_add_defaults(int mode, bool overwrite, bool add_missing)
     XSet* set_conf;
     const Handler* handler;
 
-    if (mode == HANDLER_MODE_ARC)
-        nelements = G_N_ELEMENTS(handlers_arc);
-    else if (mode == HANDLER_MODE_FS)
-        nelements = G_N_ELEMENTS(handlers_fs);
-    else if (mode == HANDLER_MODE_NET)
-        nelements = G_N_ELEMENTS(handlers_net);
-    else if (mode == HANDLER_MODE_FILE)
-        nelements = G_N_ELEMENTS(handlers_file);
-    else
-        return;
+    switch (mode)
+    {
+        case HANDLER_MODE_ARC:
+            nelements = G_N_ELEMENTS(handlers_arc);
+            break;
+        case HANDLER_MODE_FS:
+            nelements = G_N_ELEMENTS(handlers_fs);
+            break;
+        case HANDLER_MODE_NET:
+            nelements = G_N_ELEMENTS(handlers_net);
+            break;
+        case HANDLER_MODE_FILE:
+            nelements = G_N_ELEMENTS(handlers_file);
+            break;
+        default:
+            return;
+    }
+
     set_conf = xset_get(handler_conf_xset[mode]);
     list = g_strdup(set_conf->s);
 
@@ -1134,14 +1167,23 @@ void ptk_handler_add_defaults(int mode, bool overwrite, bool add_missing)
 
     for (i = 0; i < nelements; i++)
     {
-        if (mode == HANDLER_MODE_ARC)
-            handler = &handlers_arc[i];
-        else if (mode == HANDLER_MODE_FS)
-            handler = &handlers_fs[i];
-        else if (mode == HANDLER_MODE_NET)
-            handler = &handlers_net[i];
-        else
-            handler = &handlers_file[i];
+        switch (mode)
+        {
+            case HANDLER_MODE_ARC:
+                handler = &handlers_arc[i];
+                break;
+            case HANDLER_MODE_FS:
+                handler = &handlers_fs[i];
+                break;
+            case HANDLER_MODE_NET:
+                handler = &handlers_net[i];
+                break;
+            case HANDLER_MODE_FILE:
+                handler = &handlers_file[i];
+                break;
+            default:
+                return;
+        }
 
         // add a space to end of list and end of name before testing to avoid
         // substring false positive
@@ -1286,16 +1328,23 @@ void ptk_handler_import(int mode, GtkWidget* handler_dlg, XSet* set)
     {
         // dialog not shown or invalid
         const char* mode_name;
-        if (mode == HANDLER_MODE_ARC)
-            mode_name = _("Archive");
-        else if (mode == HANDLER_MODE_FS)
-            mode_name = _("Device");
-        else if (mode == HANDLER_MODE_NET)
-            mode_name = _("Protocol");
-        else if (mode == HANDLER_MODE_FILE)
-            mode_name = _("File");
-        else
-            return; // failsafe
+        switch (mode)
+        {
+            case HANDLER_MODE_ARC:
+                mode_name = _("Archive");
+                break;
+            case HANDLER_MODE_FS:
+                mode_name = _("Device");
+                break;
+            case HANDLER_MODE_NET:
+                mode_name = _("Protocol");
+                break;
+            case HANDLER_MODE_FILE:
+                mode_name = _("File");
+                break;
+            default:
+                return;
+        }
         msg = g_strdup_printf(
             _("The selected %s Handler file has been imported to the %s Handlers list."),
             mode_name,
@@ -2169,29 +2218,46 @@ static void restore_defaults(HandlerData* hnd, bool all)
         int nelements;
         const Handler* handler = NULL;
 
-        if (hnd->mode == HANDLER_MODE_ARC)
-            nelements = G_N_ELEMENTS(handlers_arc);
-        else if (hnd->mode == HANDLER_MODE_FS)
-            nelements = G_N_ELEMENTS(handlers_fs);
-        else if (hnd->mode == HANDLER_MODE_NET)
-            nelements = G_N_ELEMENTS(handlers_net);
-        else if (hnd->mode == HANDLER_MODE_FILE)
-            nelements = G_N_ELEMENTS(handlers_file);
-        else
-            return;
+        switch (hnd->mode)
+        {
+            case HANDLER_MODE_ARC:
+                nelements = G_N_ELEMENTS(handlers_arc);
+                break;
+            case HANDLER_MODE_FS:
+                nelements = G_N_ELEMENTS(handlers_fs);
+                break;
+            case HANDLER_MODE_NET:
+                nelements = G_N_ELEMENTS(handlers_net);
+                break;
+            case HANDLER_MODE_FILE:
+                nelements = G_N_ELEMENTS(handlers_file);
+                break;
+            default:
+                return;
+        }
 
         bool found_handler = FALSE;
         int i;
         for (i = 0; i < nelements; i++)
         {
-            if (hnd->mode == HANDLER_MODE_ARC)
-                handler = &handlers_arc[i];
-            else if (hnd->mode == HANDLER_MODE_FS)
-                handler = &handlers_fs[i];
-            else if (hnd->mode == HANDLER_MODE_NET)
-                handler = &handlers_net[i];
-            else
-                handler = &handlers_file[i];
+            switch (hnd->mode)
+            {
+                case HANDLER_MODE_ARC:
+                    handler = &handlers_arc[i];
+                    break;
+                case HANDLER_MODE_FS:
+                    handler = &handlers_fs[i];
+                    break;
+                case HANDLER_MODE_NET:
+                    handler = &handlers_net[i];
+                    break;
+                case HANDLER_MODE_FILE:
+                    handler = &handlers_file[i];
+                    return;
+                default:
+                    break;
+            }
+
             if (!g_strcmp0(handler->xset_name, xset_name))
             {
                 found_handler = TRUE;
@@ -2435,49 +2501,59 @@ bool on_activate_link(GtkLabel* label, char* uri, HandlerData* hnd)
 
 static bool on_textview_keypress(GtkWidget* widget, GdkEventKey* event, HandlerData* hnd)
 { // also used on dlg keypress
-    if ((event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter))
+    int keymod = (event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK |
+                                  GDK_SUPER_MASK | GDK_HYPER_MASK | GDK_META_MASK));
+    switch (event->keyval)
     {
-        int keymod = (event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK |
-                                      GDK_SUPER_MASK | GDK_HYPER_MASK | GDK_META_MASK));
-        if (keymod == GDK_MOD1_MASK)
-        {
-            // Alt+Enter == Open Handler Command In Editor
-            if (widget == hnd->view_handler_compress)
-                keymod = 0;
-            else if (widget == hnd->view_handler_extract)
-                keymod = 1;
-            else if (widget == hnd->view_handler_list)
-                keymod = 2;
-            else
-                return FALSE;
-            char* uri = g_strdup_printf("%d", keymod);
-            on_activate_link(NULL, uri, hnd);
-            g_free(uri);
-            return TRUE;
-        }
+        case GDK_KEY_Return:
+            // fallthrough
+        case GDK_KEY_KP_Enter:
+            if (keymod == GDK_MOD1_MASK)
+            {
+                // Alt+Enter == Open Handler Command In Editor
+                if (widget == hnd->view_handler_compress)
+                    keymod = 0;
+                else if (widget == hnd->view_handler_extract)
+                    keymod = 1;
+                else if (widget == hnd->view_handler_list)
+                    keymod = 2;
+                else
+                    return FALSE;
+                char* uri = g_strdup_printf("%d", keymod);
+                on_activate_link(NULL, uri, hnd);
+                g_free(uri);
+                return TRUE;
+            }
+            break;
+        case GDK_KEY_F1:
+            // F1 show help
+            if (keymod == 0)
+            {
+                const char* help;
+                switch (hnd->mode)
+                {
+                    case HANDLER_MODE_ARC:
+                        help = "#handlers-arc";
+                        break;
+                    case HANDLER_MODE_FS:
+                        help = "#handlers-dev";
+                        break;
+                    case HANDLER_MODE_NET:
+                        help = "#handlers-pro";
+                        break;
+                    case HANDLER_MODE_FILE:
+                        help = "#handlers-fil";
+                        break;
+                    default:
+                        help = NULL;
+                        break;
+                }
+                xset_show_help(hnd->dlg, NULL, help);
+                return TRUE;
+            }
+            break;
     }
-    else if (event->keyval == GDK_KEY_F1)
-    {
-        // F1 show help
-        int keymod = (event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK |
-                                      GDK_SUPER_MASK | GDK_HYPER_MASK | GDK_META_MASK));
-        if (keymod == 0)
-        {
-            const char* help;
-            if (hnd->mode == HANDLER_MODE_ARC)
-                help = "#handlers-arc";
-            else if (hnd->mode == HANDLER_MODE_FS)
-                help = "#handlers-dev";
-            else if (hnd->mode == HANDLER_MODE_NET)
-                help = "#handlers-pro";
-            else if (hnd->mode == HANDLER_MODE_FILE)
-                help = "#handlers-fil";
-            else
-                help = NULL;
-            xset_show_help(hnd->dlg, NULL, help);
-            return TRUE;
-        }
-    }
+
     return FALSE;
 }
 
@@ -2564,86 +2640,75 @@ void on_option_cb(GtkMenuItem* item, HandlerData* hnd)
     }
 
     // determine job
-    if (job == HANDLER_JOB_IMPORT_FILE)
-    {
-    }
-    else if (job == HANDLER_JOB_IMPORT_URL)
-    {
-    }
-    else if (job == HANDLER_JOB_RESTORE_ALL)
-    {
-        restore_defaults(hnd, TRUE);
-        return;
-    }
-    else if (job == HANDLER_JOB_REMOVE)
-    {
-        on_configure_button_press(GTK_BUTTON(hnd->btn_remove), hnd);
-        return;
-    }
-    else if (job == HANDLER_JOB_EXPORT)
-    {
-        // export
-        if (!set_sel)
-            return; // nothing selected - failsafe
-
-        if (g_str_has_prefix(set_sel->name, handler_def_prefix[hnd->mode]) && set_sel->disable)
-        {
-            // is an unsaved default handler, click Defaults then Apply to save
-            restore_defaults(hnd, FALSE);
-            on_configure_button_press(GTK_BUTTON(hnd->btn_apply), hnd);
-            if (set_sel->disable)
-                return; // failsafe
-        }
-        xset_custom_export(hnd->dlg, NULL, set_sel);
-        return;
-    }
-    else
-        return;
-
-    // Import file or URL - get import spec from user
     char* folder;
     char* file;
-    if (job == HANDLER_JOB_IMPORT_FILE)
+    XSet* save;
+    switch (job)
     {
-        // get file path
-        XSet* save = xset_get("plug_ifile");
-        if (save->s) //&& g_file_test( save->s, G_FILE_TEST_IS_DIR )
-            folder = save->s;
-        else
-        {
-            if (!(folder = xset_get_s("go_set_default")))
-                folder = "/";
-        }
-        file = xset_file_dialog(GTK_WIDGET(hnd->dlg),
-                                GTK_FILE_CHOOSER_ACTION_OPEN,
-                                _("Choose Handler Plugin File"),
-                                folder,
-                                NULL);
-        if (!file)
+        case HANDLER_JOB_IMPORT_FILE:
+            // get file path
+            save = xset_get("plug_ifile");
+            if (save->s) //&& g_file_test( save->s, G_FILE_TEST_IS_DIR )
+                folder = save->s;
+            else
+            {
+                if (!(folder = xset_get_s("go_set_default")))
+                    folder = "/";
+            }
+            file = xset_file_dialog(GTK_WIDGET(hnd->dlg),
+                                    GTK_FILE_CHOOSER_ACTION_OPEN,
+                                    _("Choose Handler Plugin File"),
+                                    folder,
+                                    NULL);
+            if (!file)
+                return;
+            if (save->s)
+                g_free(save->s);
+            save->s = g_path_get_dirname(file);
+            break;
+        case HANDLER_JOB_IMPORT_URL:
+            // Get URL
+            file = NULL;
+            if (!xset_text_dialog(GTK_WIDGET(hnd->dlg),
+                                  _("Enter Handler Plugin URL"),
+                                  NULL,
+                                  FALSE,
+                                  _("Enter SpaceFM Handler Plugin URL:\n\n(wget will be used to "
+                                    "download the handler plugin file)"),
+                                  NULL,
+                                  NULL,
+                                  &file,
+                                  NULL,
+                                  FALSE,
+                                  "#handlers-opt-impu") ||
+                !file || file[0] == '\0')
+                return;
+            break;
+        case HANDLER_JOB_RESTORE_ALL:
+            restore_defaults(hnd, TRUE);
             return;
-        if (save->s)
-            g_free(save->s);
-        save->s = g_path_get_dirname(file);
-    }
-    else
-    {
-        // Get URL
-        file = NULL;
-        if (!xset_text_dialog(GTK_WIDGET(hnd->dlg),
-                              _("Enter Handler Plugin URL"),
-                              NULL,
-                              FALSE,
-                              _("Enter SpaceFM Handler Plugin URL:\n\n(wget will be used to "
-                                "download the handler plugin file)"),
-                              NULL,
-                              NULL,
-                              &file,
-                              NULL,
-                              FALSE,
-                              "#handlers-opt-impu") ||
-            !file || file[0] == '\0')
+        case HANDLER_JOB_REMOVE:
+            on_configure_button_press(GTK_BUTTON(hnd->btn_remove), hnd);
+            return;
+        case HANDLER_JOB_EXPORT:
+            // export
+            if (!set_sel)
+                return; // nothing selected - failsafe
+
+            if (g_str_has_prefix(set_sel->name, handler_def_prefix[hnd->mode]) && set_sel->disable)
+            {
+                // is an unsaved default handler, click Defaults then Apply to save
+                restore_defaults(hnd, FALSE);
+                on_configure_button_press(GTK_BUTTON(hnd->btn_apply), hnd);
+                if (set_sel->disable)
+                    return; // failsafe
+            }
+            xset_custom_export(hnd->dlg, NULL, set_sel);
+            return;
+        default:
             return;
     }
+
     // Make Plugin Dir
     const char* user_tmp = xset_get_user_tmp_dir();
     if (!user_tmp)
@@ -3502,41 +3567,49 @@ void ptk_handler_show_config(int mode, PtkFileBrowser* file_browser, XSet* def_h
     int response;
     while ((response = gtk_dialog_run(GTK_DIALOG(hnd->dlg))))
     {
-        if (response == GTK_RESPONSE_OK)
+        bool exit_loop = FALSE;
+        const char* help = NULL;
+        switch (response)
         {
-            if (hnd->changed)
-                on_configure_button_press(GTK_BUTTON(hnd->btn_apply), hnd);
-            break;
+            case GTK_RESPONSE_OK:
+                if (hnd->changed)
+                    on_configure_button_press(GTK_BUTTON(hnd->btn_apply), hnd);
+                exit_loop = TRUE;
+                break;
+            case GTK_RESPONSE_CANCEL:
+                exit_loop = TRUE;
+                break;
+            case GTK_RESPONSE_HELP:
+                switch (mode)
+                {
+                    case HANDLER_MODE_ARC:
+                        help = "#handlers-arc-archand";
+                        break;
+                    case HANDLER_MODE_FS:
+                        help = "#handlers-dev";
+                        break;
+                    case HANDLER_MODE_NET:
+                        help = "#handlers-pro";
+                        break;
+                    case HANDLER_MODE_FILE:
+                        help = "#handlers-fil";
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case GTK_RESPONSE_NONE:
+                // Options menu requested
+                break;
+            case GTK_RESPONSE_NO:
+                // Restore defaults requested
+                restore_defaults(hnd, FALSE);
+                break;
+            default:
+                exit_loop = TRUE;
+                break;
         }
-        if (response == GTK_RESPONSE_CANCEL)
-        {
-            break;
-        }
-        else if (response == GTK_RESPONSE_HELP)
-        {
-            const char* help;
-            if (mode == HANDLER_MODE_ARC)
-                help = "#handlers-arc-archand";
-            else if (mode == HANDLER_MODE_FS)
-                help = "#handlers-dev";
-            else if (mode == HANDLER_MODE_NET)
-                help = "#handlers-pro";
-            else if (mode == HANDLER_MODE_FILE)
-                help = "#handlers-fil";
-            else
-                help = NULL;
-            xset_show_help(hnd->dlg, NULL, help);
-        }
-        else if (response == GTK_RESPONSE_NONE)
-        {
-            // Options menu requested
-        }
-        else if (response == GTK_RESPONSE_NO)
-        {
-            // Restore defaults requested
-            restore_defaults(hnd, FALSE);
-        }
-        else
+        if (exit_loop)
             break;
     }
 

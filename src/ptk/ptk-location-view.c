@@ -706,61 +706,70 @@ char* ptk_location_view_create_mount_point(int mode, VFSVolume* vol, netmount_t*
 {
     char* mname = NULL;
     char* str;
-    if (mode == HANDLER_MODE_FS && vol)
+    switch (mode)
     {
-        char* bdev = g_path_get_basename(vol->device_file);
-        if (vol->label && vol->label[0] != '\0' && vol->label[0] != ' ' &&
-            g_utf8_validate(vol->label, -1, NULL) && !strchr(vol->label, '/'))
-            mname = g_strdup_printf("%.20s", vol->label);
-        else if (vol->udi && vol->udi[0] != '\0' && g_utf8_validate(vol->udi, -1, NULL))
-        {
-            str = g_path_get_basename(vol->udi);
-            mname = g_strdup_printf("%s-%.20s", bdev, str);
-            g_free(str);
-        }
-        // else if ( device->id_uuid && device->id_uuid[0] != '\0' )
-        //    mname = g_strdup_printf( "%s-%s", bdev, device->id_uuid );
-        else
-            mname = g_strdup(bdev);
-        g_free(bdev);
-    }
-    else if (mode == HANDLER_MODE_NET)
-    {
-        if (netmount->host && g_utf8_validate(netmount->host, -1, NULL))
-        {
-            char* parent_dir = NULL;
-            if (netmount->path)
+        case HANDLER_MODE_FS:
+            if (vol)
             {
-                parent_dir = replace_string(netmount->path, "/", "-", FALSE);
-                g_strstrip(parent_dir);
-                while (g_str_has_suffix(parent_dir, "-"))
-                    parent_dir[strlen(parent_dir) - 1] = '\0';
-                while (g_str_has_prefix(parent_dir, "-"))
+                char* bdev = g_path_get_basename(vol->device_file);
+                if (vol->label && vol->label[0] != '\0' && vol->label[0] != ' ' &&
+                    g_utf8_validate(vol->label, -1, NULL) && !strchr(vol->label, '/'))
+                    mname = g_strdup_printf("%.20s", vol->label);
+                else if (vol->udi && vol->udi[0] != '\0' && g_utf8_validate(vol->udi, -1, NULL))
                 {
-                    str = parent_dir;
-                    parent_dir = g_strdup(str + 1);
+                    str = g_path_get_basename(vol->udi);
+                    mname = g_strdup_printf("%s-%.20s", bdev, str);
                     g_free(str);
                 }
-                if (parent_dir[0] == '\0' || !g_utf8_validate(parent_dir, -1, NULL) ||
-                    strlen(parent_dir) > 30)
-                {
-                    g_free(parent_dir);
-                    parent_dir = NULL;
-                }
+                // else if ( device->id_uuid && device->id_uuid[0] != '\0' )
+                //    mname = g_strdup_printf( "%s-%s", bdev, device->id_uuid );
+                else
+                    mname = g_strdup(bdev);
+                g_free(bdev);
             }
-            if (parent_dir)
-                mname = g_strdup_printf("%s-%s-%s", netmount->fstype, netmount->host, parent_dir);
-            else if (netmount->host && netmount->host[0])
-                mname = g_strdup_printf("%s-%s", netmount->fstype, netmount->host);
+            break;
+        case HANDLER_MODE_NET:
+            if (netmount->host && g_utf8_validate(netmount->host, -1, NULL))
+            {
+                char* parent_dir = NULL;
+                if (netmount->path)
+                {
+                    parent_dir = replace_string(netmount->path, "/", "-", FALSE);
+                    g_strstrip(parent_dir);
+                    while (g_str_has_suffix(parent_dir, "-"))
+                        parent_dir[strlen(parent_dir) - 1] = '\0';
+                    while (g_str_has_prefix(parent_dir, "-"))
+                    {
+                        str = parent_dir;
+                        parent_dir = g_strdup(str + 1);
+                        g_free(str);
+                    }
+                    if (parent_dir[0] == '\0' || !g_utf8_validate(parent_dir, -1, NULL) ||
+                        strlen(parent_dir) > 30)
+                    {
+                        g_free(parent_dir);
+                        parent_dir = NULL;
+                    }
+                }
+                if (parent_dir)
+                    mname =
+                        g_strdup_printf("%s-%s-%s", netmount->fstype, netmount->host, parent_dir);
+                else if (netmount->host && netmount->host[0])
+                    mname = g_strdup_printf("%s-%s", netmount->fstype, netmount->host);
+                else
+                    mname = g_strdup_printf("%s", netmount->fstype);
+                g_free(parent_dir);
+            }
             else
-                mname = g_strdup_printf("%s", netmount->fstype);
-            g_free(parent_dir);
-        }
-        else
-            mname = g_strdup(netmount->fstype);
+                mname = g_strdup(netmount->fstype);
+            break;
+        case HANDLER_MODE_FILE:
+            if (path)
+                mname = g_path_get_basename(path);
+            break;
+        default:
+            break;
     }
-    else if (mode == HANDLER_MODE_FILE && path)
-        mname = g_path_get_basename(path);
 
     // remove spaces
     if (mname && strchr(mname, ' '))
@@ -2668,31 +2677,36 @@ bool on_button_press_event(GtkTreeView* view, GdkEventButton* evt, void* user_da
         }
     }
 
-    if (evt->button == 1) /* left button */
+    switch (evt->button)
     {
-        if (vol)
-        {
-            if (xset_get_b("dev_single"))
+        case 1:
+            // left button
+            if (vol)
             {
-                gtk_tree_view_row_activated(view, tree_path, NULL);
+                if (xset_get_b("dev_single"))
+                {
+                    gtk_tree_view_row_activated(view, tree_path, NULL);
+                    ret = TRUE;
+                }
+            }
+            else
+            {
+                gtk_tree_selection_unselect_all(gtk_tree_view_get_selection(view));
                 ret = TRUE;
             }
-        }
-        else
-        {
-            gtk_tree_selection_unselect_all(gtk_tree_view_get_selection(view));
+            break;
+        case 2:
+            // middle button
+            on_eject(NULL, vol, GTK_WIDGET(view));
             ret = TRUE;
-        }
-    }
-    else if (vol && evt->button == 2) /* middle button */
-    {
-        on_eject(NULL, vol, GTK_WIDGET(view));
-        ret = TRUE;
-    }
-    else if (evt->button == 3) /* right button */
-    {
-        show_devices_menu(view, vol, file_browser, evt->button, evt->time);
-        ret = TRUE;
+            break;
+        case 3:
+            // right button
+            show_devices_menu(view, vol, file_browser, evt->button, evt->time);
+            ret = TRUE;
+            break;
+        default:
+            break;
     }
 
     if (tree_path)
@@ -2748,26 +2762,26 @@ static void show_dev_design_menu(GtkWidget* menu, GtkWidget* dev_item, VFSVolume
         file_browser = NULL;
 
     // NOTE: file_browser may be NULL
-    if (button == 1)
+    switch (button)
     {
-        // left-click - mount & open
-        // device opener?  note that context may be based on devices list sel
-        // won't work for desktop because no DesktopWindow currently available
-        if (file_browser && xset_opener(file_browser, 2))
+        case 1:
+            // left-click - mount & open
+            // device opener?  note that context may be based on devices list sel
+            // won't work for desktop because no DesktopWindow currently available
+            if (file_browser && xset_opener(file_browser, 2))
+                return;
+
+            if (file_browser)
+                on_open_tab(NULL, vol, view);
+            else
+                on_open(NULL, vol, view);
             return;
-
-        if (file_browser)
-            on_open_tab(NULL, vol, view);
-        else
-            on_open(NULL, vol, view);
-
-        return;
-    }
-    else if (button == 2)
-    {
-        // middle-click - Remove / Eject
-        on_eject(NULL, vol, view);
-        return;
+        case 2:
+            // middle-click - Remove / Eject
+            on_eject(NULL, vol, view);
+            return;
+        default:
+            break;
     }
 
     // create menu
@@ -2929,36 +2943,30 @@ bool on_dev_menu_button_press(GtkWidget* item, GdkEventButton* event, VFSVolume*
     int keymod = (event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK |
                                   GDK_SUPER_MASK | GDK_HYPER_MASK | GDK_META_MASK));
 
-    if (event->type == GDK_BUTTON_RELEASE)
+    switch (event->type)
     {
-        if (event->button == 1 && keymod == 0)
-        {
-            // user released left button - due to an apparent gtk bug, activate
-            // doesn't always fire on this event so handle it ourselves
-            // see also settings.c xset_design_cb()
-            // test: gtk2 Crux theme with touchpad on Edit|Copy To|Location
-            // https://github.com/IgnorantGuru/spacefm/issues/31
-            // https://github.com/IgnorantGuru/spacefm/issues/228
-            if (menu)
-                gtk_menu_shell_deactivate(GTK_MENU_SHELL(menu));
+        case GDK_BUTTON_RELEASE:
+            if (event->button == 1 && keymod == 0)
+            {
+                // user released left button - due to an apparent gtk bug, activate
+                // doesn't always fire on this event so handle it ourselves
+                // see also settings.c xset_design_cb()
+                // test: gtk2 Crux theme with touchpad on Edit|Copy To|Location
+                // https://github.com/IgnorantGuru/spacefm/issues/31
+                // https://github.com/IgnorantGuru/spacefm/issues/228
+                if (menu)
+                    gtk_menu_shell_deactivate(GTK_MENU_SHELL(menu));
 
-            /*
-                        GtkWidget* view = (GtkWidget*)g_object_get_data( G_OBJECT(menu), "parent" );
-                        PtkFileBrowser* file_browser = (PtkFileBrowser*)g_object_get_data(
-            G_OBJECT(view), "file_browser" ); printf("xxxxxxxxxxxxxxxxxxxx %p\n", file_browser); if
-            ( file_browser && xset_opener( file_browser, 2 ) )
-                        {
-                            printf("    TRUE\n");
-                            return TRUE;
-                        }
-            */
-            gtk_menu_item_activate(GTK_MENU_ITEM(item));
-            return TRUE;
-        }
-        return FALSE;
+                gtk_menu_item_activate(GTK_MENU_ITEM(item));
+                return TRUE;
+            }
+            return FALSE;
+            break;
+        case GDK_BUTTON_PRESS:
+            break;
+        default:
+            return FALSE;
     }
-    else if (event->type != GDK_BUTTON_PRESS)
-        return FALSE;
 
     show_dev_design_menu(menu, item, vol, event->button, event->time);
     return TRUE;
@@ -4175,16 +4183,18 @@ static bool on_bookmark_button_press_event(GtkTreeView* view, GdkEventButton* ev
     else
         gtk_tree_selection_unselect_all(tree_sel);
 
-    if (evt->button == 2) // middle
+    switch (evt->button)
     {
-        activate_bookmark_item(get_selected_bookmark_set(view), view, file_browser, TRUE);
-        return TRUE;
+        case 2:
+            activate_bookmark_item(get_selected_bookmark_set(view), view, file_browser, TRUE);
+            return TRUE;
+        case 3:
+            show_bookmarks_menu(view, file_browser, evt->button, evt->time);
+            return TRUE;
+        default:
+            break;
     }
-    else if (evt->button == 3) // right
-    {
-        show_bookmarks_menu(view, file_browser, evt->button, evt->time);
-        return TRUE;
-    }
+
     return FALSE;
 }
 

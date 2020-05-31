@@ -390,18 +390,29 @@ static bool on_key_press(GtkWidget* entry, GdkEventKey* evt, EntryData* edata)
     int keymod = (evt->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK | GDK_SUPER_MASK |
                                 GDK_HYPER_MASK | GDK_META_MASK));
 
-    if (evt->keyval == GDK_KEY_Tab && !keymod)
+    switch (evt->keyval)
     {
-        insert_complete(GTK_ENTRY(entry));
-        on_changed(GTK_ENTRY(entry), NULL);
-        seek_path_delayed(GTK_ENTRY(entry), 10);
-        return TRUE;
+        case GDK_KEY_Tab:
+            if (!keymod)
+            {
+                insert_complete(GTK_ENTRY(entry));
+                on_changed(GTK_ENTRY(entry), NULL);
+                seek_path_delayed(GTK_ENTRY(entry), 10);
+                return TRUE;
+            }
+            break;
+        case GDK_KEY_BackSpace:
+            // shift
+            if (keymod == 1)
+            {
+                gtk_entry_set_text(GTK_ENTRY(entry), "");
+                return TRUE;
+            }
+            break;
+        default:
+            break;
     }
-    else if (evt->keyval == GDK_KEY_BackSpace && keymod == 1) // shift
-    {
-        gtk_entry_set_text(GTK_ENTRY(entry), "");
-        return TRUE;
-    }
+
     return FALSE;
 }
 

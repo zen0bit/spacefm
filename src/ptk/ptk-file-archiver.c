@@ -83,18 +83,22 @@ static bool archive_handler_run_in_term(XSet* handler_xset, int operation)
     }
 
     int ret;
-    if (operation == ARC_COMPRESS)
-        ret = handler_xset->in_terminal;
-    else if (operation == ARC_EXTRACT)
-        ret = handler_xset->keep_terminal;
-    else if (operation == ARC_LIST)
-        ret = handler_xset->scroll_lock;
-    else
+    switch (operation)
     {
-        g_warning("archive_handler_run_in_term was passed an invalid"
-                  " archive operation ('%d')!",
-                  operation);
-        return FALSE;
+        case ARC_COMPRESS:
+            ret = handler_xset->in_terminal;
+            break;
+        case ARC_EXTRACT:
+            ret = handler_xset->keep_terminal;
+            break;
+        case ARC_LIST:
+            ret = handler_xset->scroll_lock;
+            break;
+        default:
+            g_warning("archive_handler_run_in_term was passed an invalid"
+                      " archive operation ('%d')!",
+                      operation);
+            return FALSE;
     }
     return ret == XSET_B_TRUE;
 }
@@ -608,162 +612,163 @@ void ptk_file_archiver_create(PtkFileBrowser* file_browser, GList* files, const 
     bool run_in_terminal;
     gtk_widget_show_all(dlg);
 
+    bool exit_loop = FALSE;
     int res;
     while ((res = gtk_dialog_run(GTK_DIALOG(dlg))))
     {
-        if (res == GTK_RESPONSE_OK)
+        switch (res)
         {
-            // Dialog OK'd - fetching archive filename
-            dest_file = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
+            case GTK_RESPONSE_OK:
+                // Dialog OK'd - fetching archive filename
+                dest_file = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
 
-            // Fetching archive handler selected
-            if (!gtk_combo_box_get_active_iter(GTK_COMBO_BOX(combo), &iter))
-            {
-                // Unable to fetch iter from combo box - warning user and
-                // exiting
-                g_warning("Unable to fetch iter from combobox!");
-                g_free(dest_file);
-                gtk_widget_destroy(dlg);
-                return;
-            }
-
-            // Fetching model data
-            gtk_tree_model_get(GTK_TREE_MODEL(list),
-                               &iter,
-                               COL_XSET_NAME,
-                               &xset_name,
-                               // COL_HANDLER_EXTENSIONS, &extensions,
-                               -1);
-
-            handler_xset = xset_get(xset_name);
-            // Saving selected archive handler name as default
-            xset_set("arc_dlg", "s", xset_name);
-            g_free(xset_name);
-
-            // run in the terminal or not
-            run_in_terminal = handler_xset->in_terminal == XSET_B_TRUE;
-
-            // Get command from text view
-            GtkTextBuffer* buf = gtk_text_view_get_buffer(view);
-            GtkTextIter iter, siter;
-            gtk_text_buffer_get_start_iter(buf, &siter);
-            gtk_text_buffer_get_end_iter(buf, &iter);
-            command = gtk_text_buffer_get_text(buf, &siter, &iter, FALSE);
-
-            // reject command that contains only whitespace and comments
-            if (ptk_handler_command_is_empty(command))
-            {
-                xset_msg_dialog(
-                    GTK_WIDGET(dlg),
-                    GTK_MESSAGE_ERROR,
-                    _("Create Archive"),
-                    NULL,
-                    0,
-                    _("The archive creation command is empty.  Please enter a command."),
-                    NULL,
-                    NULL);
-                g_free(command);
-                continue;
-            }
-            // Getting prior command for comparison
-            char* compress_cmd = NULL;
-            char* err_msg = ptk_handler_load_script(HANDLER_MODE_ARC,
-                                                    HANDLER_COMPRESS,
-                                                    handler_xset,
-                                                    NULL,
-                                                    &compress_cmd);
-            if (err_msg)
-            {
-                g_warning("%s", err_msg);
-                g_free(err_msg);
-                compress_cmd = g_strdup("");
-            }
-
-            // Checking to see if the compression command has changed
-            if (g_strcmp0(compress_cmd, command))
-            {
-                // command has changed - saving command
-                g_free(compress_cmd);
-                if (handler_xset->disable)
+                // Fetching archive handler selected
+                if (!gtk_combo_box_get_active_iter(GTK_COMBO_BOX(combo), &iter))
                 {
-                    // commmand was default - need to save all commands
-                    // get default extract command from const
-                    compress_cmd =
-                        ptk_handler_get_command(HANDLER_MODE_ARC, HANDLER_EXTRACT, handler_xset);
-                    // write extract command script
-                    err_msg = ptk_handler_save_script(HANDLER_MODE_ARC,
-                                                      HANDLER_EXTRACT,
-                                                      handler_xset,
-                                                      NULL,
-                                                      compress_cmd);
-                    if (err_msg)
-                    {
-                        g_warning("%s", err_msg);
-                        g_free(err_msg);
-                    }
-                    g_free(compress_cmd);
-                    // get default list command from const
-                    compress_cmd =
-                        ptk_handler_get_command(HANDLER_MODE_ARC, HANDLER_LIST, handler_xset);
-                    // write list command script
-                    err_msg = ptk_handler_save_script(HANDLER_MODE_ARC,
-                                                      HANDLER_LIST,
-                                                      handler_xset,
-                                                      NULL,
-                                                      compress_cmd);
-                    if (err_msg)
-                    {
-                        g_warning("%s", err_msg);
-                        g_free(err_msg);
-                    }
-                    g_free(compress_cmd);
-                    handler_xset->disable = FALSE; // not default handler now
+                    // Unable to fetch iter from combo box - warning user and
+                    // exiting
+                    g_warning("Unable to fetch iter from combobox!");
+                    g_free(dest_file);
+                    gtk_widget_destroy(dlg);
+                    return;
                 }
-                // save updated compress command
-                err_msg = ptk_handler_save_script(HANDLER_MODE_ARC,
-                                                  HANDLER_COMPRESS,
-                                                  handler_xset,
-                                                  NULL,
-                                                  command);
+
+                // Fetching model data
+                gtk_tree_model_get(GTK_TREE_MODEL(list),
+                                   &iter,
+                                   COL_XSET_NAME,
+                                   &xset_name,
+                                   // COL_HANDLER_EXTENSIONS, &extensions,
+                                   -1);
+
+                handler_xset = xset_get(xset_name);
+                // Saving selected archive handler name as default
+                xset_set("arc_dlg", "s", xset_name);
+                g_free(xset_name);
+
+                // run in the terminal or not
+                run_in_terminal = handler_xset->in_terminal == XSET_B_TRUE;
+
+                // Get command from text view
+                GtkTextBuffer* buf = gtk_text_view_get_buffer(view);
+                GtkTextIter iter;
+                GtkTextIter siter;
+                gtk_text_buffer_get_start_iter(buf, &siter);
+                gtk_text_buffer_get_end_iter(buf, &iter);
+                command = gtk_text_buffer_get_text(buf, &siter, &iter, FALSE);
+
+                // reject command that contains only whitespace and comments
+                if (ptk_handler_command_is_empty(command))
+                {
+                    xset_msg_dialog(
+                        GTK_WIDGET(dlg),
+                        GTK_MESSAGE_ERROR,
+                        _("Create Archive"),
+                        NULL,
+                        0,
+                        _("The archive creation command is empty.  Please enter a command."),
+                        NULL,
+                        NULL);
+                    g_free(command);
+                    continue;
+                }
+                // Getting prior command for comparison
+                char* compress_cmd = NULL;
+                char* err_msg = ptk_handler_load_script(HANDLER_MODE_ARC,
+                                                        HANDLER_COMPRESS,
+                                                        handler_xset,
+                                                        NULL,
+                                                        &compress_cmd);
                 if (err_msg)
                 {
-                    xset_msg_dialog(GTK_WIDGET(dlg),
-                                    GTK_MESSAGE_ERROR,
-                                    _("Error Saving Handler"),
-                                    NULL,
-                                    0,
-                                    err_msg,
-                                    NULL,
-                                    NULL);
+                    g_warning("%s", err_msg);
                     g_free(err_msg);
+                    compress_cmd = g_strdup("");
                 }
-            }
-            else
-                g_free(compress_cmd);
 
-            // Saving settings
-            xset_autosave(FALSE, FALSE);
+                // Checking to see if the compression command has changed
+                if (g_strcmp0(compress_cmd, command))
+                {
+                    // command has changed - saving command
+                    g_free(compress_cmd);
+                    if (handler_xset->disable)
+                    {
+                        // commmand was default - need to save all commands
+                        // get default extract command from const
+                        compress_cmd = ptk_handler_get_command(HANDLER_MODE_ARC,
+                                                               HANDLER_EXTRACT,
+                                                               handler_xset);
+                        // write extract command script
+                        err_msg = ptk_handler_save_script(HANDLER_MODE_ARC,
+                                                          HANDLER_EXTRACT,
+                                                          handler_xset,
+                                                          NULL,
+                                                          compress_cmd);
+                        if (err_msg)
+                        {
+                            g_warning("%s", err_msg);
+                            g_free(err_msg);
+                        }
+                        g_free(compress_cmd);
+                        // get default list command from const
+                        compress_cmd =
+                            ptk_handler_get_command(HANDLER_MODE_ARC, HANDLER_LIST, handler_xset);
+                        // write list command script
+                        err_msg = ptk_handler_save_script(HANDLER_MODE_ARC,
+                                                          HANDLER_LIST,
+                                                          handler_xset,
+                                                          NULL,
+                                                          compress_cmd);
+                        if (err_msg)
+                        {
+                            g_warning("%s", err_msg);
+                            g_free(err_msg);
+                        }
+                        g_free(compress_cmd);
+                        handler_xset->disable = FALSE; // not default handler now
+                    }
+                    // save updated compress command
+                    err_msg = ptk_handler_save_script(HANDLER_MODE_ARC,
+                                                      HANDLER_COMPRESS,
+                                                      handler_xset,
+                                                      NULL,
+                                                      command);
+                    if (err_msg)
+                    {
+                        xset_msg_dialog(GTK_WIDGET(dlg),
+                                        GTK_MESSAGE_ERROR,
+                                        _("Error Saving Handler"),
+                                        NULL,
+                                        0,
+                                        err_msg,
+                                        NULL,
+                                        NULL);
+                        g_free(err_msg);
+                    }
+                }
+                else
+                    g_free(compress_cmd);
+
+                // Saving settings
+                xset_autosave(FALSE, FALSE);
+                exit_loop = TRUE;
+                break;
+            case GTK_RESPONSE_NONE:
+                /* User wants to configure archive handlers - call up the
+                 * config dialog then exit, as this dialog would need to be
+                 * reconstructed if changes occur */
+                gtk_widget_destroy(dlg);
+                ptk_handler_show_config(HANDLER_MODE_ARC, file_browser, NULL);
+                return;
+            case GTK_RESPONSE_HELP:
+                xset_show_help(dlg, NULL, "#handlers-arc");
+            default:
+                // Destroying dialog
+                gtk_widget_destroy(dlg);
+                return;
+        }
+        if (exit_loop)
             break;
-        }
-        else if (res == GTK_RESPONSE_NONE)
-        {
-            /* User wants to configure archive handlers - call up the
-             * config dialog then exit, as this dialog would need to be
-             * reconstructed if changes occur */
-            gtk_widget_destroy(dlg);
-            ptk_handler_show_config(HANDLER_MODE_ARC, file_browser, NULL);
-            return;
-        }
-        else if (res == GTK_RESPONSE_HELP)
-        {
-            xset_show_help(dlg, NULL, "#handlers-arc");
-        }
-        else
-        {
-            // Destroying dialog
-            gtk_widget_destroy(dlg);
-            return;
-        }
     }
 
     // Saving dialog dimensions
@@ -1164,38 +1169,37 @@ void ptk_file_archiver_extract(PtkFileBrowser* file_browser, GList* files, const
         }
 
         // Displaying dialog
+        bool exit_loop = FALSE;
         while ((res = gtk_dialog_run(GTK_DIALOG(dlg))))
         {
-            if (res == GTK_RESPONSE_OK)
+            switch (res)
             {
-                // Fetching user-specified settings and saving
-                choose_dir = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
-                create_parent = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(chk_parent));
-                write_access =
-                    create_parent && gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(chk_write));
-                xset_set_b("arc_dlg", create_parent);
-                xset_set("arc_dlg", "z", write_access ? "1" : "0");
+                case GTK_RESPONSE_OK:
+                    // Fetching user-specified settings and saving
+                    choose_dir = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
+                    create_parent = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(chk_parent));
+                    write_access =
+                        create_parent && gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(chk_write));
+                    xset_set_b("arc_dlg", create_parent);
+                    xset_set("arc_dlg", "z", write_access ? "1" : "0");
+                    exit_loop = TRUE;
+                    break;
+                case GTK_RESPONSE_NONE:
+                    /* User wants to configure archive handlers - call up the
+                     * config dialog then exit, as this dialog would need to be
+                     * reconstructed if changes occur */
+                    gtk_widget_destroy(dlg);
+                    ptk_handler_show_config(HANDLER_MODE_ARC, file_browser, NULL);
+                    return;
+                case GTK_RESPONSE_HELP:
+                    xset_show_help(dlg, NULL, "#handlers-arc");
+                default:
+                    // Destroying dialog
+                    gtk_widget_destroy(dlg);
+                    return;
+            }
+            if (exit_loop)
                 break;
-            }
-            else if (res == GTK_RESPONSE_NONE)
-            {
-                /* User wants to configure archive handlers - call up the
-                 * config dialog then exit, as this dialog would need to be
-                 * reconstructed if changes occur */
-                gtk_widget_destroy(dlg);
-                ptk_handler_show_config(HANDLER_MODE_ARC, file_browser, NULL);
-                return;
-            }
-            else if (res == GTK_RESPONSE_HELP)
-            {
-                xset_show_help(dlg, NULL, "#handlers-arc");
-            }
-            else
-            {
-                // Destroying dialog
-                gtk_widget_destroy(dlg);
-                return;
-            }
         }
 
         // Saving dialog dimensions

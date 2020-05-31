@@ -254,22 +254,25 @@ static bool check_overwrite(VFSFileTask* task, const char* dest_file, bool* dest
             {
                 g_free(new_dest);
                 new_dest = NULL;
-                if (task->overwrite_mode == VFS_FILE_TASK_OVERWRITE ||
-                    task->overwrite_mode == VFS_FILE_TASK_OVERWRITE_ALL)
+                switch (task->overwrite_mode)
                 {
-                    *dest_exists = !lstat(dest_file, &dest_stat);
-                    if (!g_strcmp0(task->current_file, task->current_dest))
-                    {
-                        // src and dest are same file - don't overwrite (truncates)
-                        // occurs if user pauses task and changes overwrite mode
+                    case VFS_FILE_TASK_OVERWRITE:
+                        // fallthrough
+                    case VFS_FILE_TASK_OVERWRITE_ALL:
+                        *dest_exists = !lstat(dest_file, &dest_stat);
+                        if (!g_strcmp0(task->current_file, task->current_dest))
+                        {
+                            // src and dest are same file - don't overwrite (truncates)
+                            // occurs if user pauses task and changes overwrite mode
+                            return FALSE;
+                        }
+                        return TRUE;
+                        break;
+                    case VFS_FILE_TASK_AUTO_RENAME:
+                        break;
+                    default:
                         return FALSE;
-                    }
-                    return TRUE;
                 }
-                else if (task->overwrite_mode == VFS_FILE_TASK_AUTO_RENAME)
-                    break;
-                else
-                    return FALSE;
             }
             // user renamed file or pressed Pause btn
             if (new_dest)
@@ -1881,12 +1884,21 @@ static void* vfs_file_task_thread(VFSFileTask* task)
         {
             // make queue exception for smaller tasks
             off_t exlimit;
-            if (task->type == VFS_FILE_TASK_MOVE || task->type == VFS_FILE_TASK_COPY)
-                exlimit = 10485760; // 10M
-            else if (task->type == VFS_FILE_TASK_DELETE)
-                exlimit = 5368709120; // 5G
-            else
-                exlimit = 0; // always exception for other types
+            switch (task->type)
+            {
+                case VFS_FILE_TASK_MOVE:
+                    // fallthrough
+                case VFS_FILE_TASK_COPY:
+                    exlimit = 10485760; // 10M
+                    break;
+                case VFS_FILE_TASK_DELETE:
+                    exlimit = 5368709120; // 5G
+                    break;
+                default:
+                    exlimit = 0; // always exception for other types
+                    break;
+            }
+
             if (!exlimit || task->total_size < exlimit)
                 task->state_pause = VFS_FILE_TASK_RUNNING;
         }

@@ -709,57 +709,59 @@ void mime_type_update_association(const char* type, const char* desktop_id, int 
                 {
                     if (!strcmp(apps[i], desktop_id))
                     {
-                        // found desktop_id already in groups[k] list
-                        if (action == MIME_TYPE_ACTION_DEFAULT)
+                        switch (action)
                         {
-                            if (k < 2)
-                            {
-                                // Default Applications or Added Associations
-                                if (i == 0)
+                            case MIME_TYPE_ACTION_DEFAULT:
+                                // found desktop_id already in groups[k] list
+                                if (k < 2)
                                 {
-                                    // is already first - skip change
+                                    // Default Applications or Added Associations
+                                    if (i == 0)
+                                    {
+                                        // is already first - skip change
+                                        is_present = TRUE;
+                                        break;
+                                    }
+                                    // in later position - remove it
+                                    continue;
+                                }
+                                else
+                                {
+                                    // Removed Associations - remove it
+                                    is_present = TRUE;
+                                    continue;
+                                }
+                                break;
+                            case MIME_TYPE_ACTION_APPEND:
+                                if (k < 2)
+                                {
+                                    // Default or Added - already present, skip change
                                     is_present = TRUE;
                                     break;
                                 }
-                                // in later position - remove it
-                                continue;
-                            }
-                            else
-                            {
-                                // Removed Associations - remove it
-                                is_present = TRUE;
-                                continue;
-                            }
-                        }
-                        else if (action == MIME_TYPE_ACTION_APPEND)
-                        {
-                            if (k < 2)
-                            {
-                                // Default or Added - already present, skip change
-                                is_present = TRUE;
+                                else
+                                {
+                                    // Removed Associations - remove it
+                                    is_present = TRUE;
+                                    continue;
+                                }
                                 break;
-                            }
-                            else
-                            {
-                                // Removed Associations - remove it
-                                is_present = TRUE;
-                                continue;
-                            }
-                        }
-                        else // if ( action == MIME_TYPE_ACTION_REMOVE )
-                        {
-                            if (k < 2)
-                            {
-                                // Default or Added - remove it
-                                is_present = TRUE;
-                                continue;
-                            }
-                            else
-                            {
-                                // Removed Associations - already present
-                                is_present = TRUE;
+                            case MIME_TYPE_ACTION_REMOVE:
+                                if (k < 2)
+                                {
+                                    // Default or Added - remove it
+                                    is_present = TRUE;
+                                    continue;
+                                }
+                                else
+                                {
+                                    // Removed Associations - already present
+                                    is_present = TRUE;
+                                    break;
+                                }
                                 break;
-                            }
+                            default:
+                                break;
                         }
                     }
                     // copy other apps to new list preserving order

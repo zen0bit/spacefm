@@ -449,21 +449,35 @@ int xset_context_test(XSetContext* context, char* rules, bool def_disable)
         return CONTEXT_SHOW;
 
     bool is_match;
-    if (match == ALL)
-        is_match = all_match;
-    else if (match == NALL)
-        is_match = !any_match;
-    else if (match == NANY)
-        is_match = no_match;
-    else // ANY
-        is_match = !no_match;
+    switch (match)
+    {
+        case ALL:
+            is_match = all_match;
+            break;
+        case NALL:
+            is_match = !any_match;
+            break;
+        case NANY:
+            is_match = no_match;
+            break;
+        case ANY:
+            is_match = !no_match;
+            break;
+        default:
+            break;
+    }
 
-    if (action == CONTEXT_SHOW)
-        return is_match ? CONTEXT_SHOW : CONTEXT_HIDE;
-    if (action == CONTEXT_ENABLE)
-        return is_match ? CONTEXT_SHOW : CONTEXT_DISABLE;
-    if (action == CONTEXT_DISABLE)
-        return is_match ? CONTEXT_DISABLE : CONTEXT_SHOW;
+    switch (action)
+    {
+        case CONTEXT_SHOW:
+            return is_match ? CONTEXT_SHOW : CONTEXT_HIDE;
+        case CONTEXT_ENABLE:
+            return is_match ? CONTEXT_SHOW : CONTEXT_DISABLE;
+        case CONTEXT_DISABLE:
+            return is_match ? CONTEXT_DISABLE : CONTEXT_SHOW;
+        default:
+            break;
+    }
     // CONTEXT_HIDE
     if (is_match)
         return CONTEXT_HIDE;
@@ -1087,39 +1101,44 @@ void on_type_changed(GtkComboBox* box, ContextData* ctxt)
     XSet* rset = ctxt->set;
     XSet* mset = xset_get_plugin_mirror(rset);
     int job = gtk_combo_box_get_active(GTK_COMBO_BOX(box));
-    if (job < ITEM_TYPE_COMMAND)
+    switch (job)
     {
-        // Bookmark or App
-        gtk_widget_show(ctxt->target_vbox);
-        gtk_widget_hide(gtk_notebook_get_nth_page(GTK_NOTEBOOK(ctxt->notebook), 2));
-        gtk_widget_hide(gtk_notebook_get_nth_page(GTK_NOTEBOOK(ctxt->notebook), 3));
+        case ITEM_TYPE_BOOKMARK:
+            // fallthrough
+        case ITEM_TYPE_APP:
+            // Bookmark or App
+            gtk_widget_show(ctxt->target_vbox);
+            gtk_widget_hide(gtk_notebook_get_nth_page(GTK_NOTEBOOK(ctxt->notebook), 2));
+            gtk_widget_hide(gtk_notebook_get_nth_page(GTK_NOTEBOOK(ctxt->notebook), 3));
 
-        if (job == ITEM_TYPE_BOOKMARK)
-        {
-            gtk_widget_hide(ctxt->item_choose);
-            gtk_widget_hide(ctxt->hbox_opener);
-            gtk_button_set_image(GTK_BUTTON(ctxt->item_browse),
-                                 xset_get_image(GTK_STOCK_OPEN, GTK_ICON_SIZE_BUTTON));
-            gtk_label_set_text(GTK_LABEL(ctxt->target_label),
-                               _("Targets:  (a semicolon-separated list of paths or URLs)"));
-        }
-        else
-        {
-            gtk_widget_show(ctxt->item_choose);
+            if (job == ITEM_TYPE_BOOKMARK)
+            {
+                gtk_widget_hide(ctxt->item_choose);
+                gtk_widget_hide(ctxt->hbox_opener);
+                gtk_button_set_image(GTK_BUTTON(ctxt->item_browse),
+                                     xset_get_image(GTK_STOCK_OPEN, GTK_ICON_SIZE_BUTTON));
+                gtk_label_set_text(GTK_LABEL(ctxt->target_label),
+                                   _("Targets:  (a semicolon-separated list of paths or URLs)"));
+            }
+            else
+            {
+                gtk_widget_show(ctxt->item_choose);
+                gtk_widget_show(ctxt->hbox_opener);
+                gtk_button_set_image(GTK_BUTTON(ctxt->item_browse),
+                                     xset_get_image(GTK_STOCK_EXECUTE, GTK_ICON_SIZE_BUTTON));
+                gtk_label_set_text(GTK_LABEL(ctxt->target_label),
+                                   _("Target:  (a .desktop or executable file)"));
+            }
+            break;
+        case ITEM_TYPE_COMMAND:
+            // Command
+            gtk_widget_hide(ctxt->target_vbox);
             gtk_widget_show(ctxt->hbox_opener);
-            gtk_button_set_image(GTK_BUTTON(ctxt->item_browse),
-                                 xset_get_image(GTK_STOCK_EXECUTE, GTK_ICON_SIZE_BUTTON));
-            gtk_label_set_text(GTK_LABEL(ctxt->target_label),
-                               _("Target:  (a .desktop or executable file)"));
-        }
-    }
-    else
-    {
-        // Command
-        gtk_widget_hide(ctxt->target_vbox);
-        gtk_widget_show(ctxt->hbox_opener);
-        gtk_widget_show(gtk_notebook_get_nth_page(GTK_NOTEBOOK(ctxt->notebook), 2));
-        gtk_widget_show(gtk_notebook_get_nth_page(GTK_NOTEBOOK(ctxt->notebook), 3));
+            gtk_widget_show(gtk_notebook_get_nth_page(GTK_NOTEBOOK(ctxt->notebook), 2));
+            gtk_widget_show(gtk_notebook_get_nth_page(GTK_NOTEBOOK(ctxt->notebook), 3));
+            break;
+        default:
+            break;
     }
 
     // load command data
@@ -1171,6 +1190,7 @@ void on_type_changed(GtkComboBox* box, ContextData* ctxt)
         gtk_widget_hide(ctxt->cmd_edit);
     }
 
+    // TODO switch?
     if (job < ITEM_TYPE_COMMAND)
     {
         // Bookmark or App
@@ -1275,30 +1295,33 @@ void replace_item_props(ContextData* ctxt)
         // custom bookmark, app, or command
         bool is_bookmark_or_app = FALSE;
         int item_type = gtk_combo_box_get_active(GTK_COMBO_BOX(ctxt->item_type));
-        if (item_type == ITEM_TYPE_COMMAND)
+
+        switch (item_type)
         {
-            if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ctxt->cmd_opt_line)))
-                // line
-                x = XSET_CMD_LINE;
-            else
-            {
-                // script
-                x = XSET_CMD_SCRIPT;
-                save_command_script(ctxt, FALSE);
-            }
+            case ITEM_TYPE_BOOKMARK:
+                x = XSET_CMD_BOOKMARK;
+                is_bookmark_or_app = TRUE;
+                break;
+            case ITEM_TYPE_APP:
+                x = XSET_CMD_APP;
+                is_bookmark_or_app = TRUE;
+                break;
+            case ITEM_TYPE_COMMAND:
+                if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ctxt->cmd_opt_line)))
+                    // line
+                    x = XSET_CMD_LINE;
+                else
+                {
+                    // script
+                    x = XSET_CMD_SCRIPT;
+                    save_command_script(ctxt, FALSE);
+                }
+                break;
+            default:
+                x = -1;
+                break;
         }
-        else if (item_type == ITEM_TYPE_APP)
-        {
-            x = XSET_CMD_APP;
-            is_bookmark_or_app = TRUE;
-        }
-        else if (item_type == ITEM_TYPE_BOOKMARK)
-        {
-            x = XSET_CMD_BOOKMARK;
-            is_bookmark_or_app = TRUE;
-        }
-        else
-            x = -1;
+
         if (x >= 0)
         {
             g_free(rset->x);
@@ -1479,12 +1502,18 @@ void on_prop_notebook_switch_page(GtkNotebook* notebook, GtkWidget* page, unsign
                                   ContextData* ctxt)
 {
     GtkWidget* widget;
-    if (page_num == 0)
-        widget = ctxt->set->plugin ? ctxt->item_icon : ctxt->item_name;
-    else if (page_num == 2)
-        widget = ctxt->cmd_script;
-    else
-        widget = NULL;
+    switch (page_num)
+    {
+        case 0:
+            widget = ctxt->set->plugin ? ctxt->item_icon : ctxt->item_name;
+            break;
+        case 2:
+            widget = ctxt->cmd_script;
+            break;
+        default:
+            widget = NULL;
+            break;
+    }
     g_idle_add((GSourceFunc)delayed_focus, widget);
 }
 
@@ -2434,14 +2463,25 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
         for (i = 0; i < G_N_ELEMENTS(item_types); i++)
             gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(ctxt->item_type), _(item_types[i]));
         x = rset->x ? strtol(rset->x, NULL, 10) : 0;
-        if (x < XSET_CMD_APP) // line or script
-            item_type = ITEM_TYPE_COMMAND;
-        else if (x == XSET_CMD_APP)
-            item_type = ITEM_TYPE_APP;
-        else if (x == XSET_CMD_BOOKMARK)
-            item_type = ITEM_TYPE_BOOKMARK;
-        else
-            item_type = -1;
+
+        switch (x)
+        {
+            case XSET_CMD_LINE:
+                // fallthrough
+            case XSET_CMD_SCRIPT:
+                item_type = ITEM_TYPE_COMMAND;
+                break;
+            case XSET_CMD_APP:
+                item_type = ITEM_TYPE_APP;
+                break;
+            case XSET_CMD_BOOKMARK:
+                item_type = ITEM_TYPE_BOOKMARK;
+                break;
+            default:
+                item_type = -1;
+                break;
+        }
+
         gtk_combo_box_set_active(GTK_COMBO_BOX(ctxt->item_type), item_type);
         // g_signal_connect( G_OBJECT( ctxt->item_type ), "changed",
         //                  G_CALLBACK( on_item_type_changed ), ctxt );
@@ -2602,35 +2642,40 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     int response;
     while ((response = gtk_dialog_run(GTK_DIALOG(ctxt->dlg))))
     {
-        if (response == GTK_RESPONSE_OK)
+        bool exit_loop = FALSE;
+        const char* help;
+        switch (response)
         {
-            if (mset->context)
-                g_free(mset->context);
-            mset->context = context_build(ctxt);
-            replace_item_props(ctxt);
-            break;
+            case GTK_RESPONSE_OK:
+                if (mset->context)
+                    g_free(mset->context);
+                mset->context = context_build(ctxt);
+                replace_item_props(ctxt);
+                exit_loop = TRUE;
+                break;
+            case GTK_RESPONSE_HELP:
+                switch (gtk_notebook_get_current_page(GTK_NOTEBOOK(ctxt->notebook)))
+                {
+                    case 1:
+                        help = "#designmode-props-context";
+                        break;
+                    case 2:
+                        help = "#designmode-props-command";
+                        break;
+                    case 3:
+                        help = "#designmode-props-opts";
+                        break;
+                    default:
+                        help = "#designmode-props";
+                        break;
+                }
+                xset_show_help(ctxt->dlg, NULL, help);
+                break;
+            default:
+                exit_loop = TRUE;
+                break;
         }
-        else if (response == GTK_RESPONSE_HELP)
-        {
-            const char* help;
-            switch (gtk_notebook_get_current_page(GTK_NOTEBOOK(ctxt->notebook)))
-            {
-                case 1:
-                    help = "#designmode-props-context";
-                    break;
-                case 2:
-                    help = "#designmode-props-command";
-                    break;
-                case 3:
-                    help = "#designmode-props-opts";
-                    break;
-                default:
-                    help = "#designmode-props";
-                    break;
-            }
-            xset_show_help(ctxt->dlg, NULL, help);
-        }
-        else
+        if (exit_loop)
             break;
     }
 

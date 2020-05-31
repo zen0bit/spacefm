@@ -206,7 +206,7 @@ void on_plugin_install(GtkMenuItem* item, FMMainWindow* main_window, XSet* set2)
     XSet* set;
     char* path = NULL;
     const char* deffolder;
-    char* plug_dir;
+    char* plug_dir = NULL;
     char* msg;
     int type = 0;
     int job = PLUGIN_JOB_INSTALL;
@@ -263,99 +263,107 @@ void on_plugin_install(GtkMenuItem* item, FMMainWindow* main_window, XSet* set2)
         type = 1; // url
     }
 
-    if (job == PLUGIN_JOB_INSTALL)
+    switch (job)
     {
-        // install job
-        char* filename = g_path_get_basename(path);
-        char* ext = strstr(filename, ".spacefm-plugin");
-        if (!ext)
-            ext = strstr(filename, ".tar.gz");
-        if (ext)
-            ext[0] = '\0';
-        char* plug_dir_name = plain_ascii_name(filename);
-        if (ext)
-            ext[0] = '.';
-        g_free(filename);
-        if (plug_dir_name[0] == '\0')
+        case PLUGIN_JOB_INSTALL:
         {
-            msg = g_strdup_printf(_("This plugin's filename is invalid.  Please rename it using "
-                                    "alpha-numeric ASCII characters and try again."));
-            xset_msg_dialog(GTK_WIDGET(main_window),
-                            GTK_MESSAGE_ERROR,
-                            _("Invalid Plugin Filename"),
-                            NULL,
-                            0,
-                            msg,
-                            NULL,
-                            "#plugins-install");
+            // install job
+            char* filename = g_path_get_basename(path);
+            char* ext = strstr(filename, ".spacefm-plugin");
+            if (!ext)
+                ext = strstr(filename, ".tar.gz");
+            if (ext)
+                ext[0] = '\0';
+            char* plug_dir_name = plain_ascii_name(filename);
+            if (ext)
+                ext[0] = '.';
+            g_free(filename);
+            if (plug_dir_name[0] == '\0')
             {
-                g_free(plug_dir_name);
-                g_free(path);
-                g_free(msg);
-                return;
-            }
-        }
-
-        if (DATADIR)
-            plug_dir = g_build_filename(DATADIR, "spacefm", "plugins", plug_dir_name, NULL);
-        else if (!g_file_test("/usr/share/spacefm/plugins", G_FILE_TEST_IS_DIR) &&
-                 g_file_test("/usr/local/share/spacefm/plugins", G_FILE_TEST_IS_DIR))
-            plug_dir = g_build_filename("/usr/local/share/spacefm/plugins", plug_dir_name, NULL);
-        else
-            plug_dir = g_build_filename("/usr/share/spacefm/plugins", plug_dir_name, NULL);
-
-        if (g_file_test(plug_dir, G_FILE_TEST_EXISTS))
-        {
-            msg = g_strdup_printf(
-                _("There is already a plugin installed as '%s'.  Overwrite ?\n\nTip: You can also "
-                  "rename this plugin file to install it under a different name."),
-                plug_dir_name);
-            if (xset_msg_dialog(GTK_WIDGET(main_window),
-                                GTK_MESSAGE_WARNING,
-                                _("Overwrite Plugin ?"),
+                msg =
+                    g_strdup_printf(_("This plugin's filename is invalid.  Please rename it using "
+                                      "alpha-numeric ASCII characters and try again."));
+                xset_msg_dialog(GTK_WIDGET(main_window),
+                                GTK_MESSAGE_ERROR,
+                                _("Invalid Plugin Filename"),
                                 NULL,
-                                GTK_BUTTONS_YES_NO,
+                                0,
                                 msg,
                                 NULL,
-                                "#plugins-install") != GTK_RESPONSE_YES)
+                                "#plugins-install");
+                {
+                    g_free(plug_dir_name);
+                    g_free(path);
+                    g_free(msg);
+                    return;
+                }
+            }
+
+            if (DATADIR)
+                plug_dir = g_build_filename(DATADIR, "spacefm", "plugins", plug_dir_name, NULL);
+            else if (!g_file_test("/usr/share/spacefm/plugins", G_FILE_TEST_IS_DIR) &&
+                     g_file_test("/usr/local/share/spacefm/plugins", G_FILE_TEST_IS_DIR))
+                plug_dir =
+                    g_build_filename("/usr/local/share/spacefm/plugins", plug_dir_name, NULL);
+            else
+                plug_dir = g_build_filename("/usr/share/spacefm/plugins", plug_dir_name, NULL);
+
+            if (g_file_test(plug_dir, G_FILE_TEST_EXISTS))
             {
-                g_free(plug_dir_name);
-                g_free(plug_dir);
-                g_free(path);
+                msg = g_strdup_printf(
+                    _("There is already a plugin installed as '%s'.  Overwrite ?\n\nTip: You can "
+                      "also "
+                      "rename this plugin file to install it under a different name."),
+                    plug_dir_name);
+                if (xset_msg_dialog(GTK_WIDGET(main_window),
+                                    GTK_MESSAGE_WARNING,
+                                    _("Overwrite Plugin ?"),
+                                    NULL,
+                                    GTK_BUTTONS_YES_NO,
+                                    msg,
+                                    NULL,
+                                    "#plugins-install") != GTK_RESPONSE_YES)
+                {
+                    g_free(plug_dir_name);
+                    g_free(plug_dir);
+                    g_free(path);
+                    g_free(msg);
+                    return;
+                }
                 g_free(msg);
+            }
+            g_free(plug_dir_name);
+            break;
+        }
+        case PLUGIN_JOB_COPY:
+        {
+            // copy job
+            const char* user_tmp = xset_get_user_tmp_dir();
+            if (!user_tmp)
+            {
+                xset_msg_dialog(GTK_WIDGET(main_window),
+                                GTK_MESSAGE_ERROR,
+                                _("Error Creating Temp Directory"),
+                                NULL,
+                                0,
+                                _("Unable to create temporary directory"),
+                                NULL,
+                                NULL);
+                g_free(path);
                 return;
             }
-            g_free(msg);
+            while (!plug_dir || (plug_dir && g_file_test(plug_dir, G_FILE_TEST_EXISTS)))
+            {
+                char* hex8 = randhex8();
+                if (plug_dir)
+                    g_free(plug_dir);
+                plug_dir = g_build_filename(user_tmp, hex8, NULL);
+                g_free(hex8);
+            }
+            break;
         }
-        g_free(plug_dir_name);
-    }
-    else
-    {
-        // copy job
-        const char* user_tmp = xset_get_user_tmp_dir();
-        if (!user_tmp)
-        {
-            xset_msg_dialog(GTK_WIDGET(main_window),
-                            GTK_MESSAGE_ERROR,
-                            _("Error Creating Temp Directory"),
-                            NULL,
-                            0,
-                            _("Unable to create temporary directory"),
-                            NULL,
-                            NULL);
-            g_free(path);
-            return;
-        }
-        char* hex8;
-        plug_dir = NULL;
-        while (!plug_dir || (plug_dir && g_file_test(plug_dir, G_FILE_TEST_EXISTS)))
-        {
-            hex8 = randhex8();
-            if (plug_dir)
-                g_free(plug_dir);
-            plug_dir = g_build_filename(user_tmp, hex8, NULL);
-            g_free(hex8);
-        }
+        default:
+            break;
     }
 
     install_plugin_file(main_window, NULL, path, plug_dir, type, job, NULL);
@@ -1173,47 +1181,51 @@ void focus_panel(GtkMenuItem* item, void* mw, int p)
     else
         panel_num = p;
 
-    if (panel_num == -1) // prev
+    switch (panel_num)
     {
-        panel = main_window->curpanel - 1;
-        do
-        {
-            if (panel < 1)
-                panel = 4;
-            if (xset_get_b_panel(panel, "show"))
-                break;
-            panel--;
-        } while (panel != main_window->curpanel - 1);
+        case -1:
+            // prev
+            panel = main_window->curpanel - 1;
+            do
+            {
+                if (panel < 1)
+                    panel = 4;
+                if (xset_get_b_panel(panel, "show"))
+                    break;
+                panel--;
+            } while (panel != main_window->curpanel - 1);
+            break;
+        case -2:
+            // next
+            panel = main_window->curpanel + 1;
+            do
+            {
+                if (panel > 4)
+                    panel = 1;
+                if (xset_get_b_panel(panel, "show"))
+                    break;
+                panel++;
+            } while (panel != main_window->curpanel + 1);
+            break;
+        case -3:
+            // hide
+            hidepanel = main_window->curpanel;
+            panel = main_window->curpanel + 1;
+            do
+            {
+                if (panel > 4)
+                    panel = 1;
+                if (xset_get_b_panel(panel, "show"))
+                    break;
+                panel++;
+            } while (panel != hidepanel);
+            if (panel == hidepanel)
+                panel = 0;
+            break;
+        default:
+            panel = panel_num;
+            break;
     }
-    else if (panel_num == -2) // next
-    {
-        panel = main_window->curpanel + 1;
-        do
-        {
-            if (panel > 4)
-                panel = 1;
-            if (xset_get_b_panel(panel, "show"))
-                break;
-            panel++;
-        } while (panel != main_window->curpanel + 1);
-    }
-    else if (panel_num == -3) // hide
-    {
-        hidepanel = main_window->curpanel;
-        panel = main_window->curpanel + 1;
-        do
-        {
-            if (panel > 4)
-                panel = 1;
-            if (xset_get_b_panel(panel, "show"))
-                break;
-            panel++;
-        } while (panel != hidepanel);
-        if (panel == hidepanel)
-            panel = 0;
-    }
-    else
-        panel = panel_num;
 
     if (panel > 0 && panel < 5)
     {
@@ -1339,26 +1351,26 @@ void show_panels(GtkMenuItem* item, FMMainWindow* main_window)
     for (p = 1; p < 5; p++)
     {
         // panel context - how panels share horiz and vert space with other panels
-        if (p == 1)
+        switch (p)
         {
-            horiz = show[2];
-            vert = show[3] || show[4];
+            case 1:
+                horiz = show[2];
+                vert = show[3] || show[4];
+                break;
+            case 2:
+                horiz = show[1];
+                vert = show[3] || show[4];
+                break;
+            case 3:
+                horiz = show[4];
+                vert = show[1] || show[2];
+                break;
+            default:
+                horiz = show[3];
+                vert = show[1] || show[2];
+                break;
         }
-        else if (p == 2)
-        {
-            horiz = show[1];
-            vert = show[3] || show[4];
-        }
-        else if (p == 3)
-        {
-            horiz = show[4];
-            vert = show[1] || show[2];
-        }
-        else
-        {
-            horiz = show[3];
-            vert = show[1] || show[2];
-        }
+
         if (horiz && vert)
             main_window->panel_context[p - 1] = PANEL_BOTH;
         else if (horiz)
@@ -2334,12 +2346,22 @@ char* main_window_get_tab_cwd(PtkFileBrowser* file_browser, int tab_num)
     GtkWidget* notebook = main_window->panel[file_browser->mypanel - 1];
     int pages = gtk_notebook_get_n_pages(GTK_NOTEBOOK(notebook));
     int page_num = gtk_notebook_page_num(GTK_NOTEBOOK(notebook), GTK_WIDGET(file_browser));
-    if (tab_num == -1) // prev
-        page_x = page_num - 1;
-    else if (tab_num == -2) // next
-        page_x = page_num + 1;
-    else
-        page_x = tab_num - 1; // tab_num starts counting at 1
+
+    switch (tab_num)
+    {
+        case -1:
+            // prev
+            page_x = page_num - 1;
+            break;
+        case -2:
+            // next
+            page_x = page_num + 1;
+            break;
+        default:
+            // tab_num starts counting at 1
+            page_x = tab_num - 1;
+            break;
+    }
 
     if (page_x > -1 && page_x < pages)
     {
@@ -2399,29 +2421,31 @@ void main_window_open_in_panel(PtkFileBrowser* file_browser, int panel_num, char
     FMMainWindow* main_window = (FMMainWindow*)file_browser->main_window;
     int panel_x = file_browser->mypanel;
 
-    if (panel_num == -1) // prev
+    switch (panel_num)
     {
-        do
-        {
-            if (--panel_x < 1)
-                panel_x = 4;
-            if (panel_x == file_browser->mypanel)
-                return;
-        } while (!gtk_widget_get_visible(main_window->panel[panel_x - 1]));
-    }
-    else if (panel_num == -2) // next
-    {
-        do
-        {
-            if (++panel_x > 4)
-                panel_x = 1;
-            if (panel_x == file_browser->mypanel)
-                return;
-        } while (!gtk_widget_get_visible(main_window->panel[panel_x - 1]));
-    }
-    else
-    {
-        panel_x = panel_num;
+        case -1:
+            // prev
+            do
+            {
+                if (--panel_x < 1)
+                    panel_x = 4;
+                if (panel_x == file_browser->mypanel)
+                    return;
+            } while (!gtk_widget_get_visible(main_window->panel[panel_x - 1]));
+            break;
+        case -2:
+            // next
+            do
+            {
+                if (++panel_x > 4)
+                    panel_x = 1;
+                if (panel_x == file_browser->mypanel)
+                    return;
+            } while (!gtk_widget_get_visible(main_window->panel[panel_x - 1]));
+            break;
+        default:
+            panel_x = panel_num;
+            break;
     }
 
     if (panel_x < 1 || panel_x > 4)
@@ -5329,126 +5353,135 @@ bool on_task_button_press_event(GtkWidget* view, GdkEventButton* event, FMMainWi
                                                                            TRUE))
         return FALSE;
 
-    if (event->button == 3) // right click
+    switch (event->button)
     {
-        // get selected task
-        model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
-        if ((is_tasks = gtk_tree_model_get_iter_first(model, &it)))
-        {
-            if (gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(view),
-                                              event->x,
-                                              event->y,
-                                              &tree_path,
-                                              &col,
-                                              NULL,
-                                              NULL))
+        case 1:
+            // fallthrough
+        case 2:
+            // left or middle click
+            // get selected task
+            model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
+            // printf("x = %lf  y = %lf  \n", event->x, event->y );
+            // due to bug in gtk_tree_view_get_path_at_pos (gtk 2.24), a click
+            // on the column header resize divider registers as a click on the
+            // first row first column.  So if event->x < 7 ignore
+            if (event->x < 7)
+                return FALSE;
+            if (!gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(view),
+                                               event->x,
+                                               event->y,
+                                               &tree_path,
+                                               &col,
+                                               NULL,
+                                               NULL))
+                return FALSE;
+            if (tree_path && gtk_tree_model_get_iter(model, &it, tree_path))
+                gtk_tree_model_get(model, &it, TASK_COL_DATA, &ptask, -1);
+            gtk_tree_path_free(tree_path);
+
+            if (!ptask)
+                return FALSE;
+            if (event->button == 1 && g_strcmp0(gtk_tree_view_column_get_title(col), _("Status")))
+                return FALSE;
+            const char* sname;
+            switch (ptask->task->state_pause)
             {
-                if (tree_path && gtk_tree_model_get_iter(model, &it, tree_path))
-                    gtk_tree_model_get(model, &it, TASK_COL_DATA, &ptask, -1);
-                gtk_tree_path_free(tree_path);
+                case VFS_FILE_TASK_PAUSE:
+                    sname = "task_que";
+                    break;
+                case VFS_FILE_TASK_QUEUE:
+                    sname = "task_resume";
+                    break;
+                default:
+                    sname = "task_pause";
             }
-        }
+            set = xset_get(sname);
+            on_task_stop(NULL, view, set, ptask);
+            return TRUE;
+            break;
+        case 3:
+            // get selected task
+            model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
+            if ((is_tasks = gtk_tree_model_get_iter_first(model, &it)))
+            {
+                if (gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(view),
+                                                  event->x,
+                                                  event->y,
+                                                  &tree_path,
+                                                  &col,
+                                                  NULL,
+                                                  NULL))
+                {
+                    if (tree_path && gtk_tree_model_get_iter(model, &it, tree_path))
+                        gtk_tree_model_get(model, &it, TASK_COL_DATA, &ptask, -1);
+                    gtk_tree_path_free(tree_path);
+                }
+            }
 
-        // build popup
-        PtkFileBrowser* file_browser =
-            PTK_FILE_BROWSER(fm_main_window_get_current_file_browser(main_window));
-        if (!file_browser)
-            return FALSE;
-        GtkWidget* popup = gtk_menu_new();
-        GtkAccelGroup* accel_group = gtk_accel_group_new();
-        XSetContext* context = xset_context_new();
-        main_context_fill(file_browser, context);
+            // build popup
+            PtkFileBrowser* file_browser =
+                PTK_FILE_BROWSER(fm_main_window_get_current_file_browser(main_window));
+            if (!file_browser)
+                return FALSE;
+            GtkWidget* popup = gtk_menu_new();
+            GtkAccelGroup* accel_group = gtk_accel_group_new();
+            XSetContext* context = xset_context_new();
+            main_context_fill(file_browser, context);
 
-        set = xset_set_cb("task_stop", on_task_stop, view);
-        xset_set_ob1(set, "task", ptask);
-        set->disable = !ptask;
+            set = xset_set_cb("task_stop", on_task_stop, view);
+            xset_set_ob1(set, "task", ptask);
+            set->disable = !ptask;
 
-        set = xset_set_cb("task_pause", on_task_stop, view);
-        xset_set_ob1(set, "task", ptask);
-        set->disable = (!ptask || ptask->task->state_pause == VFS_FILE_TASK_PAUSE ||
-                        (ptask->task->type == VFS_FILE_TASK_EXEC && !ptask->task->exec_pid));
+            set = xset_set_cb("task_pause", on_task_stop, view);
+            xset_set_ob1(set, "task", ptask);
+            set->disable = (!ptask || ptask->task->state_pause == VFS_FILE_TASK_PAUSE ||
+                            (ptask->task->type == VFS_FILE_TASK_EXEC && !ptask->task->exec_pid));
 
-        set = xset_set_cb("task_que", on_task_stop, view);
-        xset_set_ob1(set, "task", ptask);
-        set->disable = (!ptask || ptask->task->state_pause == VFS_FILE_TASK_QUEUE ||
-                        (ptask->task->type == VFS_FILE_TASK_EXEC && !ptask->task->exec_pid));
+            set = xset_set_cb("task_que", on_task_stop, view);
+            xset_set_ob1(set, "task", ptask);
+            set->disable = (!ptask || ptask->task->state_pause == VFS_FILE_TASK_QUEUE ||
+                            (ptask->task->type == VFS_FILE_TASK_EXEC && !ptask->task->exec_pid));
 
-        set = xset_set_cb("task_resume", on_task_stop, view);
-        xset_set_ob1(set, "task", ptask);
-        set->disable = (!ptask || ptask->task->state_pause == VFS_FILE_TASK_RUNNING ||
-                        (ptask->task->type == VFS_FILE_TASK_EXEC && !ptask->task->exec_pid));
+            set = xset_set_cb("task_resume", on_task_stop, view);
+            xset_set_ob1(set, "task", ptask);
+            set->disable = (!ptask || ptask->task->state_pause == VFS_FILE_TASK_RUNNING ||
+                            (ptask->task->type == VFS_FILE_TASK_EXEC && !ptask->task->exec_pid));
 
-        xset_set_cb("task_stop_all", on_task_stop, view);
-        xset_set_cb("task_pause_all", on_task_stop, view);
-        xset_set_cb("task_que_all", on_task_stop, view);
-        xset_set_cb("task_resume_all", on_task_stop, view);
-        set = xset_get("task_all");
-        set->disable = !is_tasks;
+            xset_set_cb("task_stop_all", on_task_stop, view);
+            xset_set_cb("task_pause_all", on_task_stop, view);
+            xset_set_cb("task_que_all", on_task_stop, view);
+            xset_set_cb("task_resume_all", on_task_stop, view);
+            set = xset_get("task_all");
+            set->disable = !is_tasks;
 
-        const char* showout = "";
-        if (ptask && ptask->pop_handler)
-        {
-            xset_set_cb("task_showout", show_task_dialog, view);
-            showout = " task_showout";
-        }
+            const char* showout = "";
+            if (ptask && ptask->pop_handler)
+            {
+                xset_set_cb("task_showout", show_task_dialog, view);
+                showout = " task_showout";
+            }
 
-        main_task_prepare_menu(main_window, popup, accel_group);
+            main_task_prepare_menu(main_window, popup, accel_group);
 
-        xset_set_cb("font_task", main_update_fonts, file_browser);
-        char* menu_elements = g_strdup_printf(
-            "task_stop sep_t3 task_pause task_que task_resume%s task_all sep_t4 task_show_manager "
-            "task_hide_manager sep_t5 task_columns task_popups task_errors task_queue",
-            showout);
-        xset_add_menu(file_browser, popup, accel_group, menu_elements);
-        g_free(menu_elements);
+            xset_set_cb("font_task", main_update_fonts, file_browser);
+            char* menu_elements = g_strdup_printf(
+                "task_stop sep_t3 task_pause task_que task_resume%s task_all sep_t4 "
+                "task_show_manager "
+                "task_hide_manager sep_t5 task_columns task_popups task_errors task_queue",
+                showout);
+            xset_add_menu(file_browser, popup, accel_group, menu_elements);
+            g_free(menu_elements);
 
-        gtk_widget_show_all(GTK_WIDGET(popup));
-        g_signal_connect(popup, "selection-done", G_CALLBACK(gtk_widget_destroy), NULL);
-        g_signal_connect(popup, "key_press_event", G_CALLBACK(xset_menu_keypress), NULL);
-        gtk_menu_popup(GTK_MENU(popup), NULL, NULL, NULL, NULL, event->button, event->time);
+            gtk_widget_show_all(GTK_WIDGET(popup));
+            g_signal_connect(popup, "selection-done", G_CALLBACK(gtk_widget_destroy), NULL);
+            g_signal_connect(popup, "key_press_event", G_CALLBACK(xset_menu_keypress), NULL);
+            gtk_menu_popup(GTK_MENU(popup), NULL, NULL, NULL, NULL, event->button, event->time);
+            // right click
+            break;
+        default:
+            break;
     }
-    else if (event->button == 1 || event->button == 2) // left or middle click
-    {
-        // get selected task
-        model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
-        // printf("x = %lf  y = %lf  \n", event->x, event->y );
-        // due to bug in gtk_tree_view_get_path_at_pos (gtk 2.24), a click
-        // on the column header resize divider registers as a click on the
-        // first row first column.  So if event->x < 7 ignore
-        if (event->x < 7)
-            return FALSE;
-        if (!gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(view),
-                                           event->x,
-                                           event->y,
-                                           &tree_path,
-                                           &col,
-                                           NULL,
-                                           NULL))
-            return FALSE;
-        if (tree_path && gtk_tree_model_get_iter(model, &it, tree_path))
-            gtk_tree_model_get(model, &it, TASK_COL_DATA, &ptask, -1);
-        gtk_tree_path_free(tree_path);
 
-        if (!ptask)
-            return FALSE;
-        if (event->button == 1 && g_strcmp0(gtk_tree_view_column_get_title(col), _("Status")))
-            return FALSE;
-        const char* sname;
-        switch (ptask->task->state_pause)
-        {
-            case VFS_FILE_TASK_PAUSE:
-                sname = "task_que";
-                break;
-            case VFS_FILE_TASK_QUEUE:
-                sname = "task_resume";
-                break;
-            default:
-                sname = "task_pause";
-        }
-        set = xset_get(sname);
-        on_task_stop(NULL, view, set, ptask);
-        return TRUE;
-    }
     return FALSE;
 }
 
@@ -5887,46 +5920,48 @@ GtkWidget* main_task_view_new(FMMainWindow* main_window)
             gtk_tree_view_column_set_fixed_width(col, width);
         }
 
-        if (cols[j] == TASK_COL_STATUS)
+        switch (cols[j])
         {
-            // Icon and Text
-            renderer = gtk_cell_renderer_text_new();
-            // g_object_set( G_OBJECT( renderer ),
-            /* "editable", TRUE, */
-            //                    "ellipsize", PANGO_ELLIPSIZE_END, NULL );
-            pix_renderer = gtk_cell_renderer_pixbuf_new();
-            gtk_tree_view_column_pack_start(col, pix_renderer, FALSE);
-            gtk_tree_view_column_pack_end(col, renderer, TRUE);
-            gtk_tree_view_column_set_attributes(col, pix_renderer, "pixbuf", TASK_COL_ICON, NULL);
-            gtk_tree_view_column_set_attributes(col, renderer, "text", TASK_COL_STATUS, NULL);
-            gtk_tree_view_column_set_expand(col, FALSE);
-            gtk_tree_view_column_set_sizing(col, GTK_TREE_VIEW_COLUMN_FIXED);
-            gtk_tree_view_column_set_min_width(col, 60);
-        }
-        else if (cols[j] == TASK_COL_PROGRESS)
-        {
-            // Progress Bar
-            renderer = gtk_cell_renderer_progress_new();
-            gtk_tree_view_column_pack_start(col, renderer, TRUE);
-            gtk_tree_view_column_set_attributes(col, renderer, "value", cols[j], NULL);
-        }
-        else
-        {
-            // Text Column
-            renderer = gtk_cell_renderer_text_new();
-            gtk_tree_view_column_pack_start(col, renderer, TRUE);
-            gtk_tree_view_column_set_attributes(col, renderer, "text", cols[j], NULL);
+            case TASK_COL_STATUS:
+                // Icon and Text
+                renderer = gtk_cell_renderer_text_new();
+                pix_renderer = gtk_cell_renderer_pixbuf_new();
+                gtk_tree_view_column_pack_start(col, pix_renderer, FALSE);
+                gtk_tree_view_column_pack_end(col, renderer, TRUE);
+                gtk_tree_view_column_set_attributes(col,
+                                                    pix_renderer,
+                                                    "pixbuf",
+                                                    TASK_COL_ICON,
+                                                    NULL);
+                gtk_tree_view_column_set_attributes(col, renderer, "text", TASK_COL_STATUS, NULL);
+                gtk_tree_view_column_set_expand(col, FALSE);
+                gtk_tree_view_column_set_sizing(col, GTK_TREE_VIEW_COLUMN_FIXED);
+                gtk_tree_view_column_set_min_width(col, 60);
+                break;
+            case TASK_COL_PROGRESS:
+                // Progress Bar
+                renderer = gtk_cell_renderer_progress_new();
+                gtk_tree_view_column_pack_start(col, renderer, TRUE);
+                gtk_tree_view_column_set_attributes(col, renderer, "value", cols[j], NULL);
+                break;
+            default:
+                // Text Column
+                renderer = gtk_cell_renderer_text_new();
+                gtk_tree_view_column_pack_start(col, renderer, TRUE);
+                gtk_tree_view_column_set_attributes(col, renderer, "text", cols[j], NULL);
 
-            // ellipsize some columns
-            if (cols[j] == TASK_COL_FILE || cols[j] == TASK_COL_PATH || cols[j] == TASK_COL_TO)
-            {
-                GValue val = {0}; // G_VALUE_INIT (glib>=2.30) caused to slackware issue ?
-                g_value_init(&val, G_TYPE_CHAR);
-                g_value_set_schar(&val, PANGO_ELLIPSIZE_MIDDLE);
-                g_object_set_property(G_OBJECT(renderer), "ellipsize", &val);
-                g_value_unset(&val);
-            }
+                // ellipsize some columns
+                if (cols[j] == TASK_COL_FILE || cols[j] == TASK_COL_PATH || cols[j] == TASK_COL_TO)
+                {
+                    GValue val = {0}; // G_VALUE_INIT (glib>=2.30) caused to slackware issue ?
+                    g_value_init(&val, G_TYPE_CHAR);
+                    g_value_set_schar(&val, PANGO_ELLIPSIZE_MIDDLE);
+                    g_object_set_property(G_OBJECT(renderer), "ellipsize", &val);
+                    g_value_unset(&val);
+                }
+                break;
         }
+
         gtk_tree_view_append_column(GTK_TREE_VIEW(view), col);
         gtk_tree_view_column_set_title(col, _(task_titles[j]));
         gtk_tree_view_column_set_reorderable(col, TRUE);
@@ -6013,7 +6048,8 @@ char main_window_socket_command(char* argv[], char** reply)
     FMMainWindow* main_window;
     PtkFileBrowser* file_browser;
     GList* l;
-    int height, width;
+    int height;
+    int width;
     GtkWidget* widget;
     // must match file-browser.c
     const char* column_titles[] =
@@ -7795,67 +7831,62 @@ bool run_event(FMMainWindow* main_window, PtkFileBrowser* file_browser, XSet* pr
             cmd = replace_string(ucmd, var, event, FALSE);
         else if (strstr(str, var))
         {
-            if (var[1] == 'f')
+            switch (var[1])
             {
-                if (!focus)
-                {
-                    rep = g_strdup_printf("panel%d", panel);
+                case 'f':
+                    if (!focus)
+                    {
+                        rep = g_strdup_printf("panel%d", panel);
+                        cmd = replace_string(str, var, rep, FALSE);
+                        g_free(rep);
+                    }
+                    else
+                        cmd = replace_string(str, var, focus, FALSE);
+                    break;
+                case 'w':
+                    rep = g_strdup_printf("%p", main_window);
                     cmd = replace_string(str, var, rep, FALSE);
                     g_free(rep);
-                }
-                else
-                    cmd = replace_string(str, var, focus, FALSE);
-            }
-            else if (var[1] == 'w')
-            {
-                rep = g_strdup_printf("%p", main_window);
-                cmd = replace_string(str, var, rep, FALSE);
-                g_free(rep);
-            }
-            else if (var[1] == 'p')
-            {
-                rep = g_strdup_printf("%d", panel);
-                cmd = replace_string(str, var, rep, FALSE);
-                g_free(rep);
-            }
-            else if (var[1] == 't')
-            {
-                rep = g_strdup_printf("%d", tab);
-                cmd = replace_string(str, var, rep, FALSE);
-                g_free(rep);
-            }
-            else if (var[1] == 'v')
-                cmd = replace_string(str, var, visible ? "1" : "0", FALSE);
-            else if (var[1] == 'k')
-            {
-                rep = g_strdup_printf("%#x", keyval);
-                cmd = replace_string(str, var, rep, FALSE);
-                g_free(rep);
-            }
-            else if (var[1] == 'b')
-            {
-                rep = g_strdup_printf("%d", button);
-                cmd = replace_string(str, var, rep, FALSE);
-                g_free(rep);
-            }
-            else if (var[1] == 'm')
-            {
-                rep = g_strdup_printf("%#x", state);
-                cmd = replace_string(str, var, rep, FALSE);
-                g_free(rep);
-            }
-            else if (var[1] == 'd')
-            {
-                rep = bash_quote(file_browser ? ptk_file_browser_get_cwd(file_browser) : NULL);
-                cmd = replace_string(str, var, rep, FALSE);
-                g_free(rep);
-            }
-            else
-            {
-                // failsafe
-                g_free(str);
-                g_free(cmd);
-                return FALSE;
+                    break;
+                case 'p':
+                    rep = g_strdup_printf("%d", panel);
+                    cmd = replace_string(str, var, rep, FALSE);
+                    g_free(rep);
+                    break;
+                case 't':
+                    rep = g_strdup_printf("%d", tab);
+                    cmd = replace_string(str, var, rep, FALSE);
+                    g_free(rep);
+                    break;
+                case 'v':
+                    cmd = replace_string(str, var, visible ? "1" : "0", FALSE);
+                    break;
+                case 'k':
+                    rep = g_strdup_printf("%#x", keyval);
+                    cmd = replace_string(str, var, rep, FALSE);
+                    g_free(rep);
+                    break;
+                case 'b':
+                    rep = g_strdup_printf("%d", button);
+                    cmd = replace_string(str, var, rep, FALSE);
+                    g_free(rep);
+                    break;
+                case 'm':
+                    rep = g_strdup_printf("%#x", state);
+                    cmd = replace_string(str, var, rep, FALSE);
+                    g_free(rep);
+                    break;
+                case 'd':
+                    rep = bash_quote(file_browser ? ptk_file_browser_get_cwd(file_browser) : NULL);
+                    cmd = replace_string(str, var, rep, FALSE);
+                    g_free(rep);
+                    break;
+                default:
+                    // failsafe
+                    g_free(str);
+                    g_free(cmd);
+                    return FALSE;
+                    break;
             }
             g_free(str);
         }

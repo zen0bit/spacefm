@@ -220,16 +220,19 @@ static bool on_move_keypress(GtkWidget* widget, GdkEventKey* event, MoveSet* mse
 
     if (keymod == 0)
     {
-        if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter)
+        switch (event->keyval)
         {
-            if (gtk_widget_get_sensitive(GTK_WIDGET(mset->next)))
-                gtk_dialog_response(GTK_DIALOG(mset->dlg), GTK_RESPONSE_OK);
-            return TRUE;
-        }
-        else if (event->keyval == GDK_KEY_F1)
-        {
-            on_help_activate(NULL, mset);
-            return TRUE;
+            case GDK_KEY_Return:
+                // fallthrough
+            case GDK_KEY_KP_Enter:
+                if (gtk_widget_get_sensitive(GTK_WIDGET(mset->next)))
+                    gtk_dialog_response(GTK_DIALOG(mset->dlg), GTK_RESPONSE_OK);
+                return TRUE;
+            case GDK_KEY_F1:
+                on_help_activate(NULL, mset);
+                return TRUE;
+            default:
+                break;
         }
     }
     return FALSE;
@@ -242,16 +245,19 @@ static bool on_move_entry_keypress(GtkWidget* widget, GdkEventKey* event, MoveSe
 
     if (keymod == 0)
     {
-        if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter)
+        switch (event->keyval)
         {
-            if (gtk_widget_get_sensitive(GTK_WIDGET(mset->next)))
-                gtk_dialog_response(GTK_DIALOG(mset->dlg), GTK_RESPONSE_OK);
-            return TRUE;
-        }
-        else if (event->keyval == GDK_KEY_F1)
-        {
-            on_help_activate(NULL, mset);
-            return TRUE;
+            case GDK_KEY_Return:
+                // fallthrough
+            case GDK_KEY_KP_Enter:
+                if (gtk_widget_get_sensitive(GTK_WIDGET(mset->next)))
+                    gtk_dialog_response(GTK_DIALOG(mset->dlg), GTK_RESPONSE_OK);
+                return TRUE;
+            case GDK_KEY_F1:
+                on_help_activate(NULL, mset);
+                return TRUE;
+            default:
+                break;
         }
     }
     return FALSE;
@@ -1128,22 +1134,22 @@ void on_browse_button_press(GtkWidget* widget, MoveSet* mset)
         {
             if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mode[i])))
             {
-                if (i == MODE_FILENAME)
+                switch (i)
                 {
-                    path = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
-                    str = g_path_get_basename(path);
-                    gtk_text_buffer_set_text(mset->buf_full_name, str, -1);
-                    g_free(str);
-                }
-                else if (i == MODE_PARENT)
-                {
-                    path = gtk_file_chooser_get_current_folder(GTK_FILE_CHOOSER(dlg));
-                    gtk_text_buffer_set_text(mset->buf_path, path, -1);
-                }
-                else
-                {
-                    path = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
-                    gtk_text_buffer_set_text(mset->buf_full_path, path, -1);
+                    case MODE_FILENAME:
+                        path = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
+                        str = g_path_get_basename(path);
+                        gtk_text_buffer_set_text(mset->buf_full_name, str, -1);
+                        g_free(str);
+                        break;
+                    case MODE_PARENT:
+                        path = gtk_file_chooser_get_current_folder(GTK_FILE_CHOOSER(dlg));
+                        gtk_text_buffer_set_text(mset->buf_path, path, -1);
+                        break;
+                    default:
+                        path = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
+                        gtk_text_buffer_set_text(mset->buf_full_path, path, -1);
+                        break;
                 }
                 g_free(path);
                 break;
@@ -1585,120 +1591,123 @@ void on_options_button_press(GtkWidget* btn, MoveSet* mset)
 static bool on_label_focus(GtkWidget* widget, GtkDirectionType direction, MoveSet* mset)
 {
     GtkWidget* input = NULL;
+    GtkWidget* input2 = NULL;
+    GtkWidget* first_input = NULL;
 
-    if (direction == GTK_DIR_TAB_FORWARD)
+    switch (direction)
     {
-        if (widget == GTK_WIDGET(mset->label_name))
-            input = mset->input_name;
-        else if (widget == GTK_WIDGET(mset->label_ext))
-            input = GTK_WIDGET(mset->entry_ext);
-        else if (widget == GTK_WIDGET(mset->label_full_name))
-            input = mset->input_full_name;
-        else if (widget == GTK_WIDGET(mset->label_path))
-            input = mset->input_path;
-        else if (widget == GTK_WIDGET(mset->label_full_path))
-            input = mset->input_full_path;
-        else if (widget == GTK_WIDGET(mset->label_type))
-        {
-            on_button_focus(mset->options, GTK_DIR_TAB_FORWARD, mset);
-            return TRUE;
-        }
-        else if (widget == GTK_WIDGET(mset->label_target))
-            input = GTK_WIDGET(mset->entry_target);
-        else if (widget == GTK_WIDGET(mset->label_template))
-        {
-            if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_new_file)))
-                input = GTK_WIDGET(mset->combo_template);
-            else
-                input = GTK_WIDGET(mset->combo_template_dir);
-        }
-    }
-    else if (direction == GTK_DIR_TAB_BACKWARD)
-    {
-        GtkWidget* input2;
-        GtkWidget* first_input;
-
-        if (widget == GTK_WIDGET(mset->label_name))
-        {
-            if (mset->combo_template_dir)
-                input = GTK_WIDGET(mset->combo_template_dir);
-            else if (mset->combo_template)
-                input = GTK_WIDGET(mset->combo_template);
-            else if (mset->entry_target)
-                input = GTK_WIDGET(mset->entry_target);
-            else
-                input = mset->input_full_path;
-        }
-        else if (widget == GTK_WIDGET(mset->label_ext))
-            input = mset->input_name;
-        else if (widget == GTK_WIDGET(mset->label_full_name))
-        {
-            if (gtk_widget_get_visible(gtk_widget_get_parent(GTK_WIDGET(mset->entry_ext))) &&
-                gtk_widget_get_sensitive(GTK_WIDGET(mset->entry_ext)))
-                input = GTK_WIDGET(mset->entry_ext);
-            else
+        case GTK_DIR_TAB_FORWARD:
+            if (widget == GTK_WIDGET(mset->label_name))
                 input = mset->input_name;
-        }
-        else if (widget == GTK_WIDGET(mset->label_path))
-            input = mset->input_full_name;
-        else if (widget == GTK_WIDGET(mset->label_full_path))
-            input = mset->input_path;
-        else
-            input = mset->input_full_path;
-
-        first_input = input;
-        while (input && !gtk_widget_get_visible(gtk_widget_get_parent(input)))
-        {
-            input2 = NULL;
-            if (input == GTK_WIDGET(mset->combo_template_dir))
+            else if (widget == GTK_WIDGET(mset->label_ext))
+                input = GTK_WIDGET(mset->entry_ext);
+            else if (widget == GTK_WIDGET(mset->label_full_name))
+                input = mset->input_full_name;
+            else if (widget == GTK_WIDGET(mset->label_path))
+                input = mset->input_path;
+            else if (widget == GTK_WIDGET(mset->label_full_path))
+                input = mset->input_full_path;
+            else if (widget == GTK_WIDGET(mset->label_type))
             {
-                if (mset->combo_template)
-                    input2 = GTK_WIDGET(mset->combo_template);
+                on_button_focus(mset->options, GTK_DIR_TAB_FORWARD, mset);
+                return TRUE;
+            }
+            else if (widget == GTK_WIDGET(mset->label_target))
+                input = GTK_WIDGET(mset->entry_target);
+            else if (widget == GTK_WIDGET(mset->label_template))
+            {
+                if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_new_file)))
+                    input = GTK_WIDGET(mset->combo_template);
+                else
+                    input = GTK_WIDGET(mset->combo_template_dir);
+            }
+            break;
+        case GTK_DIR_TAB_BACKWARD:
+            if (widget == GTK_WIDGET(mset->label_name))
+            {
+                if (mset->combo_template_dir)
+                    input = GTK_WIDGET(mset->combo_template_dir);
+                else if (mset->combo_template)
+                    input = GTK_WIDGET(mset->combo_template);
                 else if (mset->entry_target)
-                    input2 = GTK_WIDGET(mset->entry_target);
+                    input = GTK_WIDGET(mset->entry_target);
                 else
-                    input2 = mset->input_full_path;
+                    input = mset->input_full_path;
             }
-            else if (input == GTK_WIDGET(mset->combo_template))
-            {
-                if (mset->entry_target)
-                    input2 = GTK_WIDGET(mset->entry_target);
-                else
-                    input2 = mset->input_full_path;
-            }
-            else if (input == GTK_WIDGET(mset->entry_target))
-                input2 = mset->input_full_path;
-            else if (input == mset->input_full_path)
-                input2 = mset->input_path;
-            else if (input == mset->input_path)
-                input2 = mset->input_full_name;
-            else if (input == mset->input_full_name)
+            else if (widget == GTK_WIDGET(mset->label_ext))
+                input = mset->input_name;
+            else if (widget == GTK_WIDGET(mset->label_full_name))
             {
                 if (gtk_widget_get_visible(gtk_widget_get_parent(GTK_WIDGET(mset->entry_ext))) &&
                     gtk_widget_get_sensitive(GTK_WIDGET(mset->entry_ext)))
-                    input2 = GTK_WIDGET(mset->entry_ext);
+                    input = GTK_WIDGET(mset->entry_ext);
                 else
-                    input2 = mset->input_name;
+                    input = mset->input_name;
             }
-            else if (input == GTK_WIDGET(mset->entry_ext))
-                input2 = mset->input_name;
-            else if (input == mset->input_name)
-            {
-                if (mset->combo_template_dir)
-                    input2 = GTK_WIDGET(mset->combo_template_dir);
-                else if (mset->combo_template)
-                    input2 = GTK_WIDGET(mset->combo_template);
-                else if (mset->entry_target)
-                    input2 = GTK_WIDGET(mset->entry_target);
-                else
-                    input2 = mset->input_full_path;
-            }
-
-            if (input2 == first_input)
-                input = NULL;
+            else if (widget == GTK_WIDGET(mset->label_path))
+                input = mset->input_full_name;
+            else if (widget == GTK_WIDGET(mset->label_full_path))
+                input = mset->input_path;
             else
-                input = input2;
-        }
+                input = mset->input_full_path;
+
+            first_input = input;
+            while (input && !gtk_widget_get_visible(gtk_widget_get_parent(input)))
+            {
+                input2 = NULL;
+                if (input == GTK_WIDGET(mset->combo_template_dir))
+                {
+                    if (mset->combo_template)
+                        input2 = GTK_WIDGET(mset->combo_template);
+                    else if (mset->entry_target)
+                        input2 = GTK_WIDGET(mset->entry_target);
+                    else
+                        input2 = mset->input_full_path;
+                }
+                else if (input == GTK_WIDGET(mset->combo_template))
+                {
+                    if (mset->entry_target)
+                        input2 = GTK_WIDGET(mset->entry_target);
+                    else
+                        input2 = mset->input_full_path;
+                }
+                else if (input == GTK_WIDGET(mset->entry_target))
+                    input2 = mset->input_full_path;
+                else if (input == mset->input_full_path)
+                    input2 = mset->input_path;
+                else if (input == mset->input_path)
+                    input2 = mset->input_full_name;
+                else if (input == mset->input_full_name)
+                {
+                    if (gtk_widget_get_visible(
+                            gtk_widget_get_parent(GTK_WIDGET(mset->entry_ext))) &&
+                        gtk_widget_get_sensitive(GTK_WIDGET(mset->entry_ext)))
+                        input2 = GTK_WIDGET(mset->entry_ext);
+                    else
+                        input2 = mset->input_name;
+                }
+                else if (input == GTK_WIDGET(mset->entry_ext))
+                    input2 = mset->input_name;
+                else if (input == mset->input_name)
+                {
+                    if (mset->combo_template_dir)
+                        input2 = GTK_WIDGET(mset->combo_template_dir);
+                    else if (mset->combo_template)
+                        input2 = GTK_WIDGET(mset->combo_template);
+                    else if (mset->entry_target)
+                        input2 = GTK_WIDGET(mset->entry_target);
+                    else
+                        input2 = mset->input_full_path;
+                }
+
+                if (input2 == first_input)
+                    input = NULL;
+                else
+                    input = input2;
+            }
+            break;
+        default:
+            break;
     }
 
     if (input == GTK_WIDGET(mset->label_mime))
@@ -1766,50 +1775,56 @@ void copy_entry_to_clipboard(GtkWidget* widget, MoveSet* mset)
 
 bool on_label_button_press(GtkWidget* widget, GdkEventButton* event, MoveSet* mset)
 {
-    if (event->type == GDK_BUTTON_PRESS)
+    switch (event->type)
     {
-        if (event->button == 1 || event->button == 2)
-        {
-            GtkWidget* input = NULL;
-            if (widget == GTK_WIDGET(mset->label_name))
-                input = mset->input_name;
-            else if (widget == GTK_WIDGET(mset->label_ext))
-                input = GTK_WIDGET(mset->entry_ext);
-            else if (widget == GTK_WIDGET(mset->label_full_name))
-                input = mset->input_full_name;
-            else if (widget == GTK_WIDGET(mset->label_path))
-                input = mset->input_path;
-            else if (widget == GTK_WIDGET(mset->label_full_path))
-                input = mset->input_full_path;
-            else if (widget == GTK_WIDGET(mset->label_type))
+        case GDK_BUTTON_PRESS:
+            if (event->button == 1 || event->button == 2)
             {
-                gtk_label_select_region(mset->label_mime, 0, -1);
-                gtk_widget_grab_focus(GTK_WIDGET(mset->label_mime));
-                if (event->button == 2)
-                    copy_entry_to_clipboard(widget, mset);
-                return TRUE;
-            }
-            else if (widget == GTK_WIDGET(mset->label_target))
-                input = GTK_WIDGET(mset->entry_target);
-            else if (widget == GTK_WIDGET(mset->label_template))
-            {
-                if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_new_file)))
-                    input = GTK_WIDGET(mset->combo_template);
-                else
-                    input = GTK_WIDGET(mset->combo_template_dir);
-            }
+                GtkWidget* input = NULL;
+                if (widget == GTK_WIDGET(mset->label_name))
+                    input = mset->input_name;
+                else if (widget == GTK_WIDGET(mset->label_ext))
+                    input = GTK_WIDGET(mset->entry_ext);
+                else if (widget == GTK_WIDGET(mset->label_full_name))
+                    input = mset->input_full_name;
+                else if (widget == GTK_WIDGET(mset->label_path))
+                    input = mset->input_path;
+                else if (widget == GTK_WIDGET(mset->label_full_path))
+                    input = mset->input_full_path;
+                else if (widget == GTK_WIDGET(mset->label_type))
+                {
+                    gtk_label_select_region(mset->label_mime, 0, -1);
+                    gtk_widget_grab_focus(GTK_WIDGET(mset->label_mime));
+                    if (event->button == 2)
+                        copy_entry_to_clipboard(widget, mset);
+                    return TRUE;
+                }
+                else if (widget == GTK_WIDGET(mset->label_target))
+                    input = GTK_WIDGET(mset->entry_target);
+                else if (widget == GTK_WIDGET(mset->label_template))
+                {
+                    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_new_file)))
+                        input = GTK_WIDGET(mset->combo_template);
+                    else
+                        input = GTK_WIDGET(mset->combo_template_dir);
+                }
 
-            if (input)
-            {
-                select_input(input, mset);
-                gtk_widget_grab_focus(input);
-                if (event->button == 2)
-                    copy_entry_to_clipboard(widget, mset);
+                if (input)
+                {
+                    select_input(input, mset);
+                    gtk_widget_grab_focus(input);
+                    if (event->button == 2)
+                        copy_entry_to_clipboard(widget, mset);
+                }
             }
-        }
+            break;
+        case GDK_2BUTTON_PRESS:
+            copy_entry_to_clipboard(widget, mset);
+            break;
+        default:
+            break;
     }
-    else if (event->type == GDK_2BUTTON_PRESS)
-        copy_entry_to_clipboard(widget, mset);
+
     return TRUE;
 }
 
