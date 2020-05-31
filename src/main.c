@@ -4,10 +4,6 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 /* turn on to debug GDK_THREADS_ENTER/GDK_THREADS_LEAVE related deadlocks */
 #undef _DEBUG_THREAD
 

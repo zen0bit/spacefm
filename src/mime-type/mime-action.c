@@ -16,10 +16,6 @@
  * compatibility with older systems, and is NOT fully spec compliant.
  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include <stdbool.h>
 
 #include "mime-action.h"

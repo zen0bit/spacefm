@@ -23,10 +23,6 @@
 /* Modified by Hong Jen Yee (PCMan) <pcman.tw@gmail.com>
  * on 2008.05.11 for use in PCManFM */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #ifdef HAVE_MEMORY_H
 #include <memory.h>
 #endif

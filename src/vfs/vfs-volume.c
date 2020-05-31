@@ -10,10 +10,6 @@
  * device info code uses code excerpts from freedesktop's udisks v1.0.4
  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include <stdbool.h>
 #include <stdint.h>
 

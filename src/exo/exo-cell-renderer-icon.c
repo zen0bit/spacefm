@@ -19,10 +19,6 @@
  * MA 02110-1301 USA
  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include <gio/gio.h>
 
 #include "exo-cell-renderer-icon.h"

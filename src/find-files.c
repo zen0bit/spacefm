@@ -23,10 +23,6 @@
  * Compatibility with other systems like BSD, need to be improved.
  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 #include <stdbool.h>
 
 #include <glib/gi18n.h>

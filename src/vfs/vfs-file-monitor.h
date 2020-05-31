@@ -10,10 +10,6 @@
  *
  */
 
-#ifdef HAVE_CONFIG_H
-#include <config.h>
-#endif
-
 /*
   FIXME: VFSFileMonitor can support at most 1024 monitored files.
          This is caused by the limit of FAM/gamin itself.
