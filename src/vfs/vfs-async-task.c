@@ -40,7 +40,7 @@ enum
     N_SIGNALS
 };
 
-static guint signals[N_SIGNALS] = {0};
+static unsigned int signals[N_SIGNALS] = {0};
 
 GType vfs_async_task_get_type(void)
 {
@@ -102,7 +102,7 @@ void vfs_async_task_unlock(VFSAsyncTask* task)
     g_mutex_unlock(task->lock);
 }
 
-VFSAsyncTask* vfs_async_task_new(VFSAsyncFunc task_func, gpointer user_data)
+VFSAsyncTask* vfs_async_task_new(VFSAsyncFunc task_func, void* user_data)
 {
     VFSAsyncTask* task = (VFSAsyncTask*)g_object_new(VFS_ASYNC_TASK_TYPE, NULL);
     task->func = task_func;
@@ -110,17 +110,17 @@ VFSAsyncTask* vfs_async_task_new(VFSAsyncFunc task_func, gpointer user_data)
     return (VFSAsyncTask*)task;
 }
 
-gpointer vfs_async_task_get_data(VFSAsyncTask* task)
+void* vfs_async_task_get_data(VFSAsyncTask* task)
 {
     return task->user_data;
 }
 
-void vfs_async_task_set_data(VFSAsyncTask* task, gpointer user_data)
+void vfs_async_task_set_data(VFSAsyncTask* task, void* user_data)
 {
     task->user_data = user_data;
 }
 
-gpointer vfs_async_task_get_return_value(VFSAsyncTask* task)
+void* vfs_async_task_get_return_value(VFSAsyncTask* task)
 {
     return task->ret_val;
 }
@@ -142,7 +142,7 @@ void vfs_async_task_finalize(GObject* object)
         (*G_OBJECT_CLASS(parent_class)->finalize)(object);
 }
 
-gboolean on_idle(gpointer _task)
+gboolean on_idle(void* _task)
 {
     VFSAsyncTask* task = VFS_ASYNC_TASK(_task);
     // GDK_THREADS_ENTER();   // not needed because this runs in main thread
@@ -151,10 +151,10 @@ gboolean on_idle(gpointer _task)
     return TRUE; /* the idle handler is removed in vfs_async_thread_cleanup. */
 }
 
-gpointer vfs_async_task_thread(gpointer _task)
+void* vfs_async_task_thread(void* _task)
 {
     VFSAsyncTask* task = VFS_ASYNC_TASK(_task);
-    gpointer ret = NULL;
+    void* ret = NULL;
     ret = task->func(task, task->user_data);
 
     vfs_async_task_lock(task);

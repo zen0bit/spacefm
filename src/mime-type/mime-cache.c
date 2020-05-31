@@ -22,6 +22,8 @@
 #include <config.h>
 #endif
 
+#include <stdint.h>
+
 #include "mime-cache.h"
 
 #include <glib.h>
@@ -49,8 +51,8 @@
 #define LIB_MIN_MINOR_VERSION 0
 
 /* handle byte order here */
-#define VAL16(buffrer, idx) GUINT16_FROM_BE(*(guint16*)(buffer + idx))
-#define VAL32(buffer, idx)  GUINT32_FROM_BE(*(guint32*)(buffer + idx))
+#define VAL16(buffrer, idx) GUINT16_FROM_BE(*(uint16_t*)(buffer + idx))
+#define VAL32(buffer, idx)  GUINT32_FROM_BE(*(uint32_t*)(buffer + idx))
 
 /* cache header */
 #define MAJOR_VERSION  0
@@ -95,11 +97,11 @@ void mime_cache_free(MimeCache* cache)
 
 gboolean mime_cache_load(MimeCache* cache, const char* file_path)
 {
-    guint majv, minv;
+    unsigned int majv, minv;
     int fd = -1;
     struct stat statbuf;
     char* buffer = NULL;
-    guint32 offset;
+    uint32_t offset;
 
     /* Unload old cache first if needed */
     if (file_path == cache->file_path)
@@ -192,16 +194,16 @@ gboolean mime_cache_load(MimeCache* cache, const char* file_path)
 static gboolean magic_rule_match(const char* buf, const char* rule, const char* data, int len)
 {
     gboolean match = FALSE;
-    guint32 offset = VAL32(rule, 0);
-    guint32 range = VAL32(rule, 4);
+    uint32_t offset = VAL32(rule, 0);
+    uint32_t range = VAL32(rule, 4);
 
-    guint32 max_offset = offset + range;
-    guint32 val_len = VAL32(rule, 12);
+    uint32_t max_offset = offset + range;
+    uint32_t val_len = VAL32(rule, 12);
 
     for (; offset < max_offset && (offset + val_len) <= len; ++offset)
     {
-        guint32 val_off = VAL32(rule, 16);
-        guint32 mask_off = VAL32(rule, 20);
+        uint32_t val_off = VAL32(rule, 16);
+        uint32_t mask_off = VAL32(rule, 20);
         const char* value = buf + val_off;
         /* FIXME: word_size and byte order are not supported! */
 
@@ -226,11 +228,11 @@ static gboolean magic_rule_match(const char* buf, const char* rule, const char* 
 
         if (match)
         {
-            guint32 n_children = VAL32(rule, 24);
+            uint32_t n_children = VAL32(rule, 24);
             if (n_children > 0)
             {
-                guint32 first_child_off = VAL32(rule, 28);
-                guint i;
+                uint32_t first_child_off = VAL32(rule, 28);
+                unsigned int i;
                 rule = buf + first_child_off;
                 for (i = 0; i < n_children; ++i, rule += 32)
                 {
@@ -247,8 +249,8 @@ static gboolean magic_rule_match(const char* buf, const char* rule, const char* 
 
 static gboolean magic_match(const char* buf, const char* magic, const char* data, int len)
 {
-    guint32 n_rules = VAL32(magic, 8);
-    guint32 rules_off = VAL32(magic, 12);
+    uint32_t n_rules = VAL32(magic, 8);
+    uint32_t rules_off = VAL32(magic, 12);
     const char* rule = buf + rules_off;
     int i;
 
@@ -276,10 +278,10 @@ const char* mime_cache_lookup_magic(MimeCache* cache, const char* data, int len)
     return NULL;
 }
 
-static const char* lookup_suffix_nodes(const char* buf, const char* nodes, guint32 n,
+static const char* lookup_suffix_nodes(const char* buf, const char* nodes, uint32_t n,
                                        const char* name)
 {
-    gunichar uchar;
+    uint32_t uchar;
 
     uchar = g_unichar_tolower(g_utf8_get_char(name));
 
@@ -290,7 +292,7 @@ static const char* lookup_suffix_nodes(const char* buf, const char* nodes, guint
     while (upper >= lower)
     {
         const char* node = nodes + middle * 16;
-        guint32 ch = VAL32(node, 0);
+        uint32_t ch = VAL32(node, 0);
 
         if (uchar < ch)
             upper = middle - 1;
@@ -298,18 +300,18 @@ static const char* lookup_suffix_nodes(const char* buf, const char* nodes, guint
             lower = middle + 1;
         else /* uchar == ch */
         {
-            guint32 n_children = VAL32(node, 8);
+            uint32_t n_children = VAL32(node, 8);
             name = g_utf8_next_char(name);
 
             if (n_children > 0)
             {
-                guint32 first_child_off;
+                uint32_t first_child_off;
                 if (uchar == 0)
                     return NULL;
 
                 if (!name || 0 == name[0])
                 {
-                    guint32 offset = VAL32(node, 4);
+                    uint32_t offset = VAL32(node, 4);
                     return offset ? buf + offset : NULL;
                 }
                 first_child_off = VAL32(node, 12);
@@ -319,7 +321,7 @@ static const char* lookup_suffix_nodes(const char* buf, const char* nodes, guint
             {
                 if (!name || 0 == name[0])
                 {
-                    guint32 offset = VAL32(node, 4);
+                    uint32_t offset = VAL32(node, 4);
                     return offset ? buf + offset : NULL;
                 }
                 return NULL;
@@ -335,14 +337,14 @@ static const char* lookup_suffix_nodes(const char* buf, const char* nodes, guint
  * FIXME: 1. Should be optimized with binary search
  *        2. Should consider weight of suffix nodes
  */
-static const char* lookup_reverse_suffix_nodes(const char* buf, const char* nodes, guint32 n,
+static const char* lookup_reverse_suffix_nodes(const char* buf, const char* nodes, uint32_t n,
                                                const char* name, const char* suffix,
                                                const char** suffix_pos)
 {
     const char* ret = NULL;
     const char *_suffix_pos = NULL, *cur_suffix_pos = (const char*)suffix + 1;
     const char* leaf_node = NULL;
-    gunichar uchar;
+    uint32_t uchar;
 
     uchar = suffix ? g_unichar_tolower(g_utf8_get_char(suffix)) : 0;
     /* g_debug("%s: suffix= '%s'", name, suffix); */
@@ -351,14 +353,14 @@ static const char* lookup_reverse_suffix_nodes(const char* buf, const char* node
     for (i = 0; i < n; ++i)
     {
         const char* node = nodes + i * 12;
-        guint32 ch = VAL32(node, 0);
+        uint32_t ch = VAL32(node, 0);
         _suffix_pos = suffix;
         if (G_LIKELY(ch))
         {
             if (ch == uchar)
             {
-                guint32 n_children = VAL32(node, 4);
-                guint32 first_child_off = VAL32(node, 8);
+                uint32_t n_children = VAL32(node, 4);
+                uint32_t first_child_off = VAL32(node, 8);
                 leaf_node = lookup_reverse_suffix_nodes(buf,
                                                         buf + first_child_off,
                                                         n_children,
@@ -374,7 +376,7 @@ static const char* lookup_reverse_suffix_nodes(const char* buf, const char* node
         }
         else /* ch == 0 */
         {
-            /* guint32 weight = VAL32(node, 8); */
+            /* uint32_t weight = VAL32(node, 8); */
             /* suffix is found in the tree! */
 
             if (suffix < cur_suffix_pos)
@@ -417,8 +419,8 @@ const char* mime_cache_lookup_suffix(MimeCache* cache, const char* filename,
     {
         for (i = 0; i < n; ++i, root += 16)
         {
-            guint32 first_child_off;
-            guint32 ch = VAL32(root, 0);
+            uint32_t first_child_off;
+            uint32_t ch = VAL32(root, 0);
             const char* suffix;
 
             suffix = strchr(filename, ch);
@@ -537,7 +539,7 @@ const char* mime_cache_lookup_glob(MimeCache* cache, const char* filename, int* 
 
 const char** mime_cache_lookup_parents(MimeCache* cache, const char* mime_type)
 {
-    guint32 n, i;
+    uint32_t n, i;
     const char** result;
     const char* parents;
 
@@ -551,7 +553,7 @@ const char** mime_cache_lookup_parents(MimeCache* cache, const char* mime_type)
 
     for (i = 0; i < n; ++i)
     {
-        guint32 parent_off = VAL32(parents, i * 4);
+        uint32_t parent_off = VAL32(parents, i * 4);
         const char* parent = cache->buffer + parent_off;
         result[i] = parent;
     }

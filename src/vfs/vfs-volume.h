@@ -11,6 +11,8 @@
 #ifndef _VFS_VOLUME_H_
 #define _VFS_VOLUME_H_
 
+#include <stdint.h>
+
 #include <glib.h>
 #include "settings.h"
 
@@ -28,7 +30,7 @@ typedef enum
     VFS_VOLUME_CHANGED
 } VFSVolumeState;
 
-typedef void (*VFSVolumeCallback)(VFSVolume* vol, VFSVolumeState state, gpointer user_data);
+typedef void (*VFSVolumeCallback)(VFSVolume* vol, VFSVolumeState state, void* user_data);
 
 gboolean vfs_volume_init();
 
@@ -36,9 +38,9 @@ gboolean vfs_volume_finalize();
 
 const GList* vfs_volume_get_all_volumes();
 
-void vfs_volume_add_callback(VFSVolumeCallback cb, gpointer user_data);
+void vfs_volume_add_callback(VFSVolumeCallback cb, void* user_data);
 
-void vfs_volume_remove_callback(VFSVolumeCallback cb, gpointer user_data);
+void vfs_volume_remove_callback(VFSVolumeCallback cb, void* user_data);
 
 gboolean vfs_volume_mount(VFSVolume* vol, GError** err);
 
@@ -92,7 +94,7 @@ struct _VFSVolume
     char* disp_name;
     char* icon;
     char* mount_point;
-    guint64 size;
+    uint64_t size;
     char* label;
     char* fs_type;
     gboolean should_autounmount : 1; // a network or ISO file was mounted
@@ -111,7 +113,7 @@ struct _VFSVolume
     gboolean ever_mounted : 1;
     gboolean inhibit_auto : 1;
     time_t automount_time;
-    gpointer open_main_window;
+    void* open_main_window;
 };
 
 gboolean vfs_volume_command(char* command, char** output);

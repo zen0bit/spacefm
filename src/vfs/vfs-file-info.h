@@ -13,6 +13,8 @@
 #ifndef _VFS_FILE_INFO_H_
 #define _VFS_FILE_INFO_H_
 
+#include <stdint.h>
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -118,9 +120,9 @@ GdkPixbuf* vfs_file_info_get_small_icon(VFSFileInfo* fi);
 GdkPixbuf* vfs_file_info_get_big_thumbnail(VFSFileInfo* fi);
 GdkPixbuf* vfs_file_info_get_small_thumbnail(VFSFileInfo* fi);
 
-void vfs_file_size_to_string_format(char* buf, guint64 size, char* format);
+void vfs_file_size_to_string_format(char* buf, uint64_t size, char* format);
 
-void vfs_file_size_to_string(char* buf, guint64 size);
+void vfs_file_size_to_string(char* buf, uint64_t size);
 
 gboolean vfs_file_info_is_dir(VFSFileInfo* fi);
 

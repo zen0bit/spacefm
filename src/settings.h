@@ -11,6 +11,8 @@
 #ifndef _SETTINGS_H_
 #define _SETTINGS_H_
 
+#include <stdint.h>
+
 #include <glib.h>
 #include <gdk/gdk.h>
 #include <gtk/gtk.h>
@@ -72,7 +74,7 @@ extern AppSettings app_settings;
 
 void load_conf();
 void load_settings(char* config_dir);
-void save_settings(gpointer main_window_ptr);
+void save_settings(void* main_window_ptr);
 void free_settings();
 const char* xset_get_config_dir();
 const char* xset_get_tmp_dir();
@@ -230,11 +232,11 @@ typedef struct
     int menu_style; // not saved or read if locked
     char* icon;
     void (*cb_func)();       // not saved
-    gpointer cb_data;        // not saved
+    void* cb_data;           // not saved
     char* ob1;               // not saved
-    gpointer ob1_data;       // not saved
+    void* ob1_data;          // not saved
     char* ob2;               // not saved
-    gpointer ob2_data;       // not saved
+    void* ob2_data;          // not saved
     PtkFileBrowser* browser; // not saved - set automatically
     int key;
     int keymod;
@@ -321,7 +323,7 @@ XSet* xset_set_b_panel(int panel, const char* name, gboolean bval);
 int xset_get_int(const char* name, const char* var);
 int xset_get_int_panel(int panel, const char* name, const char* var);
 XSet* xset_set_panel(int panel, const char* name, const char* var, const char* value);
-XSet* xset_set_cb_panel(int panel, const char* name, void (*cb_func)(), gpointer cb_data);
+XSet* xset_set_cb_panel(int panel, const char* name, void (*cb_func)(), void* cb_data);
 gboolean xset_get_b_set(XSet* set);
 XSet* xset_get_panel_mode(int panel, const char* name, char mode);
 gboolean xset_get_b_panel_mode(int panel, const char* name, char mode);
@@ -343,22 +345,22 @@ XSet* xset_custom_remove(XSet* set);
 char* xset_custom_get_app_name_icon(XSet* set, GdkPixbuf** icon, int icon_size);
 GdkPixbuf* xset_custom_get_bookmark_icon(XSet* set, int icon_size);
 void xset_custom_export(GtkWidget* parent, PtkFileBrowser* file_browser, XSet* set);
-GtkWidget* xset_design_show_menu(GtkWidget* menu, XSet* set, XSet* book_insert, guint button,
-                                 guint32 time);
+GtkWidget* xset_design_show_menu(GtkWidget* menu, XSet* set, XSet* book_insert, unsigned int button,
+                                 uint32_t time);
 void xset_add_menu(PtkFileBrowser* file_browser, GtkWidget* menu, GtkAccelGroup* accel_group,
                    char* elements);
 GtkWidget* xset_add_menuitem(PtkFileBrowser* file_browser, GtkWidget* menu,
                              GtkAccelGroup* accel_group, XSet* set);
 GtkWidget* xset_get_image(const char* icon, int icon_size);
-XSet* xset_set_cb(const char* name, void (*cb_func)(), gpointer cb_data);
+XSet* xset_set_cb(const char* name, void (*cb_func)(), void* cb_data);
 XSet* xset_set_ob1_int(XSet* set, const char* ob1, int ob1_int);
-XSet* xset_set_ob1(XSet* set, const char* ob1, gpointer ob1_data);
-XSet* xset_set_ob2(XSet* set, const char* ob2, gpointer ob2_data);
+XSet* xset_set_ob1(XSet* set, const char* ob1, void* ob1_data);
+XSet* xset_set_ob2(XSet* set, const char* ob2, void* ob2_data);
 XSet* xset_is(const char* name);
 XSet* xset_find_custom(const char* search);
 
 void xset_menu_cb(GtkWidget* item, XSet* set);
-gboolean xset_menu_keypress(GtkWidget* widget, GdkEventKey* event, gpointer user_data);
+gboolean xset_menu_keypress(GtkWidget* widget, GdkEventKey* event, void* user_data);
 gboolean xset_text_dialog(GtkWidget* parent, const char* title, GtkWidget* image, gboolean large,
                           const char* msg1, const char* msg2, const char* defstring, char** answer,
                           const char* defreset, gboolean edit_care, const char* help);
@@ -378,7 +380,7 @@ char* multi_input_get_text(GtkWidget* input);
 XSet* xset_custom_new();
 gboolean write_root_settings(GString* buf, const char* path);
 GList* xset_get_plugins(gboolean included);
-void install_plugin_file(gpointer main_win, GtkWidget* handler_dlg, const char* path,
+void install_plugin_file(void* main_win, GtkWidget* handler_dlg, const char* path,
                          const char* plug_dir, int type, int job, XSet* insert_set);
 XSet* xset_import_plugin(const char* plug_dir, gboolean* is_bookmarks);
 void clean_plugin_mirrors();

@@ -10,6 +10,8 @@
  * and adding non-HAL device manager features
  */
 
+#include <stdint.h>
+
 #include <glib.h>
 #include <glib/gi18n.h>
 #include <gdk/gdkkeysyms.h>
@@ -42,23 +44,23 @@
 
 static GtkTreeModel* model = NULL;
 static int n_vols = 0;
-static guint theme_changed = 0; /* GtkIconTheme::"changed" handler */
+static unsigned int theme_changed = 0; /* GtkIconTheme::"changed" handler */
 
 GdkPixbuf* global_icon_bookmark = NULL;
 GdkPixbuf* global_icon_submenu = NULL;
 
 static void ptk_location_view_init_model(GtkListStore* list);
 
-static void on_volume_event(VFSVolume* vol, VFSVolumeState state, gpointer user_data);
+static void on_volume_event(VFSVolume* vol, VFSVolumeState state, void* user_data);
 
 static void add_volume(VFSVolume* vol, gboolean set_icon);
 static void remove_volume(VFSVolume* vol);
 static void update_volume(VFSVolume* vol);
 
-static gboolean on_button_press_event(GtkTreeView* view, GdkEventButton* evt, gpointer user_data);
+static gboolean on_button_press_event(GtkTreeView* view, GdkEventButton* evt, void* user_data);
 gboolean on_key_press_event(GtkWidget* w, GdkEventKey* event, PtkFileBrowser* file_browser);
 
-static void on_bookmark_model_destroy(gpointer data, GObject* object);
+static void on_bookmark_model_destroy(void* data, GObject* object);
 static void on_bookmark_device(GtkMenuItem* item, VFSVolume* vol);
 static void on_bookmark_row_inserted(GtkTreeModel* list, GtkTreePath* tree_path, GtkTreeIter* iter,
                                      PtkFileBrowser* file_browser);
@@ -98,11 +100,11 @@ const char* keep_term_when_done = "\\n[[ $? -eq 0 ]] || ( read -p '%s: ' )\\n\""
 /*  Drag & Drop/Clipboard targets  */
 static GtkTargetEntry drag_targets[] = {{"text/uri-list", 0, 0}};
 
-static void on_model_destroy(gpointer data, GObject* object)
+static void on_model_destroy(void* data, GObject* object)
 {
     GtkIconTheme* icon_theme;
 
-    vfs_volume_remove_callback(on_volume_event, (gpointer)object);
+    vfs_volume_remove_callback(on_volume_event, (void*)object);
 
     model = NULL;
     n_vols = 0;
@@ -501,7 +503,7 @@ GtkWidget* ptk_location_view_new(PtkFileBrowser* file_browser)
     return view;
 }
 
-void on_volume_event(VFSVolume* vol, VFSVolumeState state, gpointer user_data)
+void on_volume_event(VFSVolume* vol, VFSVolumeState state, void* user_data)
 {
     switch (state)
     {
@@ -712,7 +714,7 @@ void ptk_location_view_clean_mount_points()
      * build also requires it. */
 
     GDir* dir;
-    const gchar* name;
+    const char* name;
     char* del_path;
     char* path;
     int i;
@@ -2632,7 +2634,7 @@ void ptk_location_view_on_action(GtkWidget* view, XSet* set)
 }
 
 static void show_devices_menu(GtkTreeView* view, VFSVolume* vol, PtkFileBrowser* file_browser,
-                              guint button, guint32 time)
+                              unsigned int button, uint32_t time)
 {
     XSet* set;
     char* str;
@@ -2759,7 +2761,7 @@ static void show_devices_menu(GtkTreeView* view, VFSVolume* vol, PtkFileBrowser*
     gtk_menu_popup(GTK_MENU(popup), NULL, NULL, NULL, NULL, button, time);
 }
 
-gboolean on_button_press_event(GtkTreeView* view, GdkEventButton* evt, gpointer user_data)
+gboolean on_button_press_event(GtkTreeView* view, GdkEventButton* evt, void* user_data)
 {
     GtkTreeIter it;
     GtkTreeSelection* tree_sel = NULL;
@@ -2855,8 +2857,8 @@ void on_dev_menu_hide(GtkWidget* widget, GtkWidget* dev_menu)
     gtk_menu_shell_deactivate(GTK_MENU_SHELL(dev_menu));
 }
 
-static void show_dev_design_menu(GtkWidget* menu, GtkWidget* dev_item, VFSVolume* vol, guint button,
-                                 guint32 time)
+static void show_dev_design_menu(GtkWidget* menu, GtkWidget* dev_item, VFSVolume* vol,
+                                 unsigned int button, uint32_t time)
 {
     PtkFileBrowser* file_browser;
 
@@ -3008,7 +3010,7 @@ static void show_dev_design_menu(GtkWidget* menu, GtkWidget* dev_item, VFSVolume
     gtk_menu_shell_select_first(GTK_MENU_SHELL(popup), TRUE);
 }
 
-gboolean on_dev_menu_keypress(GtkWidget* menu, GdkEventKey* event, gpointer user_data)
+gboolean on_dev_menu_keypress(GtkWidget* menu, GdkEventKey* event, void* user_data)
 {
     GtkWidget* item = gtk_menu_shell_get_selected_item(GTK_MENU_SHELL(menu));
     if (item)
@@ -3071,7 +3073,7 @@ gboolean on_dev_menu_button_press(GtkWidget* item, GdkEventButton* event, VFSVol
     return TRUE;
 }
 
-gint cmp_dev_name(VFSVolume* a, VFSVolume* b)
+int cmp_dev_name(VFSVolume* a, VFSVolume* b)
 {
     return g_strcmp0(vfs_volume_get_disp_name(a), vfs_volume_get_disp_name(b));
 }
@@ -3156,7 +3158,7 @@ VFSVolume* ptk_location_view_get_volume(GtkTreeView* location_view, GtkTreeIter*
 void ptk_bookmark_view_import_gtk(const char* path, XSet* book_set)
 { // import bookmarks file from spacefm < 1.0 or gtk bookmarks file
     char line[2048];
-    gsize upath_len;
+    unsigned long upath_len;
     XSet* set;
     XSet* newset;
     XSet* set_prev = NULL;
@@ -4013,7 +4015,7 @@ void ptk_bookmark_view_on_open_reverse(GtkMenuItem* item, PtkFileBrowser* file_b
     activate_bookmark_item(sel_set, GTK_TREE_VIEW(file_browser->side_book), file_browser, TRUE);
 }
 
-static void on_bookmark_model_destroy(gpointer data, GObject* object)
+static void on_bookmark_model_destroy(void* data, GObject* object)
 {
     g_signal_handlers_disconnect_matched(gtk_icon_theme_get_default(),
                                          G_SIGNAL_MATCH_DATA,
@@ -4194,8 +4196,8 @@ static void on_bookmark_row_activated(GtkTreeView* view, GtkTreePath* path,
     activate_bookmark_item(get_selected_bookmark_set(view), view, file_browser, FALSE);
 }
 
-static void show_bookmarks_menu(GtkTreeView* view, PtkFileBrowser* file_browser, guint button,
-                                guint32 time)
+static void show_bookmarks_menu(GtkTreeView* view, PtkFileBrowser* file_browser,
+                                unsigned int button, uint32_t time)
 {
     GtkWidget* popup;
     XSet* set;

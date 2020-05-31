@@ -33,9 +33,10 @@
 static void vfs_dir_class_init(VFSDirClass* klass);
 static void vfs_dir_init(VFSDir* dir);
 static void vfs_dir_finalize(GObject* obj);
-static void vfs_dir_set_property(GObject* obj, guint prop_id, const GValue* value,
+static void vfs_dir_set_property(GObject* obj, unsigned int prop_id, const GValue* value,
                                  GParamSpec* pspec);
-static void vfs_dir_get_property(GObject* obj, guint prop_id, GValue* value, GParamSpec* pspec);
+static void vfs_dir_get_property(GObject* obj, unsigned int prop_id, GValue* value,
+                                 GParamSpec* pspec);
 
 char* gethidden(const char* path);                            // MOD added
 gboolean ishidden(const char* hidden, const char* file_name); // MOD added
@@ -44,15 +45,15 @@ gboolean ishidden(const char* hidden, const char* file_name); // MOD added
 static VFSDir* vfs_dir_new(const char* path);
 
 static void vfs_dir_load(VFSDir* dir);
-static gpointer vfs_dir_load_thread(VFSAsyncTask* task, VFSDir* dir);
+static void* vfs_dir_load_thread(VFSAsyncTask* task, VFSDir* dir);
 
 static void vfs_dir_monitor_callback(VFSFileMonitor* fm, VFSFileMonitorEvent event,
-                                     const char* file_name, gpointer user_data);
+                                     const char* file_name, void* user_data);
 
-static void on_mime_type_reload(gpointer user_data);
+static void on_mime_type_reload(void* user_data);
 
-static void update_changed_files(gpointer key, gpointer data, gpointer user_data);
-static gboolean notify_file_change(gpointer user_data);
+static void update_changed_files(void* key, void* data, void* user_data);
+static gboolean notify_file_change(void* user_data);
 static gboolean update_file_info(VFSDir* dir, VFSFileInfo* file);
 
 static void on_list_task_finished(VFSAsyncTask* task, gboolean is_cancelled, VFSDir* dir);
@@ -67,13 +68,13 @@ enum
     N_SIGNALS
 };
 
-static guint signals[N_SIGNALS] = {0};
+static unsigned int signals[N_SIGNALS] = {0};
 static GObjectClass* parent_class = NULL;
 
 static GHashTable* dir_hash = NULL;
 static GList* mime_cb = NULL;
-static guint change_notify_timeout = 0;
-static guint theme_change_notify = 0;
+static unsigned int change_notify_timeout = 0;
+static unsigned int theme_change_notify = 0;
 
 static char* desktop_dir = NULL;
 
@@ -292,11 +293,12 @@ void vfs_dir_finalize(GObject* obj)
     G_OBJECT_CLASS(parent_class)->finalize(obj);
 }
 
-void vfs_dir_get_property(GObject* obj, guint prop_id, GValue* value, GParamSpec* pspec)
+void vfs_dir_get_property(GObject* obj, unsigned int prop_id, GValue* value, GParamSpec* pspec)
 {
 }
 
-void vfs_dir_set_property(GObject* obj, guint prop_id, const GValue* value, GParamSpec* pspec)
+void vfs_dir_set_property(GObject* obj, unsigned int prop_id, const GValue* value,
+                          GParamSpec* pspec)
 {
 }
 
@@ -610,9 +612,9 @@ void vfs_dir_load(VFSDir* dir)
     }
 }
 
-gpointer vfs_dir_load_thread(VFSAsyncTask* task, VFSDir* dir)
+void* vfs_dir_load_thread(VFSAsyncTask* task, VFSDir* dir)
 {
-    const gchar* file_name;
+    const char* file_name;
     char* full_path;
     GDir* dir_content;
     VFSFileInfo* file;
@@ -740,7 +742,7 @@ gboolean update_file_info(VFSDir* dir, VFSFileInfo* file)
     return ret;
 }
 
-void update_changed_files(gpointer key, gpointer data, gpointer user_data)
+void update_changed_files(void* key, void* data, void* user_data)
 {
     VFSDir* dir = (VFSDir*)data;
     GSList* l;
@@ -765,7 +767,7 @@ void update_changed_files(gpointer key, gpointer data, gpointer user_data)
     }
 }
 
-void update_created_files(gpointer key, gpointer data, gpointer user_data)
+void update_created_files(void* key, void* data, void* user_data)
 {
     VFSDir* dir = (VFSDir*)data;
     GSList* l;
@@ -814,7 +816,7 @@ void update_created_files(gpointer key, gpointer data, gpointer user_data)
     }
 }
 
-gboolean notify_file_change(gpointer user_data)
+gboolean notify_file_change(void* user_data)
 {
     // GDK_THREADS_ENTER();  //sfm not needed because in main thread?
     g_hash_table_foreach(dir_hash, update_changed_files, NULL);
@@ -836,7 +838,7 @@ void vfs_dir_flush_notify_cache()
 
 /* Callback function which will be called when monitored events happen */
 void vfs_dir_monitor_callback(VFSFileMonitor* fm, VFSFileMonitorEvent event, const char* file_name,
-                              gpointer user_data)
+                              void* user_data)
 {
     VFSDir* dir = (VFSDir*)user_data;
     GDK_THREADS_ENTER();
@@ -859,7 +861,7 @@ void vfs_dir_monitor_callback(VFSFileMonitor* fm, VFSFileMonitorEvent event, con
 }
 
 /* called on every VFSDir when icon theme got changed */
-static void reload_icons(const char* path, VFSDir* dir, gpointer user_data)
+static void reload_icons(const char* path, VFSDir* dir, void* user_data)
 {
     GList* l;
     for (l = dir->file_list; l; l = l->next)
@@ -885,7 +887,7 @@ static void reload_icons(const char* path, VFSDir* dir, gpointer user_data)
     }
 }
 
-static void on_theme_changed(GtkIconTheme* icon_theme, gpointer user_data)
+static void on_theme_changed(GtkIconTheme* icon_theme, void* user_data)
 {
     g_hash_table_foreach(dir_hash, (GHFunc)reload_icons, NULL);
 }
@@ -932,12 +934,12 @@ VFSDir* vfs_dir_get_by_path(const char* path)
     {
         dir = vfs_dir_new(path);
         vfs_dir_load(dir); /* asynchronous operation */
-        g_hash_table_insert(dir_hash, (gpointer)dir->path, (gpointer)dir);
+        g_hash_table_insert(dir_hash, (void*)dir->path, (void*)dir);
     }
     return dir;
 }
 
-static void reload_mime_type(char* key, VFSDir* dir, gpointer user_data)
+static void reload_mime_type(char* key, VFSDir* dir, void* user_data)
 {
     GList* l;
     VFSFileInfo* file;
@@ -963,7 +965,7 @@ static void reload_mime_type(char* key, VFSDir* dir, gpointer user_data)
     vfs_dir_unlock(dir);
 }
 
-static void on_mime_type_reload(gpointer user_data)
+static void on_mime_type_reload(void* user_data)
 {
     if (!dir_hash)
         return;
@@ -983,7 +985,7 @@ const char* vfs_get_desktop_dir()
     return desktop_dir;
 }
 
-void vfs_dir_foreach(GHFunc func, gpointer user_data)
+void vfs_dir_foreach(GHFunc func, void* user_data)
 {
     if (!dir_hash)
         return;
@@ -1049,10 +1051,10 @@ void vfs_dir_unload_thumbnails(VFSDir* dir, gboolean is_big)
 }
 
 // sfm added mime change timer
-guint mime_change_timer = 0;
+unsigned int mime_change_timer = 0;
 VFSDir* mime_dir = NULL;
 
-gboolean on_mime_change_timer(gpointer user_data)
+gboolean on_mime_change_timer(void* user_data)
 {
     // printf("MIME-UPDATE on_timer\n" );
     char* command = g_strdup_printf("update-mime-database %s/mime", g_get_user_data_dir());
@@ -1070,7 +1072,7 @@ gboolean on_mime_change_timer(gpointer user_data)
     return FALSE;
 }
 
-void mime_change(gpointer user_data)
+void mime_change(void* user_data)
 {
     if (mime_change_timer)
     {

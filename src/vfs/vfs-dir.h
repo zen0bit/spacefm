@@ -70,7 +70,7 @@ struct _VFSDir
 
     GSList* changed_files;
     GSList* created_files; // MOD
-    glong xhidden_count;   // MOD
+    long xhidden_count;    // MOD
 };
 
 struct _VFSDirClass
@@ -87,7 +87,7 @@ struct _VFSDirClass
     /*  void (*update_mime) ( VFSDir* dir ); */
 };
 
-typedef void (*VFSDirStateCallback)(VFSDir* dir, int state, gpointer user_data);
+typedef void (*VFSDirStateCallback)(VFSDir* dir, int state, void* user_data);
 
 void vfs_dir_lock(VFSDir* dir);
 void vfs_dir_unlock(VFSDir* dir);
@@ -117,7 +117,7 @@ const char* vfs_get_desktop_dir();
 gboolean vfs_dir_add_hidden(const char* path, const char* file_name); // MOD added
 
 /* call function "func" for every VFSDir instances */
-void vfs_dir_foreach(GHFunc func, gpointer user_data);
+void vfs_dir_foreach(GHFunc func, void* user_data);
 
 void vfs_dir_monitor_mime();
 

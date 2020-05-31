@@ -41,7 +41,7 @@ void print_task_command_spawn(char* argv[], int pid)
 char* randhex8()
 {
     char hex[9];
-    uint n = rand();
+    unsigned int n = rand();
     g_snprintf(hex, sizeof(hex), "%08x", n);
     return g_strdup(hex);
 }
@@ -141,7 +141,7 @@ char* get_name_extension(char* full_name, gboolean is_dir, char** ext)
     char* final_ext = dot + 1;
     // get previous dot
     dot = strrchr(full, '.');
-    uint final_ext_len = strlen(final_ext);
+    unsigned int final_ext_len = strlen(final_ext);
     if (dot && !strcmp(dot + 1, "tar") && final_ext_len < 11 && final_ext_len)
     {
         // double extension

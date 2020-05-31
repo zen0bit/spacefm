@@ -13,16 +13,18 @@
  *
  */
 
+#include <stdint.h>
+
 #include "ptk-file-icon-renderer.h"
 
 static void ptk_file_icon_renderer_init(PtkFileIconRenderer* renderer);
 
 static void ptk_file_icon_renderer_class_init(PtkFileIconRendererClass* klass);
 
-static void ptk_file_icon_renderer_get_property(GObject* object, guint param_id, GValue* value,
-                                                GParamSpec* pspec);
+static void ptk_file_icon_renderer_get_property(GObject* object, unsigned int param_id,
+                                                GValue* value, GParamSpec* pspec);
 
-static void ptk_file_icon_renderer_set_property(GObject* object, guint param_id,
+static void ptk_file_icon_renderer_set_property(GObject* object, unsigned int param_id,
                                                 const GValue* value, GParamSpec* pspec);
 
 static void ptk_file_icon_renderer_finalize(GObject* gobject);
@@ -33,8 +35,7 @@ static void ptk_file_icon_renderer_get_size(GtkCellRenderer* cell, GtkWidget* wi
 #elif (GTK_MAJOR_VERSION == 2)
                                             GdkRectangle* cell_area,
 #endif
-                                            gint* x_offset, gint* y_offset, gint* width,
-                                            gint* height);
+                                            int* x_offset, int* y_offset, int* width, int* height);
 
 #if (GTK_MAJOR_VERSION == 3)
 static void ptk_file_icon_renderer_render(GtkCellRenderer* cell, cairo_t* cr, GtkWidget* widget,
@@ -45,7 +46,7 @@ static void ptk_file_icon_renderer_render(GtkCellRenderer* cell, cairo_t* cr, Gt
 static void ptk_file_icon_renderer_render(GtkCellRenderer* cell, GdkWindow* window,
                                           GtkWidget* widget, GdkRectangle* background_area,
                                           GdkRectangle* cell_area, GdkRectangle* expose_area,
-                                          guint flags);
+                                          unsigned int flags);
 #endif
 
 enum
@@ -55,7 +56,7 @@ enum
     PROP_FOLLOW_STATE
 };
 
-static gpointer parent_class;
+static void* parent_class;
 
 static GdkPixbuf* link_icon = NULL;
 
@@ -64,9 +65,9 @@ static GdkPixbuf* link_icon = NULL;
 #pragma align 4(link_icon_data)
 #endif
 #ifdef __GNUC__
-static const guint8 link_icon_data[] __attribute__((__aligned__(4))) =
+static const uint8_t link_icon_data[] __attribute__((__aligned__(4))) =
 #else
-static const guint8 link_icon_data[] =
+static const uint8_t link_icon_data[] =
 #endif
     {""
      /* Pixbuf magic (0x47646b50) */
@@ -151,7 +152,7 @@ static void ptk_file_icon_renderer_init(PtkFileIconRenderer* renderer)
     if (!link_icon)
     {
         link_icon = gdk_pixbuf_new_from_inline(sizeof(link_icon_data), link_icon_data, FALSE, NULL);
-        g_object_add_weak_pointer(G_OBJECT(link_icon), (gpointer)&link_icon);
+        g_object_add_weak_pointer(G_OBJECT(link_icon), (void*)&link_icon);
     }
     else
         g_object_ref((link_icon));
@@ -215,8 +216,8 @@ static void ptk_file_icon_renderer_finalize(GObject* object)
  *
  ***************************************************************************/
 
-static void ptk_file_icon_renderer_get_property(GObject* object, guint param_id, GValue* value,
-                                                GParamSpec* psec)
+static void ptk_file_icon_renderer_get_property(GObject* object, unsigned int param_id,
+                                                GValue* value, GParamSpec* psec)
 {
     PtkFileIconRenderer* renderer = PTK_FILE_ICON_RENDERER(object);
 
@@ -246,7 +247,7 @@ static void ptk_file_icon_renderer_get_property(GObject* object, guint param_id,
  *
  ***************************************************************************/
 
-static void ptk_file_icon_renderer_set_property(GObject* object, guint param_id,
+static void ptk_file_icon_renderer_set_property(GObject* object, unsigned int param_id,
                                                 const GValue* value, GParamSpec* pspec)
 {
     PtkFileIconRenderer* renderer = PTK_FILE_ICON_RENDERER(object);
@@ -288,13 +289,13 @@ GtkCellRenderer* ptk_file_icon_renderer_new(void)
 
 static GdkPixbuf* create_colorized_pixbuf(GdkPixbuf* src, GdkColor* new_color)
 {
-    gint i, j;
-    gint width, height, has_alpha, src_row_stride, dst_row_stride;
-    gint red_value, green_value, blue_value;
-    guchar* target_pixels;
-    guchar* original_pixels;
-    guchar* pixsrc;
-    guchar* pixdest;
+    int i, j;
+    int width, height, has_alpha, src_row_stride, dst_row_stride;
+    int red_value, green_value, blue_value;
+    unsigned char* target_pixels;
+    unsigned char* original_pixels;
+    unsigned char* pixsrc;
+    unsigned char* pixdest;
     GdkPixbuf* dest;
 
     red_value = new_color->red / 255.0;
@@ -347,7 +348,7 @@ static void ptk_file_icon_renderer_render(GtkCellRenderer* cell, cairo_t* cr, Gt
 static void ptk_file_icon_renderer_render(GtkCellRenderer* cell, GdkWindow* window,
                                           GtkWidget* widget, GdkRectangle* background_area,
                                           GdkRectangle* cell_area, GdkRectangle* expose_area,
-                                          guint flags)
+                                          unsigned int flags)
 #endif
 {
     GtkCellRendererPixbuf* cellpixbuf = (GtkCellRendererPixbuf*)cell;
@@ -360,7 +361,7 @@ static void ptk_file_icon_renderer_render(GtkCellRenderer* cell, GdkWindow* wind
     GdkRectangle pix_rect;
     GdkRectangle draw_rect;
     VFSFileInfo* file;
-    gint xpad, ypad;
+    int xpad, ypad;
     gboolean is_expander, is_expanded;
 
     GtkCellRendererClass* parent_renderer_class;
@@ -523,7 +524,7 @@ void ptk_file_icon_renderer_get_size(GtkCellRenderer* cell, GtkWidget* widget,
 #elif (GTK_MAJOR_VERSION == 2)
                                      GdkRectangle* cell_area,
 #endif
-                                     gint* x_offset, gint* y_offset, gint* width, gint* height)
+                                     int* x_offset, int* y_offset, int* width, int* height)
 {
     GTK_CELL_RENDERER_CLASS(parent_class)
         ->get_size(cell, widget, cell_area, x_offset, y_offset, width, height);

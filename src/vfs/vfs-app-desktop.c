@@ -105,7 +105,7 @@ void vfs_app_desktop_ref(VFSAppDesktop* app)
     g_atomic_int_inc(&app->n_ref);
 }
 
-void vfs_app_desktop_unref(gpointer data)
+void vfs_app_desktop_unref(void* data)
 {
     VFSAppDesktop* app = (VFSAppDesktop*)data;
     if (g_atomic_int_dec_and_test(&app->n_ref))
@@ -203,8 +203,8 @@ static GdkPixbuf* load_icon_file(const char* file_name, int size)
 {
     GdkPixbuf* icon = NULL;
     char* file_path;
-    const gchar** dirs = (const gchar**)g_get_system_data_dirs();
-    const gchar** dir;
+    const char** dirs = (const char**)g_get_system_data_dirs();
+    const char** dir;
     for (dir = dirs; *dir; ++dir)
     {
         file_path = g_build_filename(*dir, "pixmaps", file_name, NULL);
@@ -306,7 +306,7 @@ static char* translate_app_exec_to_command_line(VFSAppDesktop* app, GList* file_
     const char* pexec = vfs_app_desktop_get_exec(app);
     char* file;
     GList* l;
-    gchar* tmp;
+    char* tmp;
     GString* cmd = g_string_new("");
     gboolean add_files = FALSE;
 
@@ -464,8 +464,8 @@ gboolean vfs_app_desktop_open_files(GdkScreen* screen, const char* working_dir, 
     char* exec = NULL;
     char* cmd;
     GList* l;
-    gchar** argv = NULL;
-    gint argc = 0;
+    char** argv = NULL;
+    int argc = 0;
     const char* sn_desc;
 
     if (vfs_app_desktop_get_exec(app))

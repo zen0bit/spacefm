@@ -140,7 +140,7 @@ static GOptionEntry opt_entries[] =
 static gboolean single_instance_check();
 static void single_instance_finalize();
 static void get_socket_name(char* buf, int len);
-static gboolean on_socket_event(GIOChannel* ioc, GIOCondition cond, gpointer data);
+static gboolean on_socket_event(GIOChannel* ioc, GIOCondition cond, void* data);
 
 static void init_folder();
 
@@ -165,7 +165,7 @@ char* get_inode_tag()
                            stat_buf.st_ino);
 }
 
-gboolean on_socket_event(GIOChannel* ioc, GIOCondition cond, gpointer data)
+gboolean on_socket_event(GIOChannel* ioc, GIOCondition cond, void* data)
 {
     int client, r;
     socklen_t addr_len = 0;
@@ -888,7 +888,7 @@ gboolean handle_parsed_commandline_args()
                     set->b = XSET_B_TRUE;
                     show_panels_all_windows(NULL, main_window);
                 }
-                focus_panel(NULL, (gpointer)main_window, panel);
+                focus_panel(NULL, (void*)main_window, panel);
             }
         }
     }
@@ -1145,7 +1145,7 @@ void open_file(const char* path)
             app = vfs_app_desktop_new(app_name);
             if (!vfs_app_desktop_get_exec(app))
                 app->exec = g_strdup(app_name); /* This is a command line */
-            files = g_list_prepend(NULL, (gpointer)path);
+            files = g_list_prepend(NULL, (void*)path);
             opened = vfs_app_desktop_open_files(gdk_screen_get_default(), NULL, app, files, &err);
             g_free(files->data);
             g_list_free(files);

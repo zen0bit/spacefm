@@ -67,23 +67,23 @@ typedef struct
     char* orig_atime;
 
     GtkToggleButton* chmod_btns[N_CHMOD_ACTIONS];
-    guchar chmod_states[N_CHMOD_ACTIONS];
+    unsigned char chmod_states[N_CHMOD_ACTIONS];
 
     GtkLabel* total_size_label;
     GtkLabel* size_on_disk_label;
     GtkLabel* count_label;
     off_t total_size;
     off_t size_on_disk;
-    guint total_count;
-    guint total_count_dir;
+    unsigned int total_count;
+    unsigned int total_count_dir;
     gboolean cancel;
     gboolean done;
     GThread* calc_size_thread;
-    guint update_label_timer;
+    unsigned int update_label_timer;
     GtkWidget* recurse;
 } FilePropertiesDialogData;
 
-static void on_dlg_response(GtkDialog* dialog, gint response_id, gpointer user_data);
+static void on_dlg_response(GtkDialog* dialog, int response_id, void* user_data);
 
 /*
  * void get_total_size_of_dir( const char* path, off_t* size )
@@ -136,7 +136,7 @@ static void calc_total_size_of_files(const char* path, FilePropertiesDialogData*
         ++data->total_count;
 }
 
-static gpointer calc_size(gpointer user_data)
+static void* calc_size(void* user_data)
 {
     FilePropertiesDialogData* data = (FilePropertiesDialogData*)user_data;
     GList* l;
@@ -166,11 +166,11 @@ gboolean on_update_labels(FilePropertiesDialogData* data)
     gdk_threads_enter();
 
     vfs_file_size_to_string(buf2, data->total_size);
-    sprintf(buf, _("%s ( %lu bytes )"), buf2, (guint64)data->total_size);
+    sprintf(buf, _("%s ( %lu bytes )"), buf2, (uint64_t)data->total_size);
     gtk_label_set_text(data->total_size_label, buf);
 
     vfs_file_size_to_string(buf2, data->size_on_disk);
-    sprintf(buf, _("%s ( %lu bytes )"), buf2, (guint64)data->size_on_disk);
+    sprintf(buf, _("%s ( %lu bytes )"), buf2, (uint64_t)data->size_on_disk);
     gtk_label_set_text(data->size_on_disk_label, buf);
 
     char* count;
@@ -232,7 +232,7 @@ static void on_chmod_btn_toggled(GtkToggleButton* btn, FilePropertiesDialogData*
                                       NULL);
 }
 
-static gboolean combo_sep(GtkTreeModel* model, GtkTreeIter* it, gpointer user_data)
+static gboolean combo_sep(GtkTreeModel* model, GtkTreeIter* it, void* user_data)
 {
     int i;
     for (i = 2; i > 0; --i)
@@ -248,7 +248,7 @@ static gboolean combo_sep(GtkTreeModel* model, GtkTreeIter* it, gpointer user_da
     return TRUE;
 }
 
-static void on_combo_change(GtkComboBox* combo, gpointer user_data)
+static void on_combo_change(GtkComboBox* combo, void* user_data)
 {
     GtkTreeIter it;
     if (gtk_combo_box_get_active_iter(combo, &it))
@@ -368,8 +368,8 @@ GtkWidget* file_properties_dlg_new(GtkWindow* parent, const char* dir_path, GLis
     char buf2[32];
     const char* time_format = "%Y-%m-%d %H:%M:%S";
 
-    gchar* disp_path;
-    gchar* file_type;
+    char* disp_path;
+    char* file_type;
 
     int i;
     GList* l;
@@ -576,14 +576,14 @@ GtkWidget* file_properties_dlg_new(GtkWindow* parent, const char* dir_path, GLis
             sprintf(buf,
                     _("%s  ( %lu bytes )"),
                     vfs_file_info_get_disp_size(file),
-                    (guint64)vfs_file_info_get_size(file));
+                    (uint64_t)vfs_file_info_get_size(file));
             gtk_label_set_text(data->total_size_label, buf);
 
             vfs_file_size_to_string(buf2, vfs_file_info_get_blocks(file) * 512);
             sprintf(buf,
                     _("%s  ( %lu bytes )"),
                     buf2,
-                    (guint64)vfs_file_info_get_blocks(file) * 512);
+                    (uint64_t)vfs_file_info_get_blocks(file) * 512);
             gtk_label_set_text(data->size_on_disk_label, buf);
 
             gtk_label_set_text(data->count_label, _("1 file"));
@@ -727,7 +727,7 @@ gid_t gid_from_name(const char* group_name)
     return gid;
 }
 
-void on_dlg_response(GtkDialog* dialog, gint response_id, gpointer user_data)
+void on_dlg_response(GtkDialog* dialog, int response_id, void* user_data)
 {
     FilePropertiesDialogData* data;
     PtkFileTask* task;

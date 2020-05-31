@@ -28,24 +28,24 @@
 static GHashTable* mime_hash = NULL;
 GRWLock mime_hash_lock;
 
-static guint reload_callback_id = 0;
+static unsigned int reload_callback_id = 0;
 static GList* reload_cb = NULL;
 
 static int big_icon_size = 32, small_icon_size = 16;
 
 static VFSFileMonitor** mime_caches_monitor = NULL;
 
-static guint theme_change_notify = 0;
+static unsigned int theme_change_notify = 0;
 
-static void on_icon_theme_changed(GtkIconTheme* icon_theme, gpointer user_data);
+static void on_icon_theme_changed(GtkIconTheme* icon_theme, void* user_data);
 
 typedef struct
 {
     GFreeFunc cb;
-    gpointer user_data;
+    void* user_data;
 } VFSMimeReloadCbEnt;
 
-static gboolean vfs_mime_type_reload(gpointer user_data)
+static gboolean vfs_mime_type_reload(void* user_data)
 {
     GList* l;
     /* FIXME: process mime database reloading properly. */
@@ -72,7 +72,7 @@ static gboolean vfs_mime_type_reload(gpointer user_data)
 }
 
 static void on_mime_cache_changed(VFSFileMonitor* fm, VFSFileMonitorEvent event,
-                                  const char* file_name, gpointer user_data)
+                                  const char* file_name, void* user_data)
 {
     MimeCache* cache = (MimeCache*)user_data;
     switch (event)
@@ -194,7 +194,7 @@ void vfs_mime_type_ref(VFSMimeType* mime_type)
     g_atomic_int_inc(&mime_type->n_ref);
 }
 
-void vfs_mime_type_unref(gpointer mime_type_)
+void vfs_mime_type_unref(void* mime_type_)
 {
     VFSMimeType* mime_type = (VFSMimeType*)mime_type_;
     if (g_atomic_int_dec_and_test(&mime_type->n_ref))
@@ -337,7 +337,7 @@ GdkPixbuf* vfs_mime_type_get_icon(VFSMimeType* mime_type, gboolean big)
     return icon ? g_object_ref(icon) : NULL;
 }
 
-static void free_cached_icons(gpointer key, gpointer value, gpointer user_data)
+static void free_cached_icons(void* key, void* value, void* user_data)
 {
     VFSMimeType* mime_type = (VFSMimeType*)value;
     gboolean big = GPOINTER_TO_INT(user_data);
@@ -414,9 +414,10 @@ const char* vfs_mime_type_get_description(VFSMimeType* mime_type)
  * Join two string vector containing app lists to generate a new one.
  * Duplicated app will be removed.
  */
-char** vfs_mime_type_join_actions(char** list1, gsize len1, char** list2, gsize len2)
+char** vfs_mime_type_join_actions(char** list1, unsigned long len1, char** list2,
+                                  unsigned long len2)
 {
-    gchar** ret = NULL;
+    char** ret = NULL;
     int i, j, k;
 
     if (len1 > 0 || len2 > 0)
@@ -507,7 +508,7 @@ void vfs_mime_type_add_action(VFSMimeType* mime_type, const char* desktop_id, ch
  * and should be freed when no longer needed.
  */
 
-void on_icon_theme_changed(GtkIconTheme* icon_theme, gpointer user_data)
+void on_icon_theme_changed(GtkIconTheme* icon_theme, void* user_data)
 {
     /* reload_mime_icons */
     g_rw_lock_reader_lock(&mime_hash_lock);
@@ -518,7 +519,7 @@ void on_icon_theme_changed(GtkIconTheme* icon_theme, gpointer user_data)
     g_rw_lock_writer_unlock(&mime_hash_lock);
 }
 
-GList* vfs_mime_type_add_reload_cb(GFreeFunc cb, gpointer user_data)
+GList* vfs_mime_type_add_reload_cb(GFreeFunc cb, void* user_data)
 {
     VFSMimeReloadCbEnt* ent = g_slice_new(VFSMimeReloadCbEnt);
     ent->cb = cb;

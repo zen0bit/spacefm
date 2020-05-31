@@ -37,19 +37,19 @@ G_BEGIN_DECLS
 typedef struct _VFSAsyncTask VFSAsyncTask;
 typedef struct _VFSAsyncTaskClass VFSAsyncTaskClass;
 
-typedef gpointer (*VFSAsyncFunc)(VFSAsyncTask*, gpointer);
+typedef void* (*VFSAsyncFunc)(VFSAsyncTask*, void*);
 
 struct _VFSAsyncTask
 {
     GObject parent;
     VFSAsyncFunc func;
-    gpointer user_data;
-    gpointer ret_val;
+    void* user_data;
+    void* ret_val;
 
     GThread* thread;
     GMutex* lock;
 
-    guint idle_id;
+    unsigned int idle_id;
     gboolean cancel : 1;
     gboolean cancelled : 1;
     gboolean finished : 1;
@@ -62,11 +62,11 @@ struct _VFSAsyncTaskClass
 };
 
 GType vfs_async_task_get_type(void);
-VFSAsyncTask* vfs_async_task_new(VFSAsyncFunc task_func, gpointer user_data);
+VFSAsyncTask* vfs_async_task_new(VFSAsyncFunc task_func, void* user_data);
 
-gpointer vfs_async_task_get_data(VFSAsyncTask* task);
-void vfs_async_task_set_data(VFSAsyncTask* task, gpointer user_data);
-gpointer vfs_async_task_get_return_value(VFSAsyncTask* task);
+void* vfs_async_task_get_data(VFSAsyncTask* task);
+void vfs_async_task_set_data(VFSAsyncTask* task, void* user_data);
+void* vfs_async_task_get_return_value(VFSAsyncTask* task);
 
 /* Execute the async task */
 void vfs_async_task_execute(VFSAsyncTask* task);

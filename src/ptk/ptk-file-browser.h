@@ -1,6 +1,8 @@
 #ifndef _FILE_BROWSER_H_
 #define _FILE_BROWSER_H_
 
+#include <stdint.h>
+
 #include <gtk/gtk.h>
 #include <sys/types.h>
 
@@ -63,7 +65,7 @@ struct _PtkFileBrowser
     int max_thumbnail;
     int n_sel_files;
     off_t sel_size;
-    guint sel_change_idle;
+    unsigned int sel_change_idle;
 
     // path bar auto seek
     gboolean inhibit_focus;
@@ -98,16 +100,16 @@ struct _PtkFileBrowser
     GtkWidget* folder_view;
     GtkWidget* folder_view_scroll;
     GtkCellRenderer* icon_render;
-    guint single_click_timeout;
+    unsigned int single_click_timeout;
 
-    glong prev_update_time;
-    guint update_timeout;
+    long prev_update_time;
+    unsigned int update_timeout;
 
     // MOD
     int mypanel;
     GtkWidget* mynotebook;
     GtkWidget* task_view;
-    gpointer main_window;
+    void* main_window;
     GtkWidget* toolbox;
     GtkWidget* path_bar;
     GtkWidget* hpane;
@@ -161,7 +163,7 @@ struct _PtkFileBrowserClass
 GType ptk_file_browser_get_type(void);
 
 GtkWidget* ptk_file_browser_new(int curpanel, GtkWidget* notebook, GtkWidget* task_view,
-                                gpointer main_window);
+                                void* main_window);
 
 /*
  * folder_path should be encodede in on-disk encoding
@@ -179,10 +181,10 @@ const char* ptk_file_browser_get_cwd(PtkFileBrowser* file_browser);
  */
 const char* ptk_file_browser_get_cwd(PtkFileBrowser* file_browser);
 
-guint ptk_file_browser_get_n_all_files(PtkFileBrowser* file_browser);
-guint ptk_file_browser_get_n_visible_files(PtkFileBrowser* file_browser);
+unsigned int ptk_file_browser_get_n_all_files(PtkFileBrowser* file_browser);
+unsigned int ptk_file_browser_get_n_visible_files(PtkFileBrowser* file_browser);
 
-guint ptk_file_browser_get_n_sel(PtkFileBrowser* file_browser, guint64* sel_size);
+unsigned int ptk_file_browser_get_n_sel(PtkFileBrowser* file_browser, uint64_t* sel_size);
 
 gboolean ptk_file_browser_can_back(PtkFileBrowser* file_browser);
 void ptk_file_browser_go_back(GtkWidget* item, PtkFileBrowser* file_browser);
@@ -202,7 +204,7 @@ GtkWidget* ptk_file_browser_get_folder_view(PtkFileBrowser* file_browser);
 void ptk_file_browser_show_hidden_files(PtkFileBrowser* file_browser, gboolean show);
 
 void ptk_file_browser_set_single_click(PtkFileBrowser* file_browser, gboolean single_click);
-void ptk_file_browser_set_single_click_timeout(PtkFileBrowser* file_browser, guint timeout);
+void ptk_file_browser_set_single_click_timeout(PtkFileBrowser* file_browser, unsigned int timeout);
 
 void ptk_file_browser_show_shadow(PtkFileBrowser* file_browser);
 void ptk_file_browser_hide_shadow(PtkFileBrowser* file_browser);
@@ -297,8 +299,8 @@ void ptk_file_browser_select_file_list(PtkFileBrowser* file_browser, char** file
                                        gboolean do_select);
 void ptk_file_browser_seek_path(PtkFileBrowser* file_browser, const char* seek_dir,
                                 const char* seek_name);
-void ptk_file_browser_add_toolbar_widget(gpointer set_ptr, GtkWidget* widget);
-void ptk_file_browser_update_toolbar_widgets(PtkFileBrowser* file_browser, gpointer set_ptr,
+void ptk_file_browser_add_toolbar_widget(void* set_ptr, GtkWidget* widget);
+void ptk_file_browser_update_toolbar_widgets(PtkFileBrowser* file_browser, void* set_ptr,
                                              char tool_type);
 void ptk_file_browser_show_history_menu(PtkFileBrowser* file_browser, gboolean is_back_history,
                                         GdkEventButton* event);

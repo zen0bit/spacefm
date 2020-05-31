@@ -49,7 +49,7 @@ VFSMimeType* vfs_mime_type_get_from_type(const char* type);
 
 VFSMimeType* vfs_mime_type_new(const char* type_name);
 void vfs_mime_type_ref(VFSMimeType* mime_type);
-void vfs_mime_type_unref(gpointer mime_type_);
+void vfs_mime_type_unref(void* mime_type_);
 
 GdkPixbuf* vfs_mime_type_get_icon(VFSMimeType* mime_type, gboolean big);
 
@@ -83,9 +83,10 @@ void vfs_mime_type_append_action(const char* type, const char* desktop_id);
 
 char** vfs_mime_type_get_all_known_apps();
 
-char** vfs_mime_type_join_actions(char** list1, gsize len1, char** list2, gsize len2);
+char** vfs_mime_type_join_actions(char** list1, unsigned long len1, char** list2,
+                                  unsigned long len2);
 
-GList* vfs_mime_type_add_reload_cb(GFreeFunc cb, gpointer user_data);
+GList* vfs_mime_type_add_reload_cb(GFreeFunc cb, void* user_data);
 
 void vfs_mime_type_remove_reload_cb(GList* cb);
 

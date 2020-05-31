@@ -48,8 +48,7 @@ typedef struct _ExoIconView ExoIconView;
  * Callback function prototype, invoked for every selected path in the
  * @icon_view. See exo_icon_view_selected_foreach() for details.
  **/
-typedef void (*ExoIconViewForeachFunc)(ExoIconView* icon_view, GtkTreePath* path,
-                                       gpointer user_data);
+typedef void (*ExoIconViewForeachFunc)(ExoIconView* icon_view, GtkTreePath* path, void* user_data);
 
 /**
  * ExoIconViewSearchEqualFunc:
@@ -66,7 +65,7 @@ typedef void (*ExoIconViewForeachFunc)(ExoIconView* icon_view, GtkTreePath* path
  * Return value: %FALSE if the row matches, %TRUE otherwise.
  **/
 typedef gboolean (*ExoIconViewSearchEqualFunc)(GtkTreeModel* model, int column, const char* key,
-                                               GtkTreeIter* iter, gpointer search_data);
+                                               GtkTreeIter* iter, void* search_data);
 
 /**
  * ExoIconViewSearchPositionFunc:
@@ -77,7 +76,7 @@ typedef gboolean (*ExoIconViewSearchEqualFunc)(GtkTreeModel* model, int column, 
  * A function used to place the @search_dialog for the @icon_view.
  **/
 typedef void (*ExoIconViewSearchPositionFunc)(ExoIconView* icon_view, GtkWidget* search_dialog,
-                                              gpointer user_data);
+                                              void* user_data);
 
 /**
  * ExoIconViewDropPosition:
@@ -208,8 +207,9 @@ void exo_icon_view_set_layout_mode(ExoIconView* icon_view, ExoIconViewLayoutMode
 gboolean exo_icon_view_get_single_click(const ExoIconView* icon_view);
 void exo_icon_view_set_single_click(ExoIconView* icon_view, gboolean single_click);
 
-uint exo_icon_view_get_single_click_timeout(const ExoIconView* icon_view);
-void exo_icon_view_set_single_click_timeout(ExoIconView* icon_view, uint single_click_timeout);
+unsigned int exo_icon_view_get_single_click_timeout(const ExoIconView* icon_view);
+void exo_icon_view_set_single_click_timeout(ExoIconView* icon_view,
+                                            unsigned int single_click_timeout);
 
 void exo_icon_view_widget_to_icon_coords(const ExoIconView* icon_view, int wx, int wy, int* ix,
                                          int* iy);
@@ -224,7 +224,7 @@ gboolean exo_icon_view_get_visible_range(const ExoIconView* icon_view, GtkTreePa
                                          GtkTreePath** end_path);
 
 void exo_icon_view_selected_foreach(ExoIconView* icon_view, ExoIconViewForeachFunc func,
-                                    gpointer data);
+                                    void* data);
 void exo_icon_view_select_path(ExoIconView* icon_view, GtkTreePath* path);
 void exo_icon_view_unselect_path(ExoIconView* icon_view, GtkTreePath* path);
 gboolean exo_icon_view_path_is_selected(const ExoIconView* icon_view, GtkTreePath* path);
@@ -275,12 +275,12 @@ void exo_icon_view_set_search_column(ExoIconView* icon_view, int search_column);
 ExoIconViewSearchEqualFunc exo_icon_view_get_search_equal_func(const ExoIconView* icon_view);
 void exo_icon_view_set_search_equal_func(ExoIconView* icon_view,
                                          ExoIconViewSearchEqualFunc search_equal_func,
-                                         gpointer search_equal_data,
+                                         void* search_equal_data,
                                          GDestroyNotify search_equal_destroy);
 ExoIconViewSearchPositionFunc exo_icon_view_get_search_position_func(const ExoIconView* icon_view);
 void exo_icon_view_set_search_position_func(ExoIconView* icon_view,
                                             ExoIconViewSearchPositionFunc search_position_func,
-                                            gpointer search_position_data,
+                                            void* search_position_data,
                                             GDestroyNotify search_position_destroy);
 
 gboolean exo_icon_view_is_rubber_banding_active(ExoIconView* icon_view); // sfm

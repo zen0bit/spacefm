@@ -23,7 +23,7 @@
 #include "ptk-handler.h"
 #include "ptk-location-view.h"
 
-static void on_changed(GtkEntry* entry, gpointer user_data);
+static void on_changed(GtkEntry* entry, void* user_data);
 
 enum
 {
@@ -132,7 +132,7 @@ gboolean seek_path(GtkEntry* entry)
     return FALSE;
 }
 
-void seek_path_delayed(GtkEntry* entry, guint delay)
+void seek_path_delayed(GtkEntry* entry, unsigned int delay)
 {
     EntryData* edata = (EntryData*)g_object_get_data(G_OBJECT(entry), "edata");
     if (!(edata && edata->browser))
@@ -143,8 +143,8 @@ void seek_path_delayed(GtkEntry* entry, guint delay)
     edata->seek_timer = g_timeout_add(delay ? delay : 250, (GSourceFunc)seek_path, entry);
 }
 
-static gboolean match_func_cmd(GtkEntryCompletion* completion, const gchar* key, GtkTreeIter* it,
-                               gpointer user_data)
+static gboolean match_func_cmd(GtkEntryCompletion* completion, const char* key, GtkTreeIter* it,
+                               void* user_data)
 {
     char* name = NULL;
     GtkTreeModel* model = gtk_entry_completion_get_model(completion);
@@ -159,8 +159,8 @@ static gboolean match_func_cmd(GtkEntryCompletion* completion, const gchar* key,
     return FALSE;
 }
 
-static gboolean match_func(GtkEntryCompletion* completion, const gchar* key, GtkTreeIter* it,
-                           gpointer user_data)
+static gboolean match_func(GtkEntryCompletion* completion, const char* key, GtkTreeIter* it,
+                           void* user_data)
 {
     char* name = NULL;
     GtkTreeModel* model = gtk_entry_completion_get_model(completion);
@@ -269,7 +269,7 @@ static void update_completion(GtkEntry* entry, GtkEntryCompletion* completion)
     }
 }
 
-static void on_changed(GtkEntry* entry, gpointer user_data)
+static void on_changed(GtkEntry* entry, void* user_data)
 {
     GtkEntryCompletion* completion;
     completion = gtk_entry_get_completion(entry);
@@ -409,7 +409,7 @@ static gboolean on_key_press(GtkWidget* entry, GdkEventKey* evt, EntryData* edat
     return FALSE;
 }
 
-gboolean on_insert_prefix(GtkEntryCompletion* completion, gchar* prefix, GtkWidget* entry)
+gboolean on_insert_prefix(GtkEntryCompletion* completion, char* prefix, GtkWidget* entry)
 {
     // don't use the default handler because it inserts partial names
     return TRUE;
@@ -446,7 +446,7 @@ gboolean on_match_selected(GtkEntryCompletion* completion, GtkTreeModel* model, 
     return TRUE;
 }
 
-static gboolean on_focus_in(GtkWidget* entry, GdkEventFocus* evt, gpointer user_data)
+static gboolean on_focus_in(GtkWidget* entry, GdkEventFocus* evt, void* user_data)
 {
     GtkEntryCompletion* completion = gtk_entry_completion_new();
     GtkListStore* list = gtk_list_store_new(N_COLS, G_TYPE_STRING, G_TYPE_STRING);
@@ -476,7 +476,7 @@ static gboolean on_focus_in(GtkWidget* entry, GdkEventFocus* evt, gpointer user_
     return FALSE;
 }
 
-static gboolean on_focus_out(GtkWidget* entry, GdkEventFocus* evt, gpointer user_data)
+static gboolean on_focus_out(GtkWidget* entry, GdkEventFocus* evt, void* user_data)
 {
     g_signal_handlers_disconnect_by_func(entry, on_changed, NULL);
     gtk_entry_set_completion(GTK_ENTRY(entry), NULL);
@@ -523,7 +523,7 @@ void ptk_path_entry_help(GtkWidget* widget, GtkWidget* parent)
     gtk_widget_destroy(dlg);
 }
 
-static gboolean on_button_press(GtkWidget* entry, GdkEventButton* evt, gpointer user_data)
+static gboolean on_button_press(GtkWidget* entry, GdkEventButton* evt, void* user_data)
 {
     if ((evt_win_click->s || evt_win_click->ob2_data) && main_window_event(NULL,
                                                                            evt_win_click,
@@ -539,7 +539,7 @@ static gboolean on_button_press(GtkWidget* entry, GdkEventButton* evt, gpointer 
     return FALSE;
 }
 
-static gboolean on_button_release(GtkEntry* entry, GdkEventButton* evt, gpointer user_data)
+static gboolean on_button_release(GtkEntry* entry, GdkEventButton* evt, void* user_data)
 {
     if (GDK_BUTTON_RELEASE != evt->type)
         return FALSE;
@@ -630,8 +630,8 @@ void on_populate_popup(GtkEntry* entry, GtkMenu* menu, PtkFileBrowser* file_brow
     g_signal_connect(menu, "key-press-event", G_CALLBACK(xset_menu_keypress), NULL);
 }
 
-void on_entry_insert(GtkEntryBuffer* buf, guint position, gchar* chars, guint n_chars,
-                     gpointer user_data)
+void on_entry_insert(GtkEntryBuffer* buf, unsigned int position, char* chars, unsigned int n_chars,
+                     void* user_data)
 {
     char* new_text = NULL;
     const char* text = gtk_entry_buffer_get_text(buf);

@@ -33,7 +33,7 @@ struct _VFSThumbnailLoader
     VFSDir* dir;
     GQueue* queue;
     VFSAsyncTask* task;
-    guint idle_handler;
+    unsigned int idle_handler;
     GQueue* update_queue;
 };
 
@@ -50,7 +50,7 @@ typedef struct _ThumbnailRequest
     VFSFileInfo* file;
 } ThumbnailRequest;
 
-static gpointer thumbnail_loader_thread(VFSAsyncTask* task, VFSThumbnailLoader* loader);
+static void* thumbnail_loader_thread(VFSAsyncTask* task, VFSThumbnailLoader* loader);
 /* static void on_load_finish( VFSAsyncTask* task, gboolean is_cancelled, VFSThumbnailLoader* loader
  * ); */
 static void thumbnail_request_free(ThumbnailRequest* req);
@@ -149,7 +149,7 @@ gboolean on_thumbnail_idle(VFSThumbnailLoader* loader)
     return FALSE;
 }
 
-gpointer thumbnail_loader_thread(VFSAsyncTask* task, VFSThumbnailLoader* loader)
+void* thumbnail_loader_thread(VFSAsyncTask* task, VFSThumbnailLoader* loader)
 {
     ThumbnailRequest* req;
     int i;

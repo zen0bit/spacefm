@@ -69,9 +69,9 @@ enum
 static void exo_tree_view_class_init(ExoTreeViewClass* klass);
 static void exo_tree_view_init(ExoTreeView* tree_view);
 static void exo_tree_view_finalize(GObject* object);
-static void exo_tree_view_get_property(GObject* object, uint prop_id, GValue* value,
+static void exo_tree_view_get_property(GObject* object, unsigned int prop_id, GValue* value,
                                        GParamSpec* pspec);
-static void exo_tree_view_set_property(GObject* object, uint prop_id, const GValue* value,
+static void exo_tree_view_set_property(GObject* object, unsigned int prop_id, const GValue* value,
                                        GParamSpec* pspec);
 static gboolean exo_tree_view_button_press_event(GtkWidget* widget, GdkEventButton* event);
 static gboolean exo_tree_view_button_release_event(GtkWidget* widget, GdkEventButton* event);
@@ -79,25 +79,25 @@ static gboolean exo_tree_view_motion_notify_event(GtkWidget* widget, GdkEventMot
 static gboolean exo_tree_view_leave_notify_event(GtkWidget* widget, GdkEventCrossing* event);
 static void exo_tree_view_drag_begin(GtkWidget* widget, GdkDragContext* context);
 static gboolean exo_tree_view_move_cursor(GtkTreeView* view, GtkMovementStep step, int count);
-static gboolean exo_tree_view_single_click_timeout(gpointer user_data);
-static void exo_tree_view_single_click_timeout_destroy(gpointer user_data);
+static gboolean exo_tree_view_single_click_timeout(void* user_data);
+static void exo_tree_view_single_click_timeout_destroy(void* user_data);
 
 struct _ExoTreeViewPrivate
 {
     /* whether the next button-release-event should emit "row-activate" */
-    uint button_release_activates : 1;
+    unsigned int button_release_activates : 1;
 
     /* whether drag and drop must be re-enabled on button-release-event (rubberbanding active) */
-    uint button_release_unblocks_dnd : 1;
+    unsigned int button_release_unblocks_dnd : 1;
 
     /* whether rubberbanding must be re-enabled on button-release-event (drag and drop active) */
-    uint button_release_enables_rubber_banding : 1;
+    unsigned int button_release_enables_rubber_banding : 1;
 
     /* single click mode */
-    uint single_click : 1;
-    uint single_click_timeout;
+    unsigned int single_click : 1;
+    unsigned int single_click_timeout;
     int single_click_timeout_id;
-    uint single_click_timeout_state;
+    unsigned int single_click_timeout_state;
 
     /* the path below the pointer or NULL */
     GtkTreePath* hover_path;
@@ -213,7 +213,7 @@ static void exo_tree_view_finalize(GObject* object)
     (*G_OBJECT_CLASS(exo_tree_view_parent_class)->finalize)(object);
 }
 
-static void exo_tree_view_get_property(GObject* object, uint prop_id, GValue* value,
+static void exo_tree_view_get_property(GObject* object, unsigned int prop_id, GValue* value,
                                        GParamSpec* pspec)
 {
     ExoTreeView* tree_view = EXO_TREE_VIEW(object);
@@ -234,7 +234,7 @@ static void exo_tree_view_get_property(GObject* object, uint prop_id, GValue* va
     }
 }
 
-static void exo_tree_view_set_property(GObject* object, uint prop_id, const GValue* value,
+static void exo_tree_view_set_property(GObject* object, unsigned int prop_id, const GValue* value,
                                        GParamSpec* pspec)
 {
     ExoTreeView* tree_view = EXO_TREE_VIEW(object);
@@ -265,7 +265,7 @@ static gboolean exo_tree_view_button_press_event(GtkWidget* widget, GdkEventButt
     GList* lp;
     GtkTreeViewColumn* col;
     gboolean treat_as_blank = FALSE;
-    gpointer drag_data;
+    void* drag_data;
 
     /* by default we won't emit "row-activated" on button-release-events */
     tree_view->priv->button_release_activates = FALSE;
@@ -431,7 +431,7 @@ static gboolean exo_tree_view_button_release_event(GtkWidget* widget, GdkEventBu
     GtkTreeSelection* selection;
     GtkTreePath* path;
     ExoTreeView* tree_view = EXO_TREE_VIEW(widget);
-    gpointer drag_data;
+    void* drag_data;
 
     /* verify that the release event is for the internal tree view window */
     if (G_LIKELY(event->window == gtk_tree_view_get_bin_window(GTK_TREE_VIEW(tree_view))))
@@ -690,7 +690,7 @@ static gboolean exo_tree_view_move_cursor(GtkTreeView* view, GtkMovementStep ste
     return (*GTK_TREE_VIEW_CLASS(exo_tree_view_parent_class)->move_cursor)(view, step, count);
 }
 
-static gboolean exo_tree_view_single_click_timeout(gpointer user_data)
+static gboolean exo_tree_view_single_click_timeout(void* user_data)
 {
     GtkTreeViewColumn* cursor_column;
     GtkTreeSelection* selection;
@@ -815,7 +815,7 @@ static gboolean exo_tree_view_single_click_timeout(gpointer user_data)
     return FALSE;
 }
 
-static void exo_tree_view_single_click_timeout_destroy(gpointer user_data)
+static void exo_tree_view_single_click_timeout_destroy(void* user_data)
 {
     EXO_TREE_VIEW(user_data)->priv->single_click_timeout_id = -1;
 }
@@ -885,7 +885,7 @@ void exo_tree_view_set_single_click(ExoTreeView* tree_view, gboolean single_clic
  *
  * Since: 0.3.1.5
  **/
-uint exo_tree_view_get_single_click_timeout(const ExoTreeView* tree_view)
+unsigned int exo_tree_view_get_single_click_timeout(const ExoTreeView* tree_view)
 {
     g_return_val_if_fail(EXO_IS_TREE_VIEW(tree_view), 0u);
     return tree_view->priv->single_click_timeout;
@@ -907,7 +907,8 @@ uint exo_tree_view_get_single_click_timeout(const ExoTreeView* tree_view)
  *
  * Since: 0.3.1.5
  **/
-void exo_tree_view_set_single_click_timeout(ExoTreeView* tree_view, uint single_click_timeout)
+void exo_tree_view_set_single_click_timeout(ExoTreeView* tree_view,
+                                            unsigned int single_click_timeout)
 {
     g_return_if_fail(EXO_IS_TREE_VIEW(tree_view));
 

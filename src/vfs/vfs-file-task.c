@@ -70,7 +70,7 @@ void vfs_file_task_exec_error(VFSFileTask* task, int errnox, char* action);
 void add_task_dev(VFSFileTask* task, dev_t dev);
 static gboolean should_abort(VFSFileTask* task);
 
-void gx_free(gpointer x)
+void gx_free(void* x)
 {
 } // dummy free - test only
 
@@ -94,7 +94,7 @@ void vfs_file_task_clear(VFSFileTask* task)
     g_mutex_clear(&task->mutex);
 }
 
-void append_add_log(VFSFileTask* task, const char* msg, gint msg_len)
+void append_add_log(VFSFileTask* task, const char* msg, int msg_len)
 {
     vfs_file_task_lock(task);
     GtkTextIter iter;
@@ -152,7 +152,7 @@ char* vfs_file_task_get_unique_name(const char* dest_dir, const char* base_name,
     char* new_name = g_strdup_printf("%s%s%s", base_name, ext && ext[0] ? "." : "", ext ? ext : "");
     char* new_dest_file = g_build_filename(dest_dir, new_name, NULL);
     g_free(new_name);
-    uint n = 1;
+    unsigned int n = 1;
     while (n && lstat(new_dest_file, &dest_stat) == 0)
     {
         g_free(new_dest_file);
@@ -179,7 +179,7 @@ char* vfs_file_task_get_unique_name(const char* dest_dir, const char* base_name,
  * skip/overwrite/auto-rename/all, pause, or cancel.
  * The returned string is the new destination file chosen by the user
  */
-static gboolean check_overwrite(VFSFileTask* task, const gchar* dest_file, gboolean* dest_exists,
+static gboolean check_overwrite(VFSFileTask* task, const char* dest_file, gboolean* dest_exists,
                                 char** new_dest_file)
 {
     struct stat dest_stat;
@@ -351,9 +351,9 @@ static gboolean vfs_file_task_do_copy(VFSFileTask* task, const char* src_file,
                                       const char* dest_file)
 {
     GDir* dir;
-    const gchar* file_name;
-    gchar* sub_src_file;
-    gchar* sub_dest_file;
+    const char* file_name;
+    char* sub_src_file;
+    char* sub_dest_file;
     struct stat file_stat;
     char buffer[4096];
     int rfd;
@@ -634,8 +634,8 @@ _return_:
 
 static void vfs_file_task_copy(char* src_file, VFSFileTask* task)
 {
-    gchar* file_name;
-    gchar* dest_file;
+    char* file_name;
+    char* dest_file;
 
     file_name = g_path_get_basename(src_file);
     dest_file = g_build_filename(task->dest_dir, file_name, NULL);
@@ -647,7 +647,7 @@ static void vfs_file_task_copy(char* src_file, VFSFileTask* task)
 static int vfs_file_task_do_move(VFSFileTask* task, const char* src_file,
                                  const char* dest_file) // MOD void to int
 {
-    gchar* new_dest_file = NULL;
+    char* new_dest_file = NULL;
     gboolean dest_exists;
     struct stat file_stat;
     GDir* dir;
@@ -694,9 +694,9 @@ static int vfs_file_task_do_move(VFSFileTask* task, const char* src_file,
         dir = g_dir_open(src_file, 0, &error);
         if (dir)
         {
-            const gchar* file_name;
-            gchar* sub_src_file;
-            gchar* sub_dest_file;
+            const char* file_name;
+            char* sub_src_file;
+            char* sub_dest_file;
             while ((file_name = g_dir_read_name(dir)))
             {
                 if (should_abort(task))
@@ -754,8 +754,8 @@ static void vfs_file_task_move(char* src_file, VFSFileTask* task)
 {
     struct stat src_stat;
     struct stat dest_stat;
-    gchar* file_name;
-    gchar* dest_file;
+    char* file_name;
+    char* dest_file;
 
     if (should_abort(task))
         return;
@@ -796,8 +796,8 @@ static void vfs_file_task_move(char* src_file, VFSFileTask* task)
 static void vfs_file_task_delete(char* src_file, VFSFileTask* task)
 {
     GDir* dir;
-    const gchar* file_name;
-    gchar* sub_src_file;
+    const char* file_name;
+    char* sub_src_file;
     struct stat file_stat;
     int result;
     GError* error;
@@ -869,9 +869,9 @@ static void vfs_file_task_link(char* src_file, VFSFileTask* task)
 {
     struct stat src_stat;
     int result;
-    gchar* old_dest_file;
-    gchar* dest_file;
-    gchar* file_name;
+    char* old_dest_file;
+    char* dest_file;
+    char* file_name;
     gboolean dest_exists;       // MOD
     char* new_dest_file = NULL; // MOD
 
@@ -949,8 +949,8 @@ static void vfs_file_task_chown_chmod(char* src_file, VFSFileTask* task)
     struct stat src_stat;
     int i;
     GDir* dir;
-    gchar* sub_src_file;
-    const gchar* file_name;
+    char* sub_src_file;
+    const char* file_name;
     mode_t new_mode;
     int result;
     GError* error;
@@ -1124,7 +1124,7 @@ void vfs_file_task_kill_cpids(char* cpids, int signal)
     }
 }
 
-static void cb_exec_child_cleanup(GPid pid, gint status, char* tmp_file)
+static void cb_exec_child_cleanup(GPid pid, int status, char* tmp_file)
 { // delete tmp files after async task terminates
     // printf("cb_exec_child_cleanup pid=%d status=%d file=%s\n", pid, status, tmp_file );
     g_spawn_close_pid(pid);
@@ -1137,7 +1137,7 @@ static void cb_exec_child_cleanup(GPid pid, gint status, char* tmp_file)
     // printf("cb_exec_child_cleanup DONE\n", pid, status);
 }
 
-static void cb_exec_child_watch(GPid pid, gint status, VFSFileTask* task)
+static void cb_exec_child_watch(GPid pid, int status, VFSFileTask* task)
 {
     gboolean bad_status = FALSE;
     g_spawn_close_pid(pid);
@@ -1196,7 +1196,7 @@ static gboolean cb_exec_out_watch(GIOChannel* channel, GIOCondition cond, VFSFil
 
     if ( !( cond & G_IO_NVAL ) )
     {
-        gint fd = g_io_channel_unix_get_fd( channel );
+        int fd = g_io_channel_unix_get_fd( channel );
         printf("    fd=%d\n", fd);
         if ( fcntl(fd, F_GETFL) != -1 || errno != EBADF )
         {
@@ -1209,7 +1209,7 @@ static gboolean cb_exec_out_watch(GIOChannel* channel, GIOCondition cond, VFSFil
     }
     */
 
-    gsize size;
+    unsigned long size;
 
     if ((cond & G_IO_NVAL))
     {
@@ -1230,7 +1230,7 @@ static gboolean cb_exec_out_watch(GIOChannel* channel, GIOCondition cond, VFSFil
     }
 
     // GError *error = NULL;
-    gchar buf[2048];
+    char buf[2048];
     if (g_io_channel_read_chars(channel, buf, sizeof(buf), &size, NULL) == G_IO_STATUS_NORMAL &&
         size > 0)
     {
@@ -1830,7 +1830,7 @@ gboolean on_size_timeout(VFSFileTask* task)
     return FALSE;
 }
 
-static gpointer vfs_file_task_thread(VFSFileTask* task)
+static void* vfs_file_task_thread(VFSFileTask* task)
 // void * vfs_file_task_thread ( void * ptr )
 {
     GList* l;
@@ -1857,7 +1857,7 @@ static gpointer vfs_file_task_thread(VFSFileTask* task)
         goto _exit_thread;
 
     /* Calculate total size of all files */
-    guint size_timeout = 0;
+    unsigned int size_timeout = 0;
     if (task->recursive)
     {
         // start timer to limit the amount of time to spend on this - can be
@@ -2056,10 +2056,12 @@ VFSFileTask* vfs_task_new(VFSFileTaskType type, GList* src_files, const char* de
 
 /* Set some actions for chmod, this array will be copied
  * and stored in VFSFileTask */
-void vfs_file_task_set_chmod(VFSFileTask* task, guchar* chmod_actions)
+void vfs_file_task_set_chmod(VFSFileTask* task, unsigned char* chmod_actions)
 {
-    task->chmod_actions = g_slice_alloc(sizeof(guchar) * N_CHMOD_ACTIONS);
-    memcpy((void*)task->chmod_actions, (void*)chmod_actions, sizeof(guchar) * N_CHMOD_ACTIONS);
+    task->chmod_actions = g_slice_alloc(sizeof(unsigned char) * N_CHMOD_ACTIONS);
+    memcpy((void*)task->chmod_actions,
+           (void*)chmod_actions,
+           sizeof(unsigned char) * N_CHMOD_ACTIONS);
 }
 
 void vfs_file_task_set_chown(VFSFileTask* task, uid_t uid, gid_t gid)
@@ -2139,7 +2141,7 @@ void vfs_file_task_free(VFSFileTask* task)
     g_slist_free(task->devs);
 
     if (task->chmod_actions)
-        g_slice_free1(sizeof(guchar) * N_CHMOD_ACTIONS, task->chmod_actions);
+        g_slice_free1(sizeof(unsigned char) * N_CHMOD_ACTIONS, task->chmod_actions);
 
     if (task->exec_action)
         g_free(task->exec_action);
@@ -2207,7 +2209,7 @@ void get_total_size_of_dir(VFSFileTask* task, const char* path, off_t* size, str
     // remember device for smart queue
     if (!task->devs)
         add_task_dev(task, file_stat.st_dev);
-    else if ((uint)file_stat.st_dev != GPOINTER_TO_UINT(task->devs->data))
+    else if ((unsigned int)file_stat.st_dev != GPOINTER_TO_UINT(task->devs->data))
         add_task_dev(task, file_stat.st_dev);
 
     // Don't follow symlinks
@@ -2246,14 +2248,14 @@ void vfs_file_task_set_overwrite_mode(VFSFileTask* task, VFSFileTaskOverwriteMod
 }
 
 void vfs_file_task_set_progress_callback(VFSFileTask* task, VFSFileTaskProgressCallback cb,
-                                         gpointer user_data)
+                                         void* user_data)
 {
     task->progress_cb = cb;
     task->progress_cb_data = user_data;
 }
 
 void vfs_file_task_set_state_callback(VFSFileTask* task, VFSFileTaskStateCallback cb,
-                                      gpointer user_data)
+                                      void* user_data)
 {
     task->state_cb = cb;
     task->state_cb_data = user_data;

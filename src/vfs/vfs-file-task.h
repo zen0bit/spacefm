@@ -82,8 +82,8 @@ typedef struct _VFSFileTask VFSFileTask;
 
 typedef void (*VFSFileTaskProgressCallback)(VFSFileTask* task);
 
-typedef gboolean (*VFSFileTaskStateCallback)(VFSFileTask*, VFSFileTaskState state,
-                                             gpointer state_data, gpointer user_data);
+typedef gboolean (*VFSFileTaskStateCallback)(VFSFileTask*, VFSFileTaskState state, void* state_data,
+                                             void* user_data);
 
 struct _VFSFileTask
 {
@@ -104,7 +104,7 @@ struct _VFSFileTask
     gid_t gid;
 
     /* For chmod */
-    guchar* chmod_actions; /* If chmod is not needed, this should be NULL */
+    unsigned char* chmod_actions; /* If chmod is not needed, this should be NULL */
 
     off_t total_size; /* Total size of the files to be processed, in bytes */
     off_t progress;   /* Total size of current processed files, in btytes */
@@ -114,8 +114,8 @@ struct _VFSFileTask
     off_t last_speed;
     off_t last_progress;
     GTimer* timer;
-    gdouble last_elapsed;
-    guint current_item;
+    double last_elapsed;
+    unsigned int current_item;
     int err_count;
 
     char* current_file; /* copy of Current processed file */
@@ -132,10 +132,10 @@ struct _VFSFileTask
     gboolean queue_start;
 
     VFSFileTaskProgressCallback progress_cb;
-    gpointer progress_cb_data;
+    void* progress_cb_data;
 
     VFSFileTaskStateCallback state_cb;
-    gpointer state_cb_data;
+    void* state_cb_data;
 
     GMutex* mutex;
 
@@ -160,13 +160,13 @@ struct _VFSFileTask
                         // as su does not execute binaries
     char* exec_script;
     gboolean exec_keep_tmp; // diagnostic to keep temp files
-    gpointer exec_browser;
-    gpointer exec_desktop;
+    void* exec_browser;
+    void* exec_desktop;
     char* exec_as_user;
     char* exec_icon;
     GPid exec_pid;
     int exec_exit_status;
-    guint child_watch;
+    unsigned int child_watch;
     gboolean exec_is_error;
     GIOChannel* exec_channel_out;
     GIOChannel* exec_channel_err;
@@ -175,9 +175,9 @@ struct _VFSFileTask
     gboolean exec_scroll_lock;
     gboolean exec_write_root;
     gboolean exec_checksum;
-    gpointer exec_set;
+    void* exec_set;
     GCond* exec_cond;
-    gpointer exec_ptask;
+    void* exec_ptask;
 };
 
 /*
@@ -191,15 +191,15 @@ void vfs_file_task_unlock(VFSFileTask* task);
 
 /* Set some actions for chmod, this array will be copied
  * and stored in VFSFileTask */
-void vfs_file_task_set_chmod(VFSFileTask* task, guchar* chmod_actions);
+void vfs_file_task_set_chmod(VFSFileTask* task, unsigned char* chmod_actions);
 
 void vfs_file_task_set_chown(VFSFileTask* task, uid_t uid, gid_t gid);
 
 void vfs_file_task_set_progress_callback(VFSFileTask* task, VFSFileTaskProgressCallback cb,
-                                         gpointer user_data);
+                                         void* user_data);
 
 void vfs_file_task_set_state_callback(VFSFileTask* task, VFSFileTaskStateCallback cb,
-                                      gpointer user_data);
+                                      void* user_data);
 
 void vfs_file_task_set_recursive(VFSFileTask* task, gboolean recursive);
 

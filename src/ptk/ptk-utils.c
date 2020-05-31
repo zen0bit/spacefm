@@ -19,7 +19,7 @@
 #include "gtk2-compat.h"
 #include <gdk/gdkkeysyms.h>
 
-GtkWidget* ptk_menu_new_from_data(PtkMenuItemEntry* entries, gpointer cb_data,
+GtkWidget* ptk_menu_new_from_data(PtkMenuItemEntry* entries, void* cb_data,
                                   GtkAccelGroup* accel_group)
 {
     GtkWidget* menu;
@@ -28,7 +28,7 @@ GtkWidget* ptk_menu_new_from_data(PtkMenuItemEntry* entries, gpointer cb_data,
     return menu;
 }
 
-void ptk_menu_add_items_from_data(GtkWidget* menu, PtkMenuItemEntry* entries, gpointer cb_data,
+void ptk_menu_add_items_from_data(GtkWidget* menu, PtkMenuItemEntry* entries, void* cb_data,
                                   GtkAccelGroup* accel_group)
 {
     PtkMenuItemEntry* ent;
@@ -154,8 +154,9 @@ int ptk_dialog_run_modaless(GtkDialog* dlg)
     DlgRunData data = {0};
     data.lp = g_main_loop_new(NULL, FALSE);
 
-    guint deh = g_signal_connect(dlg, "delete_event", G_CALLBACK(on_dlg_delete_event), &data);
-    guint rh = g_signal_connect(dlg, "response", G_CALLBACK(on_dlg_response), &data);
+    unsigned int deh =
+        g_signal_connect(dlg, "delete_event", G_CALLBACK(on_dlg_delete_event), &data);
+    unsigned int rh = g_signal_connect(dlg, "response", G_CALLBACK(on_dlg_response), &data);
 
     gtk_window_present((GtkWindow*)dlg);
 
@@ -173,7 +174,7 @@ int ptk_dialog_run_modaless(GtkDialog* dlg)
 
 GtkBuilder* _gtk_builder_new_from_file(const char* path, const char* file, GError** err)
 {
-    gchar* filename = g_build_filename(path, file, NULL);
+    char* filename = g_build_filename(path, file, NULL);
     GtkBuilder* builder = gtk_builder_new();
     if (G_UNLIKELY(!gtk_builder_add_from_file(builder, filename, err)))
     {
@@ -196,10 +197,10 @@ void transpose_nonlatin_keypress(GdkEventKey* event)
 
     // We have a non-latin char, try other keyboard groups
     GdkKeymapKey* keys = NULL;
-    guint* keyvals;
-    gint n_entries;
-    gint level;
-    gint n;
+    unsigned int* keyvals;
+    int n_entries;
+    int level;
+    int n;
 
     if (gdk_keymap_translate_keyboard_state(
 #if (GTK_MAJOR_VERSION == 3)

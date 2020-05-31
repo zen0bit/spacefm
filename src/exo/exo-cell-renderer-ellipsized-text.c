@@ -56,9 +56,9 @@ enum
     PROP_FOLLOW_STATE,
 };
 
-static void exo_cell_renderer_ellipsized_text_get_property(GObject* object, uint prop_id,
+static void exo_cell_renderer_ellipsized_text_get_property(GObject* object, unsigned int prop_id,
                                                            GValue* value, GParamSpec* pspec);
-static void exo_cell_renderer_ellipsized_text_set_property(GObject* object, uint prop_id,
+static void exo_cell_renderer_ellipsized_text_set_property(GObject* object, unsigned int prop_id,
                                                            const GValue* value, GParamSpec* pspec);
 static void exo_cell_renderer_ellipsized_text_get_size(GtkCellRenderer* renderer, GtkWidget* widget,
 #if (GTK_MAJOR_VERSION == 3)
@@ -159,7 +159,7 @@ static void exo_cell_renderer_ellipsized_text_init(ExoCellRendererEllipsizedText
 {
 }
 
-static void exo_cell_renderer_ellipsized_text_get_property(GObject* object, uint prop_id,
+static void exo_cell_renderer_ellipsized_text_get_property(GObject* object, unsigned int prop_id,
                                                            GValue* value, GParamSpec* pspec)
 {
     ExoCellRendererEllipsizedTextPrivate* priv =
@@ -178,7 +178,7 @@ static void exo_cell_renderer_ellipsized_text_get_property(GObject* object, uint
     }
 }
 
-static void exo_cell_renderer_ellipsized_text_set_property(GObject* object, uint prop_id,
+static void exo_cell_renderer_ellipsized_text_set_property(GObject* object, unsigned int prop_id,
                                                            const GValue* value, GParamSpec* pspec)
 {
     ExoCellRendererEllipsizedTextPrivate* priv =

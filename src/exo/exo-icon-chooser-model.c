@@ -55,8 +55,8 @@ static gboolean exo_icon_chooser_model_iter_parent(GtkTreeModel* tree_model, Gtk
                                                    GtkTreeIter* child);
 static void exo_icon_chooser_model_icon_theme_changed(GtkIconTheme* icon_theme,
                                                       ExoIconChooserModel* model);
-static void exo_icon_chooser_model_item_to_list(gpointer key, gpointer value, gpointer data);
-static void exo_icon_chooser_model_item_free(gpointer data);
+static void exo_icon_chooser_model_item_to_list(void* key, void* value, void* data);
+static void exo_icon_chooser_model_item_free(void* data);
 
 struct _ExoIconChooserModelClass
 {
@@ -307,7 +307,7 @@ static gboolean exo_icon_chooser_model_iter_parent(GtkTreeModel* tree_model, Gtk
     return FALSE;
 }
 
-static gboolean exo_icon_chooser_model_merge_symlinks(gpointer key, gpointer value, gpointer data)
+static gboolean exo_icon_chooser_model_merge_symlinks(void* key, void* value, void* data)
 {
     GHashTable* items = data;
     ExoIconChooserModelItem* sym_item = value;
@@ -478,7 +478,7 @@ static void exo_icon_chooser_model_icon_theme_changed(GtkIconTheme* icon_theme,
     gtk_tree_path_free(path);
 }
 
-static int exo_icon_chooser_model_item_compare(gconstpointer data_a, gconstpointer data_b)
+static int exo_icon_chooser_model_item_compare(const void* data_a, const void* data_b)
 {
     const ExoIconChooserModelItem* item_a = data_a;
     const ExoIconChooserModelItem* item_b = data_b;
@@ -488,7 +488,7 @@ static int exo_icon_chooser_model_item_compare(gconstpointer data_a, gconstpoint
     return g_utf8_collate(item_a->icon_name, item_b->icon_name);
 }
 
-static void exo_icon_chooser_model_item_to_list(gpointer key, gpointer value, gpointer data)
+static void exo_icon_chooser_model_item_to_list(void* key, void* value, void* data)
 {
     GList** list = data;
     ExoIconChooserModelItem* item = value;
@@ -496,7 +496,7 @@ static void exo_icon_chooser_model_item_to_list(gpointer key, gpointer value, gp
     *list = g_list_insert_sorted(*list, item, exo_icon_chooser_model_item_compare);
 }
 
-static void exo_icon_chooser_model_item_free(gpointer data)
+static void exo_icon_chooser_model_item_free(void* data)
 {
     ExoIconChooserModelItem* item = data;
 
@@ -596,7 +596,7 @@ gboolean _exo_icon_chooser_model_get_iter_for_icon_name(ExoIconChooserModel* mod
 {
     ExoIconChooserModelItem* item;
     GList* lp;
-    uint i;
+    unsigned int i;
     gboolean found;
     const char* other_name;
 

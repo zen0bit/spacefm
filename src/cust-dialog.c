@@ -7,6 +7,8 @@
 #include <config.h>
 #endif
 
+#include <stdint.h>
+
 #include <gdk/gdk.h>
 #include <gdk/gdkkeysyms.h>
 #include <gdk-pixbuf/gdk-pixbuf.h>
@@ -226,8 +228,8 @@ static void select_in_combo_box(CustomElement* el, const char* value)
 char* get_column_value(GtkTreeModel* model, GtkTreeIter* iter, int col_index)
 {
     char* str = NULL;
-    gint64 i64;
-    gdouble d;
+    int64_t i64;
+    double d;
     int i;
     switch (gtk_tree_model_get_column_type(model, col_index))
     {
@@ -947,7 +949,7 @@ static void set_element_value(CustomElement* el, const char* name, char* value)
                         }
                         gtk_progress_bar_set_fraction(
                             GTK_PROGRESS_BAR(el_name->widgets->next->data),
-                            (gdouble)i / 100);
+                            (double)i / 100);
                     }
                     str = value;
                     while (str && str[0])
@@ -1494,7 +1496,7 @@ static void run_command(CustomElement* el, GList* argslist, char* xvalue)
         if (icmd == -1)
         {
             // external command
-            gchar* argv[g_list_length(args) + 1];
+            char* argv[g_list_length(args) + 1];
             int a = 0;
             while (args && strcmp((char*)args->data, "--"))
             {
@@ -1622,7 +1624,7 @@ static char* read_file_value(const char* path, gboolean multi)
 {
     FILE* file;
     int f, bytes;
-    const gchar* end;
+    const char* end;
 
     if (!g_file_test(path, G_FILE_TEST_EXISTS))
     {
@@ -1699,7 +1701,7 @@ static gboolean cb_pipe_watch(GIOChannel* channel, GIOCondition cond, CustomElem
 
     if ( !( cond & G_IO_NVAL ) )
     {
-        gint fd = g_io_channel_unix_get_fd( channel );
+        int fd = g_io_channel_unix_get_fd( channel );
         fprintf( stderr, "    fd=%d\n", fd);
         if ( fcntl(fd, F_GETFL) != -1 || errno != EBADF )
         {
@@ -1734,8 +1736,8 @@ static gboolean cb_pipe_watch(GIOChannel* channel, GIOCondition cond, CustomElem
     }
 
     // GError *error = NULL;
-    gsize size;
-    gchar line[2048];
+    unsigned long size;
+    char line[2048];
     if (g_io_channel_read_chars(channel, line, sizeof(line), &size, NULL) == G_IO_STATUS_NORMAL &&
         size > 0)
     {
@@ -2356,7 +2358,10 @@ static gboolean on_widget_button_press_event(GtkWidget* widget, GdkEventButton* 
     {
         if (evt->button < 4 && el->cmd_args)
         {
-            char* num = g_strdup_printf("%d %dx%d", evt->button, (uint)evt->x, (uint)evt->y);
+            char* num = g_strdup_printf("%d %dx%d",
+                                        evt->button,
+                                        (unsigned int)evt->x,
+                                        (unsigned int)evt->y);
             run_command(el, el->cmd_args, num);
             g_free(num);
             return TRUE;
@@ -2913,7 +2918,7 @@ static void update_element(CustomElement* el, GtkWidget* box, GSList** radio, in
                     GIOChannel* channel = g_io_channel_new_file((char*)args->data, "r+", NULL);
                     if (channel)
                     {
-                        gint fd = g_io_channel_unix_get_fd(channel);
+                        int fd = g_io_channel_unix_get_fd(channel);
                         if (fd > 0)
                         {
                             fcntl(fd, F_SETFL, O_NONBLOCK);
@@ -2977,7 +2982,7 @@ static void update_element(CustomElement* el, GtkWidget* box, GSList** radio, in
                     GIOChannel* channel = g_io_channel_new_file((char*)args->data, "r+", NULL);
                     if (channel)
                     {
-                        gint fd = g_io_channel_unix_get_fd(channel);
+                        int fd = g_io_channel_unix_get_fd(channel);
                         // int fd = fcntl( g_io_channel_unix_get_fd( channel ), F_GETFL );
                         if (fd > 0)
                         {
@@ -3288,7 +3293,7 @@ static void update_element(CustomElement* el, GtkWidget* box, GSList** radio, in
                             el->timeout = 0;
                         }
                         gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(el->widgets->next->data),
-                                                      (gdouble)i / 100);
+                                                      (double)i / 100);
                     }
                     str = el->val;
                     while (str && str[0])

@@ -236,15 +236,15 @@ void _exo_thumbnail_preview_set_uri(ExoThumbnailPreview* thumbnail_preview, cons
                 }
                 else if (S_ISREG(statb.st_mode))
                 {
-                    if (G_UNLIKELY((gulong)statb.st_size > 1024ul * 1024ul * 1024ul))
+                    if (G_UNLIKELY((unsigned long)statb.st_size > 1024ul * 1024ul * 1024ul))
                         size_name =
                             g_strdup_printf("%0.1f GB", statb.st_size / (1024.0 * 1024.0 * 1024.0));
-                    else if ((gulong)statb.st_size > 1024ul * 1024ul)
+                    else if ((unsigned long)statb.st_size > 1024ul * 1024ul)
                         size_name = g_strdup_printf("%0.1f MB", statb.st_size / (1024.0 * 1024.0));
-                    else if ((gulong)statb.st_size > 1024ul)
+                    else if ((unsigned long)statb.st_size > 1024ul)
                         size_name = g_strdup_printf("%0.1f kB", statb.st_size / 1024.0);
                     else
-                        size_name = g_strdup_printf("%lu B", (gulong)statb.st_size);
+                        size_name = g_strdup_printf("%lu B", (unsigned long)statb.st_size);
                 }
             }
 

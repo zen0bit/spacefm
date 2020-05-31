@@ -668,8 +668,8 @@ gboolean on_current_value_button_press(GtkWidget* widget, GdkEventButton* event,
     return FALSE;
 }
 
-void on_context_entry_insert(GtkEntryBuffer* buf, guint position, gchar* chars, guint n_chars,
-                             gpointer user_data)
+void on_context_entry_insert(GtkEntryBuffer* buf, unsigned int position, char* chars,
+                             unsigned int n_chars, void* user_data)
 { // remove linefeeds from pasted text
     if (!strchr(gtk_entry_buffer_get_text(buf), '\n'))
         return;
@@ -1442,7 +1442,7 @@ void on_script_font_change(GtkMenuItem* item, GtkTextView* input)
         gtk_widget_modify_font(GTK_WIDGET(input), NULL);
 }
 
-void on_script_popup(GtkTextView* input, GtkMenu* menu, gpointer user_data)
+void on_script_popup(GtkTextView* input, GtkMenu* menu, void* user_data)
 {
     GtkAccelGroup* accel_group = gtk_accel_group_new();
     XSet* set = xset_get("sep_ctxt");
@@ -1463,7 +1463,7 @@ static gboolean delayed_focus(GtkWidget* widget)
     return FALSE;
 }
 
-void on_prop_notebook_switch_page(GtkNotebook* notebook, GtkWidget* page, guint page_num,
+void on_prop_notebook_switch_page(GtkNotebook* notebook, GtkWidget* page, unsigned int page_num,
                                   ContextData* ctxt)
 {
     GtkWidget* widget;
@@ -1491,8 +1491,8 @@ static void on_icon_choose_button_clicked(GtkWidget* widget, ContextData* ctxt)
     }
 }
 
-static void on_entry_buffer_inserted_text(GtkEntryBuffer* buf, guint position, gchar* chars,
-                                          guint n_chars, ContextData* ctxt)
+static void on_entry_buffer_inserted_text(GtkEntryBuffer* buf, unsigned int position, char* chars,
+                                          unsigned int n_chars, ContextData* ctxt)
 {
     // update icon of icon choose button
     const char* icon = gtk_entry_get_text(GTK_ENTRY(ctxt->item_icon));
@@ -1501,8 +1501,8 @@ static void on_entry_buffer_inserted_text(GtkEntryBuffer* buf, guint position, g
         xset_get_image(icon && icon[0] ? icon : GTK_STOCK_OPEN, GTK_ICON_SIZE_BUTTON));
 }
 
-static void on_entry_buffer_deleted_text(GtkEntryBuffer* buf, guint position, guint n_chars,
-                                         ContextData* ctxt)
+static void on_entry_buffer_deleted_text(GtkEntryBuffer* buf, unsigned int position,
+                                         unsigned int n_chars, ContextData* ctxt)
 {
     on_entry_buffer_inserted_text(buf, position, NULL, n_chars, ctxt);
 }

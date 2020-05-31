@@ -108,24 +108,24 @@ gboolean exo_str_is_equal(const char* a, const char* b)
  *               freed using g_strfreev() when no
  *               longer needed.
  **/
-char** exo_strndupv(char** strv, uint num)
+char** exo_strndupv(char** strv, unsigned int num)
 {
     char** result;
-    uint i;
+    unsigned int i;
 
     /* return null when there is nothing to copy */
     if (G_UNLIKELY(strv == NULL || num == 0))
         return NULL;
 
     /* duplicate the first @num string */
-    result = g_new(gchar*, num + 1);
+    result = g_new(char*, num + 1);
     for (i = 0; i < num && strv[i] != NULL; i++)
         result[i] = g_strdup(strv[i]);
     result[i] = NULL;
 
     /* resize the string if we allocated too much space */
     if (G_UNLIKELY(num > i))
-        result = g_renew(gchar*, result, i + 1);
+        result = g_renew(char*, result, i + 1);
 
     return result;
 }

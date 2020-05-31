@@ -29,6 +29,8 @@
 #include <config.h>
 #endif
 
+#include <stdint.h>
+
 #include "mime-type.h"
 #include "mime-cache.h"
 
@@ -62,8 +64,8 @@ const char xdg_mime_type_executable[] = "application/x-executable";
 const char xdg_mime_type_plain_text[] = "text/plain";
 
 static MimeCache** caches = NULL;
-static guint n_caches = 0;
-guint32 mime_cache_max_extent = 0;
+static unsigned int n_caches = 0;
+uint32_t mime_cache_max_extent = 0;
 
 /* allocated buffer used for mime magic checking to
      prevent frequent memory allocation */
@@ -411,7 +413,7 @@ static char* _mime_type_get_desc_icon(const char* file_path, const char* locale,
 char* mime_type_get_desc_icon(const char* type, const char* locale, char** icon_name)
 {
     char* desc;
-    const gchar* const* dir;
+    const char* const* dir;
     char file_path[256];
     int acc;
 
@@ -520,7 +522,7 @@ void mime_cache_free_all()
 }
 
 /* Iterate through all mime caches */
-void mime_cache_foreach(GFunc func, gpointer user_data)
+void mime_cache_foreach(GFunc func, void* user_data)
 {
     int i;
     for (i = 0; i < n_caches; ++i)

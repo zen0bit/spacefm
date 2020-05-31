@@ -165,10 +165,10 @@ GdkPixbuf* exo_gdk_pixbuf_colorize(const GdkPixbuf* source, const GdkColor* colo
     else
 #endif
     {
-        guchar* dst_pixels = gdk_pixbuf_get_pixels(dst);
-        guchar* src_pixels = gdk_pixbuf_get_pixels(source);
-        guchar* pixdst;
-        guchar* pixsrc;
+        unsigned char* dst_pixels = gdk_pixbuf_get_pixels(dst);
+        unsigned char* src_pixels = gdk_pixbuf_get_pixels(source);
+        unsigned char* pixdst;
+        unsigned char* pixsrc;
         int red_value = color->red / 255.0;
         int green_value = color->green / 255.0;
         int blue_value = color->blue / 255.0;
@@ -358,7 +358,7 @@ GdkPixbuf* exo_gdk_pixbuf_frame(const GdkPixbuf* source, const GdkPixbuf* frame,
     return dst;
 }
 
-static inline guchar lighten_channel(guchar cur_value)
+static inline unsigned char lighten_channel(unsigned char cur_value)
 {
     int new_value = cur_value;
 
@@ -366,7 +366,7 @@ static inline guchar lighten_channel(guchar cur_value)
     if (G_UNLIKELY(new_value > 255))
         new_value = 255;
 
-    return (guchar)new_value;
+    return (unsigned char)new_value;
 }
 
 /**
@@ -462,10 +462,10 @@ GdkPixbuf* exo_gdk_pixbuf_spotlight(const GdkPixbuf* source)
     else
 #endif
     {
-        guchar* dst_pixels = gdk_pixbuf_get_pixels(dst);
-        guchar* src_pixels = gdk_pixbuf_get_pixels(source);
-        guchar* pixdst;
-        guchar* pixsrc;
+        unsigned char* dst_pixels = gdk_pixbuf_get_pixels(dst);
+        unsigned char* src_pixels = gdk_pixbuf_get_pixels(source);
+        unsigned char* pixdst;
+        unsigned char* pixsrc;
         int j;
 
         for (i = height; --i >= 0;)
@@ -534,8 +534,8 @@ GdkPixbuf* exo_gdk_pixbuf_scale_down(GdkPixbuf* source, gboolean preserve_aspect
         double wratio;
         double hratio;
         /* calculate the new dimensions */
-        wratio = (gdouble)source_width / (gdouble)dest_width;
-        hratio = (gdouble)source_height / (gdouble)dest_height;
+        wratio = (double)source_width / (double)dest_width;
+        hratio = (double)source_height / (double)dest_height;
 
         if (hratio > wratio)
             dest_width = rint(source_width / hratio);

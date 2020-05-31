@@ -16,6 +16,8 @@
 #define _GNU_SOURCE // euidaccess
 #endif
 
+#include <stdint.h>
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -108,7 +110,7 @@ GList* xset_cmd_history = NULL;
 char* settings_terminal_su = NULL;
 
 // delayed session saving
-guint xset_autosave_timer = 0;
+unsigned int xset_autosave_timer = 0;
 gboolean xset_autosave_request = FALSE;
 
 typedef void (*SettingsParseFunc)(char* line);
@@ -120,7 +122,7 @@ char* xset_color_dialog(GtkWidget* parent, char* title, char* defcolor);
 GtkWidget* xset_design_additem(GtkWidget* menu, const char* label, const char* stock_icon, int job,
                                XSet* set);
 gboolean xset_design_cb(GtkWidget* item, GdkEventButton* event, XSet* set);
-gboolean on_autosave_timer(gpointer main_window);
+gboolean on_autosave_timer(void* main_window);
 const char* icon_stock_to_id(const char* name);
 void xset_builtin_tool_activate(char tool_type, XSet* set, GdkEventButton* event);
 XSet* xset_new_builtin_toolitem(char tool_type);
@@ -711,7 +713,7 @@ void load_settings(char* config_dir)
     ptk_bookmark_view_get_first_bookmark(NULL);
 }
 
-void save_settings(gpointer main_window_ptr)
+void save_settings(void* main_window_ptr)
 {
     XSet* set;
     FMMainWindow* main_window;
@@ -891,7 +893,7 @@ static void auto_save_start(gboolean delay)
     }
 }
 
-gboolean on_autosave_timer(gpointer ptr)
+gboolean on_autosave_timer(void* ptr)
 {
     // printf("AUTOSAVE timeout\n" );
     if (xset_autosave_timer)
@@ -1478,7 +1480,7 @@ void xset_parse(char* line)
     }
 }
 
-XSet* xset_set_cb(const char* name, void (*cb_func)(), gpointer cb_data)
+XSet* xset_set_cb(const char* name, void (*cb_func)(), void* cb_data)
 {
     XSet* set = xset_get(name);
     set->cb_func = cb_func;
@@ -1486,7 +1488,7 @@ XSet* xset_set_cb(const char* name, void (*cb_func)(), gpointer cb_data)
     return set;
 }
 
-XSet* xset_set_cb_panel(int panel, const char* name, void (*cb_func)(), gpointer cb_data)
+XSet* xset_set_cb_panel(int panel, const char* name, void (*cb_func)(), void* cb_data)
 {
     char* fullname = g_strdup_printf("panel%d_%s", panel, name);
     XSet* set = xset_set_cb(fullname, cb_func, cb_data);
@@ -1503,7 +1505,7 @@ XSet* xset_set_ob1_int(XSet* set, const char* ob1, int ob1_int)
     return set;
 }
 
-XSet* xset_set_ob1(XSet* set, const char* ob1, gpointer ob1_data)
+XSet* xset_set_ob1(XSet* set, const char* ob1, void* ob1_data)
 {
     if (set->ob1)
         g_free(set->ob1);
@@ -1512,7 +1514,7 @@ XSet* xset_set_ob1(XSet* set, const char* ob1, gpointer ob1_data)
     return set;
 }
 
-XSet* xset_set_ob2(XSet* set, const char* ob2, gpointer ob2_data)
+XSet* xset_set_ob2(XSet* set, const char* ob2, void* ob2_data)
 {
     if (set->ob2)
         g_free(set->ob2);
@@ -2546,7 +2548,7 @@ GtkWidget* xset_add_menuitem(PtkFileBrowser* file_browser, GtkWidget* menu,
                 item = gtk_radio_menu_item_new_with_mnemonic((GSList*)set_radio->ob2_data,
                                                              set->menu_label);
                 set_radio->ob2_data =
-                    (gpointer)gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(item));
+                    (void*)gtk_radio_menu_item_get_group(GTK_RADIO_MENU_ITEM(item));
                 gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item), mset->b == XSET_B_TRUE);
             }
             else if (set->menu_style == XSET_MENU_SUBMENU)
@@ -3157,7 +3159,7 @@ XSet* xset_get_plugin_mirror(XSet* set)
     return newset;
 }
 
-gint compare_plugin_sets(XSet* a, XSet* b)
+int compare_plugin_sets(XSet* a, XSet* b)
 {
     return g_utf8_collate(a->menu_label, b->menu_label);
 }
@@ -3654,7 +3656,7 @@ void xset_remove_plugin(GtkWidget* parent, PtkFileBrowser* file_browser, XSet* s
     ptk_file_task_run(task);
 }
 
-void install_plugin_file(gpointer main_win, GtkWidget* handler_dlg, const char* path,
+void install_plugin_file(void* main_win, GtkWidget* handler_dlg, const char* path,
                          const char* plug_dir, int type, int job, XSet* insert_set)
 {
     char* wget;
@@ -4742,7 +4744,7 @@ char* xset_get_manual_url()
         locations = g_list_append(locations, g_strdup(HTMLDIR));
     if (DATADIR)
         locations = g_list_append(locations, g_build_filename(DATADIR, "spacefm", NULL));
-    const gchar* const* dir = g_get_system_data_dirs();
+    const char* const* dir = g_get_system_data_dirs();
     for (; *dir; ++dir)
     {
         path = g_build_filename(*dir, "spacefm", NULL);
@@ -4979,7 +4981,7 @@ gboolean on_set_key_keypress(GtkWidget* widget, GdkEventKey* event, GtkWidget* d
     }
 
     // need to transpose nonlatin keyboard layout ?
-    guint nonlatin_key = 0;
+    unsigned int nonlatin_key = 0;
     if (!((GDK_KEY_0 <= event->keyval && event->keyval <= GDK_KEY_9) ||
           (GDK_KEY_A <= event->keyval && event->keyval <= GDK_KEY_Z) ||
           (GDK_KEY_a <= event->keyval && event->keyval <= GDK_KEY_z)))
@@ -6352,8 +6354,8 @@ GtkWidget* xset_design_additem(GtkWidget* menu, const char* label, const char* s
     return item;
 }
 
-GtkWidget* xset_design_show_menu(GtkWidget* menu, XSet* set, XSet* book_insert, guint button,
-                                 guint32 time)
+GtkWidget* xset_design_show_menu(GtkWidget* menu, XSet* set, XSet* book_insert, unsigned int button,
+                                 uint32_t time)
 {
     GtkWidget* newitem;
     GtkWidget* submenu;
@@ -6825,7 +6827,7 @@ gboolean xset_design_cb(GtkWidget* item, GdkEventButton* event, XSet* set)
     return FALSE; // TRUE won't stop activate on button-press (will on release)
 }
 
-gboolean xset_menu_keypress(GtkWidget* widget, GdkEventKey* event, gpointer user_data)
+gboolean xset_menu_keypress(GtkWidget* widget, GdkEventKey* event, void* user_data)
 {
     int job = -1;
     XSet* set;
@@ -6917,7 +6919,7 @@ void xset_menu_cb(GtkWidget* item, XSet* set)
 {
     GtkWidget* parent;
     void (*cb_func)() = NULL;
-    gpointer cb_data = NULL;
+    void* cb_data = NULL;
     char* title;
     XSet* mset; // mirror set or set
     XSet* rset; // real set
@@ -7282,7 +7284,7 @@ void on_multi_input_font_change(GtkMenuItem* item, GtkTextView* input)
         gtk_widget_modify_font(GTK_WIDGET(input), NULL);
 }
 
-void on_multi_input_popup(GtkTextView* input, GtkMenu* menu, gpointer user_data)
+void on_multi_input_popup(GtkTextView* input, GtkMenu* menu, void* user_data)
 {
     GtkAccelGroup* accel_group = gtk_accel_group_new();
     XSet* set = xset_get("sep_multi");
@@ -7743,7 +7745,7 @@ char* xset_font_dialog(GtkWidget* parent, const char* title, const char* preview
 
     g_signal_connect(G_OBJECT(dlg), "key-press-event", G_CALLBACK(on_fontdlg_keypress), dlg);
 
-    gint response = gtk_dialog_run(GTK_DIALOG(dlg));
+    int response = gtk_dialog_run(GTK_DIALOG(dlg));
 
     GtkAllocation allocation;
     gtk_widget_get_allocation(GTK_WIDGET(dlg), &allocation);
@@ -7838,7 +7840,7 @@ char* xset_file_dialog(GtkWidget* parent, GtkFileChooserAction action, const cha
         gtk_window_set_position(GTK_WINDOW(dlg), GTK_WIN_POS_CENTER);
     }
 
-    gint response = gtk_dialog_run(GTK_DIALOG(dlg));
+    int response = gtk_dialog_run(GTK_DIALOG(dlg));
 
     GtkAllocation allocation;
     gtk_widget_get_allocation(GTK_WIDGET(dlg), &allocation);
@@ -7893,7 +7895,7 @@ char* xset_color_dialog(GtkWidget* parent, char* title, char* defcolor)
     }
 
     gtk_widget_show_all(dlg);
-    gint response = gtk_dialog_run(GTK_DIALOG(dlg));
+    int response = gtk_dialog_run(GTK_DIALOG(dlg));
 
     if (response == GTK_RESPONSE_OK)
     {

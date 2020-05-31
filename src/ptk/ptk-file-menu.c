@@ -16,6 +16,8 @@
 #define _GNU_SOURCE
 #endif
 
+#include <stdint.h>
+
 #include <unistd.h> /* for access */
 
 #include "ptk-file-menu.h"
@@ -46,8 +48,8 @@
 
 gboolean on_app_button_press(GtkWidget* item, GdkEventButton* event, PtkFileMenu* data);
 gboolean app_menu_keypress(GtkWidget* widget, GdkEventKey* event, PtkFileMenu* data);
-static void show_app_menu(GtkWidget* menu, GtkWidget* app_item, PtkFileMenu* data, guint button,
-                          guint32 time);
+static void show_app_menu(GtkWidget* menu, GtkWidget* app_item, PtkFileMenu* data,
+                          unsigned int button, uint32_t time);
 
 /* Signal handlers for popup menu */
 static void on_popup_open_activate(GtkMenuItem* menuitem, PtkFileMenu* data);
@@ -590,7 +592,7 @@ GtkWidget* ptk_file_menu_new(PtkFileBrowser* browser, const char* file_path, VFS
     popup = gtk_menu_new();
     GtkAccelGroup* accel_group = gtk_accel_group_new();
     g_object_weak_ref(G_OBJECT(popup), (GWeakNotify)ptk_file_menu_free, data);
-    g_signal_connect_after((gpointer)popup, "selection-done", G_CALLBACK(gtk_widget_destroy), NULL);
+    g_signal_connect_after((void*)popup, "selection-done", G_CALLBACK(gtk_widget_destroy), NULL);
 
     // is_dir = file_path && g_file_test( file_path, G_FILE_TEST_IS_DIR );
     is_dir = (info && vfs_file_info_is_dir(info));
@@ -794,16 +796,16 @@ GtkWidget* ptk_file_menu_new(PtkFileBrowser* browser, const char* file_path, VFS
                 g_signal_connect(G_OBJECT(app_menu_item),
                                  "activate",
                                  G_CALLBACK(on_popup_run_app),
-                                 (gpointer)data);
+                                 (void*)data);
                 g_object_set_data(G_OBJECT(app_menu_item), "menu", submenu);
                 g_signal_connect(G_OBJECT(app_menu_item),
                                  "button-press-event",
                                  G_CALLBACK(on_app_button_press),
-                                 (gpointer)data);
+                                 (void*)data);
                 g_signal_connect(G_OBJECT(app_menu_item),
                                  "button-release-event",
                                  G_CALLBACK(on_app_button_press),
-                                 (gpointer)data);
+                                 (void*)data);
                 g_object_set_data(G_OBJECT(app_menu_item), "handler_set", set);
                 app_img = NULL;
                 if (set->icon && set->icon[0])
@@ -863,16 +865,16 @@ GtkWidget* ptk_file_menu_new(PtkFileBrowser* browser, const char* file_path, VFS
                 g_signal_connect(G_OBJECT(app_menu_item),
                                  "activate",
                                  G_CALLBACK(on_popup_run_app),
-                                 (gpointer)data);
+                                 (void*)data);
                 g_object_set_data(G_OBJECT(app_menu_item), "menu", submenu);
                 g_signal_connect(G_OBJECT(app_menu_item),
                                  "button-press-event",
                                  G_CALLBACK(on_app_button_press),
-                                 (gpointer)data);
+                                 (void*)data);
                 g_signal_connect(G_OBJECT(app_menu_item),
                                  "button-release-event",
                                  G_CALLBACK(on_app_button_press),
-                                 (gpointer)data);
+                                 (void*)data);
                 g_object_set_data_full(G_OBJECT(app_menu_item),
                                        "desktop_file",
                                        desktop_file,
@@ -1401,7 +1403,7 @@ enum
 
 char* get_shared_desktop_file_location(const char* name)
 {
-    const gchar* const* dirs;
+    const char* const* dirs;
     char* ret;
 
     dirs = g_get_system_data_dirs();
@@ -1855,7 +1857,7 @@ void on_app_menu_hide(GtkWidget* widget, GtkWidget* app_menu)
     gtk_menu_shell_deactivate(GTK_MENU_SHELL(app_menu));
 }
 
-GtkWidget* app_menu_additem(GtkWidget* menu, char* label, gchar* stock_icon, int job,
+GtkWidget* app_menu_additem(GtkWidget* menu, char* label, char* stock_icon, int job,
                             GtkWidget* app_item, PtkFileMenu* data)
 {
     GtkWidget* item;
@@ -1881,8 +1883,8 @@ GtkWidget* app_menu_additem(GtkWidget* menu, char* label, gchar* stock_icon, int
     return item;
 }
 
-static void show_app_menu(GtkWidget* menu, GtkWidget* app_item, PtkFileMenu* data, guint button,
-                          guint32 time)
+static void show_app_menu(GtkWidget* menu, GtkWidget* app_item, PtkFileMenu* data,
+                          unsigned int button, uint32_t time)
 {
     GtkWidget* newitem;
     GtkWidget* submenu;
@@ -2332,7 +2334,7 @@ void on_popup_extract_list_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
                               menuitem ? TRUE : FALSE);
 }
 
-void on_autoopen_create_cb(gpointer task, AutoOpenCreate* ao)
+void on_autoopen_create_cb(void* task, AutoOpenCreate* ao)
 {
     VFSFileInfo* file;
     if (!ao)

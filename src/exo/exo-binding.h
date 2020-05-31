@@ -45,14 +45,14 @@ typedef struct _ExoMutualBinding ExoMutualBinding;
  * Returns: %FALSE if transformation failed, else %TRUE.
  **/
 typedef gboolean (*ExoBindingTransform)(const GValue* src_value, GValue* dst_value,
-                                        gpointer user_data);
+                                        void* user_data);
 
 ExoBinding* exo_binding_new(GObject* src_object, const char* src_property, GObject* dst_object,
                             const char* dst_property);
 
 ExoBinding* exo_binding_new_full(GObject* src_object, const char* src_property, GObject* dst_object,
                                  const char* dst_property, ExoBindingTransform transform,
-                                 GDestroyNotify destroy_notify, gpointer user_data);
+                                 GDestroyNotify destroy_notify, void* user_data);
 
 ExoMutualBinding* exo_mutual_binding_new(GObject* object1, const char* property1, GObject* object2,
                                          const char* property2);
@@ -61,7 +61,7 @@ ExoMutualBinding* exo_mutual_binding_new_full(GObject* object1, const char* prop
                                               GObject* object2, const char* property2,
                                               ExoBindingTransform transform,
                                               ExoBindingTransform reverse_transform,
-                                              GDestroyNotify destroy_notify, gpointer user_data);
+                                              GDestroyNotify destroy_notify, void* user_data);
 
 G_END_DECLS
 

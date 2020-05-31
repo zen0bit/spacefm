@@ -22,6 +22,8 @@
 #ifndef _MIME_CACHE_H_INCLUDED_
 #define _MIME_CACHE_H_INCLUDED_
 
+#include <stdint.h>
+
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <glib.h>
@@ -34,25 +36,25 @@ struct _MimeCache
     gboolean has_reverse_suffix : 1; /* since mime.cache v1.1, shared mime info v0.4 */
     gboolean has_str_weight : 1;     /* since mime.cache v1.1, shared mime info v0.4 */
     const char* buffer;
-    guint size;
+    unsigned int size;
 
-    guint32 n_alias;
+    uint32_t n_alias;
     const char* alias;
 
-    guint32 n_parents;
+    uint32_t n_parents;
     const char* parents;
 
-    guint32 n_literals;
+    uint32_t n_literals;
     const char* literals;
 
-    guint32 n_globs;
+    uint32_t n_globs;
     const char* globs;
 
-    guint32 n_suffix_roots;
+    uint32_t n_suffix_roots;
     const char* suffix_roots;
 
-    guint32 n_magics;
-    guint32 magic_max_extent;
+    uint32_t n_magics;
+    uint32_t magic_max_extent;
     const char* magics;
 };
 typedef struct _MimeCache MimeCache;

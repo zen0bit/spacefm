@@ -92,7 +92,7 @@ static const int small_icon_sizes[] =
 static const char* date_formats[] = {"%Y-%m-%d %H:%M", "%Y-%m-%d", "%Y-%m-%d %H:%M:%S"};
 static const int drag_actions[] = {0, 1, 2, 3};
 
-static void dir_unload_thumbnails(const char* path, VFSDir* dir, gpointer user_data)
+static void dir_unload_thumbnails(const char* path, VFSDir* dir, void* user_data)
 {
     vfs_dir_unload_thumbnails(dir, GPOINTER_TO_INT(user_data));
 }

@@ -22,6 +22,8 @@
 #ifndef _MIME_TYPE_H_INCLUDED_
 #define _MIME_TYPE_H_INCLUDED_
 
+#include <stdint.h>
+
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <glib.h>
@@ -120,7 +122,7 @@ char* mime_type_get_desc_icon(const char* type, const char* locale, char** icon_
  * Iterate through all mime caches
  * Can be used to hook file alteration monitor for the cache files to handle reloading.
  */
-void mime_cache_foreach(GFunc func, gpointer user_data);
+void mime_cache_foreach(GFunc func, void* user_data);
 
 /*
  * Get mime caches
@@ -128,7 +130,7 @@ void mime_cache_foreach(GFunc func, gpointer user_data);
 MimeCache** mime_type_get_caches(int* n);
 
 /* max magic extent of all caches */
-extern guint32 mime_cache_max_extent;
+extern uint32_t mime_cache_max_extent;
 
 G_END_DECLS
 #endif

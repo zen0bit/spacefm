@@ -41,7 +41,7 @@ typedef struct _VFSFileMonitor VFSFileMonitor;
 
 struct _VFSFileMonitor
 {
-    gchar* path;
+    char* path;
     /*<private>*/
     int n_ref;
     int wd;
@@ -54,7 +54,7 @@ struct _VFSFileMonitor
  *  IO channel handler.
  */
 typedef void (*VFSFileMonitorCallback)(VFSFileMonitor* fm, VFSFileMonitorEvent event,
-                                       const char* file_name, gpointer user_data);
+                                       const char* file_name, void* user_data);
 
 /*
  * Init monitor:
@@ -71,7 +71,7 @@ gboolean vfs_file_monitor_init();
  * user_data: user data to be passed to callback function.
  */
 VFSFileMonitor* vfs_file_monitor_add(char* path, gboolean is_dir, VFSFileMonitorCallback cb,
-                                     gpointer user_data);
+                                     void* user_data);
 
 /*
  * Monitor changes of a file.
@@ -98,7 +98,7 @@ VFSFileMonitor* vfs_file_monitor_add(char* path, gboolean is_dir, VFSFileMonitor
 /*
  * Remove previously installed monitor.
  */
-void vfs_file_monitor_remove(VFSFileMonitor* fm, VFSFileMonitorCallback cb, gpointer user_data);
+void vfs_file_monitor_remove(VFSFileMonitor* fm, VFSFileMonitorCallback cb, void* user_data);
 
 /*
  * Clearn up and shutdown file alteration monitor.

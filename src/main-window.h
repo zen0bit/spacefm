@@ -64,7 +64,7 @@ typedef struct _FMMainWindow
 
     GtkWindowGroup* wgroup;
     int n_busy_tasks;
-    guint configure_evt_timer;
+    unsigned int configure_evt_timer;
     gboolean maximized;
     gboolean opened_maximized;
     gboolean fullscreen;
@@ -131,11 +131,11 @@ void main_window_refresh_all();
 void main_window_bookmark_changed(const char* changed_set_name);
 void main_context_fill(PtkFileBrowser* file_browser, XSetContext* c);
 void set_panel_focus(FMMainWindow* main_window, PtkFileBrowser* file_browser);
-void focus_panel(GtkMenuItem* item, gpointer mw, int p);
+void focus_panel(GtkMenuItem* item, void* mw, int p);
 void main_window_open_path_in_current_tab(FMMainWindow* main_window, const char* path);
 void main_window_open_network(FMMainWindow* main_window, const char* path, gboolean new_tab);
 char main_window_socket_command(char* argv[], char** reply);
-gboolean main_window_event(gpointer mw, XSet* preset, const char* event, int panel, int tab,
+gboolean main_window_event(void* mw, XSet* preset, const char* event, int panel, int tab,
                            const char* focus, int keyval, int button, int state, gboolean visible);
 void fm_main_window_store_positions(FMMainWindow* main_window);
 

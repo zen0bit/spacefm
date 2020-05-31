@@ -17,6 +17,8 @@
 #ifndef _PTK_UTILS_H_
 #define _PTK_UTILS_H_
 
+#include <stdint.h>
+
 #include <gtk/gtk.h>
 #include <gdk/gdk.h>
 
@@ -58,7 +60,7 @@ G_BEGIN_DECLS
     {                \
         0            \
     }
-#define PTK_IS_STOCK_ITEM(ent)      (ent->label && (*(guint32*)ent->label) == *(guint32*)"gtk-")
+#define PTK_IS_STOCK_ITEM(ent)      (ent->label && (*(uint32_t*)ent->label) == *(uint32_t*)"gtk-")
 #define PTK_IS_CHECK_MENU_ITEM(ent) (ent->stock_icon == (char*)1)
 #define PTK_IS_RADIO_MENU_ITEM(ent) (ent->stock_icon == (char*)2)
 
@@ -67,7 +69,7 @@ struct _PtkMenuItemEntry
     const char* label;      /* or stock id */
     const char* stock_icon; /* or menu type  1: check, 2: radio */
     GCallback callback;
-    guint key;
+    unsigned int key;
     GdkModifierType mod;
     struct _PtkMenuItemEntry* sub_menu;
     GtkWidget** ret;
@@ -91,7 +93,7 @@ typedef struct _PtkMenuItemEntry PtkMenuItemEntry;
     {                                                                    \
         label, icon, tooltip, G_CALLBACK(cb), (PtkMenuItemEntry*)2, NULL \
     }
-#define PTK_EMPTY_MENU ((gpointer)3)
+#define PTK_EMPTY_MENU ((void*)3)
 #define PTK_MENU_TOOL_ITEM(label, icon, tooltip, cb, menu) \
     {                                                      \
         label, icon, tooltip, cb, menu, NULL               \
@@ -119,10 +121,10 @@ struct _PtkToolItemEntry
 };
 typedef struct _PtkToolItemEntry PtkToolItemEntry;
 
-GtkWidget* ptk_menu_new_from_data(PtkMenuItemEntry* entries, gpointer cb_data,
+GtkWidget* ptk_menu_new_from_data(PtkMenuItemEntry* entries, void* cb_data,
                                   GtkAccelGroup* accel_group);
 
-void ptk_menu_add_items_from_data(GtkWidget* menu, PtkMenuItemEntry* entries, gpointer cb_data,
+void ptk_menu_add_items_from_data(GtkWidget* menu, PtkMenuItemEntry* entries, void* cb_data,
                                   GtkAccelGroup* accel_group);
 
 GtkWidget* ptk_toolbar_add_items_from_data(GtkWidget* toolbar, PtkToolItemEntry* entries,

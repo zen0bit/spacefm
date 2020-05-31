@@ -103,7 +103,7 @@ int exo_noop_zero(void)
  *
  * Since: 0.3.1
  **/
-gpointer exo_noop_null(void)
+void* exo_noop_null(void)
 {
     return NULL;
 }

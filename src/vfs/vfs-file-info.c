@@ -11,6 +11,9 @@
  */
 
 #include "vfs-file-info.h"
+
+#include <stdint.h>
+
 #include <glib.h>
 #include <glib/gi18n.h>
 #include <grp.h> /* Query group name */
@@ -423,32 +426,32 @@ const char* vfs_file_info_get_disp_perm(VFSFileInfo* fi)
     return fi->disp_perm;
 }
 
-void vfs_file_size_to_string_format(char* buf, guint64 size, char* format) // MOD added
+void vfs_file_size_to_string_format(char* buf, uint64_t size, char* format) // MOD added
 { // if format == NULL uses automatic format based on size
     char* unit;
-    gfloat val;
+    float val;
 
     /*
        FIXME: Is floating point calculation slower than integer division?
               Some profiling is needed here.
     */
-    if (size > ((guint64)1) << 30)
+    if (size > ((uint64_t)1) << 30)
     {
-        if (size > ((guint64)1) << 40)
+        if (size > ((uint64_t)1) << 40)
         {
             /*
-            size /= ( ( ( guint64 ) 1 << 40 ) / 10 );
-            point = ( guint ) ( size % 10 );
+            size /= ( ( ( uint64_t ) 1 << 40 ) / 10 );
+            point = ( unsigned int ) ( size % 10 );
             size /= 10;
             */
             if (app_settings.use_si_prefix == TRUE)
             {
-                val = ((gfloat)size) / ((guint64)1000000000000);
+                val = ((float)size) / ((uint64_t)1000000000000);
                 unit = _("T");
             }
             else
             {
-                val = ((gfloat)size) / ((guint64)1 << 40);
+                val = ((float)size) / ((uint64_t)1 << 40);
                 unit = _("T"); // MOD was TiB
             }
         }
@@ -456,17 +459,17 @@ void vfs_file_size_to_string_format(char* buf, guint64 size, char* format) // MO
         {
             /*
             size /= ( ( 1 << 30 ) / 10 );
-            point = ( guint ) ( size % 10 );
+            point = ( unsigned int ) ( size % 10 );
             size /= 10;
             */
             if (app_settings.use_si_prefix == TRUE)
             {
-                val = ((gfloat)size) / ((guint64)1000000000);
+                val = ((float)size) / ((uint64_t)1000000000);
                 unit = _("G");
             }
             else
             {
-                val = ((gfloat)size) / ((guint64)1 << 30);
+                val = ((float)size) / ((uint64_t)1 << 30);
                 unit = _("G"); // MOD was GiB
             }
         }
@@ -475,17 +478,17 @@ void vfs_file_size_to_string_format(char* buf, guint64 size, char* format) // MO
     {
         /*
         size /= ( ( 1 << 20 ) / 10 );
-        point = ( guint ) ( size % 10 );
+        point = ( unsigned int ) ( size % 10 );
         size /= 10;
         */
         if (app_settings.use_si_prefix == TRUE)
         {
-            val = ((gfloat)size) / ((guint64)1000000);
+            val = ((float)size) / ((uint64_t)1000000);
             unit = _("M");
         }
         else
         {
-            val = ((gfloat)size) / ((guint64)1 << 20);
+            val = ((float)size) / ((uint64_t)1 << 20);
             unit = _("M"); // MOD was MiB
         }
     }
@@ -498,19 +501,19 @@ void vfs_file_size_to_string_format(char* buf, guint64 size, char* format) // MO
         */
         if (app_settings.use_si_prefix == TRUE)
         {
-            val = ((gfloat)size) / ((guint64)1000);
+            val = ((float)size) / ((uint64_t)1000);
             unit = _("K"); // MOD was KB
         }
         else
         {
-            val = ((gfloat)size) / ((guint64)1 << 10);
+            val = ((float)size) / ((uint64_t)1 << 10);
             unit = _("K"); // MOD was KiB
         }
     }
     else
     {
         unit = _("B"); // size > 1 ? _("B") : _("B");
-        sprintf(buf, "%u %s", (guint)size, unit);
+        sprintf(buf, "%u %s", (unsigned int)size, unit);
         return;
     }
     if (format)
@@ -521,33 +524,33 @@ void vfs_file_size_to_string_format(char* buf, guint64 size, char* format) // MO
         sprintf(buf, "%.0f %s", val, unit);
 }
 
-void vfs_file_size_to_string(char* buf, guint64 size)
+void vfs_file_size_to_string(char* buf, uint64_t size)
 {
     char* unit;
-    /* guint point; */
-    gfloat val;
+    /* unsigned int point; */
+    float val;
 
     /*
        FIXME: Is floating point calculation slower than integer division?
               Some profiling is needed here.
     */
-    if (size > ((guint64)1) << 30)
+    if (size > ((uint64_t)1) << 30)
     {
-        if (size > ((guint64)1) << 40)
+        if (size > ((uint64_t)1) << 40)
         {
             /*
-            size /= ( ( ( guint64 ) 1 << 40 ) / 10 );
-            point = ( guint ) ( size % 10 );
+            size /= ( ( ( uint64_t ) 1 << 40 ) / 10 );
+            point = ( unsigned int ) ( size % 10 );
             size /= 10;
             */
             if (app_settings.use_si_prefix == TRUE)
             {
-                val = ((gfloat)size) / ((guint64)1000000000000);
+                val = ((float)size) / ((uint64_t)1000000000000);
                 unit = _("T");
             }
             else
             {
-                val = ((gfloat)size) / ((guint64)1 << 40);
+                val = ((float)size) / ((uint64_t)1 << 40);
                 unit = _("T"); // MOD was TiB
             }
         }
@@ -555,17 +558,17 @@ void vfs_file_size_to_string(char* buf, guint64 size)
         {
             /*
             size /= ( ( 1 << 30 ) / 10 );
-            point = ( guint ) ( size % 10 );
+            point = ( unsigned int ) ( size % 10 );
             size /= 10;
             */
             if (app_settings.use_si_prefix == TRUE)
             {
-                val = ((gfloat)size) / ((guint64)1000000000);
+                val = ((float)size) / ((uint64_t)1000000000);
                 unit = _("G");
             }
             else
             {
-                val = ((gfloat)size) / ((guint64)1 << 30);
+                val = ((float)size) / ((uint64_t)1 << 30);
                 unit = _("G"); // MOD was GiB
             }
         }
@@ -574,17 +577,17 @@ void vfs_file_size_to_string(char* buf, guint64 size)
     {
         /*
         size /= ( ( 1 << 20 ) / 10 );
-        point = ( guint ) ( size % 10 );
+        point = ( unsigned int ) ( size % 10 );
         size /= 10;
         */
         if (app_settings.use_si_prefix == TRUE)
         {
-            val = ((gfloat)size) / ((guint64)1000000);
+            val = ((float)size) / ((uint64_t)1000000);
             unit = _("M");
         }
         else
         {
-            val = ((gfloat)size) / ((guint64)1 << 20);
+            val = ((float)size) / ((uint64_t)1 << 20);
             unit = _("M"); // MOD was MiB
         }
     }
@@ -597,12 +600,12 @@ void vfs_file_size_to_string(char* buf, guint64 size)
         */
         if (app_settings.use_si_prefix == TRUE)
         {
-            val = ((gfloat)size) / ((guint64)1000);
+            val = ((float)size) / ((uint64_t)1000);
             unit = _("K"); // MOD was KB
         }
         else
         {
-            val = ((gfloat)size) / ((guint64)1 << 10);
+            val = ((float)size) / ((uint64_t)1 << 10);
             unit = _("K"); // MOD was KiB
         }
     }
@@ -610,7 +613,7 @@ void vfs_file_size_to_string(char* buf, guint64 size)
     {
         // unit = size > 1 ? "Bytes" : "Byte";
         unit = _("B");
-        sprintf(buf, "%u %s", (guint)size, unit);
+        sprintf(buf, "%u %s", (unsigned int)size, unit);
         return;
     }
     /* sprintf( buf, "%llu.%u %s", size, point, unit ); */
@@ -709,7 +712,7 @@ gboolean vfs_file_info_open_file(VFSFileInfo* fi, const char* file_path, GError*
             app = vfs_app_desktop_new(app_name);
             if (!vfs_app_desktop_get_exec(app))
                 app->exec = g_strdup(app_name); /* FIXME: app->exec */
-            files = g_list_prepend(files, (gpointer)file_path);
+            files = g_list_prepend(files, (void*)file_path);
             /* FIXME: working dir is needed */
             ret = vfs_app_desktop_open_files(gdk_screen_get_default(), NULL, app, files, err);
             g_list_free(files);
@@ -872,7 +875,7 @@ char* vfs_file_resolve_path(const char* cwd, const char* relative_path)
             if (relative_path[1] == '.' &&
                 (relative_path[2] == '/' || relative_path[2] == '\0')) /* parent dir */
             {
-                gsize len = ret->len - 2;
+                unsigned long len = ret->len - 2;
                 while (ret->str[len] != '/')
                     --len;
                 g_string_truncate(ret, len + 1);

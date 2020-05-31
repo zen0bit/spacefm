@@ -40,7 +40,7 @@ enum
 extern gboolean is_my_lock;
 
 static void load_all_apps_in_dir(const char* dir_path, GtkListStore* list, VFSAsyncTask* task);
-static gpointer load_all_known_apps_thread(VFSAsyncTask* task);
+static void* load_all_known_apps_thread(VFSAsyncTask* task);
 
 static void init_list_view(GtkTreeView* view)
 {
@@ -61,10 +61,10 @@ static void init_list_view(GtkTreeView* view)
     gtk_tree_view_set_tooltip_column(view, COL_FULL_PATH);
 }
 
-static gint sort_by_name(GtkTreeModel* model, GtkTreeIter* a, GtkTreeIter* b, gpointer user_data)
+static int sort_by_name(GtkTreeModel* model, GtkTreeIter* a, GtkTreeIter* b, void* user_data)
 {
     char *name_a, *name_b;
-    gint ret = 0;
+    int ret = 0;
     gtk_tree_model_get(model, a, COL_APP_NAME, &name_a, -1);
     if (name_a)
     {
@@ -297,8 +297,8 @@ static void on_load_all_apps_finish(VFSAsyncTask* task, gboolean is_cancelled, G
     gdk_window_set_cursor(gtk_widget_get_window(dlg), NULL);
 }
 
-void on_notebook_switch_page(GtkNotebook* notebook, GtkWidget* page, guint page_num,
-                             gpointer user_data)
+void on_notebook_switch_page(GtkNotebook* notebook, GtkWidget* page, unsigned int page_num,
+                             void* user_data)
 {
     GtkWidget* dlg = (GtkWidget*)user_data;
     GtkTreeView* view;
@@ -346,9 +346,9 @@ void on_notebook_switch_page(GtkNotebook* notebook, GtkWidget* page, guint page_
  * These two can be separated by check if the returned string is ended
  * with ".desktop" postfix.
  */
-gchar* app_chooser_dialog_get_selected_app(GtkWidget* dlg)
+char* app_chooser_dialog_get_selected_app(GtkWidget* dlg)
 {
-    gchar* app = NULL;
+    char* app = NULL;
     GtkBuilder* builder = (GtkBuilder*)g_object_get_data(G_OBJECT(dlg), "builder");
     GtkEntry* entry = GTK_ENTRY((GtkWidget*)gtk_builder_get_object(builder, "cmdline"));
     GtkNotebook* notebook;
@@ -390,7 +390,7 @@ gboolean app_chooser_dialog_get_set_default(GtkWidget* dlg)
     return gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(check));
 }
 
-void on_browse_btn_clicked(GtkButton* button, gpointer user_data)
+void on_browse_btn_clicked(GtkButton* button, void* user_data)
 {
     char* filename;
     char* app_name;
@@ -439,7 +439,7 @@ void on_browse_btn_clicked(GtkButton* button, gpointer user_data)
     gtk_widget_destroy(dlg);
 }
 
-static void on_dlg_response(GtkDialog* dlg, int id, gpointer user_data)
+static void on_dlg_response(GtkDialog* dlg, int id, void* user_data)
 {
     VFSAsyncTask* task;
     GtkAllocation allocation;
@@ -534,9 +534,9 @@ void ptk_app_chooser_has_handler_warn(GtkWidget* parent, VFSMimeType* mime_type)
     }
 }
 
-gchar* ptk_choose_app_for_mime_type(GtkWindow* parent, VFSMimeType* mime_type,
-                                    gboolean focus_all_apps, gboolean show_command,
-                                    gboolean show_default, gboolean dir_default)
+char* ptk_choose_app_for_mime_type(GtkWindow* parent, VFSMimeType* mime_type,
+                                   gboolean focus_all_apps, gboolean show_command,
+                                   gboolean show_default, gboolean dir_default)
 {
     /*
     focus_all_apps      Focus All Apps tab by default
@@ -545,8 +545,8 @@ gchar* ptk_choose_app_for_mime_type(GtkWindow* parent, VFSMimeType* mime_type,
     dir_default         Show 'Set as default' also for type dir
     */
     GtkWidget* dlg;
-    gchar* app = NULL;
-    gchar* custom = NULL;
+    char* app = NULL;
+    char* custom = NULL;
 
     dlg = app_chooser_dialog_new(parent,
                                  mime_type,
@@ -636,9 +636,9 @@ void load_all_apps_in_dir(const char* dir_path, GtkListStore* list, VFSAsyncTask
     }
 }
 
-gpointer load_all_known_apps_thread(VFSAsyncTask* task)
+void* load_all_known_apps_thread(VFSAsyncTask* task)
 {
-    gchar *dir, **dirs;
+    char *dir, **dirs;
     GtkListStore* list;
 
     GDK_THREADS_ENTER();
@@ -649,7 +649,7 @@ gpointer load_all_known_apps_thread(VFSAsyncTask* task)
     load_all_apps_in_dir(dir, list, task);
     g_free(dir);
 
-    for (dirs = (gchar**)g_get_system_data_dirs(); !task->cancel && *dirs; ++dirs)
+    for (dirs = (char**)g_get_system_data_dirs(); !task->cancel && *dirs; ++dirs)
     {
         dir = g_build_filename(*dirs, "applications", NULL);
         load_all_apps_in_dir(dir, list, task);

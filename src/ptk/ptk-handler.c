@@ -613,7 +613,7 @@ gboolean ptk_handler_command_is_empty(const char* command)
     // test if command contains only comments and whitespace
     if (!command)
         return TRUE;
-    gchar** lines = g_strsplit(command, "\n", 0);
+    char** lines = g_strsplit(command, "\n", 0);
     if (!lines)
         return TRUE;
 
@@ -924,7 +924,7 @@ gboolean ptk_handler_values_in_list(const char* list, GSList* values, char** msg
         *msg = NULL;
 
     // get elements of list
-    gchar** elements = g_strsplit(list, " ", -1);
+    char** elements = g_strsplit(list, " ", -1);
     if (!elements)
         return FALSE;
 
@@ -1340,7 +1340,7 @@ void ptk_handler_import(int mode, GtkWidget* handler_dlg, XSet* set)
     char* stderr = NULL;
     char* msg;
     gboolean ret;
-    gint exit_status;
+    int exit_status;
     print_command(command);
     ret = g_spawn_command_line_sync(command, &stdout, &stderr, &exit_status, NULL);
     g_free(command);
@@ -1375,7 +1375,7 @@ void ptk_handler_import(int mode, GtkWidget* handler_dlg, XSet* set)
     else
     {
         // Adding new handler to handlers
-        gchar* new_handlers_list =
+        char* new_handlers_list =
             g_strdup_printf("%s %s", new_handler_xset->name, xset_get_s(handler_conf_xset[mode]));
         xset_set(handler_conf_xset[mode], "s", new_handlers_list);
         g_free(new_handlers_list);
@@ -1443,7 +1443,7 @@ void ptk_handler_import(int mode, GtkWidget* handler_dlg, XSet* set)
     hnd->changed = hnd->compress_changed = hnd->extract_changed = hnd->list_changed = FALSE;
 }
 
-static void config_load_handler_settings(XSet* handler_xset, gchar* handler_xset_name,
+static void config_load_handler_settings(XSet* handler_xset, char* handler_xset_name,
                                          const Handler* handler, HandlerData* hnd)
 { // handler_xset_name optional if handler_xset passed
     // Fetching actual xset if only the name has been passed
@@ -1571,7 +1571,7 @@ static void populate_archive_handlers(HandlerData* hnd, XSet* def_handler_set)
     if (!archive_handlers_s)
         return;
 
-    gchar** archive_handlers = g_strsplit(archive_handlers_s, " ", -1);
+    char** archive_handlers = g_strsplit(archive_handlers_s, " ", -1);
 
     // Debug code
     // g_message("archive_handlers_s: %s", archive_handlers_s);
@@ -1646,9 +1646,9 @@ static void on_configure_drag_end(GtkWidget* widget, GdkDragContext* drag_contex
     }
 
     // Looping for all handlers
-    gchar* xset_name;
-    gchar* archive_handlers = g_strdup("");
-    gchar* archive_handlers_temp;
+    char* xset_name;
+    char* archive_handlers = g_strdup("");
+    char* archive_handlers_temp;
     do
     {
         gtk_tree_model_get(GTK_TREE_MODEL(hnd->list), &iter, COL_XSET_NAME, &xset_name, -1);
@@ -1680,10 +1680,10 @@ static void on_configure_button_press(GtkButton* widget, HandlerData* hnd)
     char* err_msg = NULL;
     char* str;
 
-    const gchar* handler_name = gtk_entry_get_text(GTK_ENTRY(hnd->entry_handler_name));
-    const gchar* handler_mime = gtk_entry_get_text(GTK_ENTRY(hnd->entry_handler_mime));
-    const gchar* handler_extension = gtk_entry_get_text(GTK_ENTRY(hnd->entry_handler_extension));
-    const gchar* handler_icon;
+    const char* handler_name = gtk_entry_get_text(GTK_ENTRY(hnd->entry_handler_name));
+    const char* handler_mime = gtk_entry_get_text(GTK_ENTRY(hnd->entry_handler_mime));
+    const char* handler_extension = gtk_entry_get_text(GTK_ENTRY(hnd->entry_handler_extension));
+    const char* handler_icon;
     if (hnd->entry_handler_icon)
         handler_icon = gtk_entry_get_text(GTK_ENTRY(hnd->entry_handler_icon));
     else
@@ -1699,8 +1699,8 @@ static void on_configure_button_press(GtkButton* widget, HandlerData* hnd)
     // Fetching the model and iter from the selection
     GtkTreeIter it, iter;
     GtkTreeModel* model;
-    gchar* handler_name_from_model = NULL; // Used to detect renames
-    gchar* xset_name = NULL;
+    char* handler_name_from_model = NULL; // Used to detect renames
+    char* xset_name = NULL;
     XSet* handler_xset = NULL;
 
     // Fetching selection from treeview
@@ -1802,9 +1802,9 @@ static void on_configure_button_press(GtkButton* widget, HandlerData* hnd)
         else
         {
             // Adding new handler to handlers
-            gchar* new_handlers_list = g_strdup_printf("%s %s",
-                                                       new_handler_xset->name,
-                                                       xset_get_s(handler_conf_xset[hnd->mode]));
+            char* new_handlers_list = g_strdup_printf("%s %s",
+                                                      new_handler_xset->name,
+                                                      xset_get_s(handler_conf_xset[hnd->mode]));
             xset_set(handler_conf_xset[hnd->mode], "s", new_handlers_list);
 
             // Clearing up
@@ -1935,10 +1935,10 @@ static void on_configure_button_press(GtkButton* widget, HandlerData* hnd)
         // Updating available archive handlers list - fetching current
         // handlers
         const char* archive_handlers_s = xset_get_s(handler_conf_xset[hnd->mode]);
-        gchar** archive_handlers =
+        char** archive_handlers =
             archive_handlers_s ? g_strsplit(archive_handlers_s, " ", -1) : NULL;
-        gchar* new_archive_handlers_s = g_strdup("");
-        gchar* new_archive_handlers_s_temp;
+        char* new_archive_handlers_s = g_strdup("");
+        char* new_archive_handlers_s_temp;
 
         // Looping for handlers (NULL-terminated list)
         if (archive_handlers)
@@ -2080,7 +2080,7 @@ static void on_configure_changed(GtkTreeSelection* selection, HandlerData* hnd)
     }
 
     // Fetching data from the model based on the iterator.
-    gchar* xset_name;
+    char* xset_name;
     gtk_tree_model_get(model, &it, COL_XSET_NAME, &xset_name, -1);
 
     // Loading new archive handler values
@@ -2259,7 +2259,7 @@ static void restore_defaults(HandlerData* hnd, gboolean all)
         if (!gtk_tree_selection_get_selected(selection, &model, &it))
             return;
 
-        gchar* xset_name;
+        char* xset_name;
         gtk_tree_model_get(model, &it, COL_XSET_NAME, &xset_name, -1);
         // a default handler is selected?
         if (!(xset_name && g_str_has_prefix(xset_name, handler_def_prefix[hnd->mode])))
@@ -2330,9 +2330,9 @@ static gboolean validate_archive_handler(HandlerData* hnd)
         // only archive handlers currently have validity checks
         return TRUE;
 
-    const gchar* handler_name = gtk_entry_get_text(GTK_ENTRY(hnd->entry_handler_name));
-    const gchar* handler_mime = gtk_entry_get_text(GTK_ENTRY(hnd->entry_handler_mime));
-    const gchar* handler_extension = gtk_entry_get_text(GTK_ENTRY(hnd->entry_handler_extension));
+    const char* handler_name = gtk_entry_get_text(GTK_ENTRY(hnd->entry_handler_name));
+    const char* handler_mime = gtk_entry_get_text(GTK_ENTRY(hnd->entry_handler_mime));
+    const char* handler_extension = gtk_entry_get_text(GTK_ENTRY(hnd->entry_handler_extension));
 
     /* Validating data. Note that data straight from widgets shouldnt
      * be modified or stored
@@ -2370,7 +2370,7 @@ static gboolean validate_archive_handler(HandlerData* hnd)
         return FALSE;
     }
 
-    gchar *handler_compress, *handler_extract, *handler_list;
+    char *handler_compress, *handler_extract, *handler_list;
 
     handler_compress = ptk_handler_get_text_view(GTK_TEXT_VIEW(hnd->view_handler_compress));
     handler_extract = ptk_handler_get_text_view(GTK_TEXT_VIEW(hnd->view_handler_extract));
@@ -2498,7 +2498,7 @@ void on_textview_popup(GtkTextView* input, GtkMenu* menu, HandlerData* hnd)
     gtk_widget_show_all(GTK_WIDGET(menu));
 }
 
-gboolean on_activate_link(GtkLabel* label, gchar* uri, HandlerData* hnd)
+gboolean on_activate_link(GtkLabel* label, char* uri, HandlerData* hnd)
 {
     // click apply to save handler
     on_configure_button_press(GTK_BUTTON(hnd->btn_apply), hnd);
@@ -2517,7 +2517,7 @@ gboolean on_activate_link(GtkLabel* label, gchar* uri, HandlerData* hnd)
     if (!gtk_tree_selection_get_selected(selection, &model, &it))
         return TRUE;
 
-    gchar* xset_name = NULL;
+    char* xset_name = NULL;
     gtk_tree_model_get(model, &it, COL_XSET_NAME, &xset_name, -1);
     XSet* set = xset_is(xset_name);
     g_free(xset_name);
@@ -2594,8 +2594,8 @@ void on_textview_buffer_changed(GtkTextBuffer* buf, HandlerData* hnd)
     }
 }
 
-void on_entry_text_insert(GtkEntryBuffer* buffer, guint position, gchar* chars, guint n_chars,
-                          HandlerData* hnd)
+void on_entry_text_insert(GtkEntryBuffer* buffer, unsigned int position, char* chars,
+                          unsigned int n_chars, HandlerData* hnd)
 {
     if (!hnd->changed)
     {
@@ -2613,7 +2613,8 @@ void on_entry_text_insert(GtkEntryBuffer* buffer, guint position, gchar* chars, 
     }
 }
 
-void on_entry_text_delete(GtkEntryBuffer* buffer, guint position, guint n_chars, HandlerData* hnd)
+void on_entry_text_delete(GtkEntryBuffer* buffer, unsigned int position, unsigned int n_chars,
+                          HandlerData* hnd)
 {
     on_entry_text_insert(buffer, position, NULL, n_chars, hnd);
 }
@@ -2651,7 +2652,7 @@ void on_option_cb(GtkMenuItem* item, HandlerData* hnd)
 
     // Determine handler selected
     XSet* set_sel = NULL;
-    gchar* xset_name;
+    char* xset_name;
     GtkTreeSelection* selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(hnd->view_handlers));
     GtkTreeIter it;
     GtkTreeModel* model;
@@ -2803,7 +2804,7 @@ static GtkWidget* add_popup_menuitem(GtkWidget* popup, GtkAccelGroup* accel_grou
         gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item),
                                       xset_get_image(image, GTK_ICON_SIZE_MENU));
     gtk_container_add(GTK_CONTAINER(popup), item);
-    g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(on_option_cb), (gpointer)hnd);
+    g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(on_option_cb), (void*)hnd);
     g_object_set_data(G_OBJECT(item), "job", GINT_TO_POINTER(job));
     return item;
 }

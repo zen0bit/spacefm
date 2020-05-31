@@ -74,9 +74,9 @@ static void exo_icon_chooser_dialog_screen_changed(GtkWidget* widget, GdkScreen*
 static void exo_icon_chooser_dialog_close(GtkDialog* dialog);
 static void exo_icon_chooser_dialog_set_model(ExoIconChooserDialog* dialog);
 static gboolean exo_icon_chooser_dialog_separator_func(GtkTreeModel* model, GtkTreeIter* iter,
-                                                       gpointer user_data);
+                                                       void* user_data);
 static gboolean exo_icon_chooser_dialog_visible_func(GtkTreeModel* model, GtkTreeIter* iter,
-                                                     gpointer user_data);
+                                                     void* user_data);
 static gboolean
 exo_icon_chooser_dialog_start_interactive_search(ExoIconChooserDialog* icon_chooser_dialog);
 static void exo_icon_chooser_dialog_combo_changed(GtkWidget* combo,
@@ -475,7 +475,7 @@ static void exo_icon_chooser_dialog_set_model(ExoIconChooserDialog* dialog)
 }
 
 static gboolean exo_icon_chooser_dialog_separator_func(GtkTreeModel* model, GtkTreeIter* iter,
-                                                       gpointer user_data)
+                                                       void* user_data)
 {
     gboolean separator;
     char* title;
@@ -489,12 +489,12 @@ static gboolean exo_icon_chooser_dialog_separator_func(GtkTreeModel* model, GtkT
 }
 
 static gboolean exo_icon_chooser_dialog_visible_func(GtkTreeModel* model, GtkTreeIter* iter,
-                                                     gpointer user_data)
+                                                     void* user_data)
 {
     ExoIconChooserDialogPrivate* priv =
         exo_icon_chooser_dialog_get_instance_private(EXO_ICON_CHOOSER_DIALOG(user_data));
-    uint icon_chooser_context;
-    uint item_context;
+    unsigned int icon_chooser_context;
+    unsigned int item_context;
     char* normalized;
     char* name;
     char* name_casefolded;
@@ -701,8 +701,8 @@ GtkWidget* exo_icon_chooser_dialog_new(const char* title, GtkWindow* parent,
 
     va_start(var_args, first_button_text);
     for (button_text = first_button_text; button_text != NULL;
-         button_text = va_arg(var_args, const gchar*))
-        gtk_dialog_add_button(GTK_DIALOG(dialog), button_text, va_arg(var_args, gint));
+         button_text = va_arg(var_args, const char*))
+        gtk_dialog_add_button(GTK_DIALOG(dialog), button_text, va_arg(var_args, int));
     va_end(var_args);
 
     return dialog;
@@ -792,7 +792,7 @@ gboolean exo_icon_chooser_dialog_set_icon(ExoIconChooserDialog* icon_chooser_dia
     GtkTreePath* filter_path;
     GtkTreePath* model_path;
     GtkTreeIter model_iter;
-    uint context;
+    unsigned int context;
 
     g_return_val_if_fail(EXO_IS_ICON_CHOOSER_DIALOG(icon_chooser_dialog), FALSE);
     g_return_val_if_fail(icon != NULL, FALSE);

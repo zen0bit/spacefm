@@ -39,7 +39,7 @@ gboolean vfs_exec(const char* work_dir, char** argv, char** envp, const char* di
 }
 
 #ifdef HAVE_SN
-static gboolean sn_timeout(gpointer user_data)
+static gboolean sn_timeout(void* user_data)
 {
     SnLauncherContext* ctx = (SnLauncherContext*)user_data;
     gdk_threads_enter();
@@ -51,17 +51,17 @@ static gboolean sn_timeout(gpointer user_data)
 }
 
 /* This function is taken from the code of thunar, written by Benedikt Meurer <benny@xfce.org> */
-static gint tvsn_get_active_workspace_number(GdkScreen* screen)
+static int tvsn_get_active_workspace_number(GdkScreen* screen)
 {
     GdkWindow* root;
-    gulong bytes_after_ret = 0;
-    gulong nitems_ret = 0;
-    guint* prop_ret = NULL;
+    unsigned long bytes_after_ret = 0;
+    unsigned long nitems_ret = 0;
+    unsigned int* prop_ret = NULL;
     Atom _NET_CURRENT_DESKTOP;
     Atom _WIN_WORKSPACE;
     Atom type_ret = None;
-    gint format_ret;
-    gint ws_num = 0;
+    int format_ret;
+    int ws_num = 0;
 
     gdk_error_trap_push();
 
@@ -82,7 +82,7 @@ static gint tvsn_get_active_workspace_number(GdkScreen* screen)
                            &format_ret,
                            &nitems_ret,
                            &bytes_after_ret,
-                           (gpointer)&prop_ret) != Success)
+                           (void*)&prop_ret) != Success)
     {
         if (XGetWindowProperty(GDK_WINDOW_XDISPLAY(root),
                                GDK_WINDOW_XID(root),
@@ -95,7 +95,7 @@ static gint tvsn_get_active_workspace_number(GdkScreen* screen)
                                &format_ret,
                                &nitems_ret,
                                &bytes_after_ret,
-                               (gpointer)&prop_ret) != Success)
+                               (void*)&prop_ret) != Success)
         {
             if (G_UNLIKELY(prop_ret != NULL))
             {
@@ -112,7 +112,7 @@ static gint tvsn_get_active_workspace_number(GdkScreen* screen)
         XFree(prop_ret);
     }
 
-    gint err = gdk_error_trap_pop();
+    int err = gdk_error_trap_pop();
 
     return ws_num;
 }

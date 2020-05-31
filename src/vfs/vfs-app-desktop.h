@@ -45,7 +45,7 @@ VFSAppDesktop* vfs_app_desktop_new(const char* file_name);
 
 void vfs_app_desktop_ref(VFSAppDesktop* app);
 
-void vfs_app_desktop_unref(gpointer data);
+void vfs_app_desktop_unref(void* data);
 
 const char* vfs_app_desktop_get_name(VFSAppDesktop* app);
 

@@ -80,10 +80,10 @@ typedef struct
 {
     GObject* dst_object;
     GParamSpec* dst_pspec;
-    gulong dst_handler; /* only set for mutual bindings */
-    gulong handler;
+    unsigned long dst_handler; /* only set for mutual bindings */
+    unsigned long handler;
     ExoBindingTransform transform;
-    gpointer user_data;
+    void* user_data;
 } ExoBindingLink;
 
 /**
@@ -114,7 +114,7 @@ struct _ExoMutualBinding
 
 static void exo_bind_properties_transfer(GObject* src_object, GParamSpec* src_pspec,
                                          GObject* dst_object, GParamSpec* dst_pspec,
-                                         ExoBindingTransform transform, gpointer user_data)
+                                         ExoBindingTransform transform, void* user_data)
 {
     const char* src_name;
     const char* dst_name;
@@ -144,7 +144,7 @@ static void exo_bind_properties_transfer(GObject* src_object, GParamSpec* src_ps
     g_value_unset(&dst_value);
 }
 
-static void exo_bind_properties_notify(GObject* src_object, GParamSpec* src_pspec, gpointer data)
+static void exo_bind_properties_notify(GObject* src_object, GParamSpec* src_pspec, void* data)
 {
     ExoBindingLink* blink = data;
 
@@ -166,7 +166,7 @@ static void exo_bind_properties_notify(GObject* src_object, GParamSpec* src_pspe
         g_signal_handler_unblock(blink->dst_object, blink->dst_handler);
 }
 
-static void exo_binding_on_dst_object_destroy(gpointer data, GObject* object)
+static void exo_binding_on_dst_object_destroy(void* data, GObject* object)
 {
     ExoBinding* binding = data;
 
@@ -176,12 +176,12 @@ static void exo_binding_on_dst_object_destroy(gpointer data, GObject* object)
     g_signal_handler_disconnect(binding->src_object, binding->blink.handler);
 }
 
-static void exo_binding_on_disconnect(gpointer data, GClosure* closure)
+static void exo_binding_on_disconnect(void* data, GClosure* closure)
 {
     ExoBindingLink* blink = data;
     ExoBinding* binding;
 
-    binding = (ExoBinding*)(((gchar*)blink) - G_STRUCT_OFFSET(ExoBinding, blink));
+    binding = (ExoBinding*)(((char*)blink) - G_STRUCT_OFFSET(ExoBinding, blink));
 
     if (binding->destroy != NULL)
         binding->destroy(blink->user_data);
@@ -193,13 +193,13 @@ static void exo_binding_on_disconnect(gpointer data, GClosure* closure)
 }
 
 /* recursively calls exo_mutual_binding_on_disconnect_object2() */
-static void exo_mutual_binding_on_disconnect_object1(gpointer data, GClosure* closure)
+static void exo_mutual_binding_on_disconnect_object1(void* data, GClosure* closure)
 {
     ExoMutualBinding* binding;
     ExoBindingLink* blink = data;
     GObject* object2;
 
-    binding = (ExoMutualBinding*)(((gchar*)blink) - G_STRUCT_OFFSET(ExoMutualBinding, direct));
+    binding = (ExoMutualBinding*)(((char*)blink) - G_STRUCT_OFFSET(ExoMutualBinding, direct));
     binding->reverse.dst_object = NULL;
 
     object2 = binding->direct.dst_object;
@@ -214,13 +214,13 @@ static void exo_mutual_binding_on_disconnect_object1(gpointer data, GClosure* cl
 }
 
 /* recursively calls exo_mutual_binding_on_disconnect_object1() */
-static void exo_mutual_binding_on_disconnect_object2(gpointer data, GClosure* closure)
+static void exo_mutual_binding_on_disconnect_object2(void* data, GClosure* closure)
 {
     ExoMutualBinding* binding;
     ExoBindingLink* blink = data;
     GObject* object1;
 
-    binding = (ExoMutualBinding*)(((gchar*)blink) - G_STRUCT_OFFSET(ExoMutualBinding, reverse));
+    binding = (ExoMutualBinding*)(((char*)blink) - G_STRUCT_OFFSET(ExoMutualBinding, reverse));
     binding->direct.dst_object = NULL;
 
     object1 = binding->reverse.dst_object;
@@ -234,7 +234,7 @@ static void exo_mutual_binding_on_disconnect_object2(gpointer data, GClosure* cl
 static void exo_binding_link_init(ExoBindingLink* blink, GObject* src_object,
                                   const char* src_property, GObject* dst_object,
                                   GParamSpec* dst_pspec, ExoBindingTransform transform,
-                                  GClosureNotify destroy_notify, gpointer user_data)
+                                  GClosureNotify destroy_notify, void* user_data)
 {
     char* signal_name;
 
@@ -303,7 +303,7 @@ ExoBinding* exo_binding_new(GObject* src_object, const char* src_property, GObje
  **/
 ExoBinding* exo_binding_new_full(GObject* src_object, const char* src_property, GObject* dst_object,
                                  const char* dst_property, ExoBindingTransform transform,
-                                 GDestroyNotify destroy_notify, gpointer user_data)
+                                 GDestroyNotify destroy_notify, void* user_data)
 {
     ExoBinding* binding;
     GParamSpec* src_pspec;
@@ -399,7 +399,7 @@ ExoMutualBinding* exo_mutual_binding_new_full(GObject* object1, const char* prop
                                               GObject* object2, const char* property2,
                                               ExoBindingTransform transform,
                                               ExoBindingTransform reverse_transform,
-                                              GDestroyNotify destroy_notify, gpointer user_data)
+                                              GDestroyNotify destroy_notify, void* user_data)
 {
     ExoMutualBinding* binding;
     GParamSpec* pspec1;

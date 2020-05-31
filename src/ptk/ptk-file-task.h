@@ -53,7 +53,7 @@ struct _PtkFileTask
     GtkTextBuffer* log_buf;
     GtkTextMark* log_end;
     gboolean log_appended;
-    guint err_count;
+    unsigned int err_count;
     char err_mode;
 
     gboolean complete;
@@ -63,12 +63,12 @@ struct _PtkFileTask
     gboolean force_scroll;
 
     /* <private> */
-    guint timeout;
+    unsigned int timeout;
     gboolean restart_timeout;
-    guint progress_timer;
+    unsigned int progress_timer;
     char progress_count;
     GFunc complete_notify;
-    gpointer user_data;
+    void* user_data;
     gboolean keep_dlg;
     gboolean pop_detail;
     char* pop_handler;
@@ -98,9 +98,9 @@ PtkFileTask* ptk_file_exec_new(const char* item_name, const char* dir, GtkWidget
 
 void ptk_file_task_destroy(PtkFileTask* ptask);
 
-void ptk_file_task_set_complete_notify(PtkFileTask* ptask, GFunc callback, gpointer user_data);
+void ptk_file_task_set_complete_notify(PtkFileTask* ptask, GFunc callback, void* user_data);
 
-void ptk_file_task_set_chmod(PtkFileTask* ptask, guchar* chmod_actions);
+void ptk_file_task_set_chmod(PtkFileTask* ptask, unsigned char* chmod_actions);
 
 void ptk_file_task_set_chown(PtkFileTask* ptask, uid_t uid, gid_t gid);
 

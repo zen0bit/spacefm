@@ -27,7 +27,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-gboolean save_to_file(const char* path, const char* data, gssize len)
+gboolean save_to_file(const char* path, const char* data, long len)
 {
     int fd = creat(path, 0644);
     if (fd == -1)
@@ -45,12 +45,12 @@ gboolean save_to_file(const char* path, const char* data, gssize len)
 const char group_desktop[] = "Desktop Entry";
 const char key_mime_type[] = "MimeType";
 
-typedef char* (*DataDirFunc)(const char* dir, const char* mime_type, gpointer user_data);
+typedef char* (*DataDirFunc)(const char* dir, const char* mime_type, void* user_data);
 
-static char* data_dir_foreach(DataDirFunc func, const char* mime_type, gpointer user_data)
+static char* data_dir_foreach(DataDirFunc func, const char* mime_type, void* user_data)
 {
     char* ret;
-    const gchar* const* dirs;
+    const char* const* dirs;
     char* dir;
 
     // $XDG_CONFIG_HOME=[~/.config]/mimeapps.list
@@ -81,10 +81,10 @@ static char* data_dir_foreach(DataDirFunc func, const char* mime_type, gpointer 
     return NULL;
 }
 
-static char* apps_dir_foreach(DataDirFunc func, const char* mime_type, gpointer user_data)
+static char* apps_dir_foreach(DataDirFunc func, const char* mime_type, void* user_data)
 {
     char* ret = NULL;
-    const gchar* const* dirs;
+    const char* const* dirs;
     const char* dir = g_get_user_data_dir();
 
     if ((ret = func(dir, mime_type, user_data)))
@@ -130,7 +130,7 @@ static int strv_index(char** strv, const char* str)
 static void remove_actions(const char* type, GArray* actions)
 { // sfm 0.7.7+ added
     char** removed = NULL;
-    gsize n_removed = 0, r;
+    unsigned long n_removed = 0, r;
     int i;
 
     // g_print( "remove_actions( %s )\n", type );
@@ -187,8 +187,8 @@ static char* get_actions(const char* dir, const char* type, GArray* actions)
     char** apps = NULL;
     char** removed = NULL;
     gboolean is_removed;
-    gsize n_removed = 0, r;
-    gsize n_apps, i;
+    unsigned long n_removed = 0, r;
+    unsigned long n_apps, i;
 
     const char* names[] = {"mimeapps.list", "mimeinfo.cache"};
     const char* groups[] = {"Default Applications", "Added Associations", "MIME Cache"};
@@ -411,8 +411,8 @@ static char* make_custom_desktop_file(const char* desktop_id, const char* mime_t
 {
     char *name = NULL, *cust_template = NULL, *cust = NULL, *path, *dir;
     char* file_content = NULL;
-    gsize len = 0;
-    guint i;
+    unsigned long len = 0;
+    unsigned int i;
 
     if (G_LIKELY(g_str_has_suffix(desktop_id, ".desktop")))
     {
@@ -551,7 +551,7 @@ static char* _locate_desktop_file_recursive(const char* path, const char* deskto
     return found;
 }
 
-static char* _locate_desktop_file(const char* dir, const char* unused, const gpointer desktop_id)
+static char* _locate_desktop_file(const char* dir, const char* unused, const void* desktop_id)
 { // sfm 0.7.8 modified + 0.8.7 modified
     gboolean found = FALSE;
 
@@ -591,15 +591,15 @@ static char* _locate_desktop_file(const char* dir, const char* unused, const gpo
 char* mime_type_locate_desktop_file(const char* dir, const char* desktop_id)
 {
     if (dir)
-        return _locate_desktop_file(dir, NULL, (gpointer)desktop_id);
-    return apps_dir_foreach(_locate_desktop_file, NULL, (gpointer)desktop_id);
+        return _locate_desktop_file(dir, NULL, (void*)desktop_id);
+    return apps_dir_foreach(_locate_desktop_file, NULL, (void*)desktop_id);
 }
 
-static char* get_default_action(const char* dir, const char* type, gpointer user_data)
+static char* get_default_action(const char* dir, const char* type, void* user_data)
 {
     GKeyFile* file;
     char** apps;
-    gsize n_apps, i;
+    unsigned long n_apps, i;
     int n, k;
     gboolean opened;
 
@@ -682,10 +682,10 @@ void mime_type_update_association(const char* type, const char* desktop_id, int 
 {
     const char* groups[] = {"Default Applications", "Added Associations", "Removed Associations"};
     GKeyFile* file;
-    gsize len = 0;
+    unsigned long len = 0;
     char* data = NULL;
     char** apps;
-    gsize n_apps, i, k;
+    unsigned long n_apps, i, k;
     char* str;
     char* new_action;
     gboolean is_present;

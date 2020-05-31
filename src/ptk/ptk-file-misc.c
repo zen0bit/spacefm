@@ -144,8 +144,8 @@ void ptk_delete_files(GtkWindow* parent_win, const char* cwd, GList* sel_files,
                       GtkTreeView* task_view)
 {
     GtkWidget* dlg;
-    gchar* file_path;
-    gint ret;
+    char* file_path;
+    int ret;
     GList* sel;
     VFSFileInfo* file;
     PtkFileTask* task = NULL;
@@ -963,7 +963,7 @@ void on_create_browse_button_press(GtkWidget* widget, MoveSet* mset)
         gtk_window_set_position(GTK_WINDOW(dlg), GTK_WIN_POS_CENTER);
     }
 
-    gint response = gtk_dialog_run(GTK_DIALOG(dlg));
+    int response = gtk_dialog_run(GTK_DIALOG(dlg));
     if (response == GTK_RESPONSE_OK)
     {
         new_path = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
@@ -1121,7 +1121,7 @@ void on_browse_button_press(GtkWidget* widget, MoveSet* mset)
         gtk_window_set_position(GTK_WINDOW(dlg), GTK_WIN_POS_CENTER);
     }
 
-    gint response = gtk_dialog_run(GTK_DIALOG(dlg));
+    int response = gtk_dialog_run(GTK_DIALOG(dlg));
     // bogus GTK warning here: Unable to retrieve the file info for...
     if (response == GTK_RESPONSE_OK)
     {
@@ -3209,9 +3209,9 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
 gboolean ptk_create_new_file(GtkWindow* parent_win, const char* cwd, gboolean create_folder,
                              VFSFileInfo** file)
 {
-    gchar* full_path;
-    gchar* ufile_name;
-    gchar* file_name;
+    char* full_path;
+    char* ufile_name;
+    char* file_name;
     GtkLabel* prompt;
     int result;
     GtkWidget* dlg;
@@ -3489,7 +3489,7 @@ static void open_files_with_handler(ParentInfo* parent, GList* files, XSet* hand
 
 static gboolean open_files_with_app(ParentInfo* parent, GList* files, const char* app_desktop)
 {
-    gchar* name;
+    char* name;
     GError* err = NULL;
     VFSAppDesktop* app;
     GdkScreen* screen;
@@ -3547,7 +3547,7 @@ static gboolean open_files_with_app(ParentInfo* parent, GList* files, const char
     return TRUE;
 }
 
-static void open_files_with_each_app(gpointer key, gpointer value, gpointer user_data)
+static void open_files_with_each_app(void* key, void* value, void* user_data)
 {
     char* app_desktop = (char*)key; // is const unless handler
     GList* files = (GList*)value;
@@ -3555,7 +3555,7 @@ static void open_files_with_each_app(gpointer key, gpointer value, gpointer user
     open_files_with_app(parent, files, app_desktop);
 }
 
-static void free_file_list_hash(gpointer key, gpointer value, gpointer user_data)
+static void free_file_list_hash(void* key, void* value, void* user_data)
 {
     const char* app_desktop;
     GList* files;
@@ -3572,7 +3572,7 @@ void ptk_open_files_with_app(const char* cwd, GList* sel_files, const char* app_
     // if xnever, never execute an executable
     // if xforce, force execute of executable ignoring app_settings.no_execute
     GList* l;
-    gchar* full_path = NULL;
+    char* full_path = NULL;
     VFSFileInfo* file;
     VFSMimeType* mime_type;
     GList* files_to_open = NULL;
@@ -3793,9 +3793,9 @@ void ptk_open_files_with_app(const char* cwd, GList* sel_files, const char* app_
 
 void ptk_file_misc_paste_as(PtkFileBrowser* file_browser, const char* cwd, GFunc callback)
 {
-    gchar* file_path;
+    char* file_path;
     gboolean is_cut = FALSE;
-    gint missing_targets;
+    int missing_targets;
     VFSFileInfo* file;
     char* file_dir;
 

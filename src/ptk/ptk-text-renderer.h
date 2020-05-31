@@ -49,19 +49,19 @@ struct _PtkTextRenderer
     GtkCellRenderer parent;
 
     /*< private >*/
-    gchar* text;
+    char* text;
     PangoFontDescription* font;
     PangoColor foreground;
     PangoColor background;
 
     PangoUnderline underline_style;
 
-    guint foreground_set : 1;
-    guint background_set : 1;
-    guint underline_set : 1;
-    guint ellipsize_set : 1;
+    unsigned int foreground_set : 1;
+    unsigned int background_set : 1;
+    unsigned int underline_set : 1;
+    unsigned int ellipsize_set : 1;
 
-    gint wrap_width;
+    int wrap_width;
     PangoEllipsizeMode ellipsize;
     PangoWrapMode wrap_mode;
 };

@@ -66,10 +66,10 @@ enum
 };
 
 static void exo_cell_renderer_icon_finalize(GObject* object);
-static void exo_cell_renderer_icon_get_property(GObject* object, uint prop_id, GValue* value,
-                                                GParamSpec* pspec);
-static void exo_cell_renderer_icon_set_property(GObject* object, uint prop_id, const GValue* value,
-                                                GParamSpec* pspec);
+static void exo_cell_renderer_icon_get_property(GObject* object, unsigned int prop_id,
+                                                GValue* value, GParamSpec* pspec);
+static void exo_cell_renderer_icon_set_property(GObject* object, unsigned int prop_id,
+                                                const GValue* value, GParamSpec* pspec);
 static void exo_cell_renderer_icon_get_size(GtkCellRenderer* renderer, GtkWidget* widget,
 #if (GTK_MAJOR_VERSION == 3)
                                             const GdkRectangle* cell_area,
@@ -97,8 +97,8 @@ static void exo_cell_renderer_icon_render(GtkCellRenderer* renderer,
 
 struct _ExoCellRendererIconPrivate
 {
-    uint follow_state : 1;
-    uint icon_static : 1;
+    unsigned int follow_state : 1;
+    unsigned int icon_static : 1;
     char* icon;
     GIcon* gicon;
     int size;
@@ -227,8 +227,8 @@ static void exo_cell_renderer_icon_finalize(GObject* object)
     (*G_OBJECT_CLASS(exo_cell_renderer_icon_parent_class)->finalize)(object);
 }
 
-static void exo_cell_renderer_icon_get_property(GObject* object, uint prop_id, GValue* value,
-                                                GParamSpec* pspec)
+static void exo_cell_renderer_icon_get_property(GObject* object, unsigned int prop_id,
+                                                GValue* value, GParamSpec* pspec)
 {
     const ExoCellRendererIconPrivate* priv =
         exo_cell_renderer_icon_get_instance_private(EXO_CELL_RENDERER_ICON(object));
@@ -257,8 +257,8 @@ static void exo_cell_renderer_icon_get_property(GObject* object, uint prop_id, G
     }
 }
 
-static void exo_cell_renderer_icon_set_property(GObject* object, uint prop_id, const GValue* value,
-                                                GParamSpec* pspec)
+static void exo_cell_renderer_icon_set_property(GObject* object, unsigned int prop_id,
+                                                const GValue* value, GParamSpec* pspec)
 {
     ExoCellRendererIconPrivate* priv =
         exo_cell_renderer_icon_get_instance_private(EXO_CELL_RENDERER_ICON(object));
@@ -276,7 +276,7 @@ static void exo_cell_renderer_icon_set_property(GObject* object, uint prop_id, c
                 g_free(priv->icon);
             icon = g_value_get_string(value);
             priv->icon_static = (value->data[1].v_uint & G_VALUE_NOCOPY_CONTENTS) ? TRUE : FALSE;
-            priv->icon = (gchar*)((icon == NULL) ? "" : icon);
+            priv->icon = (char*)((icon == NULL) ? "" : icon);
             if (!priv->icon_static)
                 priv->icon = g_strdup(priv->icon);
             break;
@@ -341,10 +341,10 @@ static void exo_cell_renderer_icon_get_size(GtkCellRenderer* renderer, GtkWidget
     }
 
     if (G_LIKELY(width != NULL))
-        *width = (gint)xpad * 2 + priv->size;
+        *width = (int)xpad * 2 + priv->size;
 
     if (G_LIKELY(height != NULL))
-        *height = (gint)ypad * 2 + priv->size;
+        *height = (int)ypad * 2 + priv->size;
 }
 
 static void exo_cell_renderer_icon_render(GtkCellRenderer* renderer,
