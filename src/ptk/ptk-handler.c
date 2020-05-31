@@ -25,8 +25,6 @@
 
 #include "utils.h"
 
-#include "gtk2-compat.h"
-
 #define MOUNT_EXAMPLE                                                                            \
     "# Enter mount command or leave blank for auto:\n\n\n# # Examples: (remove # to enable a "   \
     "mount command)\n#\n# # udevil:\n#     udevil mount -o '%o' %v\n#\n# # pmount: (does not "   \

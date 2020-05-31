@@ -21,7 +21,6 @@
 #include <glib/gi18n.h>
 
 #include "utils.h"
-#include "gtk2-compat.h"
 #include "ptk-handler.h"
 #include "ptk-location-view.h"
 

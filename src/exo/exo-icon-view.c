@@ -39,8 +39,6 @@
 
 #include "../ptk/ptk-utils.h"
 
-#include "gtk2-compat.h"
-
 GType exo_icon_view_layout_mode_get_type(void)
 {
     static GType type = 0;

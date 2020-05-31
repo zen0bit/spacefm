@@ -28,8 +28,6 @@
 #include "exo-marshal.h"
 #include "exo-private.h"
 
-#include "gtk2-compat.h"
-
 /* resurrect dead gdk apis for Gtk3
  * This is easier than using #ifs everywhere
  */

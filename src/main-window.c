@@ -63,8 +63,6 @@
 #include "ptk/ptk-clipboard.h"
 #include "ptk/ptk-handler.h"
 
-#include "gtk2-compat.h"
-
 void rebuild_menus(FMMainWindow* main_window);
 
 static void fm_main_window_class_init(FMMainWindowClass* klass);

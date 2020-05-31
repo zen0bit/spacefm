@@ -22,7 +22,6 @@
 #include "cust-dialog.h"
 
 #include "utils.h"
-#include "gtk2-compat.h"
 
 #define DEFAULT_TITLE        "SpaceFM Dialog"
 #define DEFAULT_ICON         "spacefm-48-pyramid-blue"

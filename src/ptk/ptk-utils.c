@@ -13,13 +13,13 @@
 #include <stdbool.h>
 
 #include "ptk-utils.h"
+
 #include <glib.h>
 #include <glib/gi18n.h>
+#include <gdk/gdkkeysyms.h>
 
 #include "settings.h"
 #include "utils.h"
-#include "gtk2-compat.h"
-#include <gdk/gdkkeysyms.h>
 
 GtkWidget* ptk_menu_new_from_data(PtkMenuItemEntry* entries, void* cb_data,
                                   GtkAccelGroup* accel_group)

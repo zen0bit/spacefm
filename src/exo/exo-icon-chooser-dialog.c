@@ -26,7 +26,6 @@
 #include <gdk/gdkkeysyms.h>
 // sfm-gtk3
 #include <gtk/gtk.h>
-#include "gtk2-compat.h"
 #include <gdk/gdkkeysyms.h>
 
 #include "exo-binding.h"

@@ -29,8 +29,6 @@
 #include "../vfs/vfs-file-info.h"
 #include "../vfs/vfs-file-monitor.h"
 
-#include "gtk2-compat.h"
-
 static GQuark dir_tree_view_data = 0;
 
 static GtkTreeModel* get_dir_tree_model();

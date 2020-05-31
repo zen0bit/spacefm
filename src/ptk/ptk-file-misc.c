@@ -43,7 +43,6 @@
 
 #include "settings.h"
 #include "ptk-handler.h"
-#include "gtk2-compat.h"
 #include "utils.h"
 
 typedef struct

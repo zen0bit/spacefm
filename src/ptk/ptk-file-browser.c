@@ -74,7 +74,6 @@
 #include "main-window.h"
 
 #include "utils.h"
-#include "gtk2-compat.h"
 
 extern char* run_cmd; // MOD
 

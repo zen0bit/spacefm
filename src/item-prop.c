@@ -8,7 +8,6 @@
 
 //#include <string.h>
 #include <gtk/gtk.h>
-#include "gtk2-compat.h"
 
 #include <stdlib.h>
 #include <stdio.h>
