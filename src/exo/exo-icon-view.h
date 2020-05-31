@@ -1,4 +1,3 @@
-/* $Id: exo-icon-view.h 20879 2006-04-14 11:23:42Z benny $ */
 /*-
  * Copyright (c) 2004-2006  os-cillation e.K.
  * Copyright (c) 2002,2004  Anders Carlsson <andersca@gnu.org>

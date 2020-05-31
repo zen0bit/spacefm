@@ -1,3 +1,9 @@
+/*
+ *
+ * License: See COPYING file
+ *
+ */
+
 #ifndef _ITEM_PROP_H_
 #define _ITEM_PROP_H_
 

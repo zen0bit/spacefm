@@ -1,3 +1,9 @@
+/*
+ *
+ * License: See COPYING file
+ *
+ */
+
 #ifndef PCMANFM_PRIVATE_H
 #define PCMANFM_PRIVATE_H
 

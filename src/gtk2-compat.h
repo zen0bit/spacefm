@@ -1,3 +1,9 @@
+/*
+ *
+ * License: See COPYING file
+ *
+ */
+
 #ifndef __GTK2_COMPAT_H
 #define __GTK2_COMPAT_H
 

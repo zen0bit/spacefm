@@ -1,3 +1,9 @@
+/*
+ *
+ * License: See COPYING file
+ *
+ */
+
 #ifndef _GO_DLG_H_
 #define _GO_DLG_H_
 

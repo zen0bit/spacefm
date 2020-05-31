@@ -1,3 +1,8 @@
+/*
+ *
+ * License: See COPYING file
+ *
+ */
 
 #ifndef ___EXO_MARSHAL_MARSHAL_H__
 #define ___EXO_MARSHAL_MARSHAL_H__

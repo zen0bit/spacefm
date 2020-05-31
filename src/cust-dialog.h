@@ -1,3 +1,9 @@
+/*
+ *
+ * License: See COPYING file
+ *
+ */
+
 #ifndef _CUST_DLG_H_
 #define _CUST_DLG_H_
 

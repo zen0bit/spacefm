@@ -1,3 +1,8 @@
+/*
+ *
+ * License: See COPYING file
+ *
+ */
 
 #include <stdbool.h>
 

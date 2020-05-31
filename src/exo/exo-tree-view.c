@@ -1,4 +1,3 @@
-/* $Id: exo-tree-view.c 22991 2006-09-02 11:41:18Z benny $ */
 /*-
  * Copyright (c) 2004-2006 Benedikt Meurer <benny@xfce.org>
  *

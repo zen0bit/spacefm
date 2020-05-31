@@ -1,3 +1,9 @@
+/*
+ *
+ * License: See COPYING file
+ *
+ */
+
 #ifndef _PREF_DLG_H_
 #define _PREF_DLG_H_
 

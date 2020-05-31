@@ -1,4 +1,3 @@
-/* $Id: exo-private.h 22884 2006-08-26 12:40:43Z benny $ */
 /*-
  * Copyright (c) 2004-2006 os-cillation e.K.
  *

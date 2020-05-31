@@ -1,5 +1,6 @@
 /*
- *      cust-dialog.c
+ *
+ * License: See COPYING file
  *
  */
 

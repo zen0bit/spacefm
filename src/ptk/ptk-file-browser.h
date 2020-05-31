@@ -1,3 +1,9 @@
+/*
+ *
+ * License: See COPYING file
+ *
+ */
+
 #ifndef _FILE_BROWSER_H_
 #define _FILE_BROWSER_H_
 

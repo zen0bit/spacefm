@@ -1,3 +1,9 @@
+/*
+ *
+ * License: See COPYING file
+ *
+ */
+
 #ifndef __EXO_COMMON_H__
 #define __EXO_COMMON_H__
 

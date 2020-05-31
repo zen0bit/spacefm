@@ -1,3 +1,9 @@
+/*
+ *
+ * License: See COPYING file
+ *
+ */
+
 #ifndef _MAIN_WINDOW_H_
 #define _MAIN_WINDOW_H_
 

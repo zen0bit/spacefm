@@ -2,6 +2,9 @@
 # This script (spacefm-auth) is used internally by spacefm to authenticate
 # temporary scripts run as another user.  This file should not be modified
 # or run directly.
+
+# License: See COPYING file
+
 set -euf -o pipefail
 
 
