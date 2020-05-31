@@ -867,7 +867,7 @@ const char* xset_get_user_tmp_dir()
     return settings_user_tmp_dir;
 }
 
-static gboolean idle_save_settings(gpointer ptr)
+static void idle_save_settings(void* ptr)
 {
     // printf("AUTOSAVE *** idle_save_settings\n" );
     save_settings(NULL);
