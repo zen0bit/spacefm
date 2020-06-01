@@ -865,7 +865,11 @@ void ptk_file_task_progress_open(PtkFileTask* ptask)
     if (fontname)
     {
         PangoFontDescription* font_desc = pango_font_description_from_string(fontname);
+#if (GTK_MAJOR_VERSION == 3)
+        gtk_widget_override_font(ptask->error_view, font_desc);
+#elif (GTK_MAJOR_VERSION == 2)
         gtk_widget_modify_font(ptask->error_view, font_desc);
+#endif
         pango_font_description_free(font_desc);
     }
     g_signal_connect(ptask->error_view, "populate-popup", G_CALLBACK(on_view_popup), NULL);
@@ -888,7 +892,11 @@ void ptk_file_task_progress_open(PtkFileTask* ptask)
         bool overtask = task->type == VFS_FILE_TASK_MOVE || task->type == VFS_FILE_TASK_COPY ||
                         task->type == VFS_FILE_TASK_LINK;
         ptask->overwrite_combo = gtk_combo_box_text_new();
+#if (GTK_MAJOR_VERSION == 3)
+        gtk_widget_set_focus_on_click(GTK_COMBO_BOX(ptask->overwrite_combo), FALSE);
+#elif (GTK_MAJOR_VERSION == 2)
         gtk_combo_box_set_focus_on_click(GTK_COMBO_BOX(ptask->overwrite_combo), FALSE);
+#endif
         gtk_widget_set_sensitive(ptask->overwrite_combo, overtask);
         for (i = 0; i < G_N_ELEMENTS(overwrite_options); i++)
             gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(ptask->overwrite_combo),
@@ -903,7 +911,11 @@ void ptk_file_task_progress_open(PtkFileTask* ptask)
                          ptask);
 
         ptask->error_combo = gtk_combo_box_text_new();
+#if (GTK_MAJOR_VERSION == 3)
+        gtk_widget_set_focus_on_click(GTK_COMBO_BOX(ptask->error_combo), FALSE);
+#elif (GTK_MAJOR_VERSION == 2)
         gtk_combo_box_set_focus_on_click(GTK_COMBO_BOX(ptask->error_combo), FALSE);
+#endif
         for (i = 0; i < G_N_ELEMENTS(error_options); i++)
             gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(ptask->error_combo),
                                            _(error_options[i]));

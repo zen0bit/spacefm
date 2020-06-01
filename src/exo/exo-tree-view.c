@@ -28,19 +28,6 @@
 #include "exo-marshal.h"
 #include "exo-private.h"
 
-/* resurrect dead gdk apis for Gtk3
- * This is easier than using #ifs everywhere
- */
-
-/*
-#if (GTK_MAJOR_VERSION == 3)
-#ifdef gdk_cursor_unref
-#undef gdk_cursor_unref
-#endif
-#define gdk_cursor_unref(cursor) g_object_unref (cursor)
-#endif
-*/
-
 #if defined(G_PARAM_STATIC_NAME) && defined(G_PARAM_STATIC_NICK) && defined(G_PARAM_STATIC_BLURB)
 #define EXO_PARAM_READWRITE \
     (G_PARAM_READWRITE | G_PARAM_STATIC_NAME | G_PARAM_STATIC_NICK | G_PARAM_STATIC_BLURB)

@@ -367,9 +367,15 @@ void ptk_file_archiver_create(PtkFileBrowser* file_browser, GList* files, const 
 
     /* Adding the help button but preventing it from taking the focus on
      * click */
+#if (GTK_MAJOR_VERSION == 3)
+    gtk_widget_set_focus_on_click(
+        GTK_BUTTON(gtk_dialog_add_button(GTK_DIALOG(dlg), GTK_STOCK_HELP, GTK_RESPONSE_HELP)),
+        FALSE);
+#elif (GTK_MAJOR_VERSION == 2)
     gtk_button_set_focus_on_click(
         GTK_BUTTON(gtk_dialog_add_button(GTK_DIALOG(dlg), GTK_STOCK_HELP, GTK_RESPONSE_HELP)),
         FALSE);
+#endif
 
     filter = gtk_file_filter_new();
 
@@ -1086,9 +1092,16 @@ void ptk_file_archiver_extract(PtkFileBrowser* file_browser, GList* files, const
 
         /* Adding the help button but preventing it from taking the focus on
          * click */
+
+#if (GTK_MAJOR_VERSION == 3)
+        gtk_widget_set_focus_on_click(
+            GTK_BUTTON(gtk_dialog_add_button(GTK_DIALOG(dlg), GTK_STOCK_HELP, GTK_RESPONSE_HELP)),
+            FALSE);
+#elif (GTK_MAJOR_VERSION == 2)
         gtk_button_set_focus_on_click(
             GTK_BUTTON(gtk_dialog_add_button(GTK_DIALOG(dlg), GTK_STOCK_HELP, GTK_RESPONSE_HELP)),
             FALSE);
+#endif
 
         GtkWidget* hbox = gtk_hbox_new(FALSE, 10);
         GtkWidget* chk_parent = gtk_check_button_new_with_mnemonic(_("Cre_ate subdirectories"));

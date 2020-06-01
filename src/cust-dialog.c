@@ -54,7 +54,11 @@ static void set_font(GtkWidget* w, const char* font)
     if (w && font)
     {
         PangoFontDescription* font_desc = pango_font_description_from_string(font);
+#if (GTK_MAJOR_VERSION == 3)
+        gtk_widget_override_font(w, font_desc);
+#elif (GTK_MAJOR_VERSION == 2)
         gtk_widget_modify_font(w, font_desc);
+#endif
         pango_font_description_free(font_desc);
     }
 }
@@ -2692,7 +2696,12 @@ static void update_element(CustomElement* el, GtkWidget* box, GSList** radio, in
             {
                 w = gtk_button_new();
                 gtk_button_set_use_underline(GTK_BUTTON(w), TRUE);
+
+#if (GTK_MAJOR_VERSION == 3)
+                gtk_widget_set_focus_on_click(GTK_BUTTON(w), FALSE);
+#elif (GTK_MAJOR_VERSION == 2)
                 gtk_button_set_focus_on_click(GTK_BUTTON(w), FALSE);
+#endif
                 el->widgets = g_list_append(el->widgets, w);
                 if (el->type == CDLG_BUTTON)
                 {
@@ -3046,7 +3055,11 @@ static void update_element(CustomElement* el, GtkWidget* box, GSList** radio, in
                     */
                 }
                 g_free(str);
+#if (GTK_MAJOR_VERSION == 3)
+                gtk_widget_set_focus_on_click(GTK_BUTTON(w), FALSE);
+#elif (GTK_MAJOR_VERSION == 2)
                 gtk_button_set_focus_on_click(GTK_BUTTON(w), FALSE);
+#endif
 
                 // set font of label
                 l = gtk_container_get_children(GTK_CONTAINER(w));
@@ -3095,7 +3108,11 @@ static void update_element(CustomElement* el, GtkWidget* box, GSList** radio, in
                                      el);
                 }
                 g_signal_connect(G_OBJECT(w), "changed", G_CALLBACK(on_combo_changed), el);
+#if (GTK_MAJOR_VERSION == 3)
+                gtk_widget_set_focus_on_click(GTK_COMBO_BOX(w), FALSE);
+#elif (GTK_MAJOR_VERSION == 2)
                 gtk_combo_box_set_focus_on_click(GTK_COMBO_BOX(w), FALSE);
+#endif
                 set_font(w, font);
                 gtk_box_pack_start(GTK_BOX(box), w, expand, TRUE, pad);
                 el->widgets = g_list_append(el->widgets, w);
@@ -3546,7 +3563,11 @@ static void build_dialog(GList* elements)
                        pad);
     gtk_button_set_image(GTK_BUTTON(timeout_toggle),
                          xset_get_image("GTK_STOCK_MEDIA_PAUSE", GTK_ICON_SIZE_BUTTON));
+#if (GTK_MAJOR_VERSION == 3)
+    gtk_widget_set_focus_on_click(GTK_BUTTON(timeout_toggle), FALSE);
+#elif (GTK_MAJOR_VERSION == 2)
     gtk_button_set_focus_on_click(GTK_BUTTON(timeout_toggle), FALSE);
+#endif
 
     // add elements
     for (l = elements; l; l = l->next)

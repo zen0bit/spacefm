@@ -2476,9 +2476,15 @@ void on_textview_font_change(GtkMenuItem* item, HandlerData* hnd)
     char* fontname = xset_get_s("context_dlg");
     PangoFontDescription* font_desc =
         fontname ? pango_font_description_from_string(fontname) : NULL;
+#if (GTK_MAJOR_VERSION == 3)
+    gtk_widget_override_font(GTK_WIDGET(hnd->view_handler_compress), font_desc);
+    gtk_widget_override_font(GTK_WIDGET(hnd->view_handler_extract), font_desc);
+    gtk_widget_override_font(GTK_WIDGET(hnd->view_handler_list), font_desc);
+#elif (GTK_MAJOR_VERSION == 2)
     gtk_widget_modify_font(GTK_WIDGET(hnd->view_handler_compress), font_desc);
     gtk_widget_modify_font(GTK_WIDGET(hnd->view_handler_extract), font_desc);
     gtk_widget_modify_font(GTK_WIDGET(hnd->view_handler_list), font_desc);
+#endif
     if (font_desc)
         pango_font_description_free(font_desc);
 }
@@ -2799,7 +2805,11 @@ static GtkWidget* add_popup_menuitem(GtkWidget* popup, GtkAccelGroup* accel_grou
                                      const char* label, const char* image, int job,
                                      HandlerData* hnd)
 {
+#if (GTK_MAJOR_VERSION == 3)
+    GtkWidget* item = gtk_menu_item_new_with_mnemonic(label);
+#elif (GTK_MAJOR_VERSION == 2)
     GtkWidget* item = gtk_image_menu_item_new_with_mnemonic(label);
+#endif
     if (image)
         gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item),
                                       xset_get_image(image, GTK_ICON_SIZE_MENU));
@@ -2947,10 +2957,16 @@ void ptk_handler_show_config(int mode, PtkFileBrowser* file_browser, XSet* def_h
     if (width && height)
         gtk_window_set_default_size(GTK_WINDOW(hnd->dlg), width, height);
 
-    // Adding the help button but preventing it from taking the focus on click
+        // Adding the help button but preventing it from taking the focus on click
+#if (GTK_MAJOR_VERSION == 3)
+    gtk_widget_set_focus_on_click(
+        GTK_BUTTON(gtk_dialog_add_button(GTK_DIALOG(hnd->dlg), GTK_STOCK_HELP, GTK_RESPONSE_HELP)),
+        FALSE);
+#elif (GTK_MAJOR_VERSION == 2)
     gtk_button_set_focus_on_click(
         GTK_BUTTON(gtk_dialog_add_button(GTK_DIALOG(hnd->dlg), GTK_STOCK_HELP, GTK_RESPONSE_HELP)),
         FALSE);
+#endif
 
     // Adding standard buttons and saving references in the dialog
     // 'Restore defaults' button has custom text but a stock image
@@ -2958,7 +2974,11 @@ void ptk_handler_show_config(int mode, PtkFileBrowser* file_browser, XSet* def_h
         gtk_dialog_add_button(GTK_DIALOG(hnd->dlg), _("Opt_ions"), GTK_RESPONSE_NONE);
     GtkWidget* btn_defaults_image = xset_get_image("GTK_STOCK_PROPERTIES", GTK_ICON_SIZE_BUTTON);
     gtk_button_set_image(GTK_BUTTON(hnd->btn_defaults), GTK_WIDGET(btn_defaults_image));
+#if (GTK_MAJOR_VERSION == 3)
+    gtk_widget_set_focus_on_click(GTK_BUTTON(hnd->btn_defaults), FALSE);
+#elif (GTK_MAJOR_VERSION == 2)
     gtk_button_set_focus_on_click(GTK_BUTTON(hnd->btn_defaults), FALSE);
+#endif
     // use clicked event because menu only shown once from dialog run???
     g_signal_connect(G_OBJECT(hnd->btn_defaults),
                      "clicked",
@@ -2970,7 +2990,11 @@ void ptk_handler_show_config(int mode, PtkFileBrowser* file_browser, XSet* def_h
     GtkWidget* btn_defaults_image0 =
         xset_get_image("GTK_STOCK_REVERT_TO_SAVED", GTK_ICON_SIZE_BUTTON);
     gtk_button_set_image(GTK_BUTTON(hnd->btn_defaults0), GTK_WIDGET(btn_defaults_image0));
+#if (GTK_MAJOR_VERSION == 3)
+    gtk_widget_set_focus_on_click(GTK_BUTTON(hnd->btn_defaults0), FALSE);
+#elif (GTK_MAJOR_VERSION == 2)
     gtk_button_set_focus_on_click(GTK_BUTTON(hnd->btn_defaults0), FALSE);
+#endif
 
     hnd->btn_cancel =
         gtk_dialog_add_button(GTK_DIALOG(hnd->dlg), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
@@ -3049,7 +3073,11 @@ void ptk_handler_show_config(int mode, PtkFileBrowser* file_browser, XSet* def_h
     hnd->btn_remove = gtk_button_new_with_mnemonic(_("_Remove"));
     gtk_button_set_image(GTK_BUTTON(hnd->btn_remove),
                          xset_get_image("GTK_STOCK_REMOVE", GTK_ICON_SIZE_BUTTON));
+#if (GTK_MAJOR_VERSION == 3)
+    gtk_widget_set_focus_on_click(GTK_BUTTON(hnd->btn_remove), FALSE);
+#elif (GTK_MAJOR_VERSION == 2)
     gtk_button_set_focus_on_click(GTK_BUTTON(hnd->btn_remove), FALSE);
+#endif
     gtk_widget_set_sensitive(hnd->btn_remove, FALSE);
     g_signal_connect(G_OBJECT(hnd->btn_remove),
                      "clicked",
@@ -3059,13 +3087,21 @@ void ptk_handler_show_config(int mode, PtkFileBrowser* file_browser, XSet* def_h
     hnd->btn_add = gtk_button_new_with_mnemonic(_("A_dd"));
     gtk_button_set_image(GTK_BUTTON(hnd->btn_add),
                          xset_get_image("GTK_STOCK_ADD", GTK_ICON_SIZE_BUTTON));
+#if (GTK_MAJOR_VERSION == 3)
+    gtk_widget_set_focus_on_click(GTK_BUTTON(hnd->btn_add), FALSE);
+#elif (GTK_MAJOR_VERSION == 2)
     gtk_button_set_focus_on_click(GTK_BUTTON(hnd->btn_add), FALSE);
+#endif
     g_signal_connect(G_OBJECT(hnd->btn_add), "clicked", G_CALLBACK(on_configure_button_press), hnd);
 
     hnd->btn_apply = gtk_button_new_with_mnemonic(_("Appl_y"));
     gtk_button_set_image(GTK_BUTTON(hnd->btn_apply),
                          xset_get_image("GTK_STOCK_APPLY", GTK_ICON_SIZE_BUTTON));
+#if (GTK_MAJOR_VERSION == 3)
+    gtk_widget_set_focus_on_click(GTK_BUTTON(hnd->btn_apply), FALSE);
+#elif (GTK_MAJOR_VERSION == 2)
     gtk_button_set_focus_on_click(GTK_BUTTON(hnd->btn_apply), FALSE);
+#endif
     gtk_widget_set_sensitive(hnd->btn_apply, FALSE);
     g_signal_connect(G_OBJECT(hnd->btn_apply),
                      "clicked",
@@ -3075,14 +3111,22 @@ void ptk_handler_show_config(int mode, PtkFileBrowser* file_browser, XSet* def_h
     hnd->btn_up = gtk_button_new_with_mnemonic(_("U_p"));
     gtk_button_set_image(GTK_BUTTON(hnd->btn_up),
                          xset_get_image("GTK_STOCK_GO_UP", GTK_ICON_SIZE_BUTTON));
+#if (GTK_MAJOR_VERSION == 3)
+    gtk_widget_set_focus_on_click(GTK_BUTTON(hnd->btn_up), FALSE);
+#elif (GTK_MAJOR_VERSION == 2)
     gtk_button_set_focus_on_click(GTK_BUTTON(hnd->btn_up), FALSE);
+#endif
     gtk_widget_set_sensitive(hnd->btn_up, FALSE);
     g_signal_connect(G_OBJECT(hnd->btn_up), "clicked", G_CALLBACK(on_configure_button_press), hnd);
 
     hnd->btn_down = gtk_button_new_with_mnemonic(_("Do_wn"));
     gtk_button_set_image(GTK_BUTTON(hnd->btn_down),
                          xset_get_image("GTK_STOCK_GO_DOWN", GTK_ICON_SIZE_BUTTON));
+#if (GTK_MAJOR_VERSION == 3)
+    gtk_widget_set_focus_on_click(GTK_BUTTON(hnd->btn_down), FALSE);
+#elif (GTK_MAJOR_VERSION == 2)
     gtk_button_set_focus_on_click(GTK_BUTTON(hnd->btn_down), FALSE);
+#endif
     gtk_widget_set_sensitive(hnd->btn_down, FALSE);
     g_signal_connect(G_OBJECT(hnd->btn_down),
                      "clicked",
@@ -3092,7 +3136,11 @@ void ptk_handler_show_config(int mode, PtkFileBrowser* file_browser, XSet* def_h
     // Generating right-hand side of dialog
     hnd->chkbtn_handler_enabled = gtk_check_button_new_with_mnemonic(
         mode == HANDLER_MODE_FILE ? _("Ena_ble as a default opener") : _("Ena_ble Handler"));
+#if (GTK_MAJOR_VERSION == 3)
+    gtk_widget_set_focus_on_click(GTK_BUTTON(hnd->chkbtn_handler_enabled), FALSE);
+#elif (GTK_MAJOR_VERSION == 2)
     gtk_button_set_focus_on_click(GTK_BUTTON(hnd->chkbtn_handler_enabled), FALSE);
+#endif
     g_signal_connect(G_OBJECT(hnd->chkbtn_handler_enabled),
                      "toggled",
                      G_CALLBACK(on_configure_handler_enabled_check),
@@ -3149,7 +3197,12 @@ void ptk_handler_show_config(int mode, PtkFileBrowser* file_browser, XSet* def_h
         hnd->icon_choose_btn = gtk_button_new_with_mnemonic(_("C_hoose"));
         gtk_button_set_image(GTK_BUTTON(hnd->icon_choose_btn),
                              xset_get_image(GTK_STOCK_OPEN, GTK_ICON_SIZE_BUTTON));
+#if (GTK_MAJOR_VERSION == 3)
+        gtk_widget_set_focus_on_click(GTK_BUTTON(hnd->icon_choose_btn), FALSE);
+#elif (GTK_MAJOR_VERSION == 2)
         gtk_button_set_focus_on_click(GTK_BUTTON(hnd->icon_choose_btn), FALSE);
+#endif
+
 #if (GTK_MAJOR_VERSION == 3)
         // keep this
         gtk_button_set_always_show_image(GTK_BUTTON(hnd->icon_choose_btn), TRUE);
@@ -3278,17 +3331,29 @@ void ptk_handler_show_config(int mode, PtkFileBrowser* file_browser, XSet* def_h
     hnd->chkbtn_handler_extract_term = gtk_check_button_new_with_label(
         mode == HANDLER_MODE_FILE ? _("Run As Task") : _("Run In Terminal"));
     hnd->chkbtn_handler_list_term = gtk_check_button_new_with_label(_("Run In Terminal"));
+#if (GTK_MAJOR_VERSION == 3)
+    gtk_widget_set_focus_on_click(GTK_BUTTON(hnd->chkbtn_handler_compress_term), FALSE);
+#elif (GTK_MAJOR_VERSION == 2)
     gtk_button_set_focus_on_click(GTK_BUTTON(hnd->chkbtn_handler_compress_term), FALSE);
+#endif
     g_signal_connect(G_OBJECT(hnd->chkbtn_handler_compress_term),
                      "toggled",
                      G_CALLBACK(on_terminal_toggled),
                      hnd);
+#if (GTK_MAJOR_VERSION == 3)
+    gtk_widget_set_focus_on_click(GTK_BUTTON(hnd->chkbtn_handler_extract_term), FALSE);
+#elif (GTK_MAJOR_VERSION == 2)
     gtk_button_set_focus_on_click(GTK_BUTTON(hnd->chkbtn_handler_extract_term), FALSE);
+#endif
     g_signal_connect(G_OBJECT(hnd->chkbtn_handler_extract_term),
                      "toggled",
                      G_CALLBACK(on_terminal_toggled),
                      hnd);
+#if (GTK_MAJOR_VERSION == 3)
+    gtk_widget_set_focus_on_click(GTK_BUTTON(hnd->chkbtn_handler_list_term), FALSE);
+#elif (GTK_MAJOR_VERSION == 2)
     gtk_button_set_focus_on_click(GTK_BUTTON(hnd->chkbtn_handler_list_term), FALSE);
+#endif
     g_signal_connect(G_OBJECT(hnd->chkbtn_handler_list_term),
                      "toggled",
                      G_CALLBACK(on_terminal_toggled),

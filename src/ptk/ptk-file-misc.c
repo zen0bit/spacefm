@@ -1101,7 +1101,11 @@ void on_browse_button_press(GtkWidget* widget, MoveSet* mset)
     gtk_box_pack_start(GTK_BOX(hbox), gtk_label_new(_("Insert as")), FALSE, TRUE, 2);
     for (i = MODE_FILENAME; i <= MODE_PATH; i++)
     {
+#if (GTK_MAJOR_VERSION == 3)
+        gtk_widget_set_focus_on_click(GTK_BUTTON(mode[i]), FALSE);
+#elif (GTK_MAJOR_VERSION == 2)
         gtk_button_set_focus_on_click(GTK_BUTTON(mode[i]), FALSE);
+#endif
         g_signal_connect(G_OBJECT(mode[i]), "toggled", G_CALLBACK(on_browse_mode_toggled), dlg);
         gtk_box_pack_start(GTK_BOX(hbox), mode[i], FALSE, TRUE, 2);
     }
@@ -1190,6 +1194,24 @@ void on_font_change(GtkMenuItem* item, MoveSet* mset)
     if (xset_get_s("move_dlg_font"))
         font_desc = pango_font_description_from_string(xset_get_s("move_dlg_font"));
 
+#if (GTK_MAJOR_VERSION == 3)
+    gtk_widget_override_font(GTK_WIDGET(mset->input_name), font_desc);
+    gtk_widget_override_font(GTK_WIDGET(mset->entry_ext), font_desc);
+    gtk_widget_override_font(GTK_WIDGET(mset->input_full_name), font_desc);
+    gtk_widget_override_font(GTK_WIDGET(mset->input_path), font_desc);
+    gtk_widget_override_font(GTK_WIDGET(mset->input_full_path), font_desc);
+    gtk_widget_override_font(GTK_WIDGET(mset->label_mime), font_desc);
+    if (mset->entry_target)
+        gtk_widget_override_font(GTK_WIDGET(mset->entry_target), font_desc);
+    if (mset->create_new)
+    {
+        // doesn't change drop-down font
+        gtk_widget_override_font(GTK_WIDGET(gtk_bin_get_child(GTK_BIN(mset->combo_template))),
+                                 font_desc);
+        gtk_widget_override_font(GTK_WIDGET(gtk_bin_get_child(GTK_BIN(mset->combo_template_dir))),
+                                 font_desc);
+    }
+#elif (GTK_MAJOR_VERSION == 2)
     gtk_widget_modify_font(GTK_WIDGET(mset->input_name), font_desc);
     gtk_widget_modify_font(GTK_WIDGET(mset->entry_ext), font_desc);
     gtk_widget_modify_font(GTK_WIDGET(mset->input_full_name), font_desc);
@@ -1208,6 +1230,7 @@ void on_font_change(GtkMenuItem* item, MoveSet* mset)
         gtk_widget_modify_font(GTK_WIDGET(gtk_bin_get_child(GTK_BIN(mset->combo_template_dir))),
                                font_desc);
     }
+#endif
 
     if (font_desc)
         pango_font_description_free(font_desc);
@@ -2110,21 +2133,33 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
     gtk_dialog_add_action_widget(GTK_DIALOG(mset->dlg), mset->options, GTK_RESPONSE_YES);
     gtk_button_set_image(GTK_BUTTON(mset->options),
                          xset_get_image("GTK_STOCK_PROPERTIES", GTK_ICON_SIZE_BUTTON));
+#if (GTK_MAJOR_VERSION == 3)
+    gtk_widget_set_focus_on_click(GTK_BUTTON(mset->options), FALSE);
+#elif (GTK_MAJOR_VERSION == 2)
     gtk_button_set_focus_on_click(GTK_BUTTON(mset->options), FALSE);
+#endif
     g_signal_connect(G_OBJECT(mset->options), "clicked", G_CALLBACK(on_options_button_press), mset);
 
     mset->browse = gtk_button_new_with_mnemonic(_("_Browse"));
     gtk_dialog_add_action_widget(GTK_DIALOG(mset->dlg), mset->browse, GTK_RESPONSE_YES);
     gtk_button_set_image(GTK_BUTTON(mset->browse),
                          xset_get_image("GTK_STOCK_OPEN", GTK_ICON_SIZE_BUTTON));
+#if (GTK_MAJOR_VERSION == 3)
+    gtk_widget_set_focus_on_click(GTK_BUTTON(mset->browse), FALSE);
+#elif (GTK_MAJOR_VERSION == 2)
     gtk_button_set_focus_on_click(GTK_BUTTON(mset->browse), FALSE);
+#endif
     g_signal_connect(G_OBJECT(mset->browse), "clicked", G_CALLBACK(on_browse_button_press), mset);
 
     mset->revert = gtk_button_new_with_mnemonic(_("Re_vert"));
     gtk_dialog_add_action_widget(GTK_DIALOG(mset->dlg), mset->revert, GTK_RESPONSE_NO);
     gtk_button_set_image(GTK_BUTTON(mset->revert),
                          xset_get_image("GTK_STOCK_REVERT_TO_SAVED", GTK_ICON_SIZE_BUTTON));
+#if (GTK_MAJOR_VERSION == 3)
+    gtk_widget_set_focus_on_click(GTK_BUTTON(mset->revert), FALSE);
+#elif (GTK_MAJOR_VERSION == 2)
     gtk_button_set_focus_on_click(GTK_BUTTON(mset->revert), FALSE);
+#endif
     g_signal_connect(G_OBJECT(mset->revert), "clicked", G_CALLBACK(on_revert_button_press), mset);
 
     mset->cancel = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
@@ -2132,7 +2167,11 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
 
     mset->next = gtk_button_new_from_stock(GTK_STOCK_OK);
     gtk_dialog_add_action_widget(GTK_DIALOG(mset->dlg), mset->next, GTK_RESPONSE_OK);
+#if (GTK_MAJOR_VERSION == 3)
+    gtk_widget_set_focus_on_click(GTK_BUTTON(mset->next), FALSE);
+#elif (GTK_MAJOR_VERSION == 2)
     gtk_button_set_focus_on_click(GTK_BUTTON(mset->next), FALSE);
+#endif
     gtk_button_set_image(GTK_BUTTON(mset->next),
                          xset_get_image("GTK_STOCK_YES", GTK_ICON_SIZE_BUTTON));
     gtk_button_set_label(GTK_BUTTON(mset->next), _("_Rename"));
@@ -2141,7 +2180,11 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
     {
         mset->open = gtk_button_new_with_mnemonic(_("& _Open"));
         gtk_dialog_add_action_widget(GTK_DIALOG(mset->dlg), mset->open, GTK_RESPONSE_APPLY);
+#if (GTK_MAJOR_VERSION == 3)
+        gtk_widget_set_focus_on_click(GTK_BUTTON(mset->open), FALSE);
+#elif (GTK_MAJOR_VERSION == 2)
         gtk_button_set_focus_on_click(GTK_BUTTON(mset->open), FALSE);
+#endif
     }
     else
         mset->open = NULL;
@@ -2249,7 +2292,11 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
             mset->browse_target = gtk_button_new();
             gtk_button_set_image(GTK_BUTTON(mset->browse_target),
                                  xset_get_image("GTK_STOCK_OPEN", GTK_ICON_SIZE_BUTTON));
+#if (GTK_MAJOR_VERSION == 3)
+            gtk_widget_set_focus_on_click(GTK_BUTTON(mset->browse_target), FALSE);
+#elif (GTK_MAJOR_VERSION == 2)
             gtk_button_set_focus_on_click(GTK_BUTTON(mset->browse_target), FALSE);
+#endif
             if (mset->new_path && file)
                 gtk_entry_set_text(GTK_ENTRY(mset->entry_target), mset->new_path);
             g_signal_connect(G_OBJECT(mset->browse_target),
@@ -2287,8 +2334,11 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
 
         // template combo
         mset->combo_template = GTK_COMBO_BOX(gtk_combo_box_text_new_with_entry());
+#if (GTK_MAJOR_VERSION == 3)
+        gtk_widget_set_focus_on_click(mset->combo_template, FALSE);
+#elif (GTK_MAJOR_VERSION == 2)
         gtk_combo_box_set_focus_on_click(mset->combo_template, FALSE);
-
+#endif
         // add entries
         gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(mset->combo_template), _("Empty File"));
         templates = NULL;
@@ -2318,7 +2368,11 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
 
         // template_dir combo
         mset->combo_template_dir = GTK_COMBO_BOX(gtk_combo_box_text_new_with_entry());
+#if (GTK_MAJOR_VERSION == 3)
+        gtk_widget_set_focus_on_click(mset->combo_template_dir, FALSE);
+#elif (GTK_MAJOR_VERSION == 2)
         gtk_combo_box_set_focus_on_click(mset->combo_template_dir, FALSE);
+#endif
 
         // add entries
         gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(mset->combo_template_dir),
@@ -2347,7 +2401,11 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
         mset->browse_template = gtk_button_new();
         gtk_button_set_image(GTK_BUTTON(mset->browse_template),
                              xset_get_image("GTK_STOCK_OPEN", GTK_ICON_SIZE_BUTTON));
+#if (GTK_MAJOR_VERSION == 3)
+        gtk_widget_set_focus_on_click(GTK_BUTTON(mset->browse_template), FALSE);
+#elif (GTK_MAJOR_VERSION == 2)
         gtk_button_set_focus_on_click(GTK_BUTTON(mset->browse_template), FALSE);
+#endif
         g_signal_connect(G_OBJECT(mset->browse_template),
                          "clicked",
                          G_CALLBACK(on_create_browse_button_press),
@@ -2517,17 +2575,35 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
         gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(mset->opt_new_file),
                                                        C_("New|Radio", "_Link"));
 
+#if (GTK_MAJOR_VERSION == 3)
+    gtk_widget_set_focus_on_click(GTK_BUTTON(mset->opt_move), FALSE);
+#elif (GTK_MAJOR_VERSION == 2)
     gtk_button_set_focus_on_click(GTK_BUTTON(mset->opt_move), FALSE);
+#endif
     g_signal_connect(G_OBJECT(mset->opt_move), "focus", G_CALLBACK(on_button_focus), mset);
+#if (GTK_MAJOR_VERSION == 3)
+    gtk_widget_set_focus_on_click(GTK_BUTTON(mset->opt_copy), FALSE);
+    gtk_widget_set_focus_on_click(GTK_BUTTON(mset->opt_link), FALSE);
+    gtk_widget_set_focus_on_click(GTK_BUTTON(mset->opt_copy_target), FALSE);
+    gtk_widget_set_focus_on_click(GTK_BUTTON(mset->opt_link_target), FALSE);
+    gtk_widget_set_focus_on_click(GTK_BUTTON(mset->opt_as_root), FALSE);
+    gtk_widget_set_focus_on_click(GTK_BUTTON(mset->opt_new_file), FALSE);
+#elif (GTK_MAJOR_VERSION == 2)
     gtk_button_set_focus_on_click(GTK_BUTTON(mset->opt_copy), FALSE);
     gtk_button_set_focus_on_click(GTK_BUTTON(mset->opt_link), FALSE);
     gtk_button_set_focus_on_click(GTK_BUTTON(mset->opt_copy_target), FALSE);
     gtk_button_set_focus_on_click(GTK_BUTTON(mset->opt_link_target), FALSE);
     gtk_button_set_focus_on_click(GTK_BUTTON(mset->opt_as_root), FALSE);
     gtk_button_set_focus_on_click(GTK_BUTTON(mset->opt_new_file), FALSE);
+#endif
     g_signal_connect(G_OBJECT(mset->opt_new_file), "focus", G_CALLBACK(on_button_focus), mset);
+#if (GTK_MAJOR_VERSION == 3)
+    gtk_widget_set_focus_on_click(GTK_BUTTON(mset->opt_new_folder), FALSE);
+    gtk_widget_set_focus_on_click(GTK_BUTTON(mset->opt_new_link), FALSE);
+#elif (GTK_MAJOR_VERSION == 2)
     gtk_button_set_focus_on_click(GTK_BUTTON(mset->opt_new_folder), FALSE);
     gtk_button_set_focus_on_click(GTK_BUTTON(mset->opt_new_link), FALSE);
+#endif
     gtk_widget_set_sensitive(mset->opt_copy_target, mset->is_link && !target_missing);
     gtk_widget_set_sensitive(mset->opt_link_target, mset->is_link);
 

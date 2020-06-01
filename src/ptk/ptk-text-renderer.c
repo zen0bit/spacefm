@@ -521,7 +521,11 @@ static void ptk_text_renderer_set_property(GObject* object, unsigned int param_i
 
             if (!g_value_get_string(value))
                 set_bg_color(celltext, NULL); /* reset to backgrounmd_set to FALSE */
+#if (GTK_MAJOR_VERSION == 3)
+            else if (gdk_rgba_parse(g_value_get_string(value), &color))
+#elif (GTK_MAJOR_VERSION == 2)
             else if (gdk_color_parse(g_value_get_string(value), &color))
+#endif
                 set_bg_color(celltext, &color);
             else
                 g_warning("Don't know color `%s'", g_value_get_string(value));
@@ -536,7 +540,11 @@ static void ptk_text_renderer_set_property(GObject* object, unsigned int param_i
 
             if (!g_value_get_string(value))
                 set_fg_color(celltext, NULL); /* reset to foreground_set to FALSE */
+#if (GTK_MAJOR_VERSION == 3)
+            else if (gdk_rgba_parse(g_value_get_string(value), &color))
+#elif (GTK_MAJOR_VERSION == 2)
             else if (gdk_color_parse(g_value_get_string(value), &color))
+#endif
                 set_fg_color(celltext, &color);
             else
                 g_warning("Don't know color `%s'", g_value_get_string(value));

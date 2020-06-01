@@ -1016,7 +1016,11 @@ void ptk_file_browser_status_change(PtkFileBrowser* file_browser, bool panel_foc
     if (panel_focus)
     {
         scolor = xset_get_s("status_text");
+#if (GTK_MAJOR_VERSION == 3)
+        if (scolor && gdk_rgba_parse(scolor, &color))
+#elif (GTK_MAJOR_VERSION == 2)
         if (scolor && gdk_color_parse(scolor, &color))
+#endif
             gtk_widget_modify_fg(GTK_WIDGET(file_browser->status_label), GTK_STATE_NORMAL, &color);
         else
             gtk_widget_modify_fg(GTK_WIDGET(file_browser->status_label), GTK_STATE_NORMAL, NULL);
@@ -1028,17 +1032,29 @@ void ptk_file_browser_status_change(PtkFileBrowser* file_browser, bool panel_foc
     if (panel_focus)
     {
         scolor = xset_get_s("status_border");
+#if (GTK_MAJOR_VERSION == 3)
+        if (scolor && gdk_rgba_parse(scolor, &color))
+            gtk_widget_override_background_color(GTK_WIDGET(file_browser->status_frame),
+                                                 GTK_STATE_NORMAL,
+                                                 &color);
+        else
+            gtk_widget_override_background_color(GTK_WIDGET(file_browser->status_frame),
+                                                 GTK_STATE_NORMAL,
+                                                 NULL);
+    }
+    else
+        gtk_widget_override_background_color(GTK_WIDGET(file_browser->status_frame),
+                                             GTK_STATE_NORMAL,
+                                             NULL);
+#elif (GTK_MAJOR_VERSION == 2)
         if (scolor && gdk_color_parse(scolor, &color))
             gtk_widget_modify_bg(GTK_WIDGET(file_browser->status_frame), GTK_STATE_NORMAL, &color);
         else
             gtk_widget_modify_bg(GTK_WIDGET(file_browser->status_frame), GTK_STATE_NORMAL, NULL);
-        // below caused visibility issues with some themes
-        // gtk_widget_modify_bg( file_browser->status_frame, GTK_STATE_NORMAL,
-        //                            &GTK_WIDGET( file_browser->status_frame )
-        //                            ->style->fg[ GTK_STATE_SELECTED ] );
     }
     else
         gtk_widget_modify_bg(GTK_WIDGET(file_browser->status_frame), GTK_STATE_NORMAL, NULL);
+#endif
 }
 
 bool on_status_bar_button_press(GtkWidget* widget, GdkEventButton* event,
@@ -1265,7 +1281,11 @@ void ptk_file_browser_init(PtkFileBrowser* file_browser)
     {
         PangoFontDescription* font_desc = pango_font_description_from_string(
             xset_get_s_panel(file_browser->mypanel, "font_status"));
+#if (GTK_MAJOR_VERSION == 3)
+        gtk_widget_override_font(GTK_WIDGET(file_browser->status_label), font_desc);
+#elif (GTK_MAJOR_VERSION == 2)
         gtk_widget_modify_font(GTK_WIDGET(file_browser->status_label), font_desc);
+#endif
         pango_font_description_free(font_desc);
     }
 
@@ -1792,7 +1812,11 @@ GtkWidget* ptk_file_browser_new(int curpanel, GtkWidget* notebook, GtkWidget* ta
     if (fontname)
     {
         font_desc = pango_font_description_from_string(fontname);
+#if (GTK_MAJOR_VERSION == 3)
+        gtk_widget_override_font(GTK_WIDGET(file_browser->status_label), font_desc);
+#elif (GTK_MAJOR_VERSION == 2)
         gtk_widget_modify_font(GTK_WIDGET(file_browser->status_label), font_desc);
+#endif
         pango_font_description_free(font_desc);
     }
 
@@ -1800,7 +1824,11 @@ GtkWidget* ptk_file_browser_new(int curpanel, GtkWidget* notebook, GtkWidget* ta
     if (file_browser->path_bar && (fontname = xset_get_s_panel(curpanel, "font_path")))
     {
         font_desc = pango_font_description_from_string(fontname);
+#if (GTK_MAJOR_VERSION == 3)
+        gtk_widget_override_font(GTK_WIDGET(file_browser->path_bar), font_desc);
+#elif (GTK_MAJOR_VERSION == 2)
         gtk_widget_modify_font(GTK_WIDGET(file_browser->path_bar), font_desc);
+#endif
         pango_font_description_free(font_desc);
     }
 
@@ -2225,7 +2253,11 @@ static GtkWidget* add_history_menu_item(PtkFileBrowser* file_browser, GtkWidget*
     GtkWidget *menu_item, *folder_image;
     char* disp_name;
     disp_name = g_filename_display_basename((char*)l->data);
+#if (GTK_MAJOR_VERSION == 3)
+    menu_item = gtk_menu_item_new_with_label(disp_name);
+#elif (GTK_MAJOR_VERSION == 2)
     menu_item = gtk_image_menu_item_new_with_label(disp_name);
+#endif
     g_object_set_data(G_OBJECT(menu_item), "path", l);
     folder_image = gtk_image_new_from_icon_name("gnome-fs-directory", GTK_ICON_SIZE_MENU);
     gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item), folder_image);
@@ -4110,7 +4142,11 @@ static GtkWidget* create_folder_view(PtkFileBrowser* file_browser, PtkFBViewMode
     {
         PangoFontDescription* font_desc = pango_font_description_from_string(
             xset_get_s_panel(file_browser->mypanel, "font_file"));
+#if (GTK_MAJOR_VERSION == 3)
+        gtk_widget_override_font(folder_view, font_desc);
+#elif (GTK_MAJOR_VERSION == 2)
         gtk_widget_modify_font(folder_view, font_desc);
+#endif
         pango_font_description_free(font_desc);
     }
 
@@ -5387,7 +5423,11 @@ GtkWidget* ptk_file_browser_create_dir_tree(PtkFileBrowser* file_browser)
     {
         PangoFontDescription* font_desc = pango_font_description_from_string(
             xset_get_s_panel(file_browser->mypanel, "font_file"));
+#if (GTK_MAJOR_VERSION == 3)
+        gtk_widget_override_font(dir_tree, font_desc);
+#elif (GTK_MAJOR_VERSION == 2)
         gtk_widget_modify_font(dir_tree, font_desc);
+#endif
         pango_font_description_free(font_desc);
     }
 

@@ -317,7 +317,11 @@ void on_notebook_switch_page(GtkNotebook* notebook, GtkWidget* page, unsigned in
             gdk_window_set_cursor(
                 gtk_widget_get_window(GTK_WIDGET(gtk_widget_get_toplevel(GTK_WIDGET(view)))),
                 busy);
+#if (GTK_MAJOR_VERSION == 3)
+            g_object_unref(busy);
+#elif (GTK_MAJOR_VERSION == 2)
             gdk_cursor_unref(busy);
+#endif
 
             list = gtk_list_store_new(N_COLS,
                                       GDK_TYPE_PIXBUF,

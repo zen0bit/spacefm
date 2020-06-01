@@ -2228,7 +2228,7 @@ GtkWidget* xset_get_image(const char* icon, int icon_size)
         // icon is full path to image file
         // get real icon size from gtk icon size
         int icon_w, icon_h;
-        gtk_icon_size_lookup_for_settings(gtk_settings_get_default(), icon_size, &icon_w, &icon_h);
+        gtk_icon_size_lookup(icon_size, &icon_w, &icon_h);
         int real_icon_size = icon_w > icon_h ? icon_w : icon_h;
         GtkIconTheme* icon_theme = gtk_icon_theme_get_default();
         GdkPixbuf* pixbuf = vfs_load_icon(icon_theme, icon, real_icon_size);
@@ -2284,11 +2284,19 @@ GtkWidget* xset_new_menuitem(const char* label, const char* icon)
     {
         // allow escape of underscore
         char* str = clean_label(label, FALSE, FALSE);
+#if (GTK_MAJOR_VERSION == 3)
+        item = gtk_menu_item_new_with_label(str);
+#elif (GTK_MAJOR_VERSION == 2)
         item = gtk_image_menu_item_new_with_label(str);
+#endif
         g_free(str);
     }
     else
+#if (GTK_MAJOR_VERSION == 3)
+        item = gtk_menu_item_new_with_mnemonic(label);
+#elif (GTK_MAJOR_VERSION == 2)
         item = gtk_image_menu_item_new_with_mnemonic(label);
+#endif
     if (!(icon && icon[0]))
         return item;
     image = xset_get_image(icon, GTK_ICON_SIZE_MENU);
@@ -2532,10 +2540,7 @@ GtkWidget* xset_add_menuitem(PtkFileBrowser* file_browser, GtkWidget* menu,
         {
             // get menu icon size
             int icon_w, icon_h;
-            gtk_icon_size_lookup_for_settings(gtk_settings_get_default(),
-                                              GTK_ICON_SIZE_MENU,
-                                              &icon_w,
-                                              &icon_h);
+            gtk_icon_size_lookup(GTK_ICON_SIZE_MENU, &icon_w, &icon_h);
             int icon_size = icon_w > icon_h ? icon_w : icon_h;
 
             GdkPixbuf* app_icon = NULL;
@@ -6286,7 +6291,11 @@ GtkWidget* xset_design_additem(GtkWidget* menu, const char* label, const char* s
             item = gtk_check_menu_item_new_with_mnemonic(label);
         else
         {
+#if (GTK_MAJOR_VERSION == 3)
+            item = gtk_menu_item_new_with_mnemonic(label);
+#elif (GTK_MAJOR_VERSION == 2)
             item = gtk_image_menu_item_new_with_mnemonic(label);
+#endif
             GtkWidget* image = gtk_image_new_from_stock(stock_icon, GTK_ICON_SIZE_MENU);
             if (image)
                 gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), image);
@@ -6415,7 +6424,11 @@ GtkWidget* xset_design_show_menu(GtkWidget* menu, XSet* set, XSet* book_insert, 
             !g_strcmp0(set->name, "main_book"));
 
     //// New submenu
+#if (GTK_MAJOR_VERSION == 3)
+    newitem = gtk_menu_item_new_with_mnemonic(_("_New"));
+#elif (GTK_MAJOR_VERSION == 2)
     newitem = gtk_image_menu_item_new_with_mnemonic(_("_New"));
+#endif
     submenu = gtk_menu_new();
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(newitem), submenu);
     gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(newitem),
@@ -6452,7 +6465,11 @@ GtkWidget* xset_design_show_menu(GtkWidget* menu, XSet* set, XSet* book_insert, 
     newitem = xset_design_additem(submenu, _("S_eparator"), NULL, XSET_JOB_SEP, insert_set);
 
     // New > Import >
+#if (GTK_MAJOR_VERSION == 3)
+    newitem = gtk_menu_item_new_with_mnemonic(_("_Import"));
+#elif (GTK_MAJOR_VERSION == 2)
     newitem = gtk_image_menu_item_new_with_mnemonic(_("_Import"));
+#endif
     submenu2 = gtk_menu_new();
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(newitem), submenu2);
     // gtk_image_menu_item_set_image( GTK_IMAGE_MENU_ITEM( newitem ),
@@ -6474,7 +6491,11 @@ GtkWidget* xset_design_show_menu(GtkWidget* menu, XSet* set, XSet* book_insert, 
     if (insert_set->tool)
     {
         // "Add" submenu for builtin tool items
+#if (GTK_MAJOR_VERSION == 3)
+        newitem = gtk_menu_item_new_with_mnemonic(_("_Add"));
+#elif (GTK_MAJOR_VERSION == 2)
         newitem = gtk_image_menu_item_new_with_mnemonic(_("_Add"));
+#endif
         submenu = gtk_menu_new();
         gtk_menu_item_set_submenu(GTK_MENU_ITEM(newitem), submenu);
         gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(newitem),
@@ -7110,7 +7131,11 @@ int xset_msg_dialog(GtkWidget* parent, int action, const char* title, GtkWidget*
         gtk_dialog_add_action_widget(GTK_DIALOG(dlg), btn_help, GTK_RESPONSE_HELP);
         gtk_button_set_image(GTK_BUTTON(btn_help),
                              xset_get_image("GTK_STOCK_HELP", GTK_ICON_SIZE_BUTTON));
+#if (GTK_MAJOR_VERSION == 3)
+        gtk_widget_set_focus_on_click(GTK_BUTTON(btn_help), FALSE);
+#elif (GTK_MAJOR_VERSION == 2)
         gtk_button_set_focus_on_click(GTK_BUTTON(btn_help), FALSE);
+#endif
         gtk_widget_set_can_focus(btn_help, FALSE);
     }
 
@@ -7224,11 +7249,19 @@ void on_multi_input_font_change(GtkMenuItem* item, GtkTextView* input)
     if (fontname)
     {
         PangoFontDescription* font_desc = pango_font_description_from_string(fontname);
+#if (GTK_MAJOR_VERSION == 3)
+        gtk_widget_override_font(GTK_WIDGET(input), font_desc);
+#elif (GTK_MAJOR_VERSION == 2)
         gtk_widget_modify_font(GTK_WIDGET(input), font_desc);
+#endif
         pango_font_description_free(font_desc);
     }
     else
+#if (GTK_MAJOR_VERSION == 3)
+        gtk_widget_override_font(GTK_WIDGET(input), NULL);
+#elif (GTK_MAJOR_VERSION == 2)
         gtk_widget_modify_font(GTK_WIDGET(input), NULL);
+#endif
 }
 
 void on_multi_input_popup(GtkTextView* input, GtkMenu* menu, void* user_data)
@@ -7353,7 +7386,11 @@ char* xset_icon_chooser_dialog(GtkWindow* parent, const char* def_icon)
     if (cursor)
     {
         gdk_window_set_cursor(gtk_widget_get_window(GTK_WIDGET(parent)), cursor);
+#if (GTK_MAJOR_VERSION == 3)
+        g_object_unref(cursor);
+#elif (GTK_MAJOR_VERSION == 2)
         gdk_cursor_unref(cursor);
+#endif
         while (gtk_events_pending())
             gtk_main_iteration();
     }
@@ -7475,7 +7512,11 @@ bool xset_text_dialog(GtkWidget* parent, const char* title, GtkWidget* image, bo
         gtk_dialog_add_action_widget(GTK_DIALOG(dlg), btn_help, GTK_RESPONSE_HELP);
         gtk_button_set_image(GTK_BUTTON(btn_help),
                              xset_get_image("GTK_STOCK_HELP", GTK_ICON_SIZE_BUTTON));
+#if (GTK_MAJOR_VERSION == 3)
+        gtk_widget_set_focus_on_click(GTK_BUTTON(btn_help), FALSE);
+#elif (GTK_MAJOR_VERSION == 2)
         gtk_button_set_focus_on_click(GTK_BUTTON(btn_help), FALSE);
+#endif
     }
 
     if (edit_care)
@@ -7484,7 +7525,11 @@ bool xset_text_dialog(GtkWidget* parent, const char* title, GtkWidget* image, bo
         gtk_dialog_add_action_widget(GTK_DIALOG(dlg), btn_edit, GTK_RESPONSE_YES);
         gtk_button_set_image(GTK_BUTTON(btn_edit),
                              xset_get_image("GTK_STOCK_DIALOG_WARNING", GTK_ICON_SIZE_BUTTON));
+#if (GTK_MAJOR_VERSION == 3)
+        gtk_widget_set_focus_on_click(GTK_BUTTON(btn_edit), FALSE);
+#elif (GTK_MAJOR_VERSION == 2)
         gtk_button_set_focus_on_click(GTK_BUTTON(btn_edit), FALSE);
+#endif
         gtk_text_view_set_editable(input, FALSE);
     }
 
@@ -7498,7 +7543,11 @@ bool xset_text_dialog(GtkWidget* parent, const char* title, GtkWidget* image, bo
         gtk_button_set_image(GTK_BUTTON(btn_icon_choose),
                              xset_get_image(defstring && defstring[0] ? defstring : GTK_STOCK_OPEN,
                                             GTK_ICON_SIZE_BUTTON));
+#if (GTK_MAJOR_VERSION == 3)
+        gtk_widget_set_focus_on_click(GTK_BUTTON(btn_icon_choose), FALSE);
+#elif (GTK_MAJOR_VERSION == 2)
         gtk_button_set_focus_on_click(GTK_BUTTON(btn_icon_choose), FALSE);
+#endif
         g_signal_connect(G_OBJECT(buf),
                          "changed",
                          G_CALLBACK(on_icon_buffer_changed),
@@ -7515,7 +7564,11 @@ bool xset_text_dialog(GtkWidget* parent, const char* title, GtkWidget* image, bo
         gtk_dialog_add_action_widget(GTK_DIALOG(dlg), btn_default, GTK_RESPONSE_NO);
         gtk_button_set_image(GTK_BUTTON(btn_default),
                              xset_get_image("GTK_STOCK_REVERT_TO_SAVED", GTK_ICON_SIZE_BUTTON));
+#if (GTK_MAJOR_VERSION == 3)
+        gtk_widget_set_focus_on_click(GTK_BUTTON(btn_default), FALSE);
+#elif (GTK_MAJOR_VERSION == 2)
         gtk_button_set_focus_on_click(GTK_BUTTON(btn_default), FALSE);
+#endif
     }
 
     GtkWidget* btn_cancel = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
@@ -7815,9 +7868,17 @@ char* xset_file_dialog(GtkWidget* parent, GtkFileChooserAction action, const cha
 
 char* xset_color_dialog(GtkWidget* parent, char* title, char* defcolor)
 {
+#if (GTK_MAJOR_VERSION == 3)
+    GdkRGBA color;
+#elif (GTK_MAJOR_VERSION == 2)
     GdkColor color;
+#endif
     char* scolor = NULL;
+#if (GTK_MAJOR_VERSION == 3)
+    GtkWidget* dlg = gtk_color_chooser_dialog_new(title, 0);
+#elif (GTK_MAJOR_VERSION == 2)
     GtkWidget* dlg = gtk_color_selection_dialog_new(title);
+#endif
     GtkWidget* color_sel = NULL;
     GtkWidget* help_button;
 
@@ -7832,12 +7893,21 @@ char* xset_color_dialog(GtkWidget* parent, char* title, char* defcolor)
 
     if (defcolor && defcolor[0] != '\0')
     {
+#if (GTK_MAJOR_VERSION == 3)
+        if (gdk_rgba_parse(defcolor, &color))
+#elif (GTK_MAJOR_VERSION == 2)
         if (gdk_color_parse(defcolor, &color))
+#endif
         {
-            // printf( "        gdk_color_to_string = %s\n", gdk_color_to_string( &color ) );
+#if (GTK_MAJOR_VERSION == 3)
+            // printf("        gdk_rgba_to_string = %s\n", gdk_rgba_to_string(&color));
+            gtk_color_chooser_set_rgba(GTK_COLOR_SELECTION(color_sel), &color);
+#elif (GTK_MAJOR_VERSION == 2)
+            // printf("        gdk_color_to_string = %s\n", gdk_color_to_string(&color));
             color_sel =
                 gtk_color_selection_dialog_get_color_selection(GTK_COLOR_SELECTION_DIALOG(dlg));
             gtk_color_selection_set_current_color(GTK_COLOR_SELECTION(color_sel), &color);
+#endif
         }
     }
 
@@ -7846,10 +7916,18 @@ char* xset_color_dialog(GtkWidget* parent, char* title, char* defcolor)
 
     if (response == GTK_RESPONSE_OK)
     {
-        // color_sel must be set directly before get_current_color
+#if (GTK_MAJOR_VERSION == 3)
+        gtk_color_chooser_get_rgba(GTK_COLOR_SELECTION(color_sel), &color);
+#elif (GTK_MAJOR_VERSION == 2)
         color_sel = gtk_color_selection_dialog_get_color_selection(GTK_COLOR_SELECTION_DIALOG(dlg));
         gtk_color_selection_get_current_color(GTK_COLOR_SELECTION(color_sel), &color);
+#endif
+
+#if (GTK_MAJOR_VERSION == 3)
+        scolor = gdk_rgba_to_string(&color);
+#elif (GTK_MAJOR_VERSION == 2)
         scolor = gdk_color_to_string(&color);
+#endif
     }
     else if (response == GTK_RESPONSE_HELP)
         scolor = NULL;
@@ -8168,7 +8246,7 @@ static void set_gtk3_widget_padding(GtkWidget* widget, int left_right, int top_b
                                 top_bottom,
                                 top_bottom);
 
-    GtkCssProvider* provider = gtk_css_provider_get_default();
+    GtkCssProvider* provider = gtk_css_provider_new();
     gtk_css_provider_load_from_data(GTK_CSS_PROVIDER(provider), str, -1, NULL);
     GtkStyleContext* context = gtk_widget_get_style_context(widget);
     gtk_style_context_add_provider(context,
@@ -8203,7 +8281,7 @@ GtkWidget* xset_add_toolitem(GtkWidget* parent, PtkFileBrowser* file_browser, Gt
 
     // get real icon size from gtk icon size
     int icon_w, icon_h;
-    gtk_icon_size_lookup_for_settings(gtk_settings_get_default(), icon_size, &icon_w, &icon_h);
+    gtk_icon_size_lookup(icon_size, &icon_w, &icon_h);
     int real_icon_size = icon_w > icon_h ? icon_w : icon_h;
 
     set->browser = file_browser;
@@ -8298,8 +8376,8 @@ GtkWidget* xset_add_toolitem(GtkWidget* parent, PtkFileBrowser* file_browser, Gt
         gtk_button_set_relief(GTK_BUTTON(btn), GTK_RELIEF_NONE);
         // These don't seem to do anything
 #if (GTK_MAJOR_VERSION == 3)
-        gtk_widget_set_margin_left(btn, 0);
-        gtk_widget_set_margin_right(btn, 0);
+        gtk_widget_set_margin_start(btn, 0);
+        gtk_widget_set_margin_end(btn, 0);
         gtk_widget_set_margin_top(btn, 0);
         gtk_widget_set_margin_bottom(btn, 0);
         gtk_widget_set_hexpand(btn, FALSE);
@@ -8351,8 +8429,8 @@ GtkWidget* xset_add_toolitem(GtkWidget* parent, PtkFileBrowser* file_browser, Gt
         gtk_button_set_relief(GTK_BUTTON(btn), GTK_RELIEF_NONE);
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(btn), xset_get_b_set(set));
 #if (GTK_MAJOR_VERSION == 3)
-        gtk_widget_set_margin_left(btn, 0);
-        gtk_widget_set_margin_right(btn, 0);
+        gtk_widget_set_margin_start(btn, 0);
+        gtk_widget_set_margin_end(btn, 0);
         gtk_widget_set_margin_top(btn, 0);
         gtk_widget_set_margin_bottom(btn, 0);
         gtk_widget_set_hexpand(btn, FALSE);
@@ -8445,8 +8523,8 @@ GtkWidget* xset_add_toolitem(GtkWidget* parent, PtkFileBrowser* file_browser, Gt
         gtk_button_set_image(GTK_BUTTON(btn), image);
         gtk_button_set_relief(GTK_BUTTON(btn), GTK_RELIEF_NONE);
 #if (GTK_MAJOR_VERSION == 3)
-        gtk_widget_set_margin_left(btn, 0);
-        gtk_widget_set_margin_right(btn, 0);
+        gtk_widget_set_margin_start(btn, 0);
+        gtk_widget_set_margin_end(btn, 0);
         gtk_widget_set_margin_top(btn, 0);
         gtk_widget_set_margin_bottom(btn, 0);
         gtk_widget_set_hexpand(btn, FALSE);
@@ -8512,8 +8590,8 @@ GtkWidget* xset_add_toolitem(GtkWidget* parent, PtkFileBrowser* file_browser, Gt
             gtk_button_set_relief(GTK_BUTTON(btn), GTK_RELIEF_NONE);
         }
 #if (GTK_MAJOR_VERSION == 3)
-        gtk_widget_set_margin_left(btn, 0);
-        gtk_widget_set_margin_right(btn, 0);
+        gtk_widget_set_margin_start(btn, 0);
+        gtk_widget_set_margin_end(btn, 0);
         gtk_widget_set_margin_top(btn, 0);
         gtk_widget_set_margin_bottom(btn, 0);
         gtk_widget_set_hexpand(btn, FALSE);
@@ -8633,8 +8711,8 @@ void xset_fill_toolbar(GtkWidget* parent, PtkFileBrowser* file_browser, GtkWidge
     // These don't seem to do anything
     gtk_container_set_border_width(GTK_CONTAINER(toolbar), 0);
 #if (GTK_MAJOR_VERSION == 3)
-    gtk_widget_set_margin_left(toolbar, 0);
-    gtk_widget_set_margin_right(toolbar, 0);
+    gtk_widget_set_margin_start(toolbar, 0);
+    gtk_widget_set_margin_end(toolbar, 0);
     gtk_widget_set_margin_top(toolbar, 0);
     gtk_widget_set_margin_bottom(toolbar, 0);
 

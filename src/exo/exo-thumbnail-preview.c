@@ -83,6 +83,9 @@ static void exo_thumbnail_preview_init(ExoThumbnailPreview* thumbnail_preview)
 
 #if (GTK_MAJOR_VERSION == 3)
     /* TODO: Gtk3 */
+    gtk_widget_override_background_color(ebox,
+                                         GTK_STATE_NORMAL,
+                                         &gtk_widget_get_style(ebox)->base[GTK_STATE_INSENSITIVE]);
 #elif (GTK_MAJOR_VERSION == 2)
     /* IgnorantGuru wants the background of the thumbnail widget to be grey/
      * black depending on the theme, rather than the default white, which is

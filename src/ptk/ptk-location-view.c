@@ -498,7 +498,11 @@ GtkWidget* ptk_location_view_new(PtkFileBrowser* file_browser)
     {
         PangoFontDescription* font_desc =
             pango_font_description_from_string(xset_get_s_panel(file_browser->mypanel, "font_dev"));
+#if (GTK_MAJOR_VERSION == 3)
+        gtk_widget_override_font(view, font_desc);
+#elif (GTK_MAJOR_VERSION == 2)
         gtk_widget_modify_font(view, font_desc);
+#endif
         pango_font_description_free(font_desc);
     }
     return view;
@@ -2911,7 +2915,11 @@ static void show_dev_design_menu(GtkWidget* menu, GtkWidget* dev_item, VFSVolume
 
     GtkWidget* image;
     set = xset_get("dev_menu_remove");
+#if (GTK_MAJOR_VERSION == 3)
+    item = gtk_menu_item_new_with_mnemonic(set->menu_label);
+#elif (GTK_MAJOR_VERSION == 2)
     item = gtk_image_menu_item_new_with_mnemonic(set->menu_label);
+#endif
     if (set->icon)
     {
         image = xset_get_image(set->icon, GTK_ICON_SIZE_MENU);
@@ -2923,7 +2931,11 @@ static void show_dev_design_menu(GtkWidget* menu, GtkWidget* dev_item, VFSVolume
     gtk_menu_shell_append(GTK_MENU_SHELL(popup), item);
 
     set = xset_get("dev_menu_unmount");
+#if (GTK_MAJOR_VERSION == 3)
+    item = gtk_menu_item_new_with_mnemonic(set->menu_label);
+#elif (GTK_MAJOR_VERSION == 2)
     item = gtk_image_menu_item_new_with_mnemonic(set->menu_label);
+#endif
     if (set->icon)
     {
         image = xset_get_image(set->icon, GTK_ICON_SIZE_MENU);
@@ -2938,7 +2950,11 @@ static void show_dev_design_menu(GtkWidget* menu, GtkWidget* dev_item, VFSVolume
     gtk_menu_shell_append(GTK_MENU_SHELL(popup), gtk_separator_menu_item_new());
 
     set = xset_get("dev_menu_open");
+#if (GTK_MAJOR_VERSION == 3)
+    item = gtk_menu_item_new_with_mnemonic(set->menu_label);
+#elif (GTK_MAJOR_VERSION == 2)
     item = gtk_image_menu_item_new_with_mnemonic(set->menu_label);
+#endif
     if (set->icon)
     {
         image = xset_get_image(set->icon, GTK_ICON_SIZE_MENU);
@@ -2953,7 +2969,11 @@ static void show_dev_design_menu(GtkWidget* menu, GtkWidget* dev_item, VFSVolume
         g_signal_connect(item, "activate", G_CALLBACK(on_open), vol);
 
     set = xset_get("dev_menu_mount");
+#if (GTK_MAJOR_VERSION == 3)
+    item = gtk_menu_item_new_with_mnemonic(set->menu_label);
+#elif (GTK_MAJOR_VERSION == 2)
     item = gtk_image_menu_item_new_with_mnemonic(set->menu_label);
+#endif
     if (set->icon)
     {
         image = xset_get_image(set->icon, GTK_ICON_SIZE_MENU);
@@ -2970,7 +2990,11 @@ static void show_dev_design_menu(GtkWidget* menu, GtkWidget* dev_item, VFSVolume
         (g_str_has_prefix(vol->device_file, "//") || strstr(vol->device_file, ":/")))
     {
         set = xset_get("dev_menu_mark");
+#if (GTK_MAJOR_VERSION == 3)
+        item = gtk_menu_item_new_with_mnemonic(set->menu_label);
+#elif (GTK_MAJOR_VERSION == 2)
         item = gtk_image_menu_item_new_with_mnemonic(set->menu_label);
+#endif
         if (set->icon)
         {
             image = xset_get_image(set->icon, GTK_ICON_SIZE_MENU);
@@ -2986,7 +3010,11 @@ static void show_dev_design_menu(GtkWidget* menu, GtkWidget* dev_item, VFSVolume
     gtk_menu_shell_append(GTK_MENU_SHELL(popup), gtk_separator_menu_item_new());
 
     set = xset_get("dev_prop");
+#if (GTK_MAJOR_VERSION == 3)
+    item = gtk_menu_item_new_with_mnemonic(set->menu_label);
+#elif (GTK_MAJOR_VERSION == 2)
     item = gtk_image_menu_item_new_with_mnemonic(set->menu_label);
+#endif
     if (set->icon)
     {
         image = xset_get_image(set->icon, GTK_ICON_SIZE_MENU);
@@ -3104,7 +3132,11 @@ void ptk_location_view_dev_menu(GtkWidget* parent, PtkFileBrowser* file_browser,
     for (l = names; l; l = l->next)
     {
         vol = (VFSVolume*)l->data;
+#if (GTK_MAJOR_VERSION == 3)
+        item = gtk_menu_item_new_with_label(vfs_volume_get_disp_name(vol));
+#elif (GTK_MAJOR_VERSION == 2)
         item = gtk_image_menu_item_new_with_label(vfs_volume_get_disp_name(vol));
+#endif
         if (vfs_volume_get_icon(vol))
         {
             GtkWidget* image = xset_get_image(vfs_volume_get_icon(vol), GTK_ICON_SIZE_MENU);
@@ -4462,7 +4494,11 @@ GtkWidget* ptk_bookmark_view_new(PtkFileBrowser* file_browser)
     {
         PangoFontDescription* font_desc = pango_font_description_from_string(
             xset_get_s_panel(file_browser->mypanel, "font_book"));
+#if (GTK_MAJOR_VERSION == 3)
+        gtk_widget_override_font(view, font_desc);
+#elif (GTK_MAJOR_VERSION == 2)
         gtk_widget_modify_font(view, font_desc);
+#endif
         pango_font_description_free(font_desc);
     }
 
