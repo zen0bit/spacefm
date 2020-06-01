@@ -395,12 +395,14 @@ static GdkPixbuf* _vfs_thumbnail_load(const char* file_path, const char* uri, in
             mtime = statbuf.st_mtime;
     }
 
+    /* if mod time of video being thumbnailed is less than 5 sec ago,
+     * don't create a thumbnail (is copying?)
+     * FIXME: This means that a newly saved file may not show a thumbnail
+     * until refresh. */
+    /*
     if (file_is_video && time(NULL) - mtime < 5)
-        /* if mod time of video being thumbnailed is less than 5 sec ago,
-         * don't create a thumbnail (is copying?)
-         * FIXME: This means that a newly saved file may not show a thumbnail
-         * until refresh. */
         return NULL;
+    */
 
     /* load existing thumbnail */
     thumbnail = gdk_pixbuf_new_from_file(thumbnail_file, NULL);
