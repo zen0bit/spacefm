@@ -445,7 +445,7 @@ void vfs_file_size_to_string_format(char* buf, uint64_t size, char* format) // M
             point = ( unsigned int ) ( size % 10 );
             size /= 10;
             */
-            if (app_settings.use_si_prefix == TRUE)
+            if (app_settings.use_si_prefix)
             {
                 val = ((float)size) / ((uint64_t)1000000000000);
                 unit = _("T");
@@ -463,7 +463,7 @@ void vfs_file_size_to_string_format(char* buf, uint64_t size, char* format) // M
             point = ( unsigned int ) ( size % 10 );
             size /= 10;
             */
-            if (app_settings.use_si_prefix == TRUE)
+            if (app_settings.use_si_prefix)
             {
                 val = ((float)size) / ((uint64_t)1000000000);
                 unit = _("G");
@@ -482,7 +482,7 @@ void vfs_file_size_to_string_format(char* buf, uint64_t size, char* format) // M
         point = ( unsigned int ) ( size % 10 );
         size /= 10;
         */
-        if (app_settings.use_si_prefix == TRUE)
+        if (app_settings.use_si_prefix)
         {
             val = ((float)size) / ((uint64_t)1000000);
             unit = _("M");
@@ -500,7 +500,7 @@ void vfs_file_size_to_string_format(char* buf, uint64_t size, char* format) // M
         point = size % 10;
         size /= 10;
         */
-        if (app_settings.use_si_prefix == TRUE)
+        if (app_settings.use_si_prefix)
         {
             val = ((float)size) / ((uint64_t)1000);
             unit = _("K"); // MOD was KB
@@ -544,7 +544,7 @@ void vfs_file_size_to_string(char* buf, uint64_t size)
             point = ( unsigned int ) ( size % 10 );
             size /= 10;
             */
-            if (app_settings.use_si_prefix == TRUE)
+            if (app_settings.use_si_prefix)
             {
                 val = ((float)size) / ((uint64_t)1000000000000);
                 unit = _("T");
@@ -562,7 +562,7 @@ void vfs_file_size_to_string(char* buf, uint64_t size)
             point = ( unsigned int ) ( size % 10 );
             size /= 10;
             */
-            if (app_settings.use_si_prefix == TRUE)
+            if (app_settings.use_si_prefix)
             {
                 val = ((float)size) / ((uint64_t)1000000000);
                 unit = _("G");
@@ -581,7 +581,7 @@ void vfs_file_size_to_string(char* buf, uint64_t size)
         point = ( unsigned int ) ( size % 10 );
         size /= 10;
         */
-        if (app_settings.use_si_prefix == TRUE)
+        if (app_settings.use_si_prefix)
         {
             val = ((float)size) / ((uint64_t)1000000);
             unit = _("M");
@@ -599,7 +599,7 @@ void vfs_file_size_to_string(char* buf, uint64_t size)
         point = size % 10;
         size /= 10;
         */
-        if (app_settings.use_si_prefix == TRUE)
+        if (app_settings.use_si_prefix)
         {
             val = ((float)size) / ((uint64_t)1000);
             unit = _("K"); // MOD was KB
