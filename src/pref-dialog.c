@@ -515,10 +515,6 @@ bool fm_edit_preference(GtkWindow* parent, int page)
 
         data->dlg = dlg;
         data->notebook = (GtkWidget*)gtk_builder_get_object(builder, "notebook");
-        gtk_dialog_set_alternative_button_order(GTK_DIALOG(dlg),
-                                                GTK_RESPONSE_OK,
-                                                GTK_RESPONSE_CANCEL,
-                                                -1);
 
         /* Setup 'General' tab */
 
