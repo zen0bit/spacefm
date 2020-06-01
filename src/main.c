@@ -899,6 +899,16 @@ bool handle_parsed_commandline_args()
     return ret;
 }
 
+static void check_locale()
+{
+    char* name = setlocale(LC_ALL, NULL);
+    if (G_UNLIKELY(!name && !(!strcmp(name, "C") || !strcmp(name, "C.UTF-8"))))
+    {
+        fprintf(stderr, "Non-C locale detected. This is not supported.\n");
+        exit(1);
+    }
+}
+
 void tmp_clean()
 {
     char* command = g_strdup_printf("rm -rf %s", xset_get_user_tmp_dir());
@@ -909,6 +919,8 @@ void tmp_clean()
 
 int main(int argc, char* argv[])
 {
+    check_locale();
+
     bool run = FALSE;
     GError* err = NULL;
 
