@@ -369,7 +369,11 @@ static void exo_cell_renderer_icon_render(GtkCellRenderer* renderer,
 {
     const ExoCellRendererIconPrivate* priv =
         exo_cell_renderer_icon_get_instance_private(EXO_CELL_RENDERER_ICON(renderer));
+#if (GTK_MAJOR_VERSION == 3)
+    GtkStateFlags state;
+#elif (GTK_MAJOR_VERSION == 2)
     GtkStateType state;
+#endif
     GtkIconTheme* icon_theme;
     GdkRectangle icon_area;
     GdkRectangle draw_area;

@@ -352,8 +352,10 @@ static void exo_cell_renderer_ellipsized_text_render(GtkCellRenderer* renderer,
         exo_cell_renderer_ellipsized_text_get_instance_private(
             EXO_CELL_RENDERER_ELLIPSIZED_TEXT(renderer));
     GdkRectangle text_area;
+#if (GTK_MAJOR_VERSION == 3)
+    GtkStateFlags state;
+#elif (GTK_MAJOR_VERSION == 2)
     GtkStateType state;
-#if (GTK_MAJOR_VERSION == 2)
     cairo_t* cr;
 #endif
     int focus_line_width;

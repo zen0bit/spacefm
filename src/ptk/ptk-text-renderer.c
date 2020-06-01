@@ -832,7 +832,11 @@ static void ptk_text_renderer_render(GtkCellRenderer* cell, GdkDrawable* window,
 {
     PtkTextRenderer* celltext = (PtkTextRenderer*)cell;
     PangoLayout* layout;
+#if (GTK_MAJOR_VERSION == 3)
+    GtkStateFlags state;
+#elif (GTK_MAJOR_VERSION == 2)
     GtkStateType state;
+#endif
     int x_offset;
     int y_offset;
     int width, height;

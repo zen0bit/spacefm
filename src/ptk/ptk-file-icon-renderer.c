@@ -457,7 +457,11 @@ static void ptk_file_icon_renderer_render(GtkCellRenderer* cell, GdkWindow* wind
         }
         else if ((flags & (GTK_CELL_RENDERER_SELECTED /*|GTK_CELL_RENDERER_PRELIT*/)) != 0)
         {
+#if (GTK_MAJOR_VERSION == 3)
+            GtkStateFlags state;
+#elif (GTK_MAJOR_VERSION == 2)
             GtkStateType state;
+#endif
             GdkColor* color;
 
             if ((flags & GTK_CELL_RENDERER_SELECTED) != 0)
