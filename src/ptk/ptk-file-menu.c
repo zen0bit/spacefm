@@ -1319,7 +1319,7 @@ void on_popup_open_with_another_activate(GtkMenuItem* menuitem, PtkFileMenu* dat
         mime_type = vfs_mime_type_get_from_type(XDG_MIME_TYPE_DIRECTORY);
     }
 
-    GtkWindow* parent_win;
+    GtkWindow* parent_win = NULL;
     if (data->browser)
         parent_win = GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(data->browser)));
     app = (char*)ptk_choose_app_for_mime_type(parent_win, mime_type, FALSE, TRUE, TRUE, FALSE);
@@ -2438,7 +2438,7 @@ void on_popup_new_link_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
 
 void on_popup_file_properties_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
 {
-    GtkWindow* parent_win;
+    GtkWindow* parent_win = NULL;
     if (data->browser)
         parent_win = GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(data->browser)));
 
@@ -2447,7 +2447,7 @@ void on_popup_file_properties_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
 
 void on_popup_file_permissions_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
 {
-    GtkWindow* parent_win;
+    GtkWindow* parent_win = NULL;
     if (data->browser)
         parent_win = GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(data->browser)));
 

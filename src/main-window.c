@@ -2718,7 +2718,7 @@ GtkWidget* fm_main_window_create_tab_label(FMMainWindow* main_window, PtkFileBro
 {
     GtkEventBox* evt_box;
     GtkWidget* tab_label;
-    GtkWidget* tab_text;
+    GtkWidget* tab_text = NULL;
     GtkWidget* tab_icon = NULL;
     GtkWidget* close_btn;
     GtkWidget* close_icon;

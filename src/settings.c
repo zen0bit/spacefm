@@ -5006,7 +5006,7 @@ void xset_design_job(GtkWidget* item, XSet* set)
     char* msg;
     int response;
     char* folder;
-    char* file;
+    char* file = NULL;
     char* custom_file;
     char* cscript;
     char* name;

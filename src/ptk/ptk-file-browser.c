@@ -5898,7 +5898,7 @@ void ptk_file_browser_on_permission(GtkMenuItem* item, PtkFileBrowser* file_brow
 void ptk_file_browser_on_action(PtkFileBrowser* browser, char* setname)
 {
     char* xname;
-    int i;
+    int i = 0;
     XSet* set = xset_get(setname);
     XSet* set2;
     FMMainWindow* main_window = (FMMainWindow*)browser->main_window;

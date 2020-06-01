@@ -3845,7 +3845,7 @@ void ptk_file_misc_paste_as(PtkFileBrowser* file_browser, const char* cwd, GFunc
 
     if (missing_targets > 0)
     {
-        GtkWindow* parent;
+        GtkWindow* parent = NULL;
         if (file_browser)
             parent = GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(file_browser)));
 

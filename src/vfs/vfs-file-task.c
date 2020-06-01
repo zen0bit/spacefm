@@ -1252,7 +1252,7 @@ char* get_sha256sum(char* path)
     }
 
     char* stdout;
-    char* sum;
+    char* sum = NULL;
     char* command = g_strdup_printf("%s %s", sha256sum, path);
     print_command(command);
     if (g_spawn_command_line_sync(command, &stdout, NULL, NULL, NULL))
@@ -1803,6 +1803,7 @@ static void* vfs_file_task_thread(VFSFileTask* task)
 {
     GList* l;
     struct stat file_stat;
+    unsigned int size_timeout = 0;
     dev_t dest_dev = 0;
     off_t size;
     GFunc funcs[] = {(GFunc)vfs_file_task_move,
@@ -1825,7 +1826,6 @@ static void* vfs_file_task_thread(VFSFileTask* task)
         goto _exit_thread;
 
     /* Calculate total size of all files */
-    unsigned int size_timeout = 0;
     if (task->recursive)
     {
         // start timer to limit the amount of time to spend on this - can be
