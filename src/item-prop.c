@@ -1607,7 +1607,11 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     // Menu Item Page  =====================================================
     GtkWidget* align = gtk_alignment_new(0, 0, 0.4, 1);
     gtk_alignment_set_padding(GTK_ALIGNMENT(align), 8, 0, 8, 8);
+#if (GTK_MAJOR_VERSION == 3)
+    GtkWidget* vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 4);
+#elif (GTK_MAJOR_VERSION == 2)
     GtkWidget* vbox = gtk_vbox_new(FALSE, 4);
+#endif
     gtk_container_add(GTK_CONTAINER(align), vbox);
     gtk_notebook_append_page(
         GTK_NOTEBOOK(ctxt->notebook),
@@ -1684,7 +1688,11 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
     row++;
     gtk_table_attach(table, label, 0, 1, row, row + 1, GTK_FILL, GTK_SHRINK, 0, 0);
+#if (GTK_MAJOR_VERSION == 3)
+    GtkWidget* hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+#elif (GTK_MAJOR_VERSION == 2)
     GtkWidget* hbox = gtk_hbox_new(FALSE, 0);
+#endif
     ctxt->icon_choose_btn = gtk_button_new_with_mnemonic(_("C_hoose"));
     gtk_button_set_image(GTK_BUTTON(ctxt->icon_choose_btn),
                          xset_get_image(GTK_STOCK_OPEN, GTK_ICON_SIZE_BUTTON));
@@ -1714,7 +1722,11 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(table), FALSE, TRUE, 0);
 
     // Target
+#if (GTK_MAJOR_VERSION == 3)
+    ctxt->target_vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+#elif (GTK_MAJOR_VERSION == 2)
     ctxt->target_vbox = gtk_vbox_new(FALSE, 0);
+#endif
 
     ctxt->target_label = gtk_label_new(NULL);
     gtk_misc_set_alignment(GTK_MISC(ctxt->target_label), 0, 0.5);
@@ -1731,7 +1743,11 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     gtk_box_pack_start(GTK_BOX(ctxt->target_vbox), GTK_WIDGET(ctxt->target_label), FALSE, TRUE, 0);
     gtk_box_pack_start(GTK_BOX(ctxt->target_vbox), GTK_WIDGET(scroll), FALSE, TRUE, 0);
 
+#if (GTK_MAJOR_VERSION == 3)
+    hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+#elif (GTK_MAJOR_VERSION == 2)
     hbox = gtk_hbox_new(FALSE, 0);
+#endif
     gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(gtk_label_new(NULL)), TRUE, TRUE, 0);
     ctxt->item_choose = gtk_button_new_with_mnemonic(_("C_hoose"));
     gtk_button_set_image(GTK_BUTTON(ctxt->item_choose),
@@ -1769,7 +1785,11 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     // Context Page  =======================================================
     align = gtk_alignment_new(0, 0, 1, 1);
     gtk_alignment_set_padding(GTK_ALIGNMENT(align), 8, 0, 8, 8);
+#if (GTK_MAJOR_VERSION == 3)
+    vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+#elif (GTK_MAJOR_VERSION == 2)
     vbox = gtk_vbox_new(FALSE, 0);
+#endif
     gtk_container_add(GTK_CONTAINER(align), vbox);
     gtk_notebook_append_page(GTK_NOTEBOOK(ctxt->notebook),
                              align,
@@ -1936,8 +1956,13 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     // PACK
     gtk_container_set_border_width(GTK_CONTAINER(ctxt->dlg), 10);
 
+#if (GTK_MAJOR_VERSION == 3)
+    ctxt->vbox_context = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+    ctxt->hbox_match = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
+#elif (GTK_MAJOR_VERSION == 2)
     ctxt->vbox_context = gtk_vbox_new(FALSE, 0);
     ctxt->hbox_match = gtk_hbox_new(FALSE, 4);
+#endif
     gtk_box_pack_start(GTK_BOX(ctxt->hbox_match), GTK_WIDGET(ctxt->box_action), FALSE, TRUE, 0);
     gtk_box_pack_start(GTK_BOX(ctxt->hbox_match),
                        GTK_WIDGET(gtk_label_new(_("item if context"))),
@@ -1953,25 +1978,53 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     //                        GTK_WIDGET( label ), FALSE, TRUE, 8 );
     gtk_box_pack_start(GTK_BOX(ctxt->vbox_context), GTK_WIDGET(scroll), TRUE, TRUE, 4);
 
+#if (GTK_MAJOR_VERSION == 3)
+    GtkWidget* hbox_btns = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
+#elif (GTK_MAJOR_VERSION == 2)
     GtkWidget* hbox_btns = gtk_hbox_new(FALSE, 4);
+#endif
     gtk_box_pack_start(GTK_BOX(hbox_btns), GTK_WIDGET(ctxt->btn_remove), FALSE, TRUE, 4);
+#if (GTK_MAJOR_VERSION == 3)
+    gtk_box_pack_start(GTK_BOX(hbox_btns),
+                       GTK_WIDGET(gtk_separator_new(GTK_ORIENTATION_VERTICAL)),
+                       FALSE,
+                       TRUE,
+                       4);
+#elif (GTK_MAJOR_VERSION == 2)
     gtk_box_pack_start(GTK_BOX(hbox_btns), GTK_WIDGET(gtk_vseparator_new()), FALSE, TRUE, 4);
+#endif
     gtk_box_pack_start(GTK_BOX(hbox_btns), GTK_WIDGET(ctxt->btn_add), FALSE, TRUE, 4);
     gtk_box_pack_start(GTK_BOX(hbox_btns), GTK_WIDGET(ctxt->btn_apply), FALSE, TRUE, 4);
     gtk_box_pack_start(GTK_BOX(hbox_btns), GTK_WIDGET(ctxt->test), TRUE, TRUE, 4);
     gtk_box_pack_start(GTK_BOX(ctxt->vbox_context), GTK_WIDGET(hbox_btns), FALSE, TRUE, 4);
 
     ctxt->frame = GTK_FRAME(gtk_frame_new(_("Edit Rule")));
+#if (GTK_MAJOR_VERSION == 3)
+    GtkWidget* vbox_frame = gtk_box_new(GTK_ORIENTATION_VERTICAL, 4);
+#elif (GTK_MAJOR_VERSION == 2)
     GtkWidget* vbox_frame = gtk_vbox_new(FALSE, 4);
+#endif
     gtk_container_add(GTK_CONTAINER(ctxt->frame), vbox_frame);
+#if (GTK_MAJOR_VERSION == 3)
+    GtkWidget* hbox_frame = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
+#elif (GTK_MAJOR_VERSION == 2)
     GtkWidget* hbox_frame = gtk_hbox_new(FALSE, 4);
+#endif
     gtk_box_pack_start(GTK_BOX(hbox_frame), GTK_WIDGET(ctxt->box_sub), FALSE, TRUE, 8);
     gtk_box_pack_start(GTK_BOX(hbox_frame), GTK_WIDGET(ctxt->box_comp), FALSE, TRUE, 4);
     gtk_box_pack_start(GTK_BOX(vbox_frame), GTK_WIDGET(hbox_frame), FALSE, TRUE, 4);
+#if (GTK_MAJOR_VERSION == 3)
+    hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
+#elif (GTK_MAJOR_VERSION == 2)
     hbox = gtk_hbox_new(FALSE, 4);
+#endif
     gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(ctxt->box_value), TRUE, TRUE, 8);
     gtk_box_pack_start(GTK_BOX(vbox_frame), GTK_WIDGET(hbox), TRUE, TRUE, 4);
+#if (GTK_MAJOR_VERSION == 3)
+    hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+#elif (GTK_MAJOR_VERSION == 2)
     hbox = gtk_hbox_new(FALSE, 0);
+#endif
     gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(gtk_label_new(_("Value:"))), FALSE, TRUE, 8);
     gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(ctxt->current_value), TRUE, TRUE, 2);
     gtk_box_pack_start(GTK_BOX(vbox_frame), GTK_WIDGET(hbox), TRUE, TRUE, 4);
@@ -1979,7 +2032,11 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(ctxt->vbox_context), TRUE, TRUE, 0);
 
     // Opener
+#if (GTK_MAJOR_VERSION == 3)
+    ctxt->hbox_opener = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+#elif (GTK_MAJOR_VERSION == 2)
     ctxt->hbox_opener = gtk_hbox_new(FALSE, 0);
+#endif
     gtk_box_pack_start(GTK_BOX(ctxt->hbox_opener),
                        GTK_WIDGET(gtk_label_new(_("If enabled, use as handler for:"))),
                        FALSE,
@@ -2090,13 +2147,21 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     // Command Page  =====================================================
     align = gtk_alignment_new(0, 0, 1, 1);
     gtk_alignment_set_padding(GTK_ALIGNMENT(align), 8, 0, 8, 8);
+#if (GTK_MAJOR_VERSION == 3)
+    vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 4);
+#elif (GTK_MAJOR_VERSION == 2)
     vbox = gtk_vbox_new(FALSE, 4);
+#endif
     gtk_container_add(GTK_CONTAINER(align), vbox);
     gtk_notebook_append_page(GTK_NOTEBOOK(ctxt->notebook),
                              align,
                              gtk_label_new_with_mnemonic(_("Comm_and")));
 
+#if (GTK_MAJOR_VERSION == 3)
+    hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
+#elif (GTK_MAJOR_VERSION == 2)
     hbox = gtk_hbox_new(FALSE, 8);
+#endif
     ctxt->cmd_opt_line = gtk_radio_button_new_with_mnemonic(NULL, _("Command _Line"));
     ctxt->cmd_opt_script =
         gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(ctxt->cmd_opt_line),
@@ -2154,7 +2219,11 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     // Option Page  =====================================================
     align = gtk_alignment_new(0, 0, 1, 1);
     gtk_alignment_set_padding(GTK_ALIGNMENT(align), 8, 0, 8, 8);
+#if (GTK_MAJOR_VERSION == 3)
+    vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 4);
+#elif (GTK_MAJOR_VERSION == 2)
     vbox = gtk_vbox_new(FALSE, 4);
+#endif
     gtk_container_add(GTK_CONTAINER(align), vbox);
     gtk_notebook_append_page(GTK_NOTEBOOK(ctxt->notebook),
                              align,
@@ -2163,14 +2232,22 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     GtkWidget* frame = gtk_frame_new(_("Run Options"));
     align = gtk_alignment_new(0, 0, 1, 1);
     gtk_alignment_set_padding(GTK_ALIGNMENT(align), 8, 0, 8, 8);
+#if (GTK_MAJOR_VERSION == 3)
+    vbox_frame = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
+#elif (GTK_MAJOR_VERSION == 2)
     vbox_frame = gtk_vbox_new(FALSE, 8);
+#endif
     gtk_container_add(GTK_CONTAINER(align), vbox_frame);
     gtk_container_add(GTK_CONTAINER(frame), align);
     gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(frame), FALSE, TRUE, 8);
 
     ctxt->opt_task = gtk_check_button_new_with_mnemonic(_("Run As Task"));
     gtk_box_pack_start(GTK_BOX(vbox_frame), GTK_WIDGET(ctxt->opt_task), FALSE, TRUE, 0);
+#if (GTK_MAJOR_VERSION == 3)
+    ctxt->opt_hbox_task = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
+#elif (GTK_MAJOR_VERSION == 2)
     ctxt->opt_hbox_task = gtk_hbox_new(FALSE, 8);
+#endif
     ctxt->opt_task_pop = gtk_check_button_new_with_mnemonic(_("Popup Task"));
     ctxt->opt_task_err = gtk_check_button_new_with_mnemonic(_("Popup Error"));
     ctxt->opt_task_out = gtk_check_button_new_with_mnemonic(_("Popup Output"));
@@ -2193,14 +2270,22 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     gtk_box_pack_start(GTK_BOX(ctxt->opt_hbox_task), GTK_WIDGET(ctxt->opt_scroll), FALSE, TRUE, 6);
     gtk_box_pack_start(GTK_BOX(vbox_frame), GTK_WIDGET(ctxt->opt_hbox_task), FALSE, TRUE, 8);
 
+#if (GTK_MAJOR_VERSION == 3)
+    hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
+#elif (GTK_MAJOR_VERSION == 2)
     hbox = gtk_hbox_new(FALSE, 8);
+#endif
     ctxt->opt_terminal = gtk_check_button_new_with_mnemonic(_("Run In Terminal"));
     ctxt->opt_keep_term = gtk_check_button_new_with_mnemonic(_("Keep Terminal Open"));
     gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(ctxt->opt_terminal), FALSE, TRUE, 0);
     gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(ctxt->opt_keep_term), FALSE, TRUE, 6);
     gtk_box_pack_start(GTK_BOX(vbox_frame), GTK_WIDGET(hbox), FALSE, TRUE, 0);
 
+#if (GTK_MAJOR_VERSION == 3)
+    hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+#elif (GTK_MAJOR_VERSION == 2)
     hbox = gtk_hbox_new(FALSE, 0);
+#endif
     label = gtk_label_new(_("Run As User:"));
     gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
     gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(label), FALSE, TRUE, 2);
@@ -2214,12 +2299,20 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     frame = gtk_frame_new(_("Style"));
     align = gtk_alignment_new(0, 0, 1, 1);
     gtk_alignment_set_padding(GTK_ALIGNMENT(align), 8, 0, 8, 8);
+#if (GTK_MAJOR_VERSION == 3)
+    vbox_frame = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
+#elif (GTK_MAJOR_VERSION == 2)
     vbox_frame = gtk_vbox_new(FALSE, 8);
+#endif
     gtk_container_add(GTK_CONTAINER(align), vbox_frame);
     gtk_container_add(GTK_CONTAINER(frame), align);
     gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(frame), TRUE, TRUE, 8);
 
+#if (GTK_MAJOR_VERSION == 3)
+    hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
+#elif (GTK_MAJOR_VERSION == 2)
     hbox = gtk_hbox_new(FALSE, 8);
+#endif
     ctxt->cmd_opt_normal = gtk_radio_button_new_with_mnemonic(NULL, _("Normal"));
     ctxt->cmd_opt_checkbox =
         gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(ctxt->cmd_opt_normal),
@@ -2237,7 +2330,11 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     gtk_box_pack_start(GTK_BOX(vbox_frame), GTK_WIDGET(hbox), FALSE, TRUE, 0);
 
     // message box
+#if (GTK_MAJOR_VERSION == 3)
+    ctxt->cmd_vbox_msg = gtk_box_new(GTK_ORIENTATION_VERTICAL, 4);
+#elif (GTK_MAJOR_VERSION == 2)
     ctxt->cmd_vbox_msg = gtk_vbox_new(FALSE, 4);
+#endif
     label = gtk_label_new(_("Confirmation/Input Message:"));
     gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
     gtk_box_pack_start(GTK_BOX(ctxt->cmd_vbox_msg), GTK_WIDGET(label), FALSE, TRUE, 8);
@@ -2261,7 +2358,11 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     gtk_box_pack_start(GTK_BOX(vbox_frame), GTK_WIDGET(ctxt->cmd_vbox_msg), TRUE, TRUE, 0);
 
     // open directory
+#if (GTK_MAJOR_VERSION == 3)
+    hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+#elif (GTK_MAJOR_VERSION == 2)
     hbox = gtk_hbox_new(FALSE, 0);
+#endif
     label = gtk_label_new(_("Open In Browser:"));
     gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
     gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(label), FALSE, TRUE, 0);

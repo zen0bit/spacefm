@@ -381,7 +381,11 @@ void ptk_file_archiver_create(PtkFileBrowser* file_browser, GList* files, const 
 
     /* Top hbox has 'Command:' label, 'Archive Format:' label then format
      * combobox */
+#if (GTK_MAJOR_VERSION == 3)
+    GtkWidget* hbox_top = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
+#elif (GTK_MAJOR_VERSION == 2)
     GtkWidget* hbox_top = gtk_hbox_new(FALSE, 4);
+#endif
     GtkWidget* lbl_command = gtk_label_new(NULL);
     gtk_label_set_markup_with_mnemonic(GTK_LABEL(lbl_command), _("Co_mpress Commands:"));
     gtk_box_pack_start(GTK_BOX(hbox_top), lbl_command, FALSE, TRUE, 2);
@@ -561,12 +565,20 @@ void ptk_file_archiver_create(PtkFileBrowser* file_browser, GList* files, const 
 
     /* Creating hbox for the command textview, on a line under the top
      * hbox */
+#if (GTK_MAJOR_VERSION == 3)
+    GtkWidget* hbox_bottom = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
+#elif (GTK_MAJOR_VERSION == 2)
     GtkWidget* hbox_bottom = gtk_hbox_new(FALSE, 4);
+#endif
     gtk_box_pack_start(GTK_BOX(hbox_bottom), GTK_WIDGET(view_scroll), TRUE, TRUE, 4);
     gtk_widget_show_all(hbox_bottom);
 
     // Packing the two hboxes into a vbox, then adding to dialog at bottom
+#if (GTK_MAJOR_VERSION == 3)
+    GtkWidget* vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 4);
+#elif (GTK_MAJOR_VERSION == 2)
     GtkWidget* vbox = gtk_vbox_new(FALSE, 4);
+#endif
     gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(hbox_top), TRUE, TRUE, 0);
     gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(hbox_bottom), TRUE, TRUE, 1);
     gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dlg))), vbox, FALSE, TRUE, 0);
@@ -1103,7 +1115,12 @@ void ptk_file_archiver_extract(PtkFileBrowser* file_browser, GList* files, const
             FALSE);
 #endif
 
+#if (GTK_MAJOR_VERSION == 3)
+        GtkWidget* hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);
+#elif (GTK_MAJOR_VERSION == 2)
         GtkWidget* hbox = gtk_hbox_new(FALSE, 10);
+#endif
+
         GtkWidget* chk_parent = gtk_check_button_new_with_mnemonic(_("Cre_ate subdirectories"));
         GtkWidget* chk_write = gtk_check_button_new_with_mnemonic(_("Make contents "
                                                                     "user-_writable"));
