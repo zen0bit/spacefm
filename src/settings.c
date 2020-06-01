@@ -2769,16 +2769,7 @@ char* xset_custom_get_help(GtkWidget* parent, XSet* set)
                   "Name:\n\nRelease Version and Date:\n\nPlugin Homepage or Download "
                   "Link:\n\nAuthor's Contact Information or Feedback Instructions:\n\nDependencies "
                   "or Requirements:\n\nDescription:\n\nInstructions For Use:\n\nCopyright and "
-                  "License Information:\n\n    Copyright (C) YEAR AUTHOR <EMAIL>\n\n    This "
-                  "program is free software: you can redistribute it and/or modify\n    it under "
-                  "the terms of the GNU General Public License as published by\n    the Free "
-                  "Software Foundation, either version 3 of the License, or\n    (at your option) "
-                  "any later version.\n\n    This program is distributed in the hope that it will "
-                  "be useful,\n    but WITHOUT ANY WARRANTY; without even the implied warranty "
-                  "of\n    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the\n    GNU "
-                  "General Public License for more details.\n\n    You should have received a copy "
-                  "of the GNU General Public License\n    along with this program.  If not, see "
-                  "<http://www.gnu.org/licenses/>.\n\n",
+                  "License Information:\n\n",
                   file);
             fclose(file);
         }
