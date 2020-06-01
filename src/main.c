@@ -124,7 +124,7 @@ static GOptionEntry opt_entries[] =
     {"panel", 'p', 0, G_OPTION_ARG_INT, &panel, N_("Open directories in panel 'P' (1-4)"), "P"},
     {"show-pref", '\0', 0, G_OPTION_ARG_INT, &show_pref, N_("Show Preferences ('N' is the Pref tab number)"), "N"},
     {"daemon-mode", 'd', 0, G_OPTION_ARG_NONE, &daemon_mode, N_("Run as a daemon"), NULL},
-    {"config-dir", 'c', 0, G_OPTION_ARG_STRING, &config_dir, N_("Use DIR as configuration directory"), "DIR"},
+    {"config", 'c', 0, G_OPTION_ARG_STRING, &config_dir, N_("Use DIR as configuration directory"), "DIR"},
     {"find-files", 'f', 0, G_OPTION_ARG_NONE, &find_files, N_("Show File Search"), NULL},
     {"dialog", 'g', 0, G_OPTION_ARG_NONE, &custom_dialog, N_("Show a custom dialog (See -g help)"), NULL},
     {"socket-cmd", 's', 0, G_OPTION_ARG_NONE, &socket_cmd, N_("Send a socket command (See -s help)"), NULL},
@@ -397,7 +397,7 @@ bool single_instance_check()
             }
         }
         if (config_dir)
-            g_warning(_("Option --config-dir ignored - an instance is already running"));
+            g_warning(_("Option --config ignored - an instance is already running"));
         shutdown(sock, 2);
         close(sock);
         ret = 0;
