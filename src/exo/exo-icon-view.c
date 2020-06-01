@@ -2092,6 +2092,11 @@ static bool exo_icon_view_motion_notify_event(GtkWidget* widget, GdkEventMotion*
 
     if (icon_view->priv->doing_rubberband)
     {
+        if ((event->state & GDK_CONTROL_MASK) == GDK_CONTROL_MASK)
+            icon_view->priv->ctrl_pressed = TRUE;
+        if ((event->state & GDK_SHIFT_MASK) == GDK_SHIFT_MASK)
+            icon_view->priv->shift_pressed = TRUE;
+
         exo_icon_view_update_rubberband(widget);
 
         if (icon_view->priv->layout_mode == EXO_ICON_VIEW_LAYOUT_ROWS)
@@ -2499,7 +2504,7 @@ static bool exo_icon_view_button_press_event(GtkWidget* widget, GdkEventButton* 
             exo_icon_view_stop_editing(icon_view, TRUE);
 
             if (icon_view->priv->selection_mode != GTK_SELECTION_BROWSE &&
-                !(event->state & GDK_CONTROL_MASK))
+                !(event->state & (GDK_CONTROL_MASK | GDK_SHIFT_MASK)))
             {
                 dirty = exo_icon_view_unselect_all_internal(icon_view);
             }
@@ -2938,6 +2943,8 @@ static void exo_icon_view_stop_rubberbanding(ExoIconView* icon_view)
     if (G_LIKELY(icon_view->priv->doing_rubberband))
     {
         icon_view->priv->doing_rubberband = FALSE;
+        icon_view->priv->ctrl_pressed = FALSE;
+        icon_view->priv->shift_pressed = FALSE;
         gtk_grab_remove(GTK_WIDGET(icon_view));
         gtk_widget_queue_draw(GTK_WIDGET(icon_view));
 
@@ -2980,14 +2987,11 @@ static void exo_icon_view_update_rubberband_selection(ExoIconView* icon_view)
     y = MIN(icon_view->priv->rubberband_y1, icon_view->priv->rubberband_y2);
     width = ABS(icon_view->priv->rubberband_x1 - icon_view->priv->rubberband_x2);
     height = ABS(icon_view->priv->rubberband_y1 - icon_view->priv->rubberband_y2);
-
     /* check all items */
     for (lp = icon_view->priv->items; lp != NULL; lp = lp->next)
     {
         item = EXO_ICON_VIEW_ITEM(lp->data);
-
         is_in = exo_icon_view_item_hit_test(icon_view, item, x, y, width, height);
-
         selected = is_in ^ item->selected_before_rubberbanding;
 
         if (G_UNLIKELY(item->selected != selected))
@@ -2995,9 +2999,29 @@ static void exo_icon_view_update_rubberband_selection(ExoIconView* icon_view)
             changed = TRUE;
             item->selected = selected;
             exo_icon_view_queue_draw_item(icon_view, item);
-        }
-    }
+            /* extend */
+            if (icon_view->priv->shift_pressed && !icon_view->priv->ctrl_pressed)
+            {
+                if (!item->selected)
+                {
+                    changed = TRUE;
+                    item->selected = TRUE;
+                }
+            }
+            /* add/remove */
+            else
+            {
+                changed = TRUE;
+                item->selected = selected;
+            }
 
+            if (changed)
+                exo_icon_view_queue_draw_item(icon_view, item);
+        }
+
+        if (item->selected)
+            icon_view->priv->cursor_item = item;
+    }
     if (G_LIKELY(changed))
         g_signal_emit(G_OBJECT(icon_view), icon_view_signals[SELECTION_CHANGED], 0);
 }
@@ -8105,6 +8129,11 @@ static void exo_icon_view_search_ensure_directory(ExoIconView* icon_view)
     gtk_window_set_modal(GTK_WINDOW(icon_view->priv->search_window), TRUE);
     gtk_window_set_screen(GTK_WINDOW(icon_view->priv->search_window),
                           gtk_widget_get_screen(GTK_WIDGET(icon_view)));
+
+    /* attach the popup window to the toplevel parent (only needed on wayland).
+     * see https://bugzilla.xfce.org/show_bug.cgi?id=16768
+     */
+    gtk_window_set_transient_for(GTK_WINDOW(icon_view->priv->search_window), GTK_WINDOW(toplevel));
 
     /* connect signal handlers */
     g_signal_connect(G_OBJECT(icon_view->priv->search_window),
