@@ -17,12 +17,6 @@ G_BEGIN_DECLS
 
 #define FM_TYPE_MAIN_WINDOW (fm_main_window_get_type())
 #define FM_MAIN_WINDOW(obj) (G_TYPE_CHECK_INSTANCE_CAST((obj), FM_TYPE_MAIN_WINDOW, FMMainWindow))
-#define FM_MAIN_WINDOW_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST((klass), FM_TYPE_MAIN_WINDOW, FMMainWindowClass))
-#define FM_IS_MAIN_WINDOW(obj)         (G_TYPE_CHECK_INSTANCE_TYPE((obj), FM_TYPE_MAIN_WINDOW))
-#define FM_IS_MAIN_WINDOW_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass), FM_TYPE_MAIN_WINDOW))
-#define FM_MAIN_WINDOW_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS((obj), FM_TYPE_MAIN_WINDOW, FMMainWindowClass))
 
 enum
 { // how a panel shares vertical and horizontal space with other panels
@@ -71,7 +65,6 @@ typedef struct _FMMainWindow
     GtkAccelGroup* accel_group;
 
     GtkWindowGroup* wgroup;
-    int n_busy_tasks;
     unsigned int configure_evt_timer;
     bool maximized;
     bool opened_maximized;
@@ -110,7 +103,6 @@ FMMainWindow* fm_main_window_get_on_current_desktop();
  */
 const GList* fm_main_window_get_all();
 
-void fm_main_window_open_terminal(GtkWindow* parent, const char* path);
 void main_task_view_update_task(PtkFileTask* task);
 void main_task_view_remove_task(PtkFileTask* task);
 void main_task_pause_all_queued(PtkFileTask* ptask);
@@ -132,7 +124,6 @@ void main_window_get_counts(PtkFileBrowser* file_browser, int* panel_count, int*
                             int* tab_num);
 bool main_window_panel_is_visible(PtkFileBrowser* file_browser, int panel);
 void main_window_open_in_panel(PtkFileBrowser* file_browser, int panel_num, char* file_path);
-void main_window_autosave(PtkFileBrowser* file_browser);
 void main_window_root_bar_all();
 void main_window_rubberband_all();
 void main_window_refresh_all();

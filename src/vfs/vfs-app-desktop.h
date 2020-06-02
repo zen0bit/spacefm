@@ -45,8 +45,6 @@ struct _VFSAppDesktop
  */
 VFSAppDesktop* vfs_app_desktop_new(const char* file_name);
 
-void vfs_app_desktop_ref(VFSAppDesktop* app);
-
 void vfs_app_desktop_unref(void* data);
 
 const char* vfs_app_desktop_get_name(VFSAppDesktop* app);
@@ -63,11 +61,8 @@ bool vfs_app_desktop_open_multiple_files(VFSAppDesktop* app);
 
 bool vfs_app_desktop_open_in_terminal(VFSAppDesktop* app);
 
-bool vfs_app_desktop_is_hidden(VFSAppDesktop* app);
-
 bool vfs_app_desktop_open_files(GdkScreen* screen, const char* working_dir, VFSAppDesktop* app,
                                 GList* file_paths, GError** err);
-bool vfs_app_desktop_rename(char* desktop_file_path, char* new_name); // sfm
 
 G_END_DECLS
 

@@ -10,11 +10,9 @@
 #include <gtk/gtk.h>
 
 #include <stdlib.h>
-#include <string.h>
 
 #include "go-dialog.h"
 #include "main-window.h"
-#include "utils.h"
 
 #include "ptk/ptk-file-browser.h"
 #include "ptk/ptk-path-entry.h"

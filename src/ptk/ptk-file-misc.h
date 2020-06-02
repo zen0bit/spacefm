@@ -45,9 +45,6 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
                     const char* dest_dir, bool clip_copy, PtkRenameMode create_new,
                     AutoOpenCreate* auto_open);
 
-bool ptk_create_new_file(GtkWindow* parent_win, const char* cwd, bool create_folder,
-                         VFSFileInfo** file);
-
 void ptk_show_file_properties(GtkWindow* parent_win, const char* cwd, GList* sel_files, int page);
 
 /* sel_files is a list of VFSFileInfo

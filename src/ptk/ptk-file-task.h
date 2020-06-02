@@ -50,8 +50,6 @@ struct _PtkFileTask
     GtkWidget* overwrite_combo;
     GtkWidget* error_combo;
 
-    GMutex* mutex;
-
     GtkTextBuffer* log_buf;
     GtkTextMark* log_end;
     bool log_appended;
@@ -78,7 +76,6 @@ struct _PtkFileTask
     GCond* query_cond;
     GCond* query_cond_last;
     char** query_new_dest;
-    GtkEntry* query_entry;
     bool query_ret;
 
     char* dsp_file_count;

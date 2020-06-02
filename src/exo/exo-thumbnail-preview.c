@@ -21,15 +21,12 @@
 // sfm-gtk3
 #include <gtk/gtk.h>
 
-#include <sys/types.h>
 #include <sys/stat.h>
-#include <memory.h>
 #include <string.h>
 
 #include "exo-gdk-pixbuf-extensions.h"
 #include "exo-private.h"
 #include "exo-thumbnail-preview.h"
-#include "exo-utils.h"
 #include "exo-string.h"
 
 #include "../vfs/vfs-thumbnail-loader.h"
@@ -61,6 +58,11 @@ struct _ExoThumbnailPreview
     GtkWidget* name_label;
     GtkWidget* size_label;
 };
+
+bool exo_noop_true(void)
+{
+    return TRUE;
+}
 
 G_DEFINE_TYPE(ExoThumbnailPreview, exo_thumbnail_preview, GTK_TYPE_FRAME)
 

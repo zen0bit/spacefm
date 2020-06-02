@@ -17,7 +17,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* socket is used to keep single instance */
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -26,11 +25,11 @@
 
 #include <signal.h>
 
-#include <unistd.h> /* for getcwd */
+#include <unistd.h>
 
 #include <locale.h>
 
-#include <linux/limits.h> //PATH_MAX
+#include <linux/limits.h>
 
 #include "main-window.h"
 
@@ -59,16 +58,13 @@
 // bool startup_mode = TRUE;  //MOD
 // bool design_mode = TRUE;  //MOD
 
-char* run_cmd = NULL; // MOD
-
-typedef enum
+typedef enum SocketEvent
 {
     CMD_OPEN = 1,
     CMD_OPEN_TAB,
     CMD_REUSE_TAB,
     CMD_DAEMON_MODE,
     CMD_PREF,
-    CMD_WALLPAPER,
     CMD_FIND_FILES,
     CMD_OPEN_PANEL1,
     CMD_OPEN_PANEL2,
@@ -80,9 +76,6 @@ typedef enum
     CMD_PANEL4,
     CMD_NO_TABS,
     CMD_SOCKET_CMD,
-    SOCKET_RESPONSE_OK,
-    SOCKET_RESPONSE_ERROR,
-    SOCKET_RESPONSE_DATA
 } SocketEvent;
 
 static bool folder_initialized = FALSE;
@@ -635,17 +628,6 @@ void init_folder()
     vfs_file_info_set_thumbnail_size(app_settings.big_icon_size, app_settings.small_icon_size);
 
     folder_initialized = TRUE;
-}
-
-bool delayed_popup(GtkWidget* popup)
-{
-    GDK_THREADS_ENTER();
-
-    gtk_menu_popup(GTK_MENU(popup), NULL, NULL, NULL, NULL, 0, gtk_get_current_event_time());
-
-    GDK_THREADS_LEAVE();
-
-    return FALSE;
 }
 
 static void init_daemon()

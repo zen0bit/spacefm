@@ -19,12 +19,10 @@
 #include <stdbool.h>
 
 #include "vfs-file-monitor.h"
-#include "vfs-file-info.h"
-#include <sys/types.h> /* for stat */
 #include <sys/stat.h>
 #include <errno.h>
 
-#include <linux/limits.h> //PATH_MAX
+#include <linux/limits.h>
 
 #include <stdlib.h>
 #include <string.h>

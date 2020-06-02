@@ -23,6 +23,7 @@
 #define __EXO_GDK_PIXBUF_EXTENSIONS_H__
 
 #include <stdbool.h>
+
 #include <gdk/gdk.h>
 
 G_BEGIN_DECLS
@@ -35,10 +36,6 @@ GdkPixbuf* exo_gdk_pixbuf_colorize(const GdkPixbuf* source,
 
 GdkPixbuf*
 exo_gdk_pixbuf_spotlight(const GdkPixbuf* source) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
-
-GdkPixbuf* exo_gdk_pixbuf_frame(const GdkPixbuf* source, const GdkPixbuf* frame, int left_offset,
-                                int top_offset, int right_offset,
-                                int bottom_offset) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
 G_END_DECLS
 

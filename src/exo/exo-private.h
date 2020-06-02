@@ -41,8 +41,6 @@ G_BEGIN_DECLS;
     }                              \
     G_STMT_END
 
-void _exo_i18n_init(void) G_GNUC_INTERNAL;
-
 void _exo_gtk_widget_send_focus_change(GtkWidget* widget, bool in) G_GNUC_INTERNAL;
 
 GType _exo_g_type_register_simple(GType type_parent, const char* type_name_static,

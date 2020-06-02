@@ -6,7 +6,6 @@
 
 #include <stdbool.h>
 
-//#include <string.h>
 #include <gtk/gtk.h>
 
 #include <stdlib.h>
@@ -18,7 +17,6 @@
 #include <gdk/gdkkeysyms.h>
 
 #include "item-prop.h"
-#include "main-window.h"
 #include "utils.h"
 
 #include "ptk/ptk-app-chooser.h"

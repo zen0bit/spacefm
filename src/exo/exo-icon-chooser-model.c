@@ -18,7 +18,6 @@
  */
 
 #include <stdbool.h>
-#include <memory.h>
 #include <string.h>
 
 #include "exo-icon-chooser-model.h"

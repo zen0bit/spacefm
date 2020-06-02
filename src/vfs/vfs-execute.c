@@ -25,20 +25,6 @@
 #endif
 
 #include <string.h>
-#include <stdlib.h>
-
-bool vfs_exec(const char* work_dir, char** argv, char** envp, const char* disp_name,
-              GSpawnFlags flags, GError** err)
-{
-    return vfs_exec_on_screen(gdk_screen_get_default(),
-                              work_dir,
-                              argv,
-                              envp,
-                              disp_name,
-                              flags,
-                              TRUE,
-                              err);
-}
 
 #ifdef HAVE_SN
 static bool sn_timeout(void* user_data)

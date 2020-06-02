@@ -18,20 +18,15 @@
 #include <glib.h>
 #include <glib/gi18n.h>
 
-#include <gdk/gdkkeysyms.h>
-
 #include <string.h>
-#include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
 #include <malloc.h>
 
-#include <linux/limits.h> //PATH_MAX
+#include <linux/limits.h>
 
 #include <fcntl.h>
 
 #include <sys/stat.h>
-#include <time.h>
 #include <errno.h>
 
 #include <fnmatch.h>
@@ -41,14 +36,10 @@
 #include "../exo/exo-icon-view.h"
 #include "../exo/exo-tree-view.h"
 
-#include "../mime-type/mime-type.h"
-
-#include "settings.h" //MOD
-#include "ptk-app-chooser.h"
+#include "settings.h"
 
 #include "ptk-file-icon-renderer.h"
 #include "ptk-utils.h"
-#include "ptk-input-dialog.h"
 #include "ptk-file-task.h"
 #include "ptk-file-misc.h"
 
@@ -56,26 +47,17 @@
 #include "ptk-dir-tree-view.h"
 #include "ptk-dir-tree.h"
 
-#include "../vfs/vfs-dir.h"
-#include "../vfs/vfs-utils.h"
-#include "../vfs/vfs-file-info.h"
-#include "../vfs/vfs-file-monitor.h"
-#include "../vfs/vfs-app-desktop.h"
-
 #include "ptk-file-list.h"
 #include "ptk-text-renderer.h"
 
-#include "ptk-file-archiver.h"
 #include "ptk-clipboard.h"
 
 #include "ptk-file-menu.h"
-#include "ptk-path-entry.h" //MOD
-#include "find-files.h"     //MOD
+#include "ptk-path-entry.h"
+#include "find-files.h"
 #include "main-window.h"
 
 #include "utils.h"
-
-extern char* run_cmd; // MOD
 
 static void ptk_file_browser_class_init(PtkFileBrowserClass* klass);
 static void ptk_file_browser_init(PtkFileBrowser* file_browser);
@@ -93,10 +75,6 @@ static void init_list_view(PtkFileBrowser* file_browser, GtkTreeView* list_view)
 static GtkWidget* ptk_file_browser_create_dir_tree(PtkFileBrowser* file_browser);
 
 static void on_dir_file_listed(VFSDir* dir, bool is_cancelled, PtkFileBrowser* file_browser);
-
-void ptk_file_browser_open_selected_files(PtkFileBrowser* file_browser);
-
-static void ptk_file_browser_cut_or_copy(PtkFileBrowser* file_browser, bool copy);
 
 static void ptk_file_browser_update_model(PtkFileBrowser* file_browser);
 
@@ -152,9 +130,7 @@ static void ptk_file_browser_content_change(PtkFileBrowser* file_browser);
 static void ptk_file_browser_sel_change(PtkFileBrowser* file_browser);
 static void ptk_file_browser_open_item(PtkFileBrowser* file_browser, const char* path, int action);
 static void ptk_file_browser_pane_mode_change(PtkFileBrowser* file_browser);
-void ptk_file_browser_update_views(GtkWidget* item, PtkFileBrowser* file_browser);
 void focus_folder_view(PtkFileBrowser* file_browser);
-void on_shortcut_new_tab_here(GtkMenuItem* item, PtkFileBrowser* file_browser);
 void enable_toolbar(PtkFileBrowser* file_browser);
 void show_thumbnails(PtkFileBrowser* file_browser, PtkFileList* list, bool is_big,
                      int max_file_size);
@@ -1859,27 +1835,6 @@ GtkWidget* ptk_file_browser_new(int curpanel, GtkWidget* notebook, GtkWidget* ta
     return GTK_IS_WIDGET(file_browser) ? (GtkWidget*)file_browser : NULL;
 }
 
-bool ptk_file_restrict_homedir(const char* folder_path)
-{
-    const char* homedir = NULL;
-    int ret = (1 == 0);
-
-    homedir = g_getenv("HOME");
-    if (!homedir)
-    {
-        homedir = g_get_home_dir();
-    }
-    if (g_str_has_prefix(folder_path, homedir))
-    {
-        ret = (1 == 1);
-    }
-    if (g_str_has_prefix(folder_path, "/media"))
-    {
-        ret = (1 == 1);
-    }
-    return ret;
-}
-
 void ptk_file_browser_update_tab_label(PtkFileBrowser* file_browser)
 {
     GtkWidget* label;
@@ -2640,17 +2595,6 @@ const char* ptk_file_browser_get_cwd(PtkFileBrowser* file_browser)
     return (const char*)file_browser->curHistory->data;
 }
 
-bool ptk_file_browser_is_busy(PtkFileBrowser* file_browser)
-{
-    return file_browser->busy;
-}
-
-bool ptk_file_browser_can_back(PtkFileBrowser* file_browser)
-{
-    /* there is back history */
-    return (file_browser->curHistory && file_browser->curHistory->prev);
-}
-
 void ptk_file_browser_go_back(GtkWidget* item, PtkFileBrowser* file_browser)
 {
     const char* path;
@@ -2661,12 +2605,6 @@ void ptk_file_browser_go_back(GtkWidget* item, PtkFileBrowser* file_browser)
         return;
     path = (const char*)file_browser->curHistory->prev->data;
     ptk_file_browser_chdir(file_browser, path, PTK_FB_CHDIR_BACK);
-}
-
-bool ptk_file_browser_can_forward(PtkFileBrowser* file_browser)
-{
-    /* If there is forward history */
-    return (file_browser->curHistory && file_browser->curHistory->next);
 }
 
 void ptk_file_browser_go_forward(GtkWidget* item, PtkFileBrowser* file_browser)
@@ -2717,11 +2655,6 @@ void ptk_file_browser_go_default(GtkWidget* item, PtkFileBrowser* file_browser)
 void ptk_file_browser_set_default_folder(GtkWidget* item, PtkFileBrowser* file_browser)
 {
     xset_set("go_set_default", "s", ptk_file_browser_get_cwd(file_browser));
-}
-
-GtkWidget* ptk_file_browser_get_folder_view(PtkFileBrowser* file_browser)
-{
-    return file_browser->folder_view;
 }
 
 void ptk_file_browser_select_all(GtkWidget* item, PtkFileBrowser* file_browser)
@@ -4988,41 +4921,6 @@ void ptk_file_browser_rename_selected_files(PtkFileBrowser* file_browser, GList*
     }
 }
 
-bool ptk_file_browser_can_paste(PtkFileBrowser* file_browser)
-{
-    /* FIXME: return FALSE when we don't have write permission */
-    return FALSE;
-}
-
-void ptk_file_browser_paste(PtkFileBrowser* file_browser)
-{
-    GList* sel_files;
-    char* dest_dir = NULL;
-
-    sel_files = ptk_file_browser_get_selected_files(file_browser);
-    // MOD removed - if you want this then at least make sure src != dest
-    /*    if ( sel_files && sel_files->next == NULL &&
-                ( file = ( VFSFileInfo* ) sel_files->data ) &&
-                vfs_file_info_is_dir( ( VFSFileInfo* ) sel_files->data ) )
-        {
-            dest_dir = g_build_filename( ptk_file_browser_get_cwd( file_browser ),
-                                         vfs_file_info_get_name( file ), NULL );
-        }
-    */
-    ptk_clipboard_paste_files(GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(file_browser))),
-                              dest_dir ? dest_dir : ptk_file_browser_get_cwd(file_browser),
-                              GTK_TREE_VIEW(file_browser->task_view),
-                              NULL,
-                              NULL);
-    if (dest_dir)
-        g_free(dest_dir);
-    if (sel_files)
-    {
-        g_list_foreach(sel_files, (GFunc)vfs_file_info_unref, NULL);
-        g_list_free(sel_files);
-    }
-}
-
 void ptk_file_browser_paste_link(PtkFileBrowser* file_browser) // MOD added
 {
     ptk_clipboard_paste_links(GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(file_browser))),
@@ -5039,57 +4937,6 @@ void ptk_file_browser_paste_target(PtkFileBrowser* file_browser) // MOD added
                                 GTK_TREE_VIEW(file_browser->task_view),
                                 NULL,
                                 NULL);
-}
-
-bool ptk_file_browser_can_cut_or_copy(PtkFileBrowser* file_browser)
-{
-    return FALSE;
-}
-
-void ptk_file_browser_cut(PtkFileBrowser* file_browser)
-{
-    /* What "cut" and "copy" do are the same.
-     *  The only difference is clipboard_action = GDK_ACTION_MOVE.
-     */
-    ptk_file_browser_cut_or_copy(file_browser, FALSE);
-}
-
-void ptk_file_browser_cut_or_copy(PtkFileBrowser* file_browser, bool copy)
-{
-    GList* sels;
-
-    sels = ptk_file_browser_get_selected_files(file_browser);
-    if (!sels)
-        return;
-    ptk_clipboard_cut_or_copy_files(ptk_file_browser_get_cwd(file_browser), sels, copy);
-    vfs_file_info_list_free(sels);
-}
-
-void ptk_file_browser_copy(PtkFileBrowser* file_browser)
-{
-    ptk_file_browser_cut_or_copy(file_browser, TRUE);
-}
-
-bool ptk_file_browser_can_delete(PtkFileBrowser* file_browser)
-{
-    /* FIXME: return FALSE when we don't have write permission. */
-    return TRUE;
-}
-
-void ptk_file_browser_delete(PtkFileBrowser* file_browser)
-{
-    GList* sel_files;
-    GtkWidget* parent_win;
-
-    if (!file_browser->n_sel_files)
-        return;
-    sel_files = ptk_file_browser_get_selected_files(file_browser);
-    parent_win = gtk_widget_get_toplevel(GTK_WIDGET(file_browser));
-    ptk_delete_files(GTK_WINDOW(parent_win),
-                     ptk_file_browser_get_cwd(file_browser),
-                     sel_files,
-                     GTK_TREE_VIEW(file_browser->task_view));
-    vfs_file_info_list_free(sel_files);
 }
 
 GList* ptk_file_browser_get_selected_files(PtkFileBrowser* file_browser)
@@ -5597,16 +5444,6 @@ void ptk_file_browser_set_sort_type(PtkFileBrowser* file_browser, GtkSortType or
     }
 }
 
-PtkFBSortOrder ptk_file_browser_get_sort_order(PtkFileBrowser* file_browser)
-{
-    return file_browser->sort_order;
-}
-
-GtkSortType ptk_file_browser_get_sort_type(PtkFileBrowser* file_browser)
-{
-    return file_browser->sort_type;
-}
-
 /* FIXME: Don't recreate the view if previous view is compact view */
 void ptk_file_browser_view_as_icons(PtkFileBrowser* file_browser)
 {
@@ -5675,80 +5512,6 @@ void ptk_file_browser_view_as_list(PtkFileBrowser* file_browser)
     gtk_container_add(GTK_CONTAINER(file_browser->folder_view_scroll), file_browser->folder_view);
 }
 
-void ptk_file_browser_create_new_file(PtkFileBrowser* file_browser, bool create_folder)
-{
-    VFSFileInfo* file = NULL;
-    if (ptk_create_new_file(GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(file_browser))),
-                            ptk_file_browser_get_cwd(file_browser),
-                            create_folder,
-                            &file))
-    {
-        PtkFileList* list = PTK_FILE_LIST(file_browser->file_list);
-        GtkTreeIter it;
-        /* generate created event before FAM to enhance responsiveness. */
-        vfs_dir_emit_file_created(file_browser->dir, vfs_file_info_get_name(file), TRUE);
-
-        /* select the created file */
-        if (ptk_file_list_find_iter(list, &it, file))
-        {
-            GtkTreePath* tp = gtk_tree_model_get_path(GTK_TREE_MODEL(list), &it);
-            if (file_browser->view_mode == PTK_FB_ICON_VIEW ||
-                file_browser->view_mode == PTK_FB_COMPACT_VIEW)
-            {
-                exo_icon_view_select_path(EXO_ICON_VIEW(file_browser->folder_view), tp);
-                exo_icon_view_set_cursor(EXO_ICON_VIEW(file_browser->folder_view), tp, NULL, FALSE);
-
-                /* NOTE for dirty hack:
-                 *  Layout of icon view is done in idle handler,
-                 *  so we have to let it re-layout after the insertion of new item.
-                 * or we cannot scroll to the specified path correctly.  */
-                while (gtk_events_pending())
-                    gtk_main_iteration();
-                exo_icon_view_scroll_to_path(EXO_ICON_VIEW(file_browser->folder_view),
-                                             tp,
-                                             FALSE,
-                                             0,
-                                             0);
-            }
-            else if (file_browser->view_mode == PTK_FB_LIST_VIEW)
-            {
-                // MOD  give new directory/file focus
-
-                // GtkTreeSelection * tree_sel;
-                // tree_sel = gtk_tree_view_get_selection( GTK_TREE_VIEW( file_browser->folder_view
-                // ) ); gtk_tree_selection_select_iter( tree_sel, &it );
-
-                GtkTreeSelection* selection;
-                GList* selected_paths = NULL;
-                GList* lp;
-                /* save selected paths */
-                selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(file_browser->folder_view));
-                selected_paths = gtk_tree_selection_get_selected_rows(selection, NULL);
-
-                gtk_tree_view_set_cursor(GTK_TREE_VIEW(file_browser->folder_view), tp, NULL, FALSE);
-                /* select all previously selected paths */
-                for (lp = selected_paths; lp != NULL; lp = lp->next)
-                    gtk_tree_selection_select_path(selection, lp->data);
-
-                /*
-                while( gtk_events_pending() )
-                    gtk_main_iteration();
-
-                */
-                gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(file_browser->folder_view),
-                                             tp,
-                                             NULL,
-                                             FALSE,
-                                             0,
-                                             0);
-            }
-            gtk_widget_grab_focus(GTK_WIDGET(file_browser->folder_view)); // MOD
-            gtk_tree_path_free(tp);
-        }
-        vfs_file_info_unref(file);
-    }
-}
-
 unsigned int ptk_file_browser_get_n_sel(PtkFileBrowser* file_browser, uint64_t* sel_size)
 {
     if (sel_size)
@@ -5778,18 +5541,6 @@ void ptk_file_browser_pane_mode_change(PtkFileBrowser* file_browser)
 
 void ptk_file_browser_open_item(PtkFileBrowser* file_browser, const char* path, int action)
 {
-}
-
-void ptk_file_browser_show_shadow(PtkFileBrowser* file_browser)
-{
-    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(file_browser->folder_view_scroll),
-                                        GTK_SHADOW_IN);
-}
-
-void ptk_file_browser_hide_shadow(PtkFileBrowser* file_browser)
-{
-    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(file_browser->folder_view_scroll),
-                                        GTK_SHADOW_NONE);
 }
 
 void show_thumbnails(PtkFileBrowser* file_browser, PtkFileList* list, bool is_big,
@@ -5866,17 +5617,6 @@ int ptk_file_browser_no_access(const char* cwd, const char* smode)
     no_access = eaccess(cwd, mode);
 #endif
     return no_access;
-}
-
-void ptk_file_browser_find_file(GtkMenuItem* menuitem, PtkFileBrowser* file_browser)
-{
-    const char* cwd;
-    const char* dirs[2];
-    cwd = ptk_file_browser_get_cwd(file_browser);
-
-    dirs[0] = cwd;
-    dirs[1] = NULL;
-    fm_find_files(dirs);
 }
 
 void ptk_file_browser_focus(GtkMenuItem* item, PtkFileBrowser* file_browser, int job2)

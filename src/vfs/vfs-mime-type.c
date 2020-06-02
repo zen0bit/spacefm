@@ -15,17 +15,12 @@
 #include "vfs-mime-type.h"
 #include "vfs-file-monitor.h"
 
-#include "../mime-type/mime-action.h"
-
-#include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
-#include <fcntl.h>
 #include <string.h>
 
 #include <gtk/gtk.h>
 
-#include "vfs-utils.h" /* for vfs_load_icon */
+#include "vfs-utils.h"
 
 static GHashTable* mime_hash = NULL;
 GRWLock mime_hash_lock;
@@ -501,14 +496,6 @@ void vfs_mime_type_add_action(VFSMimeType* mime_type, const char* desktop_id, ch
     else if (custom_desktop) // sfm
         *custom_desktop = g_strdup(desktop_id);
 }
-
-/*
- * char** vfs_mime_type_get_all_known_apps():
- *
- * Get all app.desktop files for all mime types.
- * The returned string array contains a list of *.desktop file names,
- * and should be freed when no longer needed.
- */
 
 void on_icon_theme_changed(GtkIconTheme* icon_theme, void* user_data)
 {

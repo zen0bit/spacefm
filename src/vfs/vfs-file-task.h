@@ -82,8 +82,6 @@ typedef enum
 
 typedef struct _VFSFileTask VFSFileTask;
 
-typedef void (*VFSFileTaskProgressCallback)(VFSFileTask* task);
-
 typedef bool (*VFSFileTaskStateCallback)(VFSFileTask*, VFSFileTaskState state, void* state_data,
                                          void* user_data);
 
@@ -133,9 +131,6 @@ struct _VFSFileTask
     GCond* pause_cond;
     bool queue_start;
 
-    VFSFileTaskProgressCallback progress_cb;
-    void* progress_cb_data;
-
     VFSFileTaskStateCallback state_cb;
     void* state_cb_data;
 
@@ -172,8 +167,6 @@ struct _VFSFileTask
     bool exec_is_error;
     GIOChannel* exec_channel_out;
     GIOChannel* exec_channel_err;
-    // GtkTextBuffer* exec_err_buf;  //copy from ptk task
-    // GtkTextMark* exec_mark_end;  //copy from ptk task
     bool exec_scroll_lock;
     bool exec_write_root;
     bool exec_checksum;
@@ -196,9 +189,6 @@ void vfs_file_task_unlock(VFSFileTask* task);
 void vfs_file_task_set_chmod(VFSFileTask* task, unsigned char* chmod_actions);
 
 void vfs_file_task_set_chown(VFSFileTask* task, uid_t uid, gid_t gid);
-
-void vfs_file_task_set_progress_callback(VFSFileTask* task, VFSFileTaskProgressCallback cb,
-                                         void* user_data);
 
 void vfs_file_task_set_state_callback(VFSFileTask* task, VFSFileTaskStateCallback cb,
                                       void* user_data);

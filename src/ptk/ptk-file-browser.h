@@ -20,12 +20,7 @@ G_BEGIN_DECLS
 #define PTK_TYPE_FILE_BROWSER (ptk_file_browser_get_type())
 #define PTK_FILE_BROWSER(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST((obj), PTK_TYPE_FILE_BROWSER, PtkFileBrowser))
-#define PTK_FILE_BROWSER_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST((klass), PTK_TYPE_FILE_BROWSER, PtkFileBrowserClass))
-#define PTK_IS_FILE_BROWSER(obj)         (G_TYPE_CHECK_INSTANCE_TYPE((obj), PTK_TYPE_FILE_BROWSER))
-#define PTK_IS_FILE_BROWSER_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass), PTK_TYPE_FILE_BROWSER))
-#define PTK_FILE_BROWSER_GET_CLASS(obj) \
-    (G_TYPE_INSTANCE_GET_CLASS((obj), PTK_TYPE_FILE_BROWSER, PtkFileBrowserClass))
+#define PTK_IS_FILE_BROWSER(obj) (G_TYPE_CHECK_INSTANCE_TYPE((obj), PTK_TYPE_FILE_BROWSER))
 
 typedef enum
 {
@@ -109,9 +104,6 @@ struct _PtkFileBrowser
     GtkCellRenderer* icon_render;
     unsigned int single_click_timeout;
 
-    long prev_update_time;
-    unsigned int update_timeout;
-
     // MOD
     int mypanel;
     GtkWidget* mynotebook;
@@ -180,10 +172,6 @@ bool ptk_file_browser_chdir(PtkFileBrowser* file_browser, const char* folder_pat
 
 /*
  * returned path should be encodede in on-disk encoding
- */
-const char* ptk_file_browser_get_cwd(PtkFileBrowser* file_browser);
-
-/*
  * returned path should be encodede in UTF-8
  */
 const char* ptk_file_browser_get_cwd(PtkFileBrowser* file_browser);
@@ -193,28 +181,18 @@ unsigned int ptk_file_browser_get_n_visible_files(PtkFileBrowser* file_browser);
 
 unsigned int ptk_file_browser_get_n_sel(PtkFileBrowser* file_browser, uint64_t* sel_size);
 
-bool ptk_file_browser_can_back(PtkFileBrowser* file_browser);
 void ptk_file_browser_go_back(GtkWidget* item, PtkFileBrowser* file_browser);
 
-bool ptk_file_browser_can_forward(PtkFileBrowser* file_browser);
 void ptk_file_browser_go_forward(GtkWidget* item, PtkFileBrowser* file_browser);
 
 void ptk_file_browser_go_up(GtkWidget* item, PtkFileBrowser* file_browser);
 
 void ptk_file_browser_refresh(GtkWidget* item, PtkFileBrowser* file_browser);
-void ptk_file_browser_update_mime_icons(PtkFileBrowser* file_browser);
-
-bool ptk_file_browser_is_busy(PtkFileBrowser* file_browser);
-
-GtkWidget* ptk_file_browser_get_folder_view(PtkFileBrowser* file_browser);
 
 void ptk_file_browser_show_hidden_files(PtkFileBrowser* file_browser, bool show);
 
 void ptk_file_browser_set_single_click(PtkFileBrowser* file_browser, bool single_click);
 void ptk_file_browser_set_single_click_timeout(PtkFileBrowser* file_browser, unsigned int timeout);
-
-void ptk_file_browser_show_shadow(PtkFileBrowser* file_browser);
-void ptk_file_browser_hide_shadow(PtkFileBrowser* file_browser);
 
 /* Sorting files */
 void ptk_file_browser_set_sort_order(PtkFileBrowser* file_browser, PtkFBSortOrder order);
@@ -224,26 +202,13 @@ void ptk_file_browser_set_sort_type(PtkFileBrowser* file_browser, GtkSortType or
 void ptk_file_browser_set_sort_extra(PtkFileBrowser* file_browser, const char* setname);
 void ptk_file_browser_read_sort_extra(PtkFileBrowser* file_browser);
 
-PtkFBSortOrder ptk_file_browser_get_sort_order(PtkFileBrowser* file_browser);
-
-GtkSortType ptk_file_browser_get_sort_type(PtkFileBrowser* file_browser);
-
 GList* ptk_file_browser_get_selected_files(PtkFileBrowser* file_browser);
 
 /* Return a list of selected filenames (full paths in on-disk encoding) */
 void ptk_file_browser_open_selected_files(PtkFileBrowser* file_browser);
 
-bool ptk_file_browser_can_paste(PtkFileBrowser* file_browser);
-void ptk_file_browser_paste(PtkFileBrowser* file_browser);
 void ptk_file_browser_paste_link(PtkFileBrowser* file_browser);   // MOD added
 void ptk_file_browser_paste_target(PtkFileBrowser* file_browser); // MOD added
-
-bool ptk_file_browser_can_cut_or_copy(PtkFileBrowser* file_browser);
-void ptk_file_browser_cut(PtkFileBrowser* file_browser);
-void ptk_file_browser_copy(PtkFileBrowser* file_browser);
-
-bool ptk_file_browser_can_delete(PtkFileBrowser* file_browser);
-void ptk_file_browser_delete(PtkFileBrowser* file_browser);
 
 void ptk_file_browser_select_all(GtkWidget* item, PtkFileBrowser* file_browser);
 void ptk_file_browser_select_last(PtkFileBrowser* file_browser); // MOD added
@@ -261,8 +226,6 @@ void ptk_file_browser_view_as_icons(PtkFileBrowser* file_browser);
 void ptk_file_browser_view_as_compact_list(PtkFileBrowser* file_browser);
 void ptk_file_browser_view_as_list(PtkFileBrowser* file_browser);
 
-void ptk_file_browser_create_new_file(PtkFileBrowser* file_browser, bool create_folder);
-
 void ptk_file_browser_hide_selected(PtkFileBrowser* file_browser, GList* files, char* cwd);
 
 void ptk_file_browser_show_thumbnails(PtkFileBrowser* file_browser, int max_file_size);
@@ -275,17 +238,13 @@ int ptk_file_browser_no_access(const char* cwd, const char* smode);
 void ptk_file_browser_update_views(GtkWidget* item, PtkFileBrowser* file_browser);
 void ptk_file_browser_go_home(GtkWidget* item, PtkFileBrowser* file_browser);
 void ptk_file_browser_go_default(GtkWidget* item, PtkFileBrowser* file_browser);
-void ptk_file_browser_find_file(GtkMenuItem* menuitem, PtkFileBrowser* file_browser);
 void ptk_file_browser_new_tab(GtkMenuItem* item, PtkFileBrowser* file_browser);
 void ptk_file_browser_new_tab_here(GtkMenuItem* item, PtkFileBrowser* file_browser);
-void on_shortcut_new_window_activate(GtkMenuItem* item, PtkFileBrowser* file_browser);
 void ptk_file_browser_set_default_folder(GtkWidget* item, PtkFileBrowser* file_browser);
-void ptk_file_browser_grab_pathbar(GtkMenuItem* menuitem, PtkFileBrowser* file_browser);
 void ptk_file_browser_go_tab(GtkMenuItem* item, PtkFileBrowser* file_browser, int t);
 void ptk_file_browser_focus(GtkMenuItem* item, PtkFileBrowser* file_browser, int job2);
 void ptk_file_browser_save_column_widths(GtkTreeView* view, PtkFileBrowser* file_browser);
 
-void ptk_file_browser_test_exec(GtkWidget* item, PtkFileBrowser* file_browser);
 bool ptk_file_browser_slider_release(GtkWidget* widget, GdkEventButton* event,
                                      PtkFileBrowser* file_browser);
 void ptk_file_browser_rebuild_toolbars(PtkFileBrowser* file_browser);
@@ -294,9 +253,6 @@ void ptk_file_browser_open_in_tab(PtkFileBrowser* file_browser, int tab_num, cha
 void ptk_file_browser_on_permission(GtkMenuItem* item, PtkFileBrowser* file_browser,
                                     GList* sel_files, char* cwd);
 void ptk_file_browser_copycmd(PtkFileBrowser* file_browser, GList* sel_files, char* cwd,
-                              char* setname);
-void ptk_file_browser_paste_as(GtkMenuItem* item, PtkFileBrowser* file_browser);
-void ptk_file_browser_rootcmd(PtkFileBrowser* file_browser, GList* sel_files, char* cwd,
                               char* setname);
 void ptk_file_browser_on_action(PtkFileBrowser* browser, char* setname);
 GList* folder_view_get_selected_items(PtkFileBrowser* file_browser, GtkTreeModel** model);

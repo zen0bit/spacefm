@@ -89,7 +89,6 @@ bool vfs_file_info_get(VFSFileInfo* fi, const char* file_path, const char* base_
 const char* vfs_file_info_get_name(VFSFileInfo* fi);
 const char* vfs_file_info_get_disp_name(VFSFileInfo* fi);
 
-void vfs_file_info_set_name(VFSFileInfo* fi, const char* name);
 void vfs_file_info_set_disp_name(VFSFileInfo* fi, const char* name);
 
 off_t vfs_file_info_get_size(VFSFileInfo* fi);
@@ -134,8 +133,6 @@ bool vfs_file_info_is_image(VFSFileInfo* fi);
 bool vfs_file_info_is_video(VFSFileInfo* fi);
 
 bool vfs_file_info_is_desktop_entry(VFSFileInfo* fi);
-
-bool vfs_file_info_is_unknown_type(VFSFileInfo* fi);
 
 /* Full path of the file is required by this function */
 bool vfs_file_info_is_executable(VFSFileInfo* fi, const char* file_path);

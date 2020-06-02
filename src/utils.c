@@ -44,20 +44,6 @@ char* randhex8()
     return g_strdup(hex);
 }
 
-void check_for_errno()
-{
-    char* err_msg = NULL;
-
-    if (errno)
-    {
-        err_msg = (char*)g_strerror(errno);
-        if (err_msg)
-            err_msg = g_strdup(err_msg);
-    }
-    if (!err_msg)
-        err_msg = g_strdup_printf("write() failure");
-}
-
 char* replace_line_subs(const char* line)
 {
     const char* perc[] =

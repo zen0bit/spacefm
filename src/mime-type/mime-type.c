@@ -660,58 +660,6 @@ bool mime_type_is_subclass(const char* type, const char* parent)
 }
 
 /*
- * Get all parent type of this mime_type
- * The returned string array should be freed with g_strfreev().
- */
-char** mime_type_get_parents(const char* type)
-{
-    int i;
-    const char** parents = NULL;
-    const char** p;
-    GArray* ret = g_array_sized_new(TRUE, TRUE, sizeof(char*), 5);
-
-    for (i = 0; i < n_caches; ++i)
-    {
-        parents = mime_cache_lookup_parents(caches[i], type);
-        if (parents)
-        {
-            for (p = parents; *p; ++p)
-            {
-                char* parent = g_strdup(*p);
-                g_array_append_val(ret, parent);
-            }
-        }
-    }
-    return (char**)g_array_free(ret, (0 == ret->len));
-}
-
-/*
- * Get all alias types of this mime_type
- * The returned string array should be freed with g_strfreev().
- */
-char** mime_type_get_alias(const char* type)
-{
-    int i;
-    const char** alias = NULL;
-    const char** p;
-    GArray* ret = g_array_sized_new(TRUE, TRUE, sizeof(char*), 5);
-
-    for (i = 0; i < n_caches; ++i)
-    {
-        alias = (const char**)mime_cache_lookup_alias(caches[i], type);
-        if (alias)
-        {
-            for (p = alias; *p; ++p)
-            {
-                char* type = g_strdup(*p);
-                g_array_append_val(ret, type);
-            }
-        }
-    }
-    return (char**)g_array_free(ret, (0 == ret->len));
-}
-
-/*
  * Get mime caches
  */
 MimeCache** mime_type_get_caches(int* n)

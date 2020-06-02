@@ -21,15 +21,14 @@
 #include <sys/stat.h>
 #include <errno.h>
 #include <unistd.h>
-#include <stdlib.h> /* for realpath */
+#include <stdlib.h>
 
-#include <linux/limits.h> //PATH_MAX
+#include <linux/limits.h>
 
 #include <glib/gi18n.h>
 #include "ptk-utils.h"
 #include "ptk-file-task.h"
 #include "ptk-file-properties.h"
-#include "ptk-input-dialog.h"
 #include "ptk-file-browser.h"
 #include "ptk-app-chooser.h"
 #include "ptk-clipboard.h"
@@ -37,7 +36,6 @@
 #include "ptk-location-view.h"
 #include <gdk/gdkkeysyms.h>
 
-#include "../vfs/vfs-file-task.h"
 #include "../vfs/vfs-app-desktop.h"
 #include "../vfs/vfs-execute.h"
 
@@ -3301,82 +3299,6 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
     if (mset->mime_type)
         g_free(mset->mime_type);
     g_slice_free(MoveSet, mset);
-
-    return ret;
-}
-
-bool ptk_create_new_file(GtkWindow* parent_win, const char* cwd, bool create_folder,
-                         VFSFileInfo** file)
-{
-    char* full_path;
-    char* ufile_name;
-    char* file_name;
-    GtkLabel* prompt;
-    int result;
-    GtkWidget* dlg;
-    bool ret = FALSE;
-    bool looponce = FALSE; // MOD
-
-    if (create_folder)
-    {
-        dlg = ptk_input_dialog_new(_("New Directory"),
-                                   _("New Directory name:"),
-                                   _("New Directory"),
-                                   parent_win);
-    }
-    else
-    {
-        dlg = ptk_input_dialog_new(_("New File"), _("New filename:"), _("New File"), parent_win);
-    }
-
-    while (gtk_dialog_run(GTK_DIALOG(dlg)) == GTK_RESPONSE_OK)
-    {
-        looponce = TRUE; // MOD
-        ufile_name = ptk_input_dialog_get_text(dlg);
-        if (g_get_filename_charsets(NULL))
-            file_name = ufile_name;
-        else
-        {
-            file_name = g_filename_from_utf8(ufile_name, -1, NULL, NULL, NULL);
-            g_free(ufile_name);
-        }
-        full_path = g_build_filename(cwd, file_name, NULL);
-        g_free(file_name);
-        if (g_file_test(full_path, G_FILE_TEST_EXISTS))
-        {
-            prompt = GTK_LABEL(ptk_input_dialog_get_label(dlg));
-            gtk_label_set_text(prompt, _("Name already exists.\n\nPlease input a new one:"));
-            g_free(full_path);
-            continue;
-        }
-        if (create_folder)
-        {
-            result = mkdir(full_path, 0755);
-            ret = (result == 0);
-        }
-        else
-        {
-            result = open(full_path, O_CREAT, 0644);
-            if (result != -1)
-            {
-                close(result);
-                ret = TRUE;
-            }
-        }
-
-        if (ret && file)
-        {
-            *file = vfs_file_info_new();
-            vfs_file_info_get(*file, full_path, NULL);
-        }
-
-        g_free(full_path);
-        break;
-    }
-    gtk_widget_destroy(dlg);
-
-    if (!ret && looponce) // MOD
-        ptk_show_error(parent_win, _("Error"), _("The new file cannot be created"));
 
     return ret;
 }

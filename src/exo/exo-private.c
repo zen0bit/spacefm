@@ -20,7 +20,6 @@
  */
 
 #include <stdbool.h>
-#include <libintl.h>
 
 #include "exo-private.h"
 #include "exo-string.h"

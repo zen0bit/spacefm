@@ -28,12 +28,10 @@
 #include "ptk-file-task.h"
 #include "ptk-utils.h"
 
-#include "../vfs/vfs-file-info.h"
 #include "../vfs/vfs-app-desktop.h"
 
 #include "ptk-app-chooser.h"
 #include "utils.h"
-#include "main-window.h"
 
 const char* chmod_names[] = {"owner_r",
                              "owner_w",

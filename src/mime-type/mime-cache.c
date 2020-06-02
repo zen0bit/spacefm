@@ -26,9 +26,7 @@
 
 #include <glib.h>
 
-#include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
 
 #ifdef HAVE_MMAP
 #include <sys/mman.h>

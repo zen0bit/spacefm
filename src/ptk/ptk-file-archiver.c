@@ -19,9 +19,6 @@
 #include "ptk-file-task.h"
 #include "ptk-handler.h"
 
-#include "../vfs/vfs-file-info.h"
-#include "../vfs/vfs-mime-type.h"
-
 #include "settings.h"
 #include "utils.h"
 

@@ -108,7 +108,6 @@ typedef enum
     CDLG_RADIO,
     CDLG_ICON,
     CDLG_IMAGE,
-    // CDLG_STATUS,
     CDLG_PROGRESS,
     CDLG_HSEP,
     CDLG_VSEP,

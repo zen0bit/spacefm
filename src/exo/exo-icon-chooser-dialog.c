@@ -19,17 +19,14 @@
  */
 
 #include <stdbool.h>
-#include <memory.h>
 #include <stdarg.h>
 #include <string.h>
 
 #include <gdk/gdkkeysyms.h>
 // sfm-gtk3
 #include <gtk/gtk.h>
-#include <gdk/gdkkeysyms.h>
 
 #include "exo-binding.h"
-#include "exo-cell-renderer-ellipsized-text.h"
 #include "exo-cell-renderer-icon.h"
 #include "exo-gtk-extensions.h"
 #include "exo-icon-chooser-dialog.h"
@@ -37,8 +34,6 @@
 #include "exo-icon-view.h"
 #include "exo-string.h"
 #include "exo-private.h"
-
-#include "../utils.h"
 
 /**
  * SECTION: exo-icon-chooser-dialog

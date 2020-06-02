@@ -83,8 +83,6 @@ void vfs_mime_type_add_action(VFSMimeType* mime_type, const char* desktop_id,
 
 void vfs_mime_type_append_action(const char* type, const char* desktop_id);
 
-char** vfs_mime_type_get_all_known_apps();
-
 char** vfs_mime_type_join_actions(char** list1, unsigned long len1, char** list2,
                                   unsigned long len2);
 
@@ -93,8 +91,6 @@ GList* vfs_mime_type_add_reload_cb(GFreeFunc cb, void* user_data);
 void vfs_mime_type_remove_reload_cb(GList* cb);
 
 char* vfs_mime_type_locate_desktop_file(const char* dir, const char* desktop_id);
-
-bool vfs_mime_type_is_iso(VFSMimeType* vfs_mime_type, const char* path);
 
 G_END_DECLS
 

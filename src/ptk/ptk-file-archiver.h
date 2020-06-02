@@ -36,8 +36,5 @@ void ptk_file_archiver_create(PtkFileBrowser* file_browser, GList* files, const 
 void ptk_file_archiver_extract(PtkFileBrowser* file_browser, GList* files, const char* cwd,
                                const char* dest_dir, int job, bool archive_presence_checked);
 
-// At least a mime type or extension is required - mime type preferred
-bool ptk_file_archiver_is_format_supported(VFSMimeType* mime, const char* extension, int operation);
-
 G_END_DECLS
 #endif

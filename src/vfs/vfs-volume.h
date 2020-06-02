@@ -43,12 +43,6 @@ void vfs_volume_add_callback(VFSVolumeCallback cb, void* user_data);
 
 void vfs_volume_remove_callback(VFSVolumeCallback cb, void* user_data);
 
-bool vfs_volume_mount(VFSVolume* vol, GError** err);
-
-bool vfs_volume_umount(VFSVolume* vol, GError** err);
-
-bool vfs_volume_eject(VFSVolume* vol, GError** err);
-
 const char* vfs_volume_get_disp_name(VFSVolume* vol);
 
 const char* vfs_volume_get_mount_point(VFSVolume* vol);
@@ -59,11 +53,7 @@ const char* vfs_volume_get_fstype(VFSVolume* vol);
 
 const char* vfs_volume_get_icon(VFSVolume* vol);
 
-bool vfs_volume_is_removable(VFSVolume* vol);
-
 bool vfs_volume_is_mounted(VFSVolume* vol);
-
-bool vfs_volume_requires_eject(VFSVolume* vol);
 
 /* HAL build also needs this for file handler
  * ptk_location_view_create_mount_point() */
@@ -117,7 +107,6 @@ struct _VFSVolume
     void* open_main_window;
 };
 
-bool vfs_volume_command(char* command, char** output);
 char* vfs_volume_get_mount_command(VFSVolume* vol, char* default_options, bool* run_in_terminal);
 char* vfs_volume_get_mount_options(VFSVolume* vol, char* options);
 void vfs_volume_automount(VFSVolume* vol);
@@ -127,10 +116,8 @@ char* vfs_volume_device_unmount_cmd(VFSVolume* vol, bool* run_in_terminal);
 char* vfs_volume_device_info(VFSVolume* vol);
 char* vfs_volume_handler_cmd(int mode, int action, VFSVolume* vol, const char* options,
                              netmount_t* netmount, bool* run_in_terminal, char** mount_point);
-void vfs_volume_clean_mount_points();
 
 int split_network_url(const char* url, netmount_t** netmount);
-void vfs_volume_special_mounted(const char* device_file);
 bool vfs_volume_dir_avoid_changes(const char* dir);
 dev_t get_device_parent(dev_t dev);
 bool path_is_mounted_mtab(const char* mtab_file, const char* path, char** device_file,

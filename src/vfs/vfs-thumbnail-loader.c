@@ -53,8 +53,7 @@ typedef struct _ThumbnailRequest
 } ThumbnailRequest;
 
 static void* thumbnail_loader_thread(VFSAsyncTask* task, VFSThumbnailLoader* loader);
-/* static void on_load_finish( VFSAsyncTask* task, bool is_cancelled, VFSThumbnailLoader* loader
- * ); */
+// static void on_load_finish(VFSAsyncTask* task, bool is_cancelled, VFSThumbnailLoader* loader);
 static void thumbnail_request_free(ThumbnailRequest* req);
 static bool on_thumbnail_idle(VFSThumbnailLoader* loader);
 

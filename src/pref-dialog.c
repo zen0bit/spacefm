@@ -17,8 +17,6 @@
 #include <gtk/gtk.h>
 
 #include <stdlib.h>
-#include <string.h>
-#include <malloc.h>
 
 #include <glib/gi18n.h>
 
@@ -27,7 +25,6 @@
 #include "main-window.h"
 
 #include "extern.h"
-#include "utils.h"
 
 #include "ptk/ptk-utils.h"
 #include "ptk/ptk-file-browser.h"
@@ -414,18 +411,6 @@ static void on_response(GtkDialog* dlg, int response, FMPrefDlg* user_data)
         // root settings saved?
         if (geteuid() != 0)
         {
-            /*
-            char* root_set_path= g_strdup_printf(
-                                    "/etc/spacefm/%s-as-root", g_get_user_name() );
-            if ( !g_file_test( root_set_path, G_FILE_TEST_EXISTS ) )
-            {
-                g_free( root_set_path );
-                root_set_path= g_strdup_printf(
-                                            "/etc/spacefm/%d-as-root", geteuid() );
-                if ( !g_file_test( root_set_path, G_FILE_TEST_EXISTS ) )
-                    root_set_change = TRUE;
-            }
-            */
             if (root_set_change)
             {
                 // task

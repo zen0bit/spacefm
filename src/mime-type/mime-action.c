@@ -21,8 +21,6 @@
 #include "mime-action.h"
 #include <string.h>
 #include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
 
 bool save_to_file(const char* path, const char* data, long len)

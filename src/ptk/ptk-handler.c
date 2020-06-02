@@ -17,7 +17,6 @@
 #include <fnmatch.h>
 #include <errno.h>
 #include <gdk/gdkkeysyms.h>
-#include <sys/wait.h> // WIFEXITED
 
 #include "ptk-handler.h"
 
@@ -64,7 +63,6 @@ enum
 // Archive creation handlers combobox model enum
 enum
 {
-    // COL_XSET_NAME
     COL_HANDLER_EXTENSIONS = 1
 };
 
@@ -1104,103 +1102,6 @@ GSList* ptk_handler_file_has_handlers(int mode, int cmd, const char* path, VFSMi
     }
     g_free(new_path);
     return g_slist_reverse(handlers);
-}
-
-void ptk_handler_add_new_default(int mode, const char* default_name, bool start)
-{
-    // This function adds a new default handler to the handlers list
-    // If start, it adds it to the start of the list, otherwise end
-    int i, nelements;
-    char* list;
-    char* str;
-    XSet* set;
-    XSet* set_conf;
-    const Handler* handler;
-
-    if (mode == HANDLER_MODE_ARC)
-        nelements = G_N_ELEMENTS(handlers_arc);
-    else if (mode == HANDLER_MODE_FS)
-        nelements = G_N_ELEMENTS(handlers_fs);
-    else if (mode == HANDLER_MODE_NET)
-        nelements = G_N_ELEMENTS(handlers_net);
-    else if (mode == HANDLER_MODE_FILE)
-        nelements = G_N_ELEMENTS(handlers_file);
-    else
-        return;
-    set_conf = xset_get(handler_conf_xset[mode]);
-
-    if (!set_conf->s)
-    {
-        // create default list - eg sets arc_conf2 ->s
-        list = g_strdup("");
-    }
-    else
-    {
-        // add a space to end of list and end of name before testing to avoid
-        // substring false positive
-        list = g_strdup_printf("%s ", set_conf->s);
-        str = g_strdup_printf("%s ", default_name);
-        if (strstr(list, str))
-        {
-            // already exists in list
-            g_free(list);
-            g_free(str);
-            return;
-        }
-        g_free(list);
-        g_free(str);
-        list = g_strdup(set_conf->s);
-    }
-
-    for (i = 0; i < nelements; i++)
-    {
-        if (mode == HANDLER_MODE_ARC)
-            handler = &handlers_arc[i];
-        else if (mode == HANDLER_MODE_FS)
-            handler = &handlers_fs[i];
-        else if (mode == HANDLER_MODE_NET)
-            handler = &handlers_net[i];
-        else
-            handler = &handlers_file[i];
-
-        if (!g_strcmp0(handler->xset_name, default_name))
-        {
-            // found handler
-            // add default handler to the list
-            if (start)
-            {
-                str = list;
-                list = g_strdup_printf("%s%s%s", handler->xset_name, list[0] ? " " : "", list);
-                g_free(str);
-            }
-            else
-            {
-                str = list;
-                list = g_strconcat(list, list[0] ? " " : "", handler->xset_name, NULL);
-                g_free(str);
-            }
-            set = xset_is(handler->xset_name);
-            // create xset if missing
-            if (!set)
-                set = xset_get(handler->xset_name);
-            // set handler values to defaults
-            string_copy_free(&set->menu_label, handler->handler_name);
-            string_copy_free(&set->s, handler->type);
-            string_copy_free(&set->x, handler->ext);
-            set->in_terminal = handler->compress_term ? XSET_B_TRUE : XSET_B_UNSET;
-            // extract in terminal or (file handler) run as task
-            set->keep_terminal = handler->extract_term ? XSET_B_TRUE : XSET_B_UNSET;
-            if (mode != HANDLER_MODE_FILE)
-                set->scroll_lock = handler->list_term ? XSET_B_TRUE : XSET_B_UNSET;
-            set->b = XSET_B_TRUE;
-            set->lock = FALSE;
-            // handler equals default, so don't save in session
-            set->disable = TRUE;
-        }
-    }
-    // update handler list
-    g_free(set_conf->s);
-    set_conf->s = list;
 }
 
 void ptk_handler_add_defaults(int mode, bool overwrite, bool add_missing)

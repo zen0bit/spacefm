@@ -30,15 +30,6 @@
 
 G_BEGIN_DECLS
 
-char* exo_str_elide_underscores(const char* text) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
-
-bool exo_str_is_equal(const char* a, const char* b);
-
-/*
-char   **exo_strndupv               (char      **strv,
-                                      int         num)G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
-*/
-
 /**
  * exo_str_is_empty:
  * @string : a string

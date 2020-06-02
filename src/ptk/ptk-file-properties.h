@@ -22,8 +22,6 @@ G_BEGIN_DECLS
 GtkWidget* file_properties_dlg_new(GtkWindow* parent, const char* dir_path, GList* sel_files,
                                    int page);
 
-void on_filePropertiesDlg_response(GtkDialog* dialog, int response_id, void* user_data);
-
 G_END_DECLS
 
 #endif

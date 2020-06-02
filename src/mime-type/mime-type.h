@@ -49,9 +49,6 @@ extern const char xdg_mime_type_plain_text[];
 /* Initialize the library */
 void mime_type_init();
 
-/* Reload the shared-mime-database */
-bool mime_type_reload();
-
 /* Finalize the library and free related resources */
 void mime_type_finalize();
 
@@ -87,31 +84,6 @@ bool mime_type_is_executable_file(const char* file_path, const char* mime_type);
 
 /* Check if the specified mime_type is the subclass of the specified parent type */
 bool mime_type_is_subclass(const char* type, const char* parent);
-
-/*
- * Get all parent type of this mime_type
- * The returned string array should be freed with g_strfreev().
- */
-char** mime_type_get_parents(const char* type);
-
-/*
- * Get all alias types of this mime_type
- * The returned string array should be freed with g_strfreev().
- */
-char** mime_type_get_alias(const char* type);
-
-/* Add reference to the MimeInfo */
-// MimeInfo* mime_type_ref( MimeInfo* info );
-
-/*
- * Decrease reference count of the MimeInfo:
- * When reference count of the MimeInfo struct is decreased to
- * zero, the data structure will be freed automatically.
- */
-// void mime_type_unref( MimeInfo* info );
-
-/* Get the name of mime-type */
-// const char* mime_type_get_type( MimeInfo* info );
 
 /* Get human-readable description and icon name of the mime-type
  * If locale is NULL, current locale will be used.

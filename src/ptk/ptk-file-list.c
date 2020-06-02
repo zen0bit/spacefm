@@ -13,9 +13,7 @@
 #include <stdbool.h>
 
 #include "ptk-file-list.h"
-#include <gdk/gdk.h>
 
-#include "../vfs/vfs-file-info.h"
 #include "../vfs/vfs-thumbnail-loader.h"
 
 #include <string.h>
@@ -75,8 +73,6 @@ static void ptk_file_list_set_sort_func(GtkTreeSortable* sortable, int sort_colu
 static void ptk_file_list_set_default_sort_func(GtkTreeSortable* sortable,
                                                 GtkTreeIterCompareFunc sort_func, void* user_data,
                                                 GDestroyNotify destroy);
-
-// static void ptk_file_list_sort ( PtkFileList* list );  //sfm made non-static
 
 /* signal handlers */
 

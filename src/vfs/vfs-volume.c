@@ -21,23 +21,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <linux/limits.h> //PATH_MAX
+#include <linux/limits.h>
 
-// udev
 #include <libudev.h>
 #include <fcntl.h>
 #include <errno.h>
 
-// waitpid
 #include <sys/types.h>
 #include <unistd.h>
-#include <sys/wait.h>
 
-#include <signal.h>        // kill
-#include <linux/kdev_t.h>  // MAJOR MINOR
-#include <sys/sysmacros.h> // needed for dev_t
-
-#include <sys/statvfs.h>
+#include <linux/kdev_t.h>
+#include <sys/sysmacros.h>
 
 #include "vfs-file-info.h"
 #include "main-window.h"
@@ -45,8 +39,6 @@
 #include "../ptk/ptk-file-task.h"
 #include "../ptk/ptk-handler.h"
 #include "../ptk/ptk-location-view.h"
-
-#include "main-window.h"
 
 #include "utils.h"
 
@@ -56,7 +48,6 @@
     "devpts proc fusectl pstore sysfs tmpfs devtmpfs ramfs aufs overlayfs cgroup binfmt_misc " \
     "rpc_pipefs fuse.gvfsd-fuse"
 
-void vfs_volume_monitor_start();
 VFSVolume* vfs_volume_read_by_device(struct udev_device* udevice);
 VFSVolume* vfs_volume_read_by_mount(dev_t devnum, const char* mount_points);
 static void vfs_volume_device_added(VFSVolume* volume, bool automount);
@@ -73,7 +64,6 @@ typedef struct _VFSVolumeCallbackData
 
 static GList* volumes = NULL;
 static GArray* callbacks = NULL;
-GPid monpid = 0;
 bool global_inhibit_auto = FALSE;
 
 typedef struct devmount_t
@@ -1998,23 +1988,6 @@ void vfs_free_volume_members(VFSVolume* volume)
     g_free(volume->icon);
 }
 
-char* free_slash_total(const char* dir)
-{
-    char size_str[64];
-    struct statvfs fs_stat = {0};
-
-    if (statvfs(dir, &fs_stat) == 0)
-    {
-        char total_size_str[64];
-        vfs_file_size_to_string_format(size_str, fs_stat.f_bsize * fs_stat.f_bavail, "%.0f%s");
-        vfs_file_size_to_string_format(total_size_str,
-                                       fs_stat.f_frsize * fs_stat.f_blocks,
-                                       "%.0f%s");
-        return g_strdup_printf("%s/%s", size_str, total_size_str);
-    }
-    return g_strdup("");
-}
-
 void vfs_volume_set_info(VFSVolume* volume)
 {
     char* parameter;
@@ -2130,12 +2103,7 @@ void vfs_volume_set_info(VFSVolume* volume)
             disp_label = g_strdup_printf("%s", volume->label);
         else
             disp_label = g_strdup("");
-        /* if ( volume->mount_point && volume->mount_point[0] != '\0' )
-        {
-            // causes GUI hang during mount due to fs access
-            disp_size = free_slash_total( volume->mount_point );
-        }
-        else */
+
         if (volume->size > 0)
         {
             vfs_file_size_to_string_format(size_str, volume->size, "%.0f%s");
@@ -4103,21 +4071,6 @@ void vfs_volume_remove_callback(VFSVolumeCallback cb, void* user_data)
     }
 }
 
-bool vfs_volume_mount(VFSVolume* vol, GError** err)
-{
-    return TRUE;
-}
-
-bool vfs_volume_umount(VFSVolume* vol, GError** err)
-{
-    return TRUE;
-}
-
-bool vfs_volume_eject(VFSVolume* vol, GError** err)
-{
-    return TRUE;
-}
-
 const char* vfs_volume_get_disp_name(VFSVolume* vol)
 {
     return vol->disp_name;
@@ -4145,19 +4098,9 @@ const char* vfs_volume_get_icon(VFSVolume* vol)
     return set->icon;
 }
 
-bool vfs_volume_is_removable(VFSVolume* vol)
-{
-    return vol->is_removable;
-}
-
 bool vfs_volume_is_mounted(VFSVolume* vol)
 {
     return vol->is_mounted;
-}
-
-bool vfs_volume_requires_eject(VFSVolume* vol)
-{
-    return vol->requires_eject;
 }
 
 bool vfs_volume_dir_avoid_changes(const char* dir)

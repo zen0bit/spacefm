@@ -24,12 +24,8 @@
 
 G_BEGIN_DECLS
 
-#define VFS_TYPE_DIR            (vfs_dir_get_type())
-#define VFS_DIR(obj)            (G_TYPE_CHECK_INSTANCE_CAST((obj), VFS_TYPE_DIR, VFSDir))
-#define VFS_DIR_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST((klass), VFS_TYPE_DIR, VFSDirClass))
-#define VFS_IS_DIR(obj)         (G_TYPE_CHECK_INSTANCE_TYPE((obj), VFS_TYPE_DIR))
-#define VFS_IS_DIR_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass), VFS_TYPE_DIR))
-#define VFS_DIR_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS((obj), VFS_TYPE_DIR, VFSDirClass))
+#define VFS_TYPE_DIR (vfs_dir_get_type())
+#define VFS_DIR(obj) (G_TYPE_CHECK_INSTANCE_CAST((obj), VFS_TYPE_DIR, VFSDir))
 
 typedef struct _VFSDir VFSDir;
 typedef struct _VFSDirClass VFSDirClass;
@@ -89,8 +85,6 @@ struct _VFSDirClass
     /*  void (*update_mime) ( VFSDir* dir ); */
 };
 
-typedef void (*VFSDirStateCallback)(VFSDir* dir, int state, void* user_data);
-
 void vfs_dir_lock(VFSDir* dir);
 void vfs_dir_unlock(VFSDir* dir);
 
@@ -99,8 +93,6 @@ GType vfs_dir_get_type(void);
 VFSDir* vfs_dir_get_by_path(const char* path);
 VFSDir* vfs_dir_get_by_path_soft(const char* path);
 
-bool vfs_dir_is_loading(VFSDir* dir);
-void vfs_dir_cancel_load(VFSDir* dir);
 bool vfs_dir_is_file_listed(VFSDir* dir);
 
 void vfs_dir_unload_thumbnails(VFSDir* dir, bool is_big);

@@ -27,7 +27,6 @@
 #include "gtk2-compat.h"
 
 #include <gdk/gdkkeysyms.h>
-#include <errno.h>
 #include <fcntl.h>
 
 #include <gmodule.h>
@@ -40,7 +39,7 @@
 #include "utils.h"
 
 #include "vfs/vfs-app-desktop.h"
-#include "vfs/vfs-utils.h" /* for vfs_load_icon */
+#include "vfs/vfs-utils.h"
 
 #include "ptk/ptk-utils.h"
 #include "ptk/ptk-app-chooser.h"
@@ -48,7 +47,7 @@
 #include "ptk/ptk-file-menu.h"
 #include "ptk/ptk-location-view.h"
 
-#include "exo/exo-icon-chooser-dialog.h" /* for exo_icon_chooser_dialog_new */
+#include "exo/exo-icon-chooser-dialog.h"
 
 #define CONFIG_VERSION "38" // 1.0.6
 
@@ -61,12 +60,6 @@ const int big_icon_size_default = 48;
 const int max_icon_size = 512;
 const int small_icon_size_default = 22;
 const int tool_icon_size_default = 0;
-const bool single_click_default = FALSE;
-const bool no_single_hover_default = FALSE;
-
-const int view_mode_default = PTK_FB_ICON_VIEW;
-const int sort_order_default = PTK_FB_SORT_BY_NAME;
-const int sort_type_default = GTK_SORT_ASCENDING;
 
 /* Default values of interface settings */
 const bool always_show_tabs_default = TRUE;
@@ -113,7 +106,6 @@ bool xset_autosave_request = FALSE;
 typedef void (*SettingsParseFunc)(char* line);
 
 void xset_free_all();
-void xset_custom_delete(XSet* set, bool delete_next);
 void xset_default_keys();
 char* xset_color_dialog(GtkWidget* parent, char* title, char* defcolor);
 GtkWidget* xset_design_additem(GtkWidget* menu, const char* label, const char* stock_icon, int job,
@@ -141,8 +133,6 @@ const char* icon_desc =
     N_("Enter an icon name, icon file path, or stock item name:\n\nOr click Choose to select an "
        "icon.  Not all icons may work properly due to various issues.");
 
-const char* enter_menu_name = N_("Enter item name:\n\nPrecede a character with an underscore (_) "
-                                 "to underline that character as a shortcut key if desired.");
 const char* enter_menu_name_new =
     N_("Enter new item name:\n\nPrecede a character with an underscore (_) to underline that "
        "character as a shortcut key if desired.\n\nTIP: To change this item later, right-click on "
@@ -361,94 +351,6 @@ void load_conf()
     // set tmp dir
     if (!settings_tmp_dir)
         settings_tmp_dir = g_strdup(DEFAULT_TMP_DIR);
-}
-
-void swap_menu_label(const char* set_name, const char* old_name, const char* new_name)
-{ // changes default menu label for older config files
-    XSet* set;
-
-    if ((set = xset_is(set_name)))
-    {
-        if (set->menu_label && !strcmp(set->menu_label, old_name))
-        {
-            // menu label has not been changed by user - change default
-            g_free(set->menu_label);
-            set->menu_label = g_strdup(new_name);
-            set->in_terminal = XSET_B_UNSET;
-        }
-    }
-}
-
-void move_attached_to_builtin(const char* removed_name, const char* move_to_name)
-{
-    /* For upgrades only: A built-in menu item (removed_name) has been removed,
-     * so move custom menu items attached to the removed item to another item.
-     * Leave removed item data intact in case of downgrade. */
-
-    XSet* set_to = xset_is(move_to_name);
-    if (!set_to)
-    {
-        g_warning("remove_builtin_item passed invalid move_to_name '%s'", move_to_name);
-        return;
-    }
-
-    GList* l;
-    XSet* set_move;
-    XSet* set_to_next;
-    XSet* set_move_next;
-    for (l = xsets; l; l = l->next)
-    {
-        if (!g_strcmp0(removed_name, ((XSet*)l->data)->prev))
-        {
-            // found a set attached to removed_name
-            set_move = l->data;
-            if (set_move->lock) // failsafe
-                return;
-
-            while (set_move)
-            {
-                xset_custom_remove(set_move);
-
-                g_free(set_move->prev);
-                set_move->prev = g_strdup(set_to->name);
-
-                if (set_move->next)
-                {
-                    set_move_next = xset_get(set_move->next);
-                    if (set_move_next->lock) // failsafe
-                        set_move_next = NULL;
-                }
-                else
-                    set_move_next = NULL;
-                g_free(set_move->next);
-                set_move->next = g_strdup(set_to->next);
-
-                if (set_to->next)
-                {
-                    set_to_next = xset_get(set_to->next);
-                    if (set_to_next->prev)
-                        g_free(set_to_next->prev);
-                    set_to_next->prev = g_strdup(set_move->name);
-                }
-                g_free(set_to->next);
-                set_to->next = g_strdup(set_move->name);
-
-                if (set_to->tool)
-                {
-                    if (set_move->tool > XSET_TOOL_CUSTOM)
-                        g_warning(
-                            "move_attached_to_builtin moved builtin tool - changed to custom");
-                    set_move->tool = XSET_TOOL_CUSTOM;
-                }
-                else
-                    set_move->tool = XSET_TOOL_NOT;
-
-                set_to = set_move;
-                set_move = set_move_next;
-            }
-            return;
-        }
-    }
 }
 
 void load_settings(char* config_dir)
@@ -696,16 +598,6 @@ void load_settings(char* config_dir)
     evt_tab_close = xset_get("evt_tab_close");
     evt_device = xset_get("evt_device");
 
-    // config conversions
-    /*
-    int ver = xset_get_int("config_version", "s");
-    if (ver < 38 && !xset_is("hand_net_+fuse")) // < 1.0.6
-    {
-        // add missing fuse handler to bottom of list
-        ptk_handler_add_new_default(HANDLER_MODE_NET, "hand_net_+fuse", FALSE);
-    }
-    */
-
     // add default bookmarks
     ptk_bookmark_view_get_first_bookmark(NULL);
 }
@@ -848,11 +740,6 @@ void free_settings()
 const char* xset_get_config_dir()
 {
     return settings_config_dir;
-}
-
-const char* xset_get_tmp_dir()
-{
-    return settings_tmp_dir;
 }
 
 const char* xset_get_user_tmp_dir()
@@ -1701,16 +1588,6 @@ XSet* xset_set_panel(int panel, const char* name, const char* var, const char* v
 {
     XSet* set;
     char* fullname = g_strdup_printf("panel%d_%s", panel, name);
-    set = xset_set(fullname, var, value);
-    g_free(fullname);
-    return set;
-}
-
-XSet* xset_set_panel_mode(int panel, const char* name, char mode, const char* var,
-                          const char* value)
-{
-    XSet* set;
-    char* fullname = g_strdup_printf("panel%d_%s%d", panel, name, mode);
     set = xset_set(fullname, var, value);
     g_free(fullname);
     return set;
@@ -5235,7 +5112,6 @@ void xset_design_job(GtkWidget* item, XSet* set)
             g_free(cscript);
             break;
         case XSET_JOB_CUSTOM:
-        _XSET_JOB_CUSTOM:
             if (set->z && set->z[0] != '\0')
             {
                 folder = g_path_get_dirname(set->z);
@@ -5961,12 +5837,6 @@ void xset_design_job(GtkWidget* item, XSet* set)
     xset_autosave(FALSE, FALSE);
 }
 
-void on_design_radio_toggled(GtkCheckMenuItem* item, XSet* set)
-{
-    if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(item)))
-        xset_design_job(GTK_WIDGET(item), set);
-}
-
 bool xset_job_is_valid(XSet* set, int job)
 {
     bool no_remove = FALSE;
@@ -6249,14 +6119,6 @@ bool xset_design_menu_keypress(GtkWidget* widget, GdkEventKey* event, XSet* set)
         }
     }
     return FALSE;
-}
-
-void xset_design_destroy(GtkWidget* item, GtkWidget* design_menu)
-{
-    // printf( "xset_design_destroy\n");
-    // close design_menu if menu deactivated
-    gtk_widget_set_sensitive(item, TRUE);
-    gtk_menu_shell_deactivate(GTK_MENU_SHELL(design_menu));
 }
 
 void on_menu_hide(GtkWidget* widget, GtkWidget* design_menu)

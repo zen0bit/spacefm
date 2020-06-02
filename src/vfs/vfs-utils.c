@@ -23,7 +23,6 @@
 #include <string.h>
 
 #include "vfs-utils.h"
-#include "settings.h" //MOD
 
 GdkPixbuf* vfs_load_icon(GtkIconTheme* theme, const char* icon_name, int size)
 {

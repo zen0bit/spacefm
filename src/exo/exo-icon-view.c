@@ -24,8 +24,6 @@
  * on 2008.05.11 for use in PCManFM */
 
 #include <stdbool.h>
-#include <memory.h>
-#include <stdlib.h>
 #include <string.h>
 #include <math.h>
 
@@ -5092,21 +5090,6 @@ GtkWidget* exo_icon_view_new(void)
 }
 
 /**
- * exo_icon_view_new_with_model:
- * @model: The model.
- *
- * Creates a new #ExoIconView widget with the model @model.
- *
- * Return value: A newly created #ExoIconView widget.
- **/
-GtkWidget* exo_icon_view_new_with_model(GtkTreeModel* model)
-{
-    g_return_val_if_fail(model == NULL || GTK_IS_TREE_MODEL(model), NULL);
-
-    return g_object_new(EXO_TYPE_ICON_VIEW, "model", model, NULL);
-}
-
-/**
  * exo_icon_view_widget_to_icon_coords:
  * @icon_view : a #ExoIconView.
  * @wx        : widget x coordinate.
@@ -5126,28 +5109,6 @@ void exo_icon_view_widget_to_icon_coords(const ExoIconView* icon_view, int wx, i
         *ix = wx + gtk_adjustment_get_value(icon_view->priv->hadjustment);
     if (G_LIKELY(iy != NULL))
         *iy = wy + gtk_adjustment_get_value(icon_view->priv->vadjustment);
-}
-
-/**
- * exo_icon_view_icon_to_widget_coords:
- * @icon_view : a #ExoIconView.
- * @ix        : icon x coordinate.
- * @iy        : icon y coordinate.
- * @wx        : return location for widget x coordinate or %NULL.
- * @wy        : return location for widget y coordinate or %NULL.
- *
- * Converts icon view coordinates (coordinates in full scrollable
- * area of the icon view) to widget coordinates.
- **/
-void exo_icon_view_icon_to_widget_coords(const ExoIconView* icon_view, int ix, int iy, int* wx,
-                                         int* wy)
-{
-    g_return_if_fail(EXO_IS_ICON_VIEW(icon_view));
-
-    if (G_LIKELY(wx != NULL))
-        *wx = ix - gtk_adjustment_get_value(icon_view->priv->hadjustment);
-    if (G_LIKELY(wy != NULL))
-        *wy = iy - gtk_adjustment_get_value(icon_view->priv->vadjustment);
 }
 
 /**
@@ -5183,141 +5144,6 @@ GtkTreePath* exo_icon_view_get_path_at_pos(const ExoIconView* icon_view, int x, 
 }
 
 /**
- * exo_icon_view_get_item_at_pos:
- * @icon_view: A #ExoIconView.
- * @x: The x position to be identified
- * @y: The y position to be identified
- * @path: Return location for the path, or %NULL
- * @cell: Return location for the renderer responsible for the cell
- *   at (@x, @y), or %NULL
- *
- * Finds the path at the point (@x, @y), relative to widget coordinates.
- * In contrast to exo_icon_view_get_path_at_pos(), this function also
- * obtains the cell at the specified position. The returned path should
- * be freed with gtk_tree_path_free().
- *
- * Return value: %TRUE if an item exists at the specified position
- *
- * Since: 0.3.1
- **/
-bool exo_icon_view_get_item_at_pos(const ExoIconView* icon_view, int x, int y, GtkTreePath** path,
-                                   GtkCellRenderer** cell)
-{
-    ExoIconViewCellInfo* info = NULL;
-    ExoIconViewItem* item;
-
-    g_return_val_if_fail(EXO_IS_ICON_VIEW(icon_view), FALSE);
-
-    item = exo_icon_view_get_item_at_coords(icon_view, x, y, TRUE, &info);
-
-    if (G_LIKELY(path != NULL))
-        *path = (item != NULL)
-                    ? gtk_tree_path_new_from_indices(g_list_index(icon_view->priv->items, item), -1)
-                    : NULL;
-
-    if (G_LIKELY(cell != NULL))
-        *cell = (info != NULL) ? info->cell : NULL;
-
-    return (item != NULL);
-}
-
-/**
- * exo_icon_view_get_visible_range:
- * @icon_view  : A #ExoIconView
- * @start_path : Return location for start of region, or %NULL
- * @end_path   : Return location for end of region, or %NULL
- *
- * Sets @start_path and @end_path to be the first and last visible path.
- * Note that there may be invisible paths in between.
- *
- * Both paths should be freed with gtk_tree_path_free() after use.
- *
- * Return value: %TRUE, if valid paths were placed in @start_path and @end_path
- *
- * Since: 0.3.1
- **/
-bool exo_icon_view_get_visible_range(const ExoIconView* icon_view, GtkTreePath** start_path,
-                                     GtkTreePath** end_path)
-{
-    const ExoIconViewPrivate* priv = icon_view->priv;
-    const ExoIconViewItem* item;
-    const GList* lp;
-    int start_index = -1;
-    int end_index = -1;
-    int i;
-
-    g_return_val_if_fail(EXO_IS_ICON_VIEW(icon_view), FALSE);
-
-    if (priv->hadjustment == NULL || priv->vadjustment == NULL)
-        return FALSE;
-
-    if (start_path == NULL && end_path == NULL)
-        return FALSE;
-
-    for (i = 0, lp = priv->items; lp != NULL; ++i, lp = lp->next)
-    {
-        item = (const ExoIconViewItem*)lp->data;
-        if ((item->area.x + item->area.width >= (int)gtk_adjustment_get_value(priv->hadjustment)) &&
-            (item->area.y + item->area.height >=
-             (int)gtk_adjustment_get_value(priv->vadjustment)) &&
-            (item->area.x <= (int)(gtk_adjustment_get_value(priv->hadjustment) +
-                                   gtk_adjustment_get_page_size(priv->hadjustment))) &&
-            (item->area.y <= (int)(gtk_adjustment_get_value(priv->vadjustment) +
-                                   gtk_adjustment_get_page_size(priv->vadjustment))))
-        {
-            if (start_index == -1)
-                start_index = i;
-            end_index = i;
-        }
-    }
-
-    if (start_path != NULL && start_index != -1)
-        *start_path = gtk_tree_path_new_from_indices(start_index, -1);
-    if (end_path != NULL && end_index != -1)
-        *end_path = gtk_tree_path_new_from_indices(end_index, -1);
-
-    return (start_index != -1);
-}
-
-/**
- * exo_icon_view_selected_foreach:
- * @icon_view : A #ExoIconView.
- * @func      : The funcion to call for each selected icon.
- * @data      : User data to pass to the function.
- *
- * Calls a function for each selected icon. Note that the model or
- * selection cannot be modified from within this function.
- **/
-void exo_icon_view_selected_foreach(ExoIconView* icon_view, ExoIconViewForeachFunc func, void* data)
-{
-    GtkTreePath* path;
-    GList* lp;
-
-    path = gtk_tree_path_new_first();
-    for (lp = icon_view->priv->items; lp != NULL; lp = lp->next)
-    {
-        if (EXO_ICON_VIEW_ITEM(lp->data)->selected)
-            (*func)(icon_view, path, data);
-        gtk_tree_path_next(path);
-    }
-    gtk_tree_path_free(path);
-}
-
-/**
- * exo_icon_view_get_selection_mode:
- * @icon_view : A #ExoIconView.
- *
- * Gets the selection mode of the @icon_view.
- *
- * Return value: the current selection mode
- **/
-GtkSelectionMode exo_icon_view_get_selection_mode(const ExoIconView* icon_view)
-{
-    g_return_val_if_fail(EXO_IS_ICON_VIEW(icon_view), GTK_SELECTION_SINGLE);
-    return icon_view->priv->selection_mode;
-}
-
-/**
  * exo_icon_view_set_selection_mode:
  * @icon_view : A #ExoIconView.
  * @mode      : The selection mode
@@ -5337,23 +5163,6 @@ void exo_icon_view_set_selection_mode(ExoIconView* icon_view, GtkSelectionMode m
 
         g_object_notify(G_OBJECT(icon_view), "selection-mode");
     }
-}
-
-/**
- * exo_icon_view_get_layout_mode:
- * @icon_view : A #ExoIconView.
- *
- * Returns the #ExoIconViewLayoutMode used to layout the
- * items in the @icon_view.
- *
- * Return value: the layout mode of @icon_view.
- *
- * Since: 0.3.1.5
- **/
-ExoIconViewLayoutMode exo_icon_view_get_layout_mode(const ExoIconView* icon_view)
-{
-    g_return_val_if_fail(EXO_IS_ICON_VIEW(icon_view), EXO_ICON_VIEW_LAYOUT_ROWS);
-    return icon_view->priv->layout_mode;
 }
 
 /**
@@ -5684,23 +5493,6 @@ static void update_pixbuf_cell(ExoIconView* icon_view)
 }
 
 /**
- * exo_icon_view_get_text_column:
- * @icon_view: A #ExoIconView.
- *
- * Returns the column with text for @icon_view.
- *
- * Returns: the text column, or -1 if it's unset.
- *
- * Deprecated: Use the more powerful #GtkCellRenderer<!---->s instead, as #ExoIconView
- *             now implements #GtkCellLayout.
- */
-int exo_icon_view_get_text_column(const ExoIconView* icon_view)
-{
-    g_return_val_if_fail(EXO_IS_ICON_VIEW(icon_view), -1);
-    return icon_view->priv->text_column;
-}
-
-/**
  * exo_icon_view_set_text_column:
  * @icon_view: A #ExoIconView.
  * @column: A column in the currently used model.
@@ -5740,23 +5532,6 @@ void exo_icon_view_set_text_column(ExoIconView* icon_view, int column)
     exo_icon_view_invalidate_sizes(icon_view);
 
     g_object_notify(G_OBJECT(icon_view), "text-column");
-}
-
-/**
- * exo_icon_view_get_markup_column:
- * @icon_view: A #ExoIconView.
- *
- * Returns the column with markup text for @icon_view.
- *
- * Returns: the markup column, or -1 if it's unset.
- *
- * Deprecated: Use the more powerful #GtkCellRenderer<!---->s instead, as #ExoIconView
- *             now implements #GtkCellLayout.
- */
-int exo_icon_view_get_markup_column(const ExoIconView* icon_view)
-{
-    g_return_val_if_fail(EXO_IS_ICON_VIEW(icon_view), -1);
-    return icon_view->priv->markup_column;
 }
 
 /**
@@ -5800,23 +5575,6 @@ void exo_icon_view_set_markup_column(ExoIconView* icon_view, int column)
     exo_icon_view_invalidate_sizes(icon_view);
 
     g_object_notify(G_OBJECT(icon_view), "markup-column");
-}
-
-/**
- * exo_icon_view_get_pixbuf_column:
- * @icon_view : A #ExoIconView.
- *
- * Returns the column with pixbufs for @icon_view.
- *
- * Returns: the pixbuf column, or -1 if it's unset.
- *
- * Deprecated: Use the more powerful #GtkCellRenderer<!---->s instead, as #ExoIconView
- *             now implements #GtkCellLayout.
- */
-int exo_icon_view_get_pixbuf_column(const ExoIconView* icon_view)
-{
-    g_return_val_if_fail(EXO_IS_ICON_VIEW(icon_view), -1);
-    return icon_view->priv->pixbuf_column;
 }
 
 /**
@@ -6222,23 +5980,6 @@ void exo_icon_view_scroll_to_path(ExoIconView* icon_view, GtkTreePath* path, boo
 }
 
 /**
- * exo_icon_view_get_orientation:
- * @icon_view : a #ExoIconView
- *
- * Returns the value of the ::orientation property which determines
- * whether the labels are drawn beside the icons instead of below.
- *
- * Return value: the relative position of texts and icons
- *
- * Since: 0.3.1
- **/
-GtkOrientation exo_icon_view_get_orientation(const ExoIconView* icon_view)
-{
-    g_return_val_if_fail(EXO_IS_ICON_VIEW(icon_view), GTK_ORIENTATION_VERTICAL);
-    return icon_view->priv->orientation;
-}
-
-/**
  * exo_icon_view_set_orientation:
  * @icon_view   : a #ExoIconView
  * @orientation : the relative position of texts and icons
@@ -6267,20 +6008,6 @@ void exo_icon_view_set_orientation(ExoIconView* icon_view, GtkOrientation orient
 }
 
 /**
- * exo_icon_view_get_columns:
- * @icon_view: a #ExoIconView
- *
- * Returns the value of the ::columns property.
- *
- * Return value: the number of columns, or -1
- */
-int exo_icon_view_get_columns(const ExoIconView* icon_view)
-{
-    g_return_val_if_fail(EXO_IS_ICON_VIEW(icon_view), -1);
-    return icon_view->priv->columns;
-}
-
-/**
  * exo_icon_view_set_columns:
  * @icon_view : a #ExoIconView
  * @columns   : the number of columns
@@ -6305,22 +6032,6 @@ void exo_icon_view_set_columns(ExoIconView* icon_view, int columns)
 
         g_object_notify(G_OBJECT(icon_view), "columns");
     }
-}
-
-/**
- * exo_icon_view_get_item_width:
- * @icon_view: a #ExoIconView
- *
- * Returns the value of the ::item-width property.
- *
- * Return value: the width of a single item, or -1
- *
- * Since: 0.3.1
- */
-int exo_icon_view_get_item_width(const ExoIconView* icon_view)
-{
-    g_return_val_if_fail(EXO_IS_ICON_VIEW(icon_view), -1);
-    return icon_view->priv->item_width;
 }
 
 /**
@@ -6352,22 +6063,6 @@ void exo_icon_view_set_item_width(ExoIconView* icon_view, int item_width)
 }
 
 /**
- * exo_icon_view_get_spacing:
- * @icon_view: a #ExoIconView
- *
- * Returns the value of the ::spacing property.
- *
- * Return value: the space between cells
- *
- * Since: 0.3.1
- */
-int exo_icon_view_get_spacing(const ExoIconView* icon_view)
-{
-    g_return_val_if_fail(EXO_IS_ICON_VIEW(icon_view), -1);
-    return icon_view->priv->spacing;
-}
-
-/**
  * exo_icon_view_set_spacing:
  * @icon_view : a #ExoIconView
  * @spacing   : the spacing
@@ -6391,22 +6086,6 @@ void exo_icon_view_set_spacing(ExoIconView* icon_view, int spacing)
 
         g_object_notify(G_OBJECT(icon_view), "spacing");
     }
-}
-
-/**
- * exo_icon_view_get_row_spacing:
- * @icon_view: a #ExoIconView
- *
- * Returns the value of the ::row-spacing property.
- *
- * Return value: the space between rows
- *
- * Since: 0.3.1
- */
-int exo_icon_view_get_row_spacing(const ExoIconView* icon_view)
-{
-    g_return_val_if_fail(EXO_IS_ICON_VIEW(icon_view), -1);
-    return icon_view->priv->row_spacing;
 }
 
 /**
@@ -6435,22 +6114,6 @@ void exo_icon_view_set_row_spacing(ExoIconView* icon_view, int row_spacing)
 }
 
 /**
- * exo_icon_view_get_column_spacing:
- * @icon_view: a #ExoIconView
- *
- * Returns the value of the ::column-spacing property.
- *
- * Return value: the space between columns
- *
- * Since: 0.3.1
- **/
-int exo_icon_view_get_column_spacing(const ExoIconView* icon_view)
-{
-    g_return_val_if_fail(EXO_IS_ICON_VIEW(icon_view), -1);
-    return icon_view->priv->column_spacing;
-}
-
-/**
  * exo_icon_view_set_column_spacing:
  * @icon_view      : a #ExoIconView
  * @column_spacing : the column spacing
@@ -6473,22 +6136,6 @@ void exo_icon_view_set_column_spacing(ExoIconView* icon_view, int column_spacing
 
         g_object_notify(G_OBJECT(icon_view), "column-spacing");
     }
-}
-
-/**
- * exo_icon_view_get_margin:
- * @icon_view : a #ExoIconView
- *
- * Returns the value of the ::margin property.
- *
- * Return value: the space at the borders
- *
- * Since: 0.3.1
- **/
-int exo_icon_view_get_margin(const ExoIconView* icon_view)
-{
-    g_return_val_if_fail(EXO_IS_ICON_VIEW(icon_view), -1);
-    return icon_view->priv->margin;
 }
 
 /**
@@ -7608,24 +7255,6 @@ exo_icon_view_create_drag_icon(ExoIconView* icon_view, GtkTreePath* path)
 }
 
 /**
- * exo_icon_view_get_reorderable:
- * @icon_view : a #ExoIconView
- *
- * Retrieves whether the user can reorder the list via drag-and-drop.
- * See exo_icon_view_set_reorderable().
- *
- * Return value: %TRUE if the list can be reordered.
- *
- * Since: 0.3.1
- **/
-bool exo_icon_view_get_reorderable(ExoIconView* icon_view)
-{
-    g_return_val_if_fail(EXO_IS_ICON_VIEW(icon_view), FALSE);
-
-    return icon_view->priv->reorderable;
-}
-
-/**
  * exo_icon_view_set_reorderable:
  * @icon_view   : A #ExoIconView.
  * @reorderable : %TRUE, if the list of items can be reordered.
@@ -7688,23 +7317,6 @@ void exo_icon_view_set_reorderable(ExoIconView* icon_view, bool reorderable)
  *----------------------*/
 
 /**
- * exo_icon_view_get_single_click:
- * @icon_view : a #ExoIconView.
- *
- * Returns %TRUE if @icon_view is currently in single click mode,
- * else %FALSE will be returned.
- *
- * Return value: whether @icon_view is currently in single click mode.
- *
- * Since: 0.3.1.3
- **/
-bool exo_icon_view_get_single_click(const ExoIconView* icon_view)
-{
-    g_return_val_if_fail(EXO_IS_ICON_VIEW(icon_view), FALSE);
-    return icon_view->priv->single_click;
-}
-
-/**
  * exo_icon_view_set_single_click:
  * @icon_view    : a #ExoIconView.
  * @single_click : %TRUE for single click, %FALSE for double click mode.
@@ -7727,26 +7339,6 @@ void exo_icon_view_set_single_click(ExoIconView* icon_view, bool single_click)
         icon_view->priv->single_click = single_click;
         g_object_notify(G_OBJECT(icon_view), "single-click");
     }
-}
-
-/**
- * exo_icon_view_get_single_click_timeout:
- * @icon_view : a #ExoIconView.
- *
- * Returns the amount of time in milliseconds after which the
- * item under the mouse cursor will be selected automatically
- * in single click mode. A value of %0 means that the behavior
- * is disabled and the user must alter the selection manually.
- *
- * Return value: the single click autoselect timeout or %0 if
- *               the behavior is disabled.
- *
- * Since: 0.3.1.5
- **/
-unsigned int exo_icon_view_get_single_click_timeout(const ExoIconView* icon_view)
-{
-    g_return_val_if_fail(EXO_IS_ICON_VIEW(icon_view), 0u);
-    return icon_view->priv->single_click_timeout;
 }
 
 /**
@@ -7869,24 +7461,6 @@ static void exo_icon_view_single_click_timeout_destroy(void* user_data)
  *----------------------------*/
 
 /**
- * exo_icon_view_get_enable_search:
- * @icon_view : an #ExoIconView.
- *
- * Returns whether or not the @icon_view allows to start
- * interactive searching by typing in text.
- *
- * Return value: whether or not to let the user search
- *               interactively.
- *
- * Since: 0.3.1.3
- **/
-bool exo_icon_view_get_enable_search(const ExoIconView* icon_view)
-{
-    g_return_val_if_fail(EXO_IS_ICON_VIEW(icon_view), FALSE);
-    return icon_view->priv->enable_search;
-}
-
-/**
  * exo_icon_view_set_enable_search:
  * @icon_view     : an #ExoIconView.
  * @enable_search : %TRUE if the user can search interactively.
@@ -7910,22 +7484,6 @@ void exo_icon_view_set_enable_search(ExoIconView* icon_view, bool enable_search)
         icon_view->priv->enable_search = enable_search;
         g_object_notify(G_OBJECT(icon_view), "enable-search");
     }
-}
-
-/**
- * exo_icon_view_get_search_column:
- * @icon_view : an #ExoIconView.
- *
- * Returns the column searched on by the interactive search code.
- *
- * Return value: the column the interactive search code searches in.
- *
- * Since: 0.3.1.3
- **/
-int exo_icon_view_get_search_column(const ExoIconView* icon_view)
-{
-    g_return_val_if_fail(EXO_IS_ICON_VIEW(icon_view), -1);
-    return icon_view->priv->search_column;
 }
 
 /**
@@ -7953,22 +7511,6 @@ void exo_icon_view_set_search_column(ExoIconView* icon_view, int search_column)
         icon_view->priv->search_column = search_column;
         g_object_notify(G_OBJECT(icon_view), "search-column");
     }
-}
-
-/**
- * exo_icon_view_get_search_equal_func:
- * @icon_view : an #ExoIconView.
- *
- * Returns the compare function currently in use.
- *
- * Return value: the currently used compare function for the search code.
- *
- * Since: 0.3.1.3
- **/
-ExoIconViewSearchEqualFunc exo_icon_view_get_search_equal_func(const ExoIconView* icon_view)
-{
-    g_return_val_if_fail(EXO_IS_ICON_VIEW(icon_view), NULL);
-    return icon_view->priv->search_equal_func;
 }
 
 /**
@@ -8005,22 +7547,6 @@ void exo_icon_view_set_search_equal_func(ExoIconView* icon_view,
         (search_equal_func != NULL) ? search_equal_func : exo_icon_view_search_equal_func;
     icon_view->priv->search_equal_data = search_equal_data;
     icon_view->priv->search_equal_destroy = search_equal_destroy;
-}
-
-/**
- * exo_icon_view_get_search_position_func:
- * @icon_view : an #ExoIconView.
- *
- * Returns the search dialog positioning function currently in use.
- *
- * Return value: the currently used function for positioning the search dialog.
- *
- * Since: 0.3.1.3
- **/
-ExoIconViewSearchPositionFunc exo_icon_view_get_search_position_func(const ExoIconView* icon_view)
-{
-    g_return_val_if_fail(EXO_IS_ICON_VIEW(icon_view), NULL);
-    return icon_view->priv->search_position_func;
 }
 
 /**

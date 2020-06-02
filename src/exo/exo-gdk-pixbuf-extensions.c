@@ -19,12 +19,6 @@
  * MA 02110-1301 USA
  */
 
-#include <stdbool.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <stdlib.h>
-#include <unistd.h>
-
 /* required for GdkPixbufFormat */
 #ifndef GDK_PIXBUF_ENABLE_BACKEND
 #define GDK_PIXBUF_ENABLE_BACKEND
@@ -34,13 +28,11 @@
 #include <mmintrin.h>
 #endif
 
+#include <stdbool.h>
 #include <sys/mman.h>
-#include <errno.h>
-#include <fcntl.h>
 #include <math.h>
 
 #include "exo-gdk-pixbuf-extensions.h"
-#include "exo-private.h"
 
 /* _O_BINARY is required on some platforms */
 #ifndef _O_BINARY
@@ -176,170 +168,6 @@ GdkPixbuf* exo_gdk_pixbuf_colorize(const GdkPixbuf* source, const GdkColor* colo
             }
         }
     }
-
-    return dst;
-}
-
-static inline void draw_frame_row(const GdkPixbuf* frame_image, int target_width, int source_width,
-                                  int source_v_position, int dest_v_position,
-                                  GdkPixbuf* result_pixbuf, int left_offset, int height)
-{
-    int remaining_width;
-    int slab_width;
-    int h_offset;
-
-    for (h_offset = 0, remaining_width = target_width; remaining_width > 0;
-         h_offset += slab_width, remaining_width -= slab_width)
-    {
-        slab_width = (remaining_width > source_width) ? source_width : remaining_width;
-        gdk_pixbuf_copy_area(frame_image,
-                             left_offset,
-                             source_v_position,
-                             slab_width,
-                             height,
-                             result_pixbuf,
-                             left_offset + h_offset,
-                             dest_v_position);
-    }
-}
-
-static inline void draw_frame_column(const GdkPixbuf* frame_image, int target_height,
-                                     int source_height, int source_h_position, int dest_h_position,
-                                     GdkPixbuf* result_pixbuf, int top_offset, int width)
-{
-    int remaining_height;
-    int slab_height;
-    int v_offset;
-
-    for (v_offset = 0, remaining_height = target_height; remaining_height > 0;
-         v_offset += slab_height, remaining_height -= slab_height)
-    {
-        slab_height = (remaining_height > source_height) ? source_height : remaining_height;
-        gdk_pixbuf_copy_area(frame_image,
-                             source_h_position,
-                             top_offset,
-                             width,
-                             slab_height,
-                             result_pixbuf,
-                             dest_h_position,
-                             top_offset + v_offset);
-    }
-}
-
-/**
- * exo_gdk_pixbuf_frame:
- * @source        : the source #GdkPixbuf.
- * @frame         : the frame #GdkPixbuf.
- * @left_offset   : the left frame offset.
- * @top_offset    : the top frame offset.
- * @right_offset  : the right frame offset.
- * @bottom_offset : the bottom frame offset.
- *
- * Embeds @source in @frame and returns the result as new #GdkPixbuf.
- *
- * The caller is responsible to free the returned #GdkPixbuf using g_object_unref().
- *
- * Returns: the framed version of @source.
- *
- * Since: 0.3.1.9
- **/
-GdkPixbuf* exo_gdk_pixbuf_frame(const GdkPixbuf* source, const GdkPixbuf* frame, int left_offset,
-                                int top_offset, int right_offset, int bottom_offset)
-{
-    GdkPixbuf* dst;
-    int dst_width;
-    int dst_height;
-    int frame_width;
-    int frame_height;
-    int src_width;
-    int src_height;
-
-    g_return_val_if_fail(GDK_IS_PIXBUF(frame), NULL);
-    g_return_val_if_fail(GDK_IS_PIXBUF(source), NULL);
-
-    src_width = gdk_pixbuf_get_width(source);
-    src_height = gdk_pixbuf_get_height(source);
-
-    frame_width = gdk_pixbuf_get_width(frame);
-    frame_height = gdk_pixbuf_get_height(frame);
-
-    dst_width = src_width + left_offset + right_offset;
-    dst_height = src_height + top_offset + bottom_offset;
-
-    /* allocate the resulting pixbuf */
-    dst = gdk_pixbuf_new(GDK_COLORSPACE_RGB, TRUE, 8, dst_width, dst_height);
-
-    /* fill the destination if the source has an alpha channel */
-    if (G_UNLIKELY(gdk_pixbuf_get_has_alpha(source)))
-        gdk_pixbuf_fill(dst, 0xffffffff);
-
-    /* draw the left top corner and top row */
-    gdk_pixbuf_copy_area(frame, 0, 0, left_offset, top_offset, dst, 0, 0);
-    draw_frame_row(frame,
-                   src_width,
-                   frame_width - left_offset - right_offset,
-                   0,
-                   0,
-                   dst,
-                   left_offset,
-                   top_offset);
-
-    /* draw the right top corner and left column */
-    gdk_pixbuf_copy_area(frame,
-                         frame_width - right_offset,
-                         0,
-                         right_offset,
-                         top_offset,
-                         dst,
-                         dst_width - right_offset,
-                         0);
-    draw_frame_column(frame,
-                      src_height,
-                      frame_height - top_offset - bottom_offset,
-                      0,
-                      0,
-                      dst,
-                      top_offset,
-                      left_offset);
-
-    /* draw the bottom right corner and bottom row */
-    gdk_pixbuf_copy_area(frame,
-                         frame_width - right_offset,
-                         frame_height - bottom_offset,
-                         right_offset,
-                         bottom_offset,
-                         dst,
-                         dst_width - right_offset,
-                         dst_height - bottom_offset);
-    draw_frame_row(frame,
-                   src_width,
-                   frame_width - left_offset - right_offset,
-                   frame_height - bottom_offset,
-                   dst_height - bottom_offset,
-                   dst,
-                   left_offset,
-                   bottom_offset);
-
-    /* draw the bottom left corner and the right column */
-    gdk_pixbuf_copy_area(frame,
-                         0,
-                         frame_height - bottom_offset,
-                         left_offset,
-                         bottom_offset,
-                         dst,
-                         0,
-                         dst_height - bottom_offset);
-    draw_frame_column(frame,
-                      src_height,
-                      frame_height - top_offset - bottom_offset,
-                      frame_width - right_offset,
-                      dst_width - right_offset,
-                      dst,
-                      top_offset,
-                      right_offset);
-
-    /* copy the source pixbuf into the framed area */
-    gdk_pixbuf_copy_area(source, 0, 0, src_width, src_height, dst, left_offset, top_offset);
 
     return dst;
 }

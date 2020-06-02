@@ -13,8 +13,6 @@ void print_command(const char* cmd);
 void print_task_command(char* ptask, const char* cmd);
 void print_task_command_spawn(char* argv[], int pid);
 
-void check_for_errno();
-
 char* randhex8();
 bool have_rw_access(const char* path);
 bool have_x_access(const char* path);

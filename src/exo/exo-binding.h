@@ -55,9 +55,6 @@ ExoBinding* exo_binding_new_full(GObject* src_object, const char* src_property, 
                                  const char* dst_property, ExoBindingTransform transform,
                                  GDestroyNotify destroy_notify, void* user_data);
 
-ExoMutualBinding* exo_mutual_binding_new(GObject* object1, const char* property1, GObject* object2,
-                                         const char* property2);
-
 ExoMutualBinding* exo_mutual_binding_new_full(GObject* object1, const char* property1,
                                               GObject* object2, const char* property2,
                                               ExoBindingTransform transform,

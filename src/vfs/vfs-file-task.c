@@ -23,19 +23,17 @@
 #include <glib/gi18n.h>
 
 #include <stdio.h>
-#include <stdlib.h> /* for mkstemp, realpath */
+#include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 
 #include "vfs-dir.h"
 #include "settings.h"
-#include <sys/wait.h> //MOD for exec
+#include <sys/wait.h>
 #include "main-window.h"
 #include "vfs-volume.h"
 
-#include <gmodule.h>
-
-#include <linux/limits.h> //PATH_MAX
+#include <linux/limits.h>
 
 #include "utils.h"
 
@@ -67,10 +65,6 @@ void vfs_file_task_error(VFSFileTask* task, int errnox, const char* action, cons
 void vfs_file_task_exec_error(VFSFileTask* task, int errnox, char* action);
 void add_task_dev(VFSFileTask* task, dev_t dev);
 static bool should_abort(VFSFileTask* task);
-
-void gx_free(void* x)
-{
-} // dummy free - test only
 
 static void vfs_file_task_init(VFSFileTask* task)
 {
@@ -2242,13 +2236,6 @@ void vfs_file_task_set_recursive(VFSFileTask* task, bool recursive)
 void vfs_file_task_set_overwrite_mode(VFSFileTask* task, VFSFileTaskOverwriteMode mode)
 {
     task->overwrite_mode = mode;
-}
-
-void vfs_file_task_set_progress_callback(VFSFileTask* task, VFSFileTaskProgressCallback cb,
-                                         void* user_data)
-{
-    task->progress_cb = cb;
-    task->progress_cb_data = user_data;
 }
 
 void vfs_file_task_set_state_callback(VFSFileTask* task, VFSFileTaskStateCallback cb,

@@ -17,14 +17,16 @@
 
 #include <glib.h>
 #include <glib/gi18n.h>
-#include <grp.h> /* Query group name */
-#include <pwd.h> /* Query user name */
+
+#include <grp.h>
+#include <pwd.h>
+
 #include <string.h>
 #include "settings.h"
 
 #include "vfs-app-desktop.h"
 #include "vfs-thumbnail-loader.h"
-#include "vfs-utils.h" /* for vfs_load_icon */
+#include "vfs-utils.h"
 
 static int big_thumb_size = 48, small_thumb_size = 20;
 static bool utf8_file_name = FALSE;
@@ -183,12 +185,6 @@ void vfs_file_info_set_disp_name(VFSFileInfo* fi, const char* name)
     char* str = g_utf8_casefold(fi->disp_name, -1);
     fi->collate_icase_key = g_utf8_collate_key_for_filename(str, -1);
     g_free(str);
-}
-
-void vfs_file_info_set_name(VFSFileInfo* fi, const char* name)
-{
-    g_free(fi->name);
-    fi->name = g_strdup(name);
 }
 
 off_t vfs_file_info_get_size(VFSFileInfo* fi)

@@ -21,13 +21,13 @@
 #include <glib/gi18n.h>
 #include <string.h>
 
-#include <fcntl.h> /* for open() */
+#include <fcntl.h>
 
 #if defined(__GLIBC__)
-#include <malloc.h> /* for malloc_trim */
+#include <malloc.h>
 #endif
 
-#include <unistd.h> /* for read */
+#include <unistd.h>
 #include "vfs-volume.h"
 
 #include "utils.h"
@@ -678,27 +678,9 @@ void* vfs_dir_load_thread(VFSAsyncTask* task, VFSDir* dir)
     return NULL;
 }
 
-bool vfs_dir_is_loading(VFSDir* dir)
-{
-    return dir->task ? TRUE : FALSE;
-}
-
 bool vfs_dir_is_file_listed(VFSDir* dir)
 {
     return dir->file_listed;
-}
-
-void vfs_cancel_load(VFSDir* dir)
-{
-    dir->cancel = TRUE;
-    if (dir->task)
-    {
-        printf("spacefm: vfs_cancel_load -> vfs_async_task_cancel\n");
-        vfs_async_task_cancel(dir->task);
-        /* don't do g_object_unref on task here since this is done in the handler of "finish"
-         * signal. */
-        dir->task = NULL;
-    }
 }
 
 bool update_file_info(VFSDir* dir, VFSFileInfo* file)

@@ -45,10 +45,8 @@ enum
     HANDLER_MODE_FILE
 };
 
-void ptk_handler_add_new_default(int mode, const char* default_name, bool start);
 void ptk_handler_add_defaults(int mode, bool overwrite, bool add_missing);
 void ptk_handler_import(int mode, GtkWidget* handler_dlg, XSet* set);
-bool ptk_handler_equals_default(XSet* set);
 void ptk_handler_show_config(int mode, PtkFileBrowser* file_browser, XSet* def_handler_set);
 bool ptk_handler_values_in_list(const char* list, GSList* values, char** msg);
 XSet* add_new_handler(int mode); // for settings.c upgrade

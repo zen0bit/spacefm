@@ -41,17 +41,6 @@ typedef struct _ExoIconView ExoIconView;
 #define EXO_IS_ICON_VIEW(obj) (G_TYPE_CHECK_INSTANCE_TYPE((obj), EXO_TYPE_ICON_VIEW))
 
 /**
- * ExoIconViewForeachFunc:
- * @icon_view : an #ExoIconView.
- * @path      : the current path.
- * @user_data : the user data supplied to exo_icon_view_selected_foreach().
- *
- * Callback function prototype, invoked for every selected path in the
- * @icon_view. See exo_icon_view_selected_foreach() for details.
- **/
-typedef void (*ExoIconViewForeachFunc)(ExoIconView* icon_view, GtkTreePath* path, void* user_data);
-
-/**
  * ExoIconViewSearchEqualFunc:
  * @model       : the #GtkTreeModel being searched.
  * @column      : the search column set by exo_icon_view_set_search_column().
@@ -164,68 +153,34 @@ struct _ExoIconViewClass
 GType exo_icon_view_get_type(void) G_GNUC_CONST;
 
 GtkWidget* exo_icon_view_new(void);
-GtkWidget* exo_icon_view_new_with_model(GtkTreeModel* model);
 
 GtkTreeModel* exo_icon_view_get_model(const ExoIconView* icon_view);
 void exo_icon_view_set_model(ExoIconView* icon_view, GtkTreeModel* model);
 
 #ifndef EXO_DISABLE_DEPRECATED
-int exo_icon_view_get_text_column(const ExoIconView* icon_view);
 void exo_icon_view_set_text_column(ExoIconView* icon_view, int column);
-int exo_icon_view_get_markup_column(const ExoIconView* icon_view);
 void exo_icon_view_set_markup_column(ExoIconView* icon_view, int column);
-int exo_icon_view_get_pixbuf_column(const ExoIconView* icon_view);
 void exo_icon_view_set_pixbuf_column(ExoIconView* icon_view, int column);
 #endif
 
-GtkOrientation exo_icon_view_get_orientation(const ExoIconView* icon_view);
 void exo_icon_view_set_orientation(ExoIconView* icon_view, GtkOrientation orientation);
-
-int exo_icon_view_get_columns(const ExoIconView* icon_view);
 void exo_icon_view_set_columns(ExoIconView* icon_view, int columns);
-
-int exo_icon_view_get_item_width(const ExoIconView* icon_view);
 void exo_icon_view_set_item_width(ExoIconView* icon_view, int item_width);
-
-int exo_icon_view_get_spacing(const ExoIconView* icon_view);
 void exo_icon_view_set_spacing(ExoIconView* icon_view, int spacing);
-
-int exo_icon_view_get_row_spacing(const ExoIconView* icon_view);
 void exo_icon_view_set_row_spacing(ExoIconView* icon_view, int row_spacing);
-
-int exo_icon_view_get_column_spacing(const ExoIconView* icon_view);
 void exo_icon_view_set_column_spacing(ExoIconView* icon_view, int column_spacing);
-
-int exo_icon_view_get_margin(const ExoIconView* icon_view);
 void exo_icon_view_set_margin(ExoIconView* icon_view, int margin);
-
-GtkSelectionMode exo_icon_view_get_selection_mode(const ExoIconView* icon_view);
 void exo_icon_view_set_selection_mode(ExoIconView* icon_view, GtkSelectionMode mode);
-
-ExoIconViewLayoutMode exo_icon_view_get_layout_mode(const ExoIconView* icon_view);
 void exo_icon_view_set_layout_mode(ExoIconView* icon_view, ExoIconViewLayoutMode layout_mode);
-
-bool exo_icon_view_get_single_click(const ExoIconView* icon_view);
 void exo_icon_view_set_single_click(ExoIconView* icon_view, bool single_click);
-
-unsigned int exo_icon_view_get_single_click_timeout(const ExoIconView* icon_view);
 void exo_icon_view_set_single_click_timeout(ExoIconView* icon_view,
                                             unsigned int single_click_timeout);
 
 void exo_icon_view_widget_to_icon_coords(const ExoIconView* icon_view, int wx, int wy, int* ix,
                                          int* iy);
-void exo_icon_view_icon_to_widget_coords(const ExoIconView* icon_view, int ix, int iy, int* wx,
-                                         int* wy);
 
 GtkTreePath* exo_icon_view_get_path_at_pos(const ExoIconView* icon_view, int x, int y);
-bool exo_icon_view_get_item_at_pos(const ExoIconView* icon_view, int x, int y, GtkTreePath** path,
-                                   GtkCellRenderer** cell);
 
-bool exo_icon_view_get_visible_range(const ExoIconView* icon_view, GtkTreePath** start_path,
-                                     GtkTreePath** end_path);
-
-void exo_icon_view_selected_foreach(ExoIconView* icon_view, ExoIconViewForeachFunc func,
-                                    void* data);
 void exo_icon_view_select_path(ExoIconView* icon_view, GtkTreePath* path);
 void exo_icon_view_unselect_path(ExoIconView* icon_view, GtkTreePath* path);
 bool exo_icon_view_path_is_selected(const ExoIconView* icon_view, GtkTreePath* path);
@@ -252,7 +207,6 @@ void exo_icon_view_enable_model_drag_dest(ExoIconView* icon_view, const GtkTarge
 void exo_icon_view_unset_model_drag_source(ExoIconView* icon_view);
 void exo_icon_view_unset_model_drag_dest(ExoIconView* icon_view);
 void exo_icon_view_set_reorderable(ExoIconView* icon_view, bool reorderable);
-bool exo_icon_view_get_reorderable(ExoIconView* icon_view);
 
 /* These are useful to implement your own custom stuff. */
 void exo_icon_view_set_drag_dest_item(ExoIconView* icon_view, GtkTreePath* path,
@@ -269,16 +223,12 @@ GdkPixmap* exo_icon_view_create_drag_icon(ExoIconView* icon_view,
                                                 GtkTreePath* path);
 
 /* Interactive search support */
-bool exo_icon_view_get_enable_search(const ExoIconView* icon_view);
 void exo_icon_view_set_enable_search(ExoIconView* icon_view, bool enable_search);
-int exo_icon_view_get_search_column(const ExoIconView* icon_view);
 void exo_icon_view_set_search_column(ExoIconView* icon_view, int search_column);
-ExoIconViewSearchEqualFunc exo_icon_view_get_search_equal_func(const ExoIconView* icon_view);
 void exo_icon_view_set_search_equal_func(ExoIconView* icon_view,
                                          ExoIconViewSearchEqualFunc search_equal_func,
                                          void* search_equal_data,
                                          GDestroyNotify search_equal_destroy);
-ExoIconViewSearchPositionFunc exo_icon_view_get_search_position_func(const ExoIconView* icon_view);
 void exo_icon_view_set_search_position_func(ExoIconView* icon_view,
                                             ExoIconViewSearchPositionFunc search_position_func,
                                             void* search_position_data,

@@ -19,7 +19,7 @@
 
 #include "vfs-execute.h"
 
-#include "vfs-utils.h" /* for vfs_load_icon */
+#include "vfs-utils.h"
 
 // sfm breaks vfs independence for exec_in_terminal
 #include "../ptk/ptk-file-task.h"
@@ -102,81 +102,11 @@ static void vfs_app_desktop_free(VFSAppDesktop* app)
     g_slice_free(VFSAppDesktop, app);
 }
 
-void vfs_app_desktop_ref(VFSAppDesktop* app)
-{
-    g_atomic_int_inc(&app->n_ref);
-}
-
 void vfs_app_desktop_unref(void* data)
 {
     VFSAppDesktop* app = (VFSAppDesktop*)data;
     if (g_atomic_int_dec_and_test(&app->n_ref))
         vfs_app_desktop_free(app);
-}
-
-bool vfs_app_desktop_rename(char* desktop_file_path, char* new_name) // sfm
-{
-    if (!desktop_file_path || !new_name)
-        return FALSE;
-
-    GKeyFile* kfile = g_key_file_new();
-
-    // load
-    if (!g_key_file_load_from_file(kfile,
-                                   desktop_file_path,
-                                   G_KEY_FILE_KEEP_COMMENTS | G_KEY_FILE_KEEP_TRANSLATIONS,
-                                   NULL))
-    {
-        g_key_file_free(kfile);
-        return FALSE;
-    }
-
-    // get user's locale
-    const char* locale = NULL;
-    const char* const* langs = g_get_language_names();
-    char* dot = strchr(langs[0], '.');
-    if (dot)
-        locale = g_strndup(langs[0], (size_t)(dot - langs[0]));
-    else
-        locale = langs[0];
-    if (!locale || locale[0] == '\0')
-        locale = "en";
-    char* l = g_strdup(locale);
-    char* ll = strchr(l, '_');
-    if (ll)
-        ll[0] = '\0';
-
-    // update keyfile
-    g_key_file_set_locale_string(kfile, desktop_entry_name, "Name", l, new_name);
-    if (strcmp(l, locale))
-        g_key_file_set_locale_string(kfile, desktop_entry_name, "Name", locale, new_name);
-    g_free(l);
-
-    // get keyfile as string
-    char* data = g_key_file_to_data(kfile, NULL, NULL);
-    g_key_file_free(kfile);
-
-    // overwrite desktop file
-    if (data)
-    {
-        FILE* file = fopen(desktop_file_path, "w");
-        if (file)
-        {
-            int result = fputs(data, file);
-            g_free(data);
-            fclose(file);
-            if (result < 0)
-                return FALSE;
-        }
-        else
-        {
-            g_free(data);
-            return FALSE;
-        }
-    }
-    else
-        return FALSE;
-    return TRUE;
 }
 
 const char* vfs_app_desktop_get_name(VFSAppDesktop* app)
@@ -284,11 +214,6 @@ bool vfs_app_desktop_open_multiple_files(VFSAppDesktop* app)
 bool vfs_app_desktop_open_in_terminal(VFSAppDesktop* app)
 {
     return app->terminal;
-}
-
-bool vfs_app_desktop_is_hidden(VFSAppDesktop* app)
-{
-    return app->hidden;
 }
 
 bool vfs_app_desktop_uses_startup_notify(VFSAppDesktop* app)

@@ -16,7 +16,7 @@
 
 #include <stdint.h>
 
-#include <unistd.h> /* for access */
+#include <unistd.h>
 
 #include "ptk-file-menu.h"
 #include <glib.h>
@@ -28,18 +28,16 @@
 
 #include "../vfs/vfs-app-desktop.h"
 
-#include "ptk-utils.h"
 #include "ptk-file-misc.h"
 #include "ptk-file-archiver.h"
 #include "ptk-handler.h"
 #include "ptk-clipboard.h"
 #include "ptk-app-chooser.h"
-#include "settings.h"  //MOD
-#include "item-prop.h" //MOD
+#include "settings.h"
+#include "item-prop.h"
 #include "main-window.h"
 #include "ptk-location-view.h"
-#include "ptk-file-list.h" //sfm for sort extra
-#include "pref-dialog.h"
+#include "ptk-file-list.h"
 
 #include "utils.h"
 #include "gtk2-compat.h"
@@ -1390,7 +1388,6 @@ void on_popup_run_app(GtkMenuItem* menuitem, PtkFileMenu* data)
 
 enum
 {
-    APP_JOB_NONE,
     APP_JOB_DEFAULT,
     APP_JOB_REMOVE,
     APP_JOB_EDIT,

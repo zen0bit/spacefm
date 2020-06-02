@@ -20,13 +20,9 @@
 #include "ptk-file-task.h"
 #include "ptk-utils.h"
 
-#include "../vfs/vfs-file-info.h"
-
 #include "main-window.h"
 #include "utils.h"
 
-// waitpid
-#include <unistd.h>
 #include <sys/wait.h>
 
 static bool on_vfs_file_task_state_cb(VFSFileTask* task, VFSFileTaskState state, void* state_data,

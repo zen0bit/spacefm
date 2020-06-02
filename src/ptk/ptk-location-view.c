@@ -19,25 +19,19 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/wait.h>
-#include <stdlib.h> /* for realpath */
+#include <stdlib.h>
 #include <errno.h>
 
-#include <linux/limits.h> //PATH_MAX
+#include <linux/limits.h>
 
 #include "ptk-location-view.h"
-#include "ptk-utils.h"
 #include "ptk-file-browser.h"
 #include "ptk-handler.h"
 #include "ptk-file-task.h"
 #include "settings.h"
 #include "main-window.h"
 
-#include "../vfs/vfs-volume.h"
-#include "../vfs/vfs-dir.h"
-#include "../vfs/vfs-utils.h" /* for vfs_load_icon */
-#include "../vfs/vfs-app-desktop.h"
+#include "../vfs/vfs-utils.h"
 
 #include "utils.h"
 
@@ -91,7 +85,6 @@ typedef struct _AutoOpen
 } AutoOpen;
 
 bool volume_is_visible(VFSVolume* vol);
-bool run_command(char* command, char** output);
 void update_all();
 
 // do not translate - bash security
@@ -315,37 +308,6 @@ VFSVolume* ptk_location_view_get_selected_vol(GtkTreeView* location_view)
         return vol;
     }
     return NULL;
-}
-
-char* ptk_location_view_get_selected_dir(GtkTreeView* location_view)
-{
-    GtkTreeIter it;
-    GtkTreeSelection* tree_sel;
-    char* real_path = NULL;
-    VFSVolume* vol;
-
-    tree_sel = gtk_tree_view_get_selection(location_view);
-    if (gtk_tree_selection_get_selected(tree_sel, NULL, &it))
-    {
-        gtk_tree_model_get(model, &it, COL_PATH, &real_path, -1);
-        if (!real_path || real_path[0] == '\0' || !g_file_test(real_path, G_FILE_TEST_EXISTS))
-        {
-            gtk_tree_model_get(model, &it, COL_DATA, &vol, -1);
-            // if( ! vfs_volume_is_mounted( vol ) )
-            //    try_mount( location_view, vol );
-            if (!vfs_volume_is_mounted(vol))
-                return NULL;
-            real_path = (char*)vfs_volume_get_mount_point(vol);
-            if (real_path)
-            {
-                gtk_list_store_set(GTK_LIST_STORE(model), &it, COL_PATH, real_path, -1);
-                return g_strdup(real_path);
-            }
-            else
-                return NULL;
-        }
-    }
-    return real_path;
 }
 
 void on_row_activated(GtkTreeView* view, GtkTreePath* tree_path, GtkTreeViewColumn* col,
@@ -1032,39 +994,6 @@ void ptk_location_view_mount_network(PtkFileBrowser* file_browser, const char* u
                         NULL,
                         NULL);
         goto _net_free;
-
-        /*
-        // use udevil as default mount command
-        str = g_find_program_in_path( "udevil" );
-        if ( !str )
-        {
-            xset_msg_dialog( GTK_WIDGET( file_browser ), GTK_MESSAGE_ERROR,
-                            _("Handler Not Found"), NULL, 0,
-                            _("No network handler is configured for this URL.  Add a handler in
-        Settings|Protocol Handlers."), NULL, NULL ); goto _net_free;
-        }
-        g_free( str );
-
-        run_in_terminal = ( !g_strcmp0( netmount->fstype, "smb" ) ||
-                            !g_strcmp0( netmount->fstype, "cifs" ) ||
-                            !g_strcmp0( netmount->fstype, "ftp" ) ||
-                            !g_strcmp0( netmount->fstype, "ssh" ) ||
-                            !g_strcmp0( netmount->fstype, "http" ) ||
-                            !g_strcmp0( netmount->fstype, "https" ) );
-        ssh_udevil = !g_strcmp0( netmount->fstype, "ssh" );
-        // add bash variables
-        char* urlq = bash_quote( netmount->url );
-        char* protoq = bash_quote( netmount->fstype );
-        char* hostq = bash_quote( netmount->host );
-        char* userq = bash_quote( netmount->user );
-        char* passq = bash_quote( netmount->pass );
-        char* pathq = bash_quote( netmount->path );
-        char* keepterm;
-        cmd = g_strdup_printf( "fm_url=%s; fm_url_proto=%s; fm_url_host=%s; fm_url_user=%s;
-        fm_url_pass=%s; fm_url_path=%s\nudevil mount \"$fm_url\"", urlq, protoq, hostq, userq,
-        passq, pathq ); g_free( urlq ); g_free( protoq ); g_free( hostq ); g_free( userq ); g_free(
-        passq ); g_free( pathq );
-        */
     }
 
     // task
@@ -2468,22 +2397,6 @@ static void on_handler_show_config(GtkMenuItem* item, GtkWidget* view, XSet* set
     ptk_handler_show_config(mode, file_browser, NULL);
 }
 
-void open_external_tab(const char* path)
-{
-    char* prog = g_find_program_in_path(g_get_prgname());
-    if (!prog)
-        prog = g_strdup(g_get_prgname());
-    if (!prog)
-        prog = g_strdup("spacefm");
-    char* quote_path = bash_quote(path);
-    char* command = g_strdup_printf("%s -t %s", prog, quote_path);
-    print_command(command);
-    g_spawn_command_line_async(command, NULL);
-    g_free(prog);
-    g_free(quote_path);
-    g_free(command);
-}
-
 bool volume_is_visible(VFSVolume* vol)
 {
     // check show/hide
@@ -3179,13 +3092,6 @@ void ptk_location_view_dev_menu(GtkWidget* parent, PtkFileBrowser* file_browser,
                                  file_browser ? " dev_newtab" : "");
     xset_set_set(set, "desc", desc);
     g_free(desc);
-}
-
-VFSVolume* ptk_location_view_get_volume(GtkTreeView* location_view, GtkTreeIter* it)
-{
-    VFSVolume* vol = NULL;
-    gtk_tree_model_get(model, it, COL_DATA, &vol, -1);
-    return vol;
 }
 
 void ptk_bookmark_view_import_gtk(const char* path, XSet* book_set)

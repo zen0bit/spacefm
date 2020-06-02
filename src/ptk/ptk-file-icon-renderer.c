@@ -53,7 +53,6 @@ static void ptk_file_icon_renderer_render(GtkCellRenderer* cell, GdkWindow* wind
 enum
 {
     PROP_INFO = 1,
-    PROP_FLAGS,
     PROP_FOLLOW_STATE
 };
 
@@ -224,10 +223,6 @@ static void ptk_file_icon_renderer_get_property(GObject* object, unsigned int pa
 
     switch (param_id)
     {
-            /*    case PROP_FLAGS:
-                  g_value_set_long(value, renderer->flags);
-                  break;
-            */
         case PROP_INFO:
             g_value_set_pointer(value, renderer->info ? vfs_file_info_ref(renderer->info) : NULL);
             break;
@@ -260,17 +255,9 @@ static void ptk_file_icon_renderer_set_property(GObject* object, unsigned int pa
                 vfs_file_info_unref(renderer->info);
             renderer->info = g_value_get_pointer(value);
             break;
-
-            /*
-                case PROP_FLAGS:
-                  renderer->flags = g_value_get_long(value);
-                  break;
-            */
-
         case PROP_FOLLOW_STATE:
             renderer->follow_state = g_value_get_boolean(value);
             break;
-
         default:
             G_OBJECT_WARN_INVALID_PROPERTY_ID(object, param_id, pspec);
             break;

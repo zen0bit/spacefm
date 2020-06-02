@@ -18,19 +18,15 @@
 #include <glib-object.h>
 #include <gdk/gdk.h>
 #include <gdk/gdkkeysyms.h>
-#include <gdk/gdkx.h>  // XGetWindowProperty
-#include <X11/Xatom.h> // XA_CARDINAL
+#include <gdk/gdkx.h>
+#include <X11/Xatom.h>
 
 #include <string.h>
 #include <malloc.h>
 
-#include <linux/limits.h> //PATH_MAX
-
-#include <gmodule.h>
+#include <linux/limits.h>
 
 #include <unistd.h>
-#include <sys/types.h>
-#include <sys/wait.h>
 #include <fcntl.h>
 #include <stdlib.h>
 #include "ptk/ptk-location-view.h"
@@ -42,24 +38,18 @@
 #include "ptk/ptk-utils.h"
 
 #include "pref-dialog.h"
-#include "ptk/ptk-file-properties.h"
-#include "ptk/ptk-path-entry.h"
 #include "ptk/ptk-file-menu.h"
 
 #include "settings.h"
 #include "item-prop.h"
 #include "find-files.h"
-#include "go-dialog.h"
 #include "utils.h"
 
 /* FIXME: statvfs support should be moved to src/vfs */
 #include <sys/statvfs.h>
 
-#include "vfs/vfs-app-desktop.h"
-#include "vfs/vfs-execute.h"
-#include "vfs/vfs-utils.h" /* for vfs_sudo() */
+#include "vfs/vfs-utils.h"
 #include "vfs/vfs-file-task.h"
-#include "ptk/ptk-location-view.h"
 #include "ptk/ptk-clipboard.h"
 #include "ptk/ptk-handler.h"
 
@@ -96,7 +86,6 @@ static void on_new_window_activate(GtkMenuItem* menuitem, void* user_data);
 static void fm_main_window_close(FMMainWindow* main_window);
 
 GtkWidget* main_task_view_new(FMMainWindow* main_window);
-void main_task_add_menu(FMMainWindow* main_window, GtkMenu* menu, GtkAccelGroup* accel_group);
 void on_task_popup_show(GtkMenuItem* item, FMMainWindow* main_window, char* name2);
 bool main_tasks_running(FMMainWindow* main_window);
 void on_task_stop(GtkMenuItem* item, GtkWidget* view, XSet* set2, PtkFileTask* task2);
@@ -1061,7 +1050,6 @@ void main_window_refresh_all_tabs_matching(const char* path)
     // the dir object for unknown reason.
 
     // This breaks auto open of tabs on automount
-    return;
 }
 
 void main_window_rebuild_all_toolbars(PtkFileBrowser* file_browser)

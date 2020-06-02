@@ -10,8 +10,6 @@
  *
  */
 
-#include <stdbool.h>
-
 #include "ptk-utils.h"
 
 #include <glib.h>
@@ -135,47 +133,6 @@ void ptk_show_error(GtkWindow* parent, const char* title, const char* message)
     xset_set_window_icon(GTK_WINDOW(dlg));
     gtk_dialog_run(GTK_DIALOG(dlg));
     gtk_widget_destroy(dlg);
-}
-
-typedef struct
-{
-    GMainLoop* lp;
-    int response;
-} DlgRunData;
-
-static bool on_dlg_delete_event(GtkWidget* dlg, GdkEvent* evt, DlgRunData* data)
-{
-    return TRUE;
-}
-
-static void on_dlg_response(GtkDialog* dlg, int response, DlgRunData* data)
-{
-    data->response = response;
-    if (g_main_loop_is_running(data->lp))
-        g_main_loop_quit(data->lp);
-}
-
-int ptk_dialog_run_modaless(GtkDialog* dlg)
-{
-    DlgRunData data = {0};
-    data.lp = g_main_loop_new(NULL, FALSE);
-
-    unsigned int deh =
-        g_signal_connect(dlg, "delete_event", G_CALLBACK(on_dlg_delete_event), &data);
-    unsigned int rh = g_signal_connect(dlg, "response", G_CALLBACK(on_dlg_response), &data);
-
-    gtk_window_present((GtkWindow*)dlg);
-
-    GDK_THREADS_LEAVE();
-    g_main_loop_run(data.lp);
-    GDK_THREADS_ENTER();
-
-    g_main_loop_unref(data.lp);
-
-    g_signal_handler_disconnect(dlg, deh);
-    g_signal_handler_disconnect(dlg, rh);
-
-    return data.response;
 }
 
 GtkBuilder* _gtk_builder_new_from_file(const char* path, const char* file, GError** err)

@@ -31,10 +31,6 @@ G_BEGIN_DECLS
 
 #define VFS_ASYNC_TASK_TYPE (vfs_async_task_get_type())
 #define VFS_ASYNC_TASK(obj) (G_TYPE_CHECK_INSTANCE_CAST((obj), VFS_ASYNC_TASK_TYPE, VFSAsyncTask))
-#define VFS_ASYNC_TASK_CLASS(klass) \
-    (G_TYPE_CHECK_CLASS_CAST((klass), VFS_ASYNC_TASK_TYPE, VFSAsyncTaskClass))
-#define VFS_IS_ASYNC_TASK(obj)         (G_TYPE_CHECK_INSTANCE_TYPE((obj), VFS_ASYNC_TASK_TYPE))
-#define VFS_IS_ASYNC_TASK_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE((klass), VFS_ASYNC_TASK_TYPE))
 
 typedef struct _VFSAsyncTask VFSAsyncTask;
 typedef struct _VFSAsyncTaskClass VFSAsyncTaskClass;
@@ -67,8 +63,6 @@ GType vfs_async_task_get_type(void);
 VFSAsyncTask* vfs_async_task_new(VFSAsyncFunc task_func, void* user_data);
 
 void* vfs_async_task_get_data(VFSAsyncTask* task);
-void vfs_async_task_set_data(VFSAsyncTask* task, void* user_data);
-void* vfs_async_task_get_return_value(VFSAsyncTask* task);
 
 /* Execute the async task */
 void vfs_async_task_execute(VFSAsyncTask* task);

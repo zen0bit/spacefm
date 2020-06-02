@@ -23,7 +23,6 @@
 #include <stdbool.h>
 
 #include "exo-binding.h"
-#include "exo-private.h"
 
 /**
  * SECTION: exo-binding

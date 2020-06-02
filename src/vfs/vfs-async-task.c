@@ -22,7 +22,6 @@
 #include <stdbool.h>
 
 #include "vfs-async-task.h"
-#include <gtk/gtk.h>
 
 static void vfs_async_task_class_init(VFSAsyncTaskClass* klass);
 static void vfs_async_task_init(VFSAsyncTask* task);
@@ -115,16 +114,6 @@ VFSAsyncTask* vfs_async_task_new(VFSAsyncFunc task_func, void* user_data)
 void* vfs_async_task_get_data(VFSAsyncTask* task)
 {
     return task->user_data;
-}
-
-void vfs_async_task_set_data(VFSAsyncTask* task, void* user_data)
-{
-    task->user_data = user_data;
-}
-
-void* vfs_async_task_get_return_value(VFSAsyncTask* task)
-{
-    return task->ret_val;
 }
 
 void vfs_async_task_finalize(GObject* object)

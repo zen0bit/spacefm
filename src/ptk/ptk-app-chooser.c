@@ -18,14 +18,12 @@
 
 #include "private.h"
 
-#include "../vfs/vfs-mime-type.h"
 #include "../vfs/vfs-app-desktop.h"
 
 #include "../vfs/vfs-async-task.h"
 
 #include "settings.h"
 #include "ptk-handler.h"
-#include "utils.h"
 
 enum
 {
@@ -35,7 +33,6 @@ enum
     COL_FULL_PATH,
     N_COLS
 };
-extern bool is_my_lock;
 
 static void load_all_apps_in_dir(const char* dir_path, GtkListStore* list, VFSAsyncTask* task);
 static void* load_all_known_apps_thread(VFSAsyncTask* task);

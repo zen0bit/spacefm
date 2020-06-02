@@ -26,17 +26,7 @@
 // This limits the small icon size for side panes and task list
 #define PANE_MAX_ICON_SIZE 48
 
-typedef enum
-{
-    WPM_STRETCH,
-    WPM_FULL,
-    WPM_CENTER,
-    WPM_TILE,
-    WPM_ZOOM,
-    WPM_TRANSPARENT
-} WallpaperMode;
-
-typedef struct
+typedef struct AppSettings
 {
     /* General Settings */
     bool show_thumbnail;
@@ -78,7 +68,6 @@ void load_settings(char* config_dir);
 void save_settings(void* main_window_ptr);
 void free_settings();
 const char* xset_get_config_dir();
-const char* xset_get_tmp_dir();
 const char* xset_get_user_tmp_dir();
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -274,12 +263,6 @@ typedef struct
 
 } XSet;
 
-typedef struct
-{
-    GtkMenuItem* item;
-    char* name;
-} XMenuItem;
-
 // cache these for speed in event handlers
 extern XSet* evt_win_focus;
 extern XSet* evt_win_move;
@@ -326,8 +309,6 @@ XSet* xset_set_cb_panel(int panel, const char* name, void (*cb_func)(), void* cb
 bool xset_get_b_set(XSet* set);
 XSet* xset_get_panel_mode(int panel, const char* name, char mode);
 bool xset_get_b_panel_mode(int panel, const char* name, char mode);
-XSet* xset_set_panel_mode(int panel, const char* name, char mode, const char* var,
-                          const char* value);
 XSet* xset_set_b_panel_mode(int panel, const char* name, char mode, bool bval);
 
 XSetContext* xset_context_new();

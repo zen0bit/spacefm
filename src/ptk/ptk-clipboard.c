@@ -18,8 +18,8 @@
 #include "../vfs/vfs-file-task.h"
 
 #include "ptk-file-task.h"
-#include "ptk-file-misc.h" // for get_real_link_target()
-#include "ptk-utils.h"     //MOD
+#include "ptk-file-misc.h"
+#include "ptk-utils.h"
 
 #include "utils.h"
 
