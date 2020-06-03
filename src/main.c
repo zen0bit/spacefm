@@ -160,19 +160,18 @@ char* get_inode_tag()
 
 bool on_socket_event(GIOChannel* ioc, GIOCondition cond, void* data)
 {
-    int client, r;
-    socklen_t addr_len = 0;
-    struct sockaddr_un client_addr = {0};
-    static char buf[1024];
-    GString* args;
-    char** file;
-
     if (cond & G_IO_IN)
     {
-        client = accept(g_io_channel_unix_get_fd(ioc), (struct sockaddr*)&client_addr, &addr_len);
+        socklen_t addr_len = 0;
+        struct sockaddr_un client_addr = {0};
+
+        int client =
+            accept(g_io_channel_unix_get_fd(ioc), (struct sockaddr*)&client_addr, &addr_len);
         if (client != -1)
         {
-            args = g_string_new_len(NULL, 2048);
+            static char buf[1024];
+            GString* args = g_string_new_len(NULL, 2048);
+            int r;
             while ((r = read(client, buf, sizeof(buf))) > 0)
             {
                 g_string_append_len(args, buf, r);
@@ -269,6 +268,7 @@ bool on_socket_event(GIOChannel* ioc, GIOCondition cond, void* data)
 
             if (files)
             {
+                char** file;
                 for (file = files; *file; ++file)
                 {
                     if (!**file) /* remove empty string at tail */
@@ -301,10 +301,7 @@ void get_socket_name(char* buf, int len)
 
 bool single_instance_check()
 {
-    struct sockaddr_un addr;
-    int addr_len;
     int ret;
-    int reuse;
 
     if ((sock = socket(AF_UNIX, SOCK_STREAM, 0)) == -1)
     {
@@ -313,15 +310,15 @@ bool single_instance_check()
         goto _exit;
     }
 
+    struct sockaddr_un addr;
     addr.sun_family = AF_UNIX;
     get_socket_name(addr.sun_path, sizeof(addr.sun_path));
-    addr_len = SUN_LEN(&addr);
+    int addr_len = SUN_LEN(&addr);
 
     /* try to connect to existing instance */
     if (sock && connect(sock, (struct sockaddr*)&addr, addr_len) == 0)
     {
         /* connected successfully */
-        char** file;
         char cmd = CMD_OPEN_TAB;
 
         if (no_tabs)
@@ -369,6 +366,7 @@ bool single_instance_check()
         {
             if (files)
             {
+                char** file;
                 for (file = files; *file; ++file)
                 {
                     char* real_path;
@@ -397,7 +395,7 @@ bool single_instance_check()
 
     /* There is no existing server, and we are in the first instance. */
     unlink(addr.sun_path); /* delete old socket file if it exists. */
-    reuse = 1;
+    int reuse = 1;
     ret = setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
     if (bind(sock, (struct sockaddr*)&addr, addr_len) == -1)
     {
@@ -506,10 +504,6 @@ void receive_socket_command(int client, GString* args) // sfm
 
 int send_socket_command(int argc, char* argv[], char** reply) // sfm
 {
-    struct sockaddr_un addr;
-    int addr_len;
-    int ret;
-
     *reply = NULL;
     if (argc < 3)
     {
@@ -525,9 +519,10 @@ int send_socket_command(int argc, char* argv[], char** reply) // sfm
     }
 
     // open socket
+    struct sockaddr_un addr;
     addr.sun_family = AF_UNIX;
     get_socket_name(addr.sun_path, sizeof(addr.sun_path));
-    addr_len = SUN_LEN(&addr);
+    int addr_len = SUN_LEN(&addr);
 
     if (connect(sock, (struct sockaddr*)&addr, addr_len) != 0)
     {
@@ -568,6 +563,7 @@ int send_socket_command(int argc, char* argv[], char** reply) // sfm
     close(sock);
 
     // set reply
+    int ret;
     if (sock_reply->len != 0)
     {
         *reply = g_strdup(sock_reply->str + 1);
@@ -638,7 +634,9 @@ static void init_daemon()
 
 char* dup_to_absolute_file_path(char** file)
 {
-    char *file_path, *real_path, *cwd_path;
+    char* file_path;
+    char* real_path;
+    char* cwd_path;
     const size_t cwd_size = PATH_MAX;
 
     if (g_str_has_prefix(*file, "file:")) /* It's a URI */
@@ -1095,20 +1093,13 @@ int main(int argc, char* argv[])
 
 void open_file(const char* path)
 {
-    GError* err;
-    char *msg, *error_msg;
-    VFSFileInfo* file;
-    VFSMimeType* mime_type;
-    bool opened;
-    char* app_name;
-
-    file = vfs_file_info_new();
+    VFSFileInfo* file = vfs_file_info_new();
     vfs_file_info_get(file, path, NULL);
-    mime_type = vfs_file_info_get_mime_type(file);
-    opened = FALSE;
-    err = NULL;
+    VFSMimeType* mime_type = vfs_file_info_get_mime_type(file);
+    bool opened = FALSE;
+    GError* err = NULL;
 
-    app_name = vfs_mime_type_get_default_action(mime_type);
+    char* app_name = vfs_mime_type_get_default_action(mime_type);
     if (app_name)
     {
         opened = vfs_file_info_open_file(file, path, &err);
@@ -1116,16 +1107,13 @@ void open_file(const char* path)
     }
     else
     {
-        VFSAppDesktop* app;
-        GList* files;
-
         app_name = (char*)ptk_choose_app_for_mime_type(NULL, mime_type, TRUE, TRUE, TRUE, FALSE);
         if (app_name)
         {
-            app = vfs_app_desktop_new(app_name);
+            VFSAppDesktop* app = vfs_app_desktop_new(app_name);
             if (!vfs_app_desktop_get_exec(app))
                 app->exec = g_strdup(app_name); /* This is a command line */
-            files = g_list_prepend(NULL, (void*)path);
+            GList* files = g_list_prepend(NULL, (void*)path);
             opened = vfs_app_desktop_open_files(gdk_screen_get_default(), NULL, app, files, &err);
             g_free(files->data);
             g_list_free(files);
@@ -1138,15 +1126,15 @@ void open_file(const char* path)
 
     if (!opened)
     {
-        char* disp_path;
+        char* error_msg;
         if (err && err->message)
         {
             error_msg = err->message;
         }
         else
             error_msg = _("Don't know how to open the file");
-        disp_path = g_filename_display_name(path);
-        msg = g_strdup_printf(_("Unable to open file:\n\"%s\"\n%s"), disp_path, error_msg);
+        char* disp_path = g_filename_display_name(path);
+        char* msg = g_strdup_printf(_("Unable to open file:\n\"%s\"\n%s"), disp_path, error_msg);
         g_free(disp_path);
         ptk_show_error(NULL, _("Error"), msg);
         g_free(msg);

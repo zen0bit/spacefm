@@ -52,11 +52,11 @@ bool ptk_file_task_trylock(PtkFileTask* ptask)
 PtkFileTask* ptk_file_exec_new(const char* item_name, const char* dir, GtkWidget* parent,
                                GtkWidget* task_view)
 {
-    GList* files = NULL;
     GtkWidget* parent_win = NULL;
     if (parent)
         parent_win = gtk_widget_get_toplevel(GTK_WIDGET(parent));
     char* file = g_strdup(item_name);
+    GList* files = NULL;
     files = g_list_prepend(files, file);
     return ptk_file_task_new(VFS_FILE_TASK_EXEC, files, dir, GTK_WINDOW(parent_win), task_view);
 }
@@ -125,12 +125,11 @@ void save_progress_dialog_size(PtkFileTask* ptask)
 {
     // save dialog size  - do this here now because as of GTK 3.8,
     // allocation == 1,1 in destroy event
-    char* s;
     GtkAllocation allocation;
 
     gtk_widget_get_allocation(GTK_WIDGET(ptask->progress_dlg), &allocation);
 
-    s = g_strdup_printf("%d", allocation.width);
+    char* s = g_strdup_printf("%d", allocation.width);
     if (ptask->task->type == VFS_FILE_TASK_EXEC)
         xset_set("task_pop_top", "s", s);
     else
@@ -1032,8 +1031,6 @@ void ptk_file_task_progress_open(PtkFileTask* ptask)
 void ptk_file_task_progress_update(PtkFileTask* ptask)
 {
     char* ufile_path;
-    char* usrc_dir;
-    char* udest;
     char* window_title;
     char* str;
     char* str2;
@@ -1053,8 +1050,8 @@ void ptk_file_task_progress_update(PtkFileTask* ptask)
     VFSFileTask* task = ptask->task;
 
     // current file
-    usrc_dir = NULL;
-    udest = NULL;
+    char* usrc_dir = NULL;
+    char* udest = NULL;
     if (ptask->complete)
     {
         gtk_widget_set_sensitive(ptask->progress_btn_stop, FALSE);
@@ -1468,7 +1465,6 @@ void ptk_file_task_update(PtkFileTask* ptask)
     unsigned int hours = timer_elapsed / 3600.0;
     char* elapsed;
     char* elapsed2;
-    char* elapsed3;
     if (hours == 0)
         elapsed = g_strdup("");
     else
@@ -1481,7 +1477,7 @@ void ptk_file_task_update(PtkFileTask* ptask)
     else
         elapsed2 = g_strdup(elapsed);
     unsigned int secs = (timer_elapsed - (hours * 3600) - (mins * 60));
-    elapsed3 = g_strdup_printf("%s:%02d", elapsed2, secs);
+    char* elapsed3 = g_strdup_printf("%s:%02d", elapsed2, secs);
     g_free(elapsed);
     g_free(elapsed2);
     g_free(ptask->dsp_elapsed);
@@ -1957,8 +1953,11 @@ static void query_overwrite(PtkFileTask* ptask)
     GtkTextIter iter;
 
     bool has_overwrite_btn = TRUE;
-    bool different_files, is_src_dir, is_dest_dir;
-    struct stat src_stat, dest_stat;
+    bool different_files;
+    bool is_src_dir;
+    bool is_dest_dir;
+    struct stat src_stat;
+    struct stat dest_stat;
     char* from_size_str = NULL;
     char* to_size_str = NULL;
     char* from_disp;

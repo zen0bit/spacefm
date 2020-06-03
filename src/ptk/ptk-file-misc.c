@@ -142,14 +142,6 @@ char* get_template_dir();
 void ptk_delete_files(GtkWindow* parent_win, const char* cwd, GList* sel_files,
                       GtkTreeView* task_view)
 {
-    GtkWidget* dlg;
-    char* file_path;
-    int ret;
-    GList* sel;
-    VFSFileInfo* file;
-    PtkFileTask* task = NULL;
-    GList* file_list;
-
     if (!sel_files)
         return;
 
@@ -160,43 +152,43 @@ void ptk_delete_files(GtkWindow* parent_win, const char* cwd, GList* sel_files,
         char* msg = g_strdup_printf(
             ngettext("Delete %d selected item ?", "Delete %d selected items ?", count),
             count);
-        dlg = gtk_message_dialog_new(parent_win,
-                                     GTK_DIALOG_MODAL,
-                                     GTK_MESSAGE_WARNING,
-                                     GTK_BUTTONS_YES_NO,
-                                     msg,
-                                     NULL);
+        GtkWidget* dlg = gtk_message_dialog_new(parent_win,
+                                                GTK_DIALOG_MODAL,
+                                                GTK_MESSAGE_WARNING,
+                                                GTK_BUTTONS_YES_NO,
+                                                msg,
+                                                NULL);
         gtk_dialog_set_default_response(GTK_DIALOG(dlg), GTK_RESPONSE_YES); // MOD
         gtk_window_set_title(GTK_WINDOW(dlg), _("Confirm Delete"));
         xset_set_window_icon(GTK_WINDOW(dlg));
 
-        ret = gtk_dialog_run(GTK_DIALOG(dlg));
+        int ret = gtk_dialog_run(GTK_DIALOG(dlg));
         gtk_widget_destroy(dlg);
         g_free(msg);
         if (ret != GTK_RESPONSE_YES)
             return;
     }
 
-    file_list = NULL;
+    GList* file_list = NULL;
+    GList* sel;
     for (sel = sel_files; sel; sel = g_list_next(sel))
     {
-        file = (VFSFileInfo*)sel->data;
-        file_path = g_build_filename(cwd, vfs_file_info_get_name(file), NULL);
+        VFSFileInfo* file = (VFSFileInfo*)sel->data;
+        char* file_path = g_build_filename(cwd, vfs_file_info_get_name(file), NULL);
         file_list = g_list_prepend(file_list, file_path);
     }
     /* file_list = g_list_reverse( file_list ); */
-    task = ptk_file_task_new(VFS_FILE_TASK_DELETE,
-                             file_list,
-                             NULL,
-                             parent_win ? GTK_WINDOW(parent_win) : NULL,
-                             GTK_WIDGET(task_view));
+    PtkFileTask* task = ptk_file_task_new(VFS_FILE_TASK_DELETE,
+                                          file_list,
+                                          NULL,
+                                          parent_win ? GTK_WINDOW(parent_win) : NULL,
+                                          GTK_WIDGET(task_view));
     ptk_file_task_run(task);
 }
 
 char* get_real_link_target(const char* link_path)
 {
     char buf[PATH_MAX + 1];
-    ssize_t len;
     char* target_path;
 
     if (!link_path)
@@ -209,7 +201,7 @@ char* get_real_link_target(const char* link_path)
          * missing.
          * g_file_read_link() doesn't behave like readlink,
          * gives nothing if final target missing */
-        len = readlink(link_path, buf, PATH_MAX);
+        ssize_t len = readlink(link_path, buf, PATH_MAX);
         if (len > 0)
             target_path = g_strndup(buf, len);
     }
@@ -872,7 +864,6 @@ void on_create_browse_button_press(GtkWidget* widget, MoveSet* mset)
     const char* text;
     char* dir;
     char* name;
-    char* new_path;
 
     if (widget == GTK_WIDGET(mset->browse_target))
     {
@@ -965,7 +956,7 @@ void on_create_browse_button_press(GtkWidget* widget, MoveSet* mset)
     int response = gtk_dialog_run(GTK_DIALOG(dlg));
     if (response == GTK_RESPONSE_OK)
     {
-        new_path = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
+        char* new_path = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
         char* path = new_path;
         GtkWidget* w;
         if (widget == GTK_WIDGET(mset->browse_target))
@@ -1045,7 +1036,8 @@ void on_browse_mode_toggled(GtkMenuItem* item, GtkWidget* dlg)
 void on_browse_button_press(GtkWidget* widget, MoveSet* mset)
 {
     char* str;
-    GtkTextIter iter, siter;
+    GtkTextIter iter;
+    GtkTextIter siter;
     int mode_default = MODE_PARENT;
 
     XSet* set = xset_get("move_dlg_help");
@@ -1242,9 +1234,6 @@ void on_opt_toggled(GtkMenuItem* item, MoveSet* mset)
 {
     const char* action;
     char* btn_label = NULL;
-    const char* root_msg;
-    char* title;
-    GtkTextIter iter, siter;
 
     bool move = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_move));
     bool copy = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_copy));
@@ -1271,6 +1260,8 @@ void on_opt_toggled(GtkMenuItem* item, MoveSet* mset)
     }
     else
     {
+        GtkTextIter iter;
+        GtkTextIter siter;
         gtk_text_buffer_get_start_iter(mset->buf_full_path, &siter);
         gtk_text_buffer_get_end_iter(mset->buf_full_path, &iter);
         char* full_path = gtk_text_buffer_get_text(mset->buf_full_path, &siter, &iter, FALSE);
@@ -1309,6 +1300,7 @@ void on_opt_toggled(GtkMenuItem* item, MoveSet* mset)
         }
     }
 
+    const char* root_msg;
     if (as_root)
         root_msg = _(" As Root");
     else
@@ -1333,7 +1325,7 @@ void on_opt_toggled(GtkMenuItem* item, MoveSet* mset)
     // title
     if (!desc)
         desc = mset->desc;
-    title = g_strdup_printf("%s %s%s", action, desc, root_msg);
+    char* title = g_strdup_printf("%s %s%s", action, desc, root_msg);
     gtk_window_set_title(GTK_WINDOW(mset->dlg), title);
     g_free(title);
 
@@ -1726,7 +1718,6 @@ void copy_entry_to_clipboard(GtkWidget* widget, MoveSet* mset)
 {
     GtkClipboard* clip = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);
     GtkTextBuffer* buf = NULL;
-    GtkTextIter iter, siter;
 
     if (widget == GTK_WIDGET(mset->label_name))
         buf = mset->buf_name;
@@ -1763,6 +1754,9 @@ void copy_entry_to_clipboard(GtkWidget* widget, MoveSet* mset)
 
     if (!buf)
         return;
+
+    GtkTextIter iter;
+    GtkTextIter siter;
     gtk_text_buffer_get_start_iter(buf, &siter);
     gtk_text_buffer_get_end_iter(buf, &iter);
     char* text = gtk_text_buffer_get_text(buf, &siter, &iter, FALSE);
@@ -1821,7 +1815,8 @@ bool on_label_button_press(GtkWidget* widget, GdkEventButton* event, MoveSet* ms
 
 char* get_unique_name(const char* dir, const char* ext)
 {
-    char *name, *path;
+    char* name;
+    char* path;
 
     char* base = _("new");
     if (ext && ext[0] != '\0')
@@ -1887,9 +1882,6 @@ char* get_template_dir()
 
 GList* get_templates(const char* templates_dir, const char* subdir, GList* templates, bool getdir)
 {
-    const char* name;
-    char* path;
-    char* subsubdir;
     char* templates_path;
 
     if (!templates_dir)
@@ -1905,9 +1897,11 @@ GList* get_templates(const char* templates_dir, const char* subdir, GList* templ
     GDir* dir = g_dir_open(templates_path, 0, NULL);
     if (dir)
     {
+        const char* name;
         while ((name = g_dir_read_name(dir)))
         {
-            path = g_build_filename(templates_path, name, NULL);
+            char* subsubdir;
+            char* path = g_build_filename(templates_path, name, NULL);
             if (getdir)
             {
                 if (g_file_test(path, G_FILE_TEST_IS_DIR))
@@ -1957,7 +1951,7 @@ GList* get_templates(const char* templates_dir, const char* subdir, GList* templ
 void on_template_changed(GtkWidget* widget, MoveSet* mset)
 {
     char* str = NULL;
-    char* str2;
+
     if (!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(mset->opt_new_file)))
         return;
     char* text =
@@ -1966,6 +1960,7 @@ void on_template_changed(GtkWidget* widget, MoveSet* mset)
     {
         g_strstrip(text);
         str = text;
+        char* str2;
         while ((str2 = strchr(str, '/')))
             str = str2 + 1;
         if (str[0] == '.')
@@ -2040,7 +2035,6 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
     char* from_path;
     char* task_name;
     char* str;
-    GtkTextIter iter, siter;
     GtkWidget* task_view = NULL;
     int ret = 1;
     bool target_missing = FALSE;
@@ -2791,6 +2785,8 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
     {
         if (response == GTK_RESPONSE_OK || response == GTK_RESPONSE_APPLY)
         {
+            GtkTextIter iter;
+            GtkTextIter siter;
             gtk_text_buffer_get_start_iter(mset->buf_full_path, &siter);
             gtk_text_buffer_get_end_iter(mset->buf_full_path, &iter);
             full_path = gtk_text_buffer_get_text(mset->buf_full_path, &siter, &iter, FALSE);
@@ -3331,13 +3327,13 @@ void ptk_show_file_properties(GtkWindow* parent_win, const char* cwd, GList* sel
 static bool open_archives_with_handler(ParentInfo* parent, GList* sel_files, char* full_path,
                                        VFSMimeType* mime_type)
 {
-    bool extract_here = xset_get_b("arc_def_ex");
-    const char* dest_dir = NULL;
-    int cmd;
-
     if (xset_get_b("arc_def_open"))
         // user has open archives with app option enabled
         return FALSE; // don't handle these files
+
+    bool extract_here = xset_get_b("arc_def_ex");
+    const char* dest_dir = NULL;
+    int cmd;
 
     // determine default archive action in this dir
     if (extract_here && have_rw_access(parent->cwd))
@@ -3510,10 +3506,7 @@ static void open_files_with_handler(ParentInfo* parent, GList* files, XSet* hand
 
 static bool open_files_with_app(ParentInfo* parent, GList* files, const char* app_desktop)
 {
-    char* name;
-    GError* err = NULL;
     VFSAppDesktop* app;
-    GdkScreen* screen;
     XSet* handler_set;
 
     if (app_desktop && g_str_has_prefix(app_desktop, "###") &&
@@ -3535,7 +3528,7 @@ static bool open_files_with_app(ParentInfo* parent, GList* files, const char* ap
              * If we are lucky enough, there might be a desktop entry
              * for this program
              */
-            name = g_strconcat(app_desktop, ".desktop", NULL);
+            char* name = g_strconcat(app_desktop, ".desktop", NULL);
             if (g_file_test(name, G_FILE_TEST_EXISTS))
             {
                 app = vfs_app_desktop_new(name);
@@ -3549,12 +3542,14 @@ static bool open_files_with_app(ParentInfo* parent, GList* files, const char* ap
             g_free(name);
         }
 
+        GdkScreen* screen;
         if (parent->file_browser)
             screen = gtk_widget_get_screen(GTK_WIDGET(parent->file_browser));
         else
             screen = gdk_screen_get_default();
 
         printf("EXEC(%s)=%s\n", app->full_path ? app->full_path : app_desktop, app->exec);
+        GError* err = NULL;
         if (!vfs_app_desktop_open_files(screen, parent->cwd, app, files, &err))
         {
             GtkWidget* toplevel = parent->file_browser
@@ -3578,11 +3573,8 @@ static void open_files_with_each_app(void* key, void* value, void* user_data)
 
 static void free_file_list_hash(void* key, void* value, void* user_data)
 {
-    const char* app_desktop;
-    GList* files;
-
-    app_desktop = (const char*)key;
-    files = (GList*)value;
+    const char* app_desktop = (const char*)key;
+    GList* files = (GList*)value;
     g_list_foreach(files, (GFunc)g_free, NULL);
     g_list_free(files);
 }
@@ -3592,24 +3584,21 @@ void ptk_open_files_with_app(const char* cwd, GList* sel_files, const char* app_
 {
     // if xnever, never execute an executable
     // if xforce, force execute of executable ignoring app_settings.no_execute
-    GList* l;
+
     char* full_path = NULL;
-    VFSFileInfo* file;
-    VFSMimeType* mime_type;
     GList* files_to_open = NULL;
     GHashTable* file_list_hash = NULL;
-    GError* err;
     char* new_dir = NULL;
-    char* alloc_desktop;
     GtkWidget* toplevel;
 
     ParentInfo* parent = g_slice_new0(ParentInfo);
     parent->file_browser = file_browser;
     parent->cwd = cwd;
 
+    GList* l;
     for (l = sel_files; l; l = l->next)
     {
-        file = (VFSFileInfo*)l->data;
+        VFSFileInfo* file = (VFSFileInfo*)l->data;
         if (G_UNLIKELY(!file))
             continue;
 
@@ -3646,7 +3635,7 @@ void ptk_open_files_with_app(const char* cwd, GList* sel_files, const char* app_
                     GdkScreen* screen = file_browser
                                             ? gtk_widget_get_screen(GTK_WIDGET(file_browser))
                                             : gdk_screen_get_default();
-                    err = NULL;
+                    GError* err = NULL;
                     if (!vfs_exec_on_screen(screen,
                                             cwd,
                                             argv,
@@ -3674,9 +3663,9 @@ void ptk_open_files_with_app(const char* cwd, GList* sel_files, const char* app_
 
                 /* Find app to open this file and place copy in alloc_desktop.
                  * This string is freed when hash table is destroyed. */
-                alloc_desktop = NULL;
+                char* alloc_desktop = NULL;
 
-                mime_type = vfs_file_info_get_mime_type(file);
+                VFSMimeType* mime_type = vfs_file_info_get_mime_type(file);
 
                 // has archive handler?
                 if (l == sel_files /* test first file only */ &&

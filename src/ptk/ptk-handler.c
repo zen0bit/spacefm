@@ -657,7 +657,8 @@ char* ptk_handler_get_command(int mode, int cmd, XSet* handler_set)
     {
         // is default handler - get command from const char
         const Handler* handler;
-        int i, nelements;
+        int i;
+        int nelements;
         const char* command;
 
         if (mode == HANDLER_MODE_ARC)
@@ -1023,7 +1024,6 @@ GSList* ptk_handler_file_has_handlers(int mode, int cmd, const char* path, VFSMi
     const char* type;
     char* delim;
     char* ptr;
-    XSet* handler_set;
     char* under_path;
     char* new_path = NULL;
     GSList* handlers = NULL;
@@ -1055,7 +1055,7 @@ GSList* ptk_handler_file_has_handlers(int mode, int cmd, const char* path, VFSMi
                 delim[0] = '\0'; // set temporary end of string
 
             // Fetching handler
-            handler_set = xset_is(ptr);
+            XSet* handler_set = xset_is(ptr);
             if (delim)
                 delim[0] = ' '; // remove temporary end of string
 
@@ -1102,7 +1102,8 @@ GSList* ptk_handler_file_has_handlers(int mode, int cmd, const char* path, VFSMi
 
 void ptk_handler_add_defaults(int mode, bool overwrite, bool add_missing)
 {
-    int i, nelements;
+    int i;
+    int nelements;
     char* list;
     char* str;
     char* testlist;
@@ -1189,7 +1190,6 @@ void ptk_handler_add_defaults(int mode, bool overwrite, bool add_missing)
 XSet* add_new_handler(int mode)
 {
     // creates a new xset for a custom handler type
-    XSet* set;
     char* rand;
     char* name = NULL;
 
@@ -1203,7 +1203,7 @@ XSet* add_new_handler(int mode)
     } while (xset_is(name));
 
     // create and return the xset
-    set = xset_get(name);
+    XSet* set = xset_get(name);
     g_free(name);
     set->lock = FALSE;
     return set;
@@ -2166,7 +2166,7 @@ static void restore_defaults(HandlerData* hnd, bool all)
         }
 
         // get default handler
-        int i, nelements;
+        int nelements;
         const Handler* handler = NULL;
 
         if (hnd->mode == HANDLER_MODE_ARC)
@@ -2181,6 +2181,7 @@ static void restore_defaults(HandlerData* hnd, bool all)
             return;
 
         bool found_handler = FALSE;
+        int i;
         for (i = 0; i < nelements; i++)
         {
             if (hnd->mode == HANDLER_MODE_ARC)
@@ -2267,11 +2268,9 @@ static bool validate_archive_handler(HandlerData* hnd)
         return FALSE;
     }
 
-    char *handler_compress, *handler_extract, *handler_list;
-
-    handler_compress = ptk_handler_get_text_view(GTK_TEXT_VIEW(hnd->view_handler_compress));
-    handler_extract = ptk_handler_get_text_view(GTK_TEXT_VIEW(hnd->view_handler_extract));
-    handler_list = ptk_handler_get_text_view(GTK_TEXT_VIEW(hnd->view_handler_list));
+    char* handler_compress = ptk_handler_get_text_view(GTK_TEXT_VIEW(hnd->view_handler_compress));
+    char* handler_extract = ptk_handler_get_text_view(GTK_TEXT_VIEW(hnd->view_handler_extract));
+    char* handler_list = ptk_handler_get_text_view(GTK_TEXT_VIEW(hnd->view_handler_list));
     bool ret = TRUE;
 
     /* Other settings are commands to run in different situations -
@@ -2534,10 +2533,8 @@ void on_terminal_toggled(GtkToggleButton* togglebutton, HandlerData* hnd)
 static void on_icon_choose_button_clicked(GtkWidget* widget, HandlerData* hnd)
 {
     // get current icon
-    char* new_icon;
     const char* icon = gtk_entry_get_text(GTK_ENTRY(hnd->entry_handler_icon));
-
-    new_icon = xset_icon_chooser_dialog(GTK_WINDOW(hnd->dlg), icon);
+    char* new_icon = xset_icon_chooser_dialog(GTK_WINDOW(hnd->dlg), icon);
 
     if (new_icon)
     {

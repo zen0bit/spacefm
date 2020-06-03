@@ -544,14 +544,8 @@ static void ptk_file_menu_free(PtkFileMenu* data)
 GtkWidget* ptk_file_menu_new(PtkFileBrowser* browser, const char* file_path, VFSFileInfo* info,
                              const char* cwd, GList* sel_files)
 { // either desktop or browser must be non-NULL
-    GtkWidget* popup = NULL;
-    VFSMimeType* mime_type;
-    GtkWidget* app_menu_item;
-    GtkWidget* submenu;
-    bool is_dir;
-    bool is_text;
-    bool is_clip;
-    char **apps, **app;
+
+    char** app;
     const char* app_name = NULL;
     VFSAppDesktop* desktop_file;
     char* name;
@@ -559,12 +553,15 @@ GtkWidget* ptk_file_menu_new(PtkFileBrowser* browser, const char* file_path, VFS
     char* str;
     XSet* set_radio;
     GdkPixbuf* app_icon;
-    int icon_w, icon_h;
+    int icon_w;
+    int icon_h;
     GtkWidget* app_img;
     int i;
     PtkFileMenu* data;
-    int no_write_access = 0, no_read_access = 0;
-    XSet *set, *set2;
+    int no_write_access = 0;
+    int no_read_access = 0;
+    XSet* set;
+    XSet* set2;
     GtkMenuItem* item;
     GSList* handlers_slist;
 
@@ -585,15 +582,15 @@ GtkWidget* ptk_file_menu_new(PtkFileBrowser* browser, const char* file_path, VFS
 
     data->accel_group = gtk_accel_group_new();
 
-    popup = gtk_menu_new();
+    GtkWidget* popup = gtk_menu_new();
     GtkAccelGroup* accel_group = gtk_accel_group_new();
     g_object_weak_ref(G_OBJECT(popup), (GWeakNotify)ptk_file_menu_free, data);
     g_signal_connect_after((void*)popup, "selection-done", G_CALLBACK(gtk_widget_destroy), NULL);
 
     // is_dir = file_path && g_file_test( file_path, G_FILE_TEST_IS_DIR );
-    is_dir = (info && vfs_file_info_is_dir(info));
+    bool is_dir = (info && vfs_file_info_is_dir(info));
     // Note: network filesystems may become unresponsive here
-    is_text = info && file_path && vfs_file_info_is_text(info, file_path);
+    bool is_text = info && file_path && vfs_file_info_is_text(info, file_path);
 
     // test R/W access to cwd instead of selected file
     // Note: network filesystems may become unresponsive here
@@ -606,6 +603,7 @@ GtkWidget* ptk_file_menu_new(PtkFileBrowser* browser, const char* file_path, VFS
 #endif
 
     GtkClipboard* clip = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);
+    bool is_clip;
     if (!gtk_clipboard_wait_is_target_available(
             clip,
             gdk_atom_intern("x-special/gnome-copied-files", FALSE)) &&
@@ -627,6 +625,8 @@ GtkWidget* ptk_file_menu_new(PtkFileBrowser* browser, const char* file_path, VFS
     XSetContext* context = xset_context_new();
 
     // Get mime type and apps
+    VFSMimeType* mime_type;
+    char** apps;
     if (info)
     {
         mime_type = vfs_file_info_get_mime_type(info);
@@ -677,7 +677,7 @@ GtkWidget* ptk_file_menu_new(PtkFileBrowser* browser, const char* file_path, VFS
     item = GTK_MENU_ITEM(xset_add_menuitem(browser, popup, accel_group, set));
     if (sel_files)
     {
-        submenu = gtk_menu_item_get_submenu(item);
+        GtkWidget* submenu = gtk_menu_item_get_submenu(item);
 
         // Execute
         if (!is_dir && info && file_path &&
@@ -690,7 +690,9 @@ GtkWidget* ptk_file_menu_new(PtkFileBrowser* browser, const char* file_path, VFS
         }
 
         // Prepare archive commands
-        XSet *set_arc_extract = NULL, *set_arc_extractto, *set_arc_list;
+        XSet* set_arc_extract = NULL;
+        XSet* set_arc_extractto;
+        XSet* set_arc_list;
         handlers_slist = ptk_handler_file_has_handlers(HANDLER_MODE_ARC,
                                                        HANDLER_EXTRACT,
                                                        file_path,
@@ -781,6 +783,8 @@ GtkWidget* ptk_file_menu_new(PtkFileBrowser* browser, const char* file_path, VFS
                                                        FALSE,
                                                        TRUE,
                                                        FALSE);
+
+        GtkWidget* app_menu_item;
         if (handlers_slist)
         {
             GSList* sl;
@@ -1303,7 +1307,6 @@ void on_popup_open_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
 
 void on_popup_open_with_another_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
 {
-    char* app = NULL;
     VFSMimeType* mime_type;
 
     if (data->info)
@@ -1322,7 +1325,8 @@ void on_popup_open_with_another_activate(GtkMenuItem* menuitem, PtkFileMenu* dat
     GtkWindow* parent_win = NULL;
     if (data->browser)
         parent_win = GTK_WINDOW(gtk_widget_get_toplevel(GTK_WIDGET(data->browser)));
-    app = (char*)ptk_choose_app_for_mime_type(parent_win, mime_type, FALSE, TRUE, TRUE, FALSE);
+    char* app =
+        (char*)ptk_choose_app_for_mime_type(parent_win, mime_type, FALSE, TRUE, TRUE, FALSE);
     if (app)
     {
         GList* sel_files = data->sel_files;
@@ -1346,9 +1350,7 @@ void on_popup_open_all(GtkMenuItem* menuitem, PtkFileMenu* data)
     if (xset_opener(data->browser, 1))
         return;
 
-    GList* sel_files;
-
-    sel_files = data->sel_files;
+    GList* sel_files = data->sel_files;
     if (!sel_files)
         sel_files = g_list_prepend(sel_files, data->info);
     ptk_open_files_with_app(data->cwd, sel_files, NULL, data->browser, FALSE, TRUE);
@@ -1358,10 +1360,8 @@ void on_popup_open_all(GtkMenuItem* menuitem, PtkFileMenu* data)
 
 void on_popup_run_app(GtkMenuItem* menuitem, PtkFileMenu* data)
 {
-    VFSAppDesktop* desktop_file;
     const char* app = NULL;
     char* set_app = NULL;
-    GList* sel_files;
 
     XSet* handler_set = (XSet*)g_object_get_data(G_OBJECT(menuitem), "handler_set");
     if (handler_set)
@@ -1371,13 +1371,14 @@ void on_popup_run_app(GtkMenuItem* menuitem, PtkFileMenu* data)
     }
     else
     {
-        desktop_file = (VFSAppDesktop*)g_object_get_data(G_OBJECT(menuitem), "desktop_file");
+        VFSAppDesktop* desktop_file =
+            (VFSAppDesktop*)g_object_get_data(G_OBJECT(menuitem), "desktop_file");
         if (!desktop_file)
             return;
         app = vfs_app_desktop_get_name(desktop_file);
     }
 
-    sel_files = data->sel_files;
+    GList* sel_files = data->sel_files;
     if (!sel_files)
         sel_files = g_list_prepend(sel_files, data->info);
     ptk_open_files_with_app(data->cwd, sel_files, (char*)app, data->browser, FALSE, FALSE);
@@ -1408,10 +1409,9 @@ enum
 
 char* get_shared_desktop_file_location(const char* name)
 {
-    const char* const* dirs;
     char* ret;
 
-    dirs = g_get_system_data_dirs();
+    const char* const* dirs = g_get_system_data_dirs();
     for (; *dirs; ++dirs)
     {
         if ((ret = vfs_mime_type_locate_desktop_file(*dirs, name)))
@@ -2182,16 +2182,13 @@ bool on_app_button_press(GtkWidget* item, GdkEventButton* event, PtkFileMenu* da
 
 void on_popup_open_in_new_tab_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
 {
-    GList* sel;
-    VFSFileInfo* file;
-    char* full_path;
-
     if (data->sel_files)
     {
+        GList* sel;
         for (sel = data->sel_files; sel; sel = sel->next)
         {
-            file = (VFSFileInfo*)sel->data;
-            full_path = g_build_filename(data->cwd, vfs_file_info_get_name(file), NULL);
+            VFSFileInfo* file = (VFSFileInfo*)sel->data;
+            char* full_path = g_build_filename(data->cwd, vfs_file_info_get_name(file), NULL);
             if (data->browser && g_file_test(full_path, G_FILE_TEST_IS_DIR))
             {
                 ptk_file_browser_emit_open(data->browser, full_path, PTK_OPEN_NEW_TAB);
@@ -2349,13 +2346,13 @@ void on_popup_extract_list_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
 
 void on_autoopen_create_cb(void* task, AutoOpenCreate* ao)
 {
-    VFSFileInfo* file;
     if (!ao)
         return;
 
     if (ao->path && GTK_IS_WIDGET(ao->file_browser) && g_file_test(ao->path, G_FILE_TEST_EXISTS))
     {
         char* cwd = g_path_get_dirname(ao->path);
+        VFSFileInfo* file;
 
         // select file
         if (!g_strcmp0(cwd, ptk_file_browser_get_cwd(ao->file_browser)))
@@ -2464,16 +2461,13 @@ void on_popup_canon(GtkMenuItem* menuitem, PtkFileMenu* data)
 
 void ptk_file_menu_action(PtkFileBrowser* browser, char* setname)
 {
+    if (!browser || !setname)
+        return;
+
     const char* cwd;
     char* file_path = NULL;
     VFSFileInfo* info;
     GList* sel_files = NULL;
-    int i;
-    char* xname;
-
-    if (!browser || !setname)
-        return;
-    XSet* set = xset_get(setname);
 
     // setup data
     if (browser)
@@ -2507,6 +2501,8 @@ void ptk_file_menu_action(PtkFileBrowser* browser, char* setname)
     data->accel_group = NULL;
 
     // action
+    char* xname;
+    XSet* set = xset_get(setname);
     if (g_str_has_prefix(set->name, "open_") && !g_str_has_prefix(set->name, "open_in_"))
     {
         xname = set->name + 5;
@@ -2595,6 +2591,7 @@ void ptk_file_menu_action(PtkFileBrowser* browser, char* setname)
     else if (browser)
     {
         // browser only
+        int i;
         if (g_str_has_prefix(set->name, "open_in_panel"))
         {
             xname = set->name + 13;

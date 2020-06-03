@@ -179,7 +179,8 @@ static void on_open_files(GtkAction* action, FindFile* data)
     GtkTreeModel* model;
     GtkTreeSelection* sel;
     GtkTreeIter it;
-    GList *row, *rows;
+    GList* row;
+    GList* rows;
     GHashTable* hash;
     GtkWidget* w;
     VFSFileInfo* fi;
@@ -302,7 +303,8 @@ static int get_date_offset(GtkCalendar* calendar)
 static char** compose_command(FindFile* data)
 {
     GArray* argv = g_array_sized_new(TRUE, TRUE, sizeof(char*), 10);
-    char *arg, *tmp;
+    char* arg;
+    char* tmp;
     GtkTreeIter it;
     char size_units[] = {"ckMG"};
     int idx;
@@ -588,7 +590,8 @@ static void* search_thread(VFSAsyncTask* task, FindFile* data)
 
     while (!data->task->cancel && (rlen = read(data->stdo, buf, sizeof(buf) - 1)) > 0)
     {
-        char *pbuf, *eol;
+        char* pbuf;
+        char* eol;
         buf[rlen] = '\0';
         pbuf = buf;
 
@@ -797,7 +800,8 @@ static void on_add_search_desktop(GtkWidget* menu, FindFile* data)
 static void on_add_search_volumes(GtkWidget* menu, FindFile* data)
 {
     const char* path;
-    const GList *vols = vfs_volume_get_all_volumes(), *l;
+    const GList* vols = vfs_volume_get_all_volumes();
+    const GList* l;
     for (l = vols; l; l = l->next)
     {
         VFSVolume* vol = (VFSVolume*)l->data;
@@ -1049,7 +1053,9 @@ void fm_find_files(const char** search_dirs)
     FindFile* data = g_slice_new0(FindFile);
     GtkTreeIter it;
     GtkTreeViewColumn* col;
-    GtkWidget *add_directory_btn, *remove_directory_btn, *img;
+    GtkWidget* add_directory_btn;
+    GtkWidget* remove_directory_btn;
+    GtkWidget* img;
 
 #if (GTK_MAJOR_VERSION == 3)
     const char* find_files_ui = "/find-files3.ui";

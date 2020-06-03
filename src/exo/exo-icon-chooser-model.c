@@ -355,7 +355,8 @@ static void exo_icon_chooser_model_icon_theme_changed(GtkIconTheme* icon_theme,
     ExoIconChooserModelItem* item;
     GHashTable* items;
     GHashTable* symlink_items;
-    GList *icons, *lp;
+    GList* icons;
+    GList* lp;
     const char* filename;
     ExoIconChooserContext context;
     GtkTreePath* path;

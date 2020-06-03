@@ -81,7 +81,6 @@ static void get_width_height_pad(char* val, int* width, int* height, int* pad)
 { // modifies val
     char* str;
     char* sep;
-    int i;
 
     *width = *height = -1;
     if (val)
@@ -103,7 +102,7 @@ static void get_width_height_pad(char* val, int* width, int* height, int* pad)
             if (sep)
             {
                 sep[0] = ' ';
-                i = strtol(sep + 1, NULL, 10);
+                int i = strtol(sep + 1, NULL, 10);
                 // ignore pad == -1
                 if (i != -1 && pad)
                 {
@@ -122,10 +121,6 @@ static void get_width_height_pad(char* val, int* width, int* height, int* pad)
 
 static void fill_combo_box(CustomElement* el, GList* arglist)
 {
-    GList* args;
-    char* arg;
-    GtkTreeIter iter;
-    GtkTreeModel* model;
     char* default_value = NULL;
     int default_row = -1;
     int set_default = -1;
@@ -146,18 +141,19 @@ static void fill_combo_box(CustomElement* el, GList* arglist)
     }
 
     // clear list
-    model = gtk_combo_box_get_model(GTK_COMBO_BOX(combo));
+    GtkTreeIter iter;
+    GtkTreeModel* model = gtk_combo_box_get_model(GTK_COMBO_BOX(combo));
     while (gtk_tree_model_get_iter_first(model, &iter))
         gtk_list_store_remove(GTK_LIST_STORE(model), &iter);
     if (el->type == CDLG_COMBO)
         gtk_entry_set_text(GTK_ENTRY(gtk_bin_get_child(GTK_BIN(combo))), "");
 
     // fill list
-    args = arglist;
+    GList* args = arglist;
     int row = 0;
     while (args)
     {
-        arg = (char*)args->data;
+        char* arg = (char*)args->data;
         args = args->next;
         if (!strcmp(arg, "--"))
             break;
@@ -194,25 +190,23 @@ static void fill_combo_box(CustomElement* el, GList* arglist)
 
 static void select_in_combo_box(CustomElement* el, const char* value)
 {
-    GtkTreeIter iter;
-    GtkTreeModel* model;
-    char* str;
-
     if (!el->widgets->next)
         return;
     GtkWidget* combo = (GtkWidget*)el->widgets->next->data;
     if (!GTK_IS_COMBO_BOX(combo))
         return;
 
-    model = gtk_combo_box_get_model(GTK_COMBO_BOX(combo));
+    GtkTreeModel* model = gtk_combo_box_get_model(GTK_COMBO_BOX(combo));
     if (!model)
         return;
 
+    GtkTreeIter iter;
     if (!gtk_tree_model_get_iter_first(model, &iter))
         return;
 
     do
     {
+        char* str;
         gtk_tree_model_get(model, &iter, 0, &str, -1);
         if (!g_strcmp0(str, value))
         {
@@ -254,9 +248,6 @@ char* get_column_value(GtkTreeModel* model, GtkTreeIter* iter, int col_index)
 
 char* get_tree_view_selected(CustomElement* el, const char* prefix)
 {
-    GtkTreeIter iter;
-    GtkTreeModel* model;
-    GtkTreeSelection* tree_sel;
     char* selected = NULL;
     char* indices = NULL;
     char* str;
@@ -267,13 +258,14 @@ char* get_tree_view_selected(CustomElement* el, const char* prefix)
     if (!GTK_IS_TREE_VIEW(view))
         goto _return_value;
 
-    tree_sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
-    model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
+    GtkTreeSelection* tree_sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
+    GtkTreeModel* model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
     if (!GTK_IS_TREE_MODEL(model))
         goto _return_value;
 
     int row = -1;
     char* value;
+    GtkTreeIter iter;
     bool valid_iter = gtk_tree_model_get_iter_first(model, &iter);
     while (valid_iter)
     {
@@ -558,10 +550,8 @@ static void fill_tree_view(CustomElement* el, GList* arglist)
 
 static void select_in_tree_view(CustomElement* el, const char* value, bool select)
 {
-    GtkTreeModel* model;
     GtkTreePath* tree_path;
     GtkTreeIter iter;
-    GtkTreeSelection* tree_sel;
     char* str;
 
     if (!el || !el->widgets->next || !value)
@@ -571,11 +561,11 @@ static void select_in_tree_view(CustomElement* el, const char* value, bool selec
     if (!GTK_IS_TREE_VIEW(view))
         return;
 
-    model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
+    GtkTreeModel* model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
     if (!model)
         return;
 
-    tree_sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
+    GtkTreeSelection* tree_sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
 
     if (value[0] == '\0')
     {
@@ -663,13 +653,12 @@ GList* args_from_file(const char* path)
 
 static CustomElement* el_from_name(CustomElement* el, const char* name)
 {
-    GList* l;
-
     if (!el || !name)
         return NULL;
 
     GList* elements = (GList*)g_object_get_data(G_OBJECT(el->widgets->data), "elements");
     CustomElement* el_name = NULL;
+    GList* l;
     for (l = elements; l; l = l->next)
     {
         if (!strcmp(((CustomElement*)l->data)->name, name))
@@ -690,7 +679,9 @@ static void set_element_value(CustomElement* el, const char* name, char* value)
     GtkTextBuffer* buf;
     char* sep;
     char* str;
-    int i, width, height;
+    int i;
+    int width;
+    int height;
     GList* l;
 
     if (!el || !name || !value)
@@ -1038,7 +1029,9 @@ static void set_element_value(CustomElement* el, const char* name, char* value)
 
 static char* get_element_value(CustomElement* el, const char* name)
 {
-    int width, height, pad;
+    int width;
+    int height;
+    int pad;
     char* str;
     char* str2;
     CustomElement* el_name;
@@ -1473,7 +1466,8 @@ static void internal_command(CustomElement* el, int icmd, GList* args, char* xva
 
 static void run_command(CustomElement* el, GList* argslist, char* xvalue)
 {
-    int i, icmd = -1;
+    int i;
+    int icmd = -1;
     GList* args;
     GError* error;
 
@@ -1622,7 +1616,8 @@ static void write_file_value(const char* path, const char* val)
 static char* read_file_value(const char* path, bool multi)
 {
     FILE* file;
-    int f, bytes;
+    int f;
+    int bytes;
     const char* end;
 
     if (!g_file_test(path, G_FILE_TEST_EXISTS))
@@ -1985,7 +1980,9 @@ static void write_source(GtkWidget* dlg, CustomElement* el_pressed, FILE* out, b
     CustomElement* el;
     char* str;
     const char* prefix = "dialog";
-    int width, height, pad = -1;
+    int width;
+    int height;
+    int pad = -1;
 
     GList* elements = (GList*)g_object_get_data(G_OBJECT(dlg), "elements");
 
@@ -3699,11 +3696,9 @@ void signal_handler()
 
 int custom_dialog_init(int argc, char* argv[])
 {
-    int ac, i, j;
+    int ac;
     GList* elements = NULL;
     CustomElement* el = NULL;
-    char* num;
-    char* str;
     int type_count[G_N_ELEMENTS(cdlg_option) / 3] = {0};
 
     for (ac = 2; ac < argc; ac++)
@@ -3721,7 +3716,8 @@ int custom_dialog_init(int argc, char* argv[])
         }
         else if (g_str_has_prefix(argv[ac], "--"))
         {
-            j = 0;
+            int j = 0;
+            int i;
             for (i = 0; i < G_N_ELEMENTS(cdlg_option); i += 3)
             {
                 if (!strcmp(argv[ac] + 2, cdlg_option[i]))
@@ -3729,8 +3725,8 @@ int custom_dialog_init(int argc, char* argv[])
                     el = g_slice_new(CustomElement);
                     el->type = j;
                     type_count[j]++;
-                    num = g_strdup_printf("%d", type_count[j]);
-                    str = replace_string(cdlg_option[i], "-", "", FALSE);
+                    char* num = g_strdup_printf("%d", type_count[j]);
+                    char* str = replace_string(cdlg_option[i], "-", "", FALSE);
                     el->name = g_strdup_printf("%s%s", str, num ? num : "");
                     g_free(num);
                     g_free(str);

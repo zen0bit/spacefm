@@ -203,19 +203,17 @@ static void update_completion(GtkEntry* entry, GtkEntryCompletion* completion)
     else
     {
         // dir completion
-        char *new_dir, *fn;
-        const char* old_dir;
-        const char* sep;
+        char* fn;
 
-        sep = strrchr(text, '/');
+        const char* sep = strrchr(text, '/');
         if (sep)
             fn = (char*)sep + 1;
         else
             fn = (char*)text;
         g_object_set_data_full(G_OBJECT(completion), "fn", g_strdup(fn), (GDestroyNotify)g_free);
 
-        new_dir = get_cwd(entry);
-        old_dir = (const char*)g_object_get_data((GObject*)completion, "cwd");
+        char* new_dir = get_cwd(entry);
+        const char* old_dir = (const char*)g_object_get_data((GObject*)completion, "cwd");
         if (old_dir && new_dir && 0 == g_ascii_strcasecmp(old_dir, new_dir))
         {
             g_free(new_dir);
@@ -270,8 +268,7 @@ static void update_completion(GtkEntry* entry, GtkEntryCompletion* completion)
 
 static void on_changed(GtkEntry* entry, void* user_data)
 {
-    GtkEntryCompletion* completion;
-    completion = gtk_entry_get_completion(entry);
+    GtkEntryCompletion* completion = gtk_entry_get_completion(entry);
     update_completion(entry, completion);
     gtk_entry_completion_complete(gtk_entry_get_completion(GTK_ENTRY(entry)));
     seek_path_delayed(GTK_ENTRY(entry), 0);
@@ -449,7 +446,6 @@ static bool on_focus_in(GtkWidget* entry, GdkEventFocus* evt, void* user_data)
 {
     GtkEntryCompletion* completion = gtk_entry_completion_new();
     GtkListStore* list = gtk_list_store_new(N_COLS, G_TYPE_STRING, G_TYPE_STRING);
-    GtkCellRenderer* render;
 
     gtk_entry_completion_set_minimum_key_length(completion, 1);
     gtk_entry_completion_set_model(completion, GTK_TREE_MODEL(list));
@@ -460,7 +456,7 @@ static bool on_focus_in(GtkWidget* entry, GdkEventFocus* evt, void* user_data)
     // Following line causes GTK3 to show both columns, so skip this and use
     // custom match-selected handler to insert COL_PATH
     // g_object_set( completion, "text-column", COL_PATH, NULL );
-    render = gtk_cell_renderer_text_new();
+    GtkCellRenderer* render = gtk_cell_renderer_text_new();
     gtk_cell_layout_pack_start((GtkCellLayout*)completion, render, TRUE);
     gtk_cell_layout_add_attribute((GtkCellLayout*)completion, render, "text", COL_NAME);
 
@@ -548,18 +544,14 @@ static bool on_button_release(GtkEntry* entry, GdkEventButton* evt, void* user_d
 
     if (1 == evt->button && keymod == GDK_CONTROL_MASK)
     {
-        int pos;
-        const char *text, *sep;
-        char* path;
-
-        text = gtk_entry_get_text(entry);
+        const char* text = gtk_entry_get_text(entry);
         if (!(text[0] == '$' || text[0] == '+' || text[0] == '&' || text[0] == '!' ||
               text[0] == '%' || text[0] == '\0'))
         {
-            pos = gtk_editable_get_position(GTK_EDITABLE(entry));
+            int pos = gtk_editable_get_position(GTK_EDITABLE(entry));
             if (G_LIKELY(text && *text))
             {
-                sep = g_utf8_offset_to_pointer(text, pos);
+                const char* sep = g_utf8_offset_to_pointer(text, pos);
                 if (G_LIKELY(sep))
                 {
                     while (*sep && *sep != '/')
@@ -571,7 +563,7 @@ static bool on_button_release(GtkEntry* entry, GdkEventButton* evt, void* user_d
                         else
                             return FALSE;
                     }
-                    path = g_strndup(text, (sep - text));
+                    char* path = g_strndup(text, (sep - text));
                     gtk_entry_set_text(entry, path);
                     gtk_editable_set_position((GtkEditable*)entry, -1);
                     g_free(path);
@@ -632,10 +624,11 @@ void on_populate_popup(GtkEntry* entry, GtkMenu* menu, PtkFileBrowser* file_brow
 void on_entry_insert(GtkEntryBuffer* buf, unsigned int position, char* chars, unsigned int n_chars,
                      void* user_data)
 {
-    char* new_text = NULL;
     const char* text = gtk_entry_buffer_get_text(buf);
     if (!text)
         return;
+
+    char* new_text = NULL;
 
     if (strchr(text, '\n'))
     {

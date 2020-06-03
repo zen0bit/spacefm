@@ -201,12 +201,10 @@ static const char* builtin_tool_shared_key[] = { // must match XSET_TOOL_ enum
 static void parse_general_settings(char* line)
 {
     char* sep = strstr(line, "=");
-    char* name;
-    char* value;
     if (!sep)
         return;
-    name = line;
-    value = sep + 1;
+    char* name = line;
+    char* value = sep + 1;
     *sep = '\0';
     if (!strcmp(name, "show_thumbnail"))
         app_settings.show_thumbnail = strtol(value, NULL, 10);
@@ -249,13 +247,11 @@ static void parse_general_settings(char* line)
 static void parse_window_state(char* line)
 {
     char* sep = strstr(line, "=");
-    char* name;
-    char* value;
-    int v;
     if (!sep)
         return;
-    name = line;
-    value = sep + 1;
+    int v;
+    char* name = line;
+    char* value = sep + 1;
     *sep = '\0';
     if (!strcmp(name, "width"))
     {
@@ -276,12 +272,10 @@ static void parse_window_state(char* line)
 static void parse_interface_settings(char* line)
 {
     char* sep = strstr(line, "=");
-    char* name;
-    char* value;
     if (!sep)
         return;
-    name = line;
-    value = sep + 1;
+    char* name = line;
+    char* value = sep + 1;
     *sep = '\0';
     if (!strcmp(name, "always_show_tabs"))
         app_settings.always_show_tabs = strtol(value, NULL, 10);
@@ -292,12 +286,10 @@ static void parse_interface_settings(char* line)
 static void parse_conf(const char* etc_path, char* line)
 {
     char* sep = strstr(line, "=");
-    char* name;
-    char* value;
     if (!sep)
         return;
-    name = line;
-    value = sep + 1;
+    char* name = line;
+    char* value = sep + 1;
     *sep = '\0';
     char* sname = g_strstrip(name);
     char* svalue = g_strdup(g_strstrip(value));
@@ -334,14 +326,13 @@ static void parse_conf(const char* etc_path, char* line)
 void load_conf()
 {
     // load spacefm.conf
-    char line[2048];
-
     settings_terminal_su = NULL;
 
     char* etc_path = g_build_filename(SYSCONFDIR, "spacefm", "spacefm.conf", NULL);
     FILE* file = fopen(etc_path, "r");
     if (file)
     {
+        char line[2048];
         while (fgets(line, sizeof(line), file))
             parse_conf(etc_path, line);
         fclose(file);
@@ -998,11 +989,10 @@ XSet* xset_new(const char* name)
 
 XSet* xset_get(const char* name)
 {
-    GList* l;
-
     if (!name)
         return NULL;
 
+    GList* l;
     for (l = xsets; l; l = l->next)
     {
         if (!strcmp(name, ((XSet*)l->data)->name))
@@ -1019,18 +1009,16 @@ XSet* xset_get(const char* name)
 
 XSet* xset_get_panel(int panel, const char* name)
 {
-    XSet* set;
     char* fullname = g_strdup_printf("panel%d_%s", panel, name);
-    set = xset_get(fullname);
+    XSet* set = xset_get(fullname);
     g_free(fullname);
     return set;
 }
 
 XSet* xset_get_panel_mode(int panel, const char* name, char mode)
 {
-    XSet* set;
     char* fullname = g_strdup_printf("panel%d_%s%d", panel, name, mode);
-    set = xset_get(fullname);
+    XSet* set = xset_get(fullname);
     g_free(fullname);
     return set;
 }
@@ -1081,11 +1069,10 @@ bool xset_get_b_set(XSet* set)
 
 XSet* xset_is(const char* name)
 {
-    GList* l;
-
     if (!name)
         return NULL;
 
+    GList* l;
     for (l = xsets; l; l = l->next)
     {
         if (!strcmp(name, ((XSet*)l->data)->name))
@@ -1289,12 +1276,10 @@ void xset_write(GString* buf)
 void xset_parse(char* line)
 {
     char* sep = strchr(line, '=');
-    char* name;
-    char* value;
     if (!sep)
         return;
-    name = line;
-    value = sep + 1;
+    char* name = line;
+    char* value = sep + 1;
     *sep = '\0';
     sep = strchr(name, '-');
     if (!sep)
@@ -1596,9 +1581,8 @@ XSet* xset_set(const char* name, const char* var, const char* value)
 
 XSet* xset_set_panel(int panel, const char* name, const char* var, const char* value)
 {
-    XSet* set;
     char* fullname = g_strdup_printf("panel%d_%s", panel, name);
-    set = xset_set(fullname, var, value);
+    XSet* set = xset_set(fullname, var, value);
     g_free(fullname);
     return set;
 }
@@ -1606,20 +1590,18 @@ XSet* xset_set_panel(int panel, const char* name, const char* var, const char* v
 XSet* xset_find_custom(const char* search)
 {
     // find a custom command or submenu by label or xset name
-    XSet* set;
     GList* l;
-    char* str;
 
     char* label = clean_label(search, TRUE, FALSE);
     for (l = xsets; l; l = l->next)
     {
-        set = l->data;
+        XSet* set = l->data;
         if (!set->lock && ((set->menu_style == XSET_MENU_SUBMENU && set->child) ||
                            (set->menu_style < XSET_MENU_SUBMENU &&
                             xset_get_int_set(set, "x") <= XSET_CMD_BOOKMARK)))
         {
             // custom submenu or custom command - label or name matches?
-            str = clean_label(set->menu_label, TRUE, FALSE);
+            char* str = clean_label(set->menu_label, TRUE, FALSE);
             if (!g_strcmp0(set->name, search) || !g_strcmp0(str, label))
             {
                 // match
@@ -1636,8 +1618,13 @@ XSet* xset_find_custom(const char* search)
 
 bool xset_opener(PtkFileBrowser* file_browser, char job)
 { // find an opener for job
-    XSet *set, *mset, *open_all_set, *tset, *open_all_tset;
-    GList *l, *ll;
+    XSet* set;
+    XSet* mset;
+    XSet* open_all_set;
+    XSet* tset;
+    XSet* open_all_tset;
+    GList* l;
+    GList* ll;
     XSetContext* context = NULL;
     int context_action;
     bool found = FALSE;
@@ -2114,7 +2101,8 @@ GtkWidget* xset_get_image(const char* icon, int icon_size)
     {
         // icon is full path to image file
         // get real icon size from gtk icon size
-        int icon_w, icon_h;
+        int icon_w;
+        int icon_h;
         gtk_icon_size_lookup(icon_size, &icon_w, &icon_h);
         int real_icon_size = icon_w > icon_h ? icon_w : icon_h;
         GtkIconTheme* icon_theme = gtk_icon_theme_get_default();
@@ -2135,9 +2123,6 @@ GtkWidget* xset_get_image(const char* icon, int icon_size)
 void xset_add_menu(PtkFileBrowser* file_browser, GtkWidget* menu, GtkAccelGroup* accel_group,
                    char* elements)
 {
-    char* space;
-    XSet* set;
-
     if (!elements)
         return;
 
@@ -2146,10 +2131,10 @@ void xset_add_menu(PtkFileBrowser* file_browser, GtkWidget* menu, GtkAccelGroup*
 
     while (elements && elements[0] != '\0')
     {
-        space = strchr(elements, ' ');
+        char* space = strchr(elements, ' ');
         if (space)
             space[0] = '\0';
-        set = xset_get(elements);
+        XSet* set = xset_get(elements);
         if (space)
             space[0] = ' ';
         elements = space;
@@ -2164,7 +2149,6 @@ void xset_add_menu(PtkFileBrowser* file_browser, GtkWidget* menu, GtkAccelGroup*
 
 GtkWidget* xset_new_menuitem(const char* label, const char* icon)
 {
-    GtkWidget* image = NULL;
     GtkWidget* item;
 
     if (label && strstr(label, "\\_"))
@@ -2186,7 +2170,7 @@ GtkWidget* xset_new_menuitem(const char* label, const char* icon)
 #endif
     if (!(icon && icon[0]))
         return item;
-    image = xset_get_image(icon, GTK_ICON_SIZE_MENU);
+    GtkWidget* image = xset_get_image(icon, GTK_ICON_SIZE_MENU);
     if (!image)
         return item;
     gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), image);
@@ -2426,7 +2410,8 @@ GtkWidget* xset_add_menuitem(PtkFileBrowser* file_browser, GtkWidget* menu,
         if (!item)
         {
             // get menu icon size
-            int icon_w, icon_h;
+            int icon_w;
+            int icon_h;
             gtk_icon_size_lookup(GTK_ICON_SIZE_MENU, &icon_w, &icon_h);
             int icon_size = icon_w > icon_h ? icon_w : icon_h;
 
@@ -4534,8 +4519,7 @@ void xset_open_url(GtkWidget* parent, const char* url)
 char* xset_get_manual_url()
 {
     char* path;
-    char* url;
-    url = xset_get_s("main_help_url");
+    char* url = xset_get_s("main_help_url");
     if (url)
     {
         if (url[0] == '/')
@@ -4708,7 +4692,8 @@ void xset_show_help(GtkWidget* parent, XSet* set, const char* anchor)
 
 char* xset_get_keyname(XSet* set, int key_val, int key_mod)
 {
-    int keyval, keymod;
+    int keyval;
+    int keymod;
     if (set)
     {
         keyval = set->key;
@@ -7240,7 +7225,6 @@ static void on_icon_buffer_changed(GtkTextBuffer* buf, GtkWidget* button)
 char* xset_icon_chooser_dialog(GtkWindow* parent, const char* def_icon)
 {
     GtkAllocation allocation;
-    int width, height;
     char* icon = NULL;
 
     // set busy cursor
@@ -7267,8 +7251,8 @@ char* xset_icon_chooser_dialog(GtkWindow* parent, const char* def_icon)
                                                           GTK_RESPONSE_ACCEPT,
                                                           NULL);
     // Set icon chooser dialog size
-    width = xset_get_int("main_icon", "x");
-    height = xset_get_int("main_icon", "y");
+    int width = xset_get_int("main_icon", "x");
+    int height = xset_get_int("main_icon", "y");
     if (width && height)
         gtk_window_set_default_size(GTK_WINDOW(icon_chooser), width, height);
 
@@ -7307,9 +7291,11 @@ bool xset_text_dialog(GtkWidget* parent, const char* title, GtkWidget* image, bo
                       const char* msg1, const char* msg2, const char* defstring, char** answer,
                       const char* defreset, bool edit_care, const char* help)
 {
-    GtkTextIter iter, siter;
+    GtkTextIter iter;
+    GtkTextIter siter;
     GtkAllocation allocation;
-    int width, height;
+    int width;
+    int height;
     GtkWidget* dlgparent = NULL;
 
     if (parent)
@@ -8536,7 +8522,8 @@ void xset_fill_toolbar(GtkWidget* parent, PtkFileBrowser* file_browser, GtkWidge
                                   XSET_TOOL_FWD_MENU,
                                   XSET_TOOL_UP,
                                   XSET_TOOL_DEFAULT};
-    int i, stop_b4;
+    int i;
+    int stop_b4;
     XSet* set;
     XSet* set_target;
 

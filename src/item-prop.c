@@ -288,7 +288,10 @@ bool get_rule_next(char** s, int* sub, int* comp, char** value)
 int xset_context_test(XSetContext* context, char* rules, bool def_disable)
 {
     // assumes valid xset_context and rules != NULL and no global ignore
-    int i, sep_type, sub, comp;
+    int i;
+    int sep_type;
+    int sub;
+    int comp;
     char* value;
     int match, action;
     char* s;
@@ -1548,7 +1551,8 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
 {
     GtkTreeViewColumn* col;
     GtkCellRenderer* renderer;
-    int i, x;
+    int i;
+    int x;
     char* str;
 
     if (!context || !set)

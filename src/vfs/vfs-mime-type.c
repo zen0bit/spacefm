@@ -94,20 +94,18 @@ static void on_mime_cache_changed(VFSFileMonitor* fm, VFSFileMonitorEvent event,
 
 void vfs_mime_type_init()
 {
-    GtkIconTheme* theme;
-    MimeCache** caches;
-    int i, n_caches;
-    VFSFileMonitor* fm;
-
     mime_type_init();
 
     /* install file alteration monitor for mime-cache */
-    caches = mime_type_get_caches(&n_caches);
+    int n_caches;
+    MimeCache** caches = mime_type_get_caches(&n_caches);
     mime_caches_monitor = g_new0(VFSFileMonitor*, n_caches);
+    int i;
     for (i = 0; i < n_caches; ++i)
     {
         // MOD NOTE1  check to see if path exists - otherwise it later tries to
         //  remove NULL fm with inotify which caused segfault
+        VFSFileMonitor* fm;
         if (g_file_test(caches[i]->file_path, G_FILE_TEST_EXISTS))
             fm = vfs_file_monitor_add_file(caches[i]->file_path, on_mime_cache_changed, caches[i]);
         else
@@ -115,22 +113,20 @@ void vfs_mime_type_init()
         mime_caches_monitor[i] = fm;
     }
     mime_hash = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, vfs_mime_type_unref);
-    theme = gtk_icon_theme_get_default();
+    GtkIconTheme* theme = gtk_icon_theme_get_default();
     theme_change_notify =
         g_signal_connect(theme, "changed", G_CALLBACK(on_icon_theme_changed), NULL);
 }
 
 void vfs_mime_type_clean()
 {
-    GtkIconTheme* theme;
-    MimeCache** caches;
-    int i, n_caches;
-
-    theme = gtk_icon_theme_get_default();
+    GtkIconTheme* theme = gtk_icon_theme_get_default();
     g_signal_handler_disconnect(theme, theme_change_notify);
 
     /* remove file alteration monitor for mime-cache */
-    caches = mime_type_get_caches(&n_caches);
+    int n_caches;
+    MimeCache** caches = mime_type_get_caches(&n_caches);
+    int i;
     for (i = 0; i < n_caches; ++i)
     {
         if (mime_caches_monitor[i]) // MOD added if !NULL - see NOTE1 above
@@ -145,26 +141,22 @@ void vfs_mime_type_clean()
 
 VFSMimeType* vfs_mime_type_get_from_file_name(const char* ufile_name)
 {
-    const char* type;
     /* type = xdg_mime_get_mime_type_from_file_name( ufile_name ); */
-    type = mime_type_get_by_filename(ufile_name, NULL);
+    const char* type = mime_type_get_by_filename(ufile_name, NULL);
     return vfs_mime_type_get_from_type(type);
 }
 
 VFSMimeType* vfs_mime_type_get_from_file(const char* file_path, const char* base_name,
                                          struct stat* pstat)
 {
-    const char* type;
-    type = mime_type_get_by_file(file_path, pstat, base_name);
+    const char* type = mime_type_get_by_file(file_path, pstat, base_name);
     return vfs_mime_type_get_from_type(type);
 }
 
 VFSMimeType* vfs_mime_type_get_from_type(const char* type)
 {
-    VFSMimeType* mime_type;
-
     g_rw_lock_reader_lock(&mime_hash_lock);
-    mime_type = g_hash_table_lookup(mime_hash, type);
+    VFSMimeType* mime_type = g_hash_table_lookup(mime_hash, type);
     g_rw_lock_reader_unlock(&mime_hash_lock);
 
     if (!mime_type)
@@ -209,10 +201,6 @@ void vfs_mime_type_unref(void* mime_type_)
 
 GdkPixbuf* vfs_mime_type_get_icon(VFSMimeType* mime_type, bool big)
 {
-    GdkPixbuf* icon = NULL;
-    const char* sep;
-    char icon_name[100];
-    GtkIconTheme* icon_theme;
     int size;
 
     if (big)
@@ -228,7 +216,8 @@ GdkPixbuf* vfs_mime_type_get_icon(VFSMimeType* mime_type, bool big)
         size = small_icon_size;
     }
 
-    icon_theme = gtk_icon_theme_get_default();
+    GtkIconTheme* icon_theme = gtk_icon_theme_get_default();
+    GdkPixbuf* icon = NULL;
 
     if (G_UNLIKELY(!strcmp(mime_type->type, XDG_MIME_TYPE_DIRECTORY)))
     {
@@ -275,9 +264,10 @@ GdkPixbuf* vfs_mime_type_get_icon(VFSMimeType* mime_type, bool big)
     if (!icon)
     {
         // guess icon
-        sep = strchr(mime_type->type, '/');
+        const char* sep = strchr(mime_type->type, '/');
         if (sep)
         {
+            char icon_name[100];
             /* convert mime-type foo/bar to foo-bar */
             strncpy(icon_name, mime_type->type, sizeof(icon_name));
             icon_name[(sep - mime_type->type)] = '-';
@@ -415,14 +405,18 @@ char** vfs_mime_type_join_actions(char** list1, unsigned long len1, char** list2
                                   unsigned long len2)
 {
     char** ret = NULL;
-    int i, j, k;
 
     if (len1 > 0 || len2 > 0)
         ret = g_new0(char*, len1 + len2 + 1);
+
+    int i;
     for (i = 0; i < len1; ++i)
     {
         ret[i] = g_strdup(list1[i]);
     }
+
+    int j;
+    int k;
     for (j = 0, k = 0; j < len2; ++j)
     {
         for (i = 0; i < len1; ++i)

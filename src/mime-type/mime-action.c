@@ -45,16 +45,14 @@ typedef char* (*DataDirFunc)(const char* dir, const char* mime_type, void* user_
 
 static char* data_dir_foreach(DataDirFunc func, const char* mime_type, void* user_data)
 {
-    char* ret;
-    const char* const* dirs;
-    char* dir;
+    char* ret = NULL;
 
     // $XDG_CONFIG_HOME=[~/.config]/mimeapps.list
     if ((ret = func(g_get_user_config_dir(), mime_type, user_data)))
         return ret;
 
     // $XDG_DATA_HOME=[~/.local]/applications/mimeapps.list
-    dir = g_build_filename(g_get_user_data_dir(), "applications", NULL);
+    char* dir = g_build_filename(g_get_user_data_dir(), "applications", NULL);
     if ((ret = func(dir, mime_type, user_data)))
     {
         g_free(dir);
@@ -63,7 +61,7 @@ static char* data_dir_foreach(DataDirFunc func, const char* mime_type, void* use
     g_free(dir);
 
     // $XDG_DATA_DIRS=[/usr/[local/]share]/applications/mimeapps.list
-    dirs = g_get_system_data_dirs();
+    const char* const* dirs = g_get_system_data_dirs();
     for (; *dirs; ++dirs)
     {
         dir = g_build_filename(*dirs, "applications", NULL);
@@ -74,25 +72,24 @@ static char* data_dir_foreach(DataDirFunc func, const char* mime_type, void* use
         }
         g_free(dir);
     }
-    return NULL;
+    return ret;
 }
 
 static char* apps_dir_foreach(DataDirFunc func, const char* mime_type, void* user_data)
 {
     char* ret = NULL;
-    const char* const* dirs;
     const char* dir = g_get_user_data_dir();
 
     if ((ret = func(dir, mime_type, user_data)))
         return ret;
 
-    dirs = g_get_system_data_dirs();
+    const char* const* dirs = g_get_system_data_dirs();
     for (; *dirs; ++dirs)
     {
         if ((ret = func(*dirs, mime_type, user_data)))
             return ret;
     }
-    return NULL;
+    return ret;
 }
 
 static void update_desktop_database()
@@ -110,9 +107,9 @@ static void update_desktop_database()
 
 static int strv_index(char** strv, const char* str)
 {
-    char** p;
     if (G_LIKELY(strv && str))
     {
+        char** p;
         for (p = strv; *p; ++p)
         {
             if (!strcmp(*p, str))
@@ -125,10 +122,6 @@ static int strv_index(char** strv, const char* str)
 /* Determine removed associations for this type */
 static void remove_actions(const char* type, GArray* actions)
 { // sfm 0.7.7+ added
-    char** removed = NULL;
-    unsigned long n_removed = 0, r;
-    int i;
-
     // g_print( "remove_actions( %s )\n", type );
     GKeyFile* file = g_key_file_new();
 
@@ -148,14 +141,17 @@ static void remove_actions(const char* type, GArray* actions)
     }
     g_free(path);
 
-    removed = g_key_file_get_string_list(file, "Removed Associations", type, &n_removed, NULL);
+    unsigned long n_removed = 0;
+    char** removed =
+        g_key_file_get_string_list(file, "Removed Associations", type, &n_removed, NULL);
     if (removed)
     {
+        unsigned long r;
         for (r = 0; r < n_removed; ++r)
         {
             g_strstrip(removed[r]);
             // g_print( "    %s\n", removed[r] );
-            i = strv_index((char**)actions->data, removed[r]);
+            int i = strv_index((char**)actions->data, removed[r]);
             if (i != -1)
             {
                 // g_print(  "        ACTION-REMOVED\n" );
@@ -177,27 +173,22 @@ static void remove_actions(const char* type, GArray* actions)
 static char* get_actions(const char* dir, const char* type, GArray* actions)
 {
     // g_print( "get_actions( %s, %s )\n", dir, type );
-    GKeyFile* file;
-    bool opened;
-    int n, k;
-    char** apps = NULL;
     char** removed = NULL;
-    bool is_removed;
-    unsigned long n_removed = 0, r;
-    unsigned long n_apps, i;
 
     const char* names[] = {"mimeapps.list", "mimeinfo.cache"};
     const char* groups[] = {"Default Applications", "Added Associations", "MIME Cache"};
     // g_print("get_actions( %s/, %s )\n", dir, type );
+    int n;
     for (n = 0; n < G_N_ELEMENTS(names); n++)
     {
         char* path = g_build_filename(dir, names[n], NULL);
         // g_print( "    %s\n", path );
-        file = g_key_file_new();
-        opened = g_key_file_load_from_file(file, path, 0, NULL);
+        GKeyFile* file = g_key_file_new();
+        bool opened = g_key_file_load_from_file(file, path, 0, NULL);
         g_free(path);
         if (G_LIKELY(opened))
         {
+            unsigned long n_removed = 0;
             if (n == 0)
             {
                 // get removed associations in this dir
@@ -208,11 +199,14 @@ static char* get_actions(const char* dir, const char* type, GArray* actions)
                                                      NULL);
             }
             // mimeinfo.cache has only MIME Cache; others don't have it
+            int k;
             for (k = (n == 0 ? 0 : 2); k < (n == 0 ? 2 : 3); k++)
             {
                 // g_print( "        %s [%d]\n", groups[k], k );
-                n_apps = 0;
-                apps = g_key_file_get_string_list(file, groups[k], type, &n_apps, NULL);
+                unsigned long n_apps = 0;
+                bool is_removed;
+                char** apps = g_key_file_get_string_list(file, groups[k], type, &n_apps, NULL);
+                unsigned long i;
                 for (i = 0; i < n_apps; ++i)
                 {
                     g_strstrip(apps[i]);
@@ -221,6 +215,7 @@ static char* get_actions(const char* dir, const char* type, GArray* actions)
                     is_removed = FALSE;
                     if (removed && n > 0)
                     {
+                        unsigned long r;
                         for (r = 0; r < n_removed; ++r)
                         {
                             g_strstrip(removed[r]);
@@ -316,8 +311,8 @@ char** mime_type_get_actions(const char* type)
  */
 bool mime_type_has_action(const char* type, const char* desktop_id)
 {
-    char **actions, **action;
-    char *cmd = NULL, *name = NULL;
+    char* cmd = NULL;
+    char* name = NULL;
     bool found = FALSE;
     bool is_desktop = g_str_has_suffix(desktop_id, ".desktop");
 
@@ -350,9 +345,10 @@ bool mime_type_has_action(const char* type, const char* desktop_id)
         cmd = (char*)desktop_id;
     }
 
-    actions = mime_type_get_actions(type);
+    char** actions = mime_type_get_actions(type);
     if (actions)
     {
+        char** action;
         for (action = actions; !found && *action; ++action)
         {
             /* Try to match directly by desktop_id first */
@@ -362,7 +358,9 @@ bool mime_type_has_action(const char* type, const char* desktop_id)
             }
             else /* Then, try to match by "Exec" and "Name" keys */
             {
-                char *name2 = NULL, *cmd2 = NULL, *filename = NULL;
+                char* name2 = NULL;
+                char* cmd2 = NULL;
+                char* filename = NULL;
                 GKeyFile* kf = g_key_file_new();
                 filename = mime_type_locate_desktop_file(NULL, *action);
                 if (filename && g_key_file_load_from_file(kf, filename, 0, NULL))
@@ -404,15 +402,17 @@ bool mime_type_has_action(const char* type, const char* desktop_id)
 
 static char* make_custom_desktop_file(const char* desktop_id, const char* mime_type)
 {
-    char *name = NULL, *cust_template = NULL, *cust = NULL, *path, *dir;
+    char* name = NULL;
+    char* cust_template = NULL;
+    char* cust = NULL;
+    char* path;
     char* file_content = NULL;
     unsigned long len = 0;
-    unsigned int i;
 
     if (G_LIKELY(g_str_has_suffix(desktop_id, ".desktop")))
     {
         GKeyFile* kf = g_key_file_new();
-        char* name = mime_type_locate_desktop_file(NULL, desktop_id);
+        name = mime_type_locate_desktop_file(NULL, desktop_id);
         if (G_UNLIKELY(!name ||
                        !g_key_file_load_from_file(kf, name, G_KEY_FILE_KEEP_TRANSLATIONS, NULL)))
         {
@@ -462,8 +462,9 @@ static char* make_custom_desktop_file(const char* desktop_id, const char* mime_t
     }
 
     /* generate unique file name */
-    dir = g_build_filename(g_get_user_data_dir(), "applications", NULL);
+    char* dir = g_build_filename(g_get_user_data_dir(), "applications", NULL);
     g_mkdir_with_parents(dir, 0700);
+    unsigned int i;
     for (i = 0;; ++i)
     {
         /* generate the basename */
@@ -497,7 +498,6 @@ static char* make_custom_desktop_file(const char* desktop_id, const char* mime_t
  */
 void mime_type_add_action(const char* type, const char* desktop_id, char** custom_desktop)
 {
-    char* cust;
     if (mime_type_has_action(type, desktop_id))
     {
         if (custom_desktop)
@@ -505,7 +505,7 @@ void mime_type_add_action(const char* type, const char* desktop_id, char** custo
         return;
     }
 
-    cust = make_custom_desktop_file(desktop_id, type);
+    char* cust = make_custom_desktop_file(desktop_id, type);
     if (custom_desktop)
         *custom_desktop = cust;
     else
@@ -515,7 +515,6 @@ void mime_type_add_action(const char* type, const char* desktop_id, char** custo
 static char* _locate_desktop_file_recursive(const char* path, const char* desktop_id, bool first)
 { // if first is true, just search for subdirs not desktop_id (already searched)
     const char* name;
-    char* sub_path;
 
     GDir* dir = g_dir_open(path, 0, NULL);
     if (!dir)
@@ -524,7 +523,7 @@ static char* _locate_desktop_file_recursive(const char* path, const char* deskto
     char* found = NULL;
     while ((name = g_dir_read_name(dir)))
     {
-        sub_path = g_build_filename(path, name, NULL);
+        char* sub_path = g_build_filename(path, name, NULL);
         if (g_file_test(sub_path, G_FILE_TEST_IS_DIR))
         {
             if ((found = _locate_desktop_file_recursive(sub_path, desktop_id, FALSE)))
@@ -591,31 +590,29 @@ char* mime_type_locate_desktop_file(const char* dir, const char* desktop_id)
 
 static char* get_default_action(const char* dir, const char* type, void* user_data)
 {
-    GKeyFile* file;
-    char** apps;
-    unsigned long n_apps, i;
-    int n, k;
-    bool opened;
-
     // g_print( "get_default_action( %s, %s )\n", dir, type );
     // search these files in dir for the first existing default app
     const char* names[] = {"mimeapps.list", "defaults.list"};
     const char* groups[] = {"Default Applications", "Added Associations"};
 
+    int n;
     for (n = 0; n < G_N_ELEMENTS(names); n++)
     {
         char* path = g_build_filename(dir, names[n], NULL);
         // g_print( "    path = %s\n", path );
-        file = g_key_file_new();
-        opened = g_key_file_load_from_file(file, path, 0, NULL);
+        GKeyFile* file = g_key_file_new();
+        bool opened = g_key_file_load_from_file(file, path, 0, NULL);
         g_free(path);
         if (opened)
         {
+            int k;
             for (k = 0; k < G_N_ELEMENTS(groups); k++)
             {
-                apps = g_key_file_get_string_list(file, groups[k], type, &n_apps, NULL);
+                unsigned long n_apps;
+                char** apps = g_key_file_get_string_list(file, groups[k], type, &n_apps, NULL);
                 if (apps)
                 {
+                    unsigned long i;
                     for (i = 0; i < n_apps; ++i)
                     {
                         g_strstrip(apps[i]);
@@ -675,14 +672,6 @@ char* mime_type_get_default_action(const char* type)
 void mime_type_update_association(const char* type, const char* desktop_id, int action)
 {
     const char* groups[] = {"Default Applications", "Added Associations", "Removed Associations"};
-    GKeyFile* file;
-    unsigned long len = 0;
-    char* data = NULL;
-    char** apps;
-    unsigned long n_apps, i, k;
-    char* str;
-    char* new_action;
-    bool is_present;
     bool data_changed = FALSE;
 
     if (!(type && type[0] != '\0' && desktop_id && desktop_id[0] != '\0'))
@@ -697,18 +686,22 @@ void mime_type_update_association(const char* type, const char* desktop_id, int 
     }
 
     // Load current mimeapps.list content, if available
-    file = g_key_file_new();
+    GKeyFile* file = g_key_file_new();
     // $XDG_CONFIG_HOME=[~/.config]/mimeapps.list
     char* path = g_build_filename(g_get_user_config_dir(), "mimeapps.list", NULL);
     g_key_file_load_from_file(file, path, 0, NULL);
 
+    int k;
     for (k = 0; k < G_N_ELEMENTS(groups); k++)
     {
-        new_action = NULL;
-        is_present = FALSE;
-        apps = g_key_file_get_string_list(file, groups[k], type, &n_apps, NULL);
+        char* str;
+        char* new_action = NULL;
+        bool is_present = FALSE;
+        unsigned long n_apps;
+        char** apps = g_key_file_get_string_list(file, groups[k], type, &n_apps, NULL);
         if (apps)
         {
+            int i;
             for (i = 0; i < n_apps; ++i)
             {
                 g_strstrip(apps[i]);
@@ -826,7 +819,8 @@ void mime_type_update_association(const char* type, const char* desktop_id, int 
     // save updated mimeapps.list
     if (data_changed)
     {
-        data = g_key_file_to_data(file, &len, NULL);
+        unsigned long len = 0;
+        char* data = g_key_file_to_data(file, &len, NULL);
         save_to_file(path, data, len);
         g_free(data);
     }

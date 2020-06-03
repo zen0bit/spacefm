@@ -92,27 +92,24 @@ static void on_dlg_response(GtkDialog* dialog, int response_id, void* user_data)
  */
 static void calc_total_size_of_files(const char* path, FilePropertiesDialogData* data)
 {
-    GDir* dir;
-    const char* name;
-    char* full_path;
-    struct stat file_stat;
-
     if (data->cancel)
         return;
 
+    struct stat file_stat;
     if (lstat(path, &file_stat))
         return;
 
     data->total_size += file_stat.st_size;
     data->size_on_disk += (file_stat.st_blocks << 9); /* block x 512 */
 
-    dir = g_dir_open(path, 0, NULL);
+    GDir* dir = g_dir_open(path, 0, NULL);
     if (dir)
     {
+        const char* name;
         ++data->total_count_dir;
         while (!data->cancel && (name = g_dir_read_name(dir)))
         {
-            full_path = g_build_filename(path, name, NULL);
+            char* full_path = g_build_filename(path, name, NULL);
             lstat(full_path, &file_stat);
             if (S_ISDIR(file_stat.st_mode))
             {
@@ -136,14 +133,12 @@ static void* calc_size(void* user_data)
 {
     FilePropertiesDialogData* data = (FilePropertiesDialogData*)user_data;
     GList* l;
-    char* path;
-    VFSFileInfo* file;
     for (l = data->file_list; l; l = l->next)
     {
         if (data->cancel)
             break;
-        file = (VFSFileInfo*)l->data;
-        path = g_build_filename(data->dir_path, vfs_file_info_get_name(file), NULL);
+        VFSFileInfo* file = (VFSFileInfo*)l->data;
+        char* path = g_build_filename(data->dir_path, vfs_file_info_get_name(file), NULL);
         if (path)
         {
             calc_total_size_of_files(path, data);
@@ -254,10 +249,8 @@ static void on_combo_change(GtkComboBox* combo, void* user_data)
         gtk_tree_model_get(model, &it, 2, &action, -1);
         if (!action)
         {
-            char* action;
-            GtkWidget* parent;
             VFSMimeType* mime = (VFSMimeType*)user_data;
-            parent = gtk_widget_get_toplevel(GTK_WIDGET(combo));
+            GtkWidget* parent = gtk_widget_get_toplevel(GTK_WIDGET(combo));
             action = (char*)
                 ptk_choose_app_for_mime_type(GTK_WINDOW(parent), mime, FALSE, TRUE, TRUE, TRUE);
             if (action)
@@ -371,7 +364,8 @@ GtkWidget* file_properties_dlg_new(GtkWindow* parent, const char* dir_path, GLis
     GList* l;
     bool same_type = TRUE;
     bool is_dirs = FALSE;
-    char *owner_group, *tmp;
+    char* owner_group;
+    char* tmp;
 
     int width = xset_get_int("app_dlg", "s");
     int height = xset_get_int("app_dlg", "z");
@@ -460,7 +454,8 @@ GtkWidget* file_properties_dlg_new(GtkWindow* parent, const char* dir_path, GLis
     else /* Add available actions to the option menu */
     {
         GtkTreeIter it;
-        char **action, **actions;
+        char** action;
+        char** actions;
 
         mime = vfs_file_info_get_mime_type(file);
         actions = vfs_mime_type_get_actions(mime);
@@ -670,10 +665,9 @@ GtkWidget* file_properties_dlg_new(GtkWindow* parent, const char* dir_path, GLis
 
 static uid_t uid_from_name(const char* user_name)
 {
-    struct passwd* pw;
     uid_t uid = -1;
-    const char* p;
 
+    struct passwd* pw;
     pw = getpwnam(user_name);
     if (pw)
     {
@@ -682,6 +676,7 @@ static uid_t uid_from_name(const char* user_name)
     else
     {
         uid = 0;
+        const char* p;
         for (p = user_name; *p; ++p)
         {
             if (!g_ascii_isdigit(*p))
@@ -695,10 +690,9 @@ static uid_t uid_from_name(const char* user_name)
 
 gid_t gid_from_name(const char* group_name)
 {
-    struct group* grp;
     gid_t gid = -1;
-    const char* p;
 
+    struct group* grp;
     grp = getgrnam(group_name);
     if (grp)
     {
@@ -707,6 +701,7 @@ gid_t gid_from_name(const char* group_name)
     else
     {
         gid = 0;
+        const char* p;
         for (p = group_name; *p; ++p)
         {
             if (!g_ascii_isdigit(*p))
@@ -720,16 +715,9 @@ gid_t gid_from_name(const char* group_name)
 
 void on_dlg_response(GtkDialog* dialog, int response_id, void* user_data)
 {
-    FilePropertiesDialogData* data;
-    PtkFileTask* task;
-    bool mod_change;
     uid_t uid = -1;
     gid_t gid = -1;
-    const char* owner_name;
-    const char* group_name;
-    int i;
     GList* l;
-    GList* file_list;
     char* file_path;
     VFSFileInfo* file;
     GtkAllocation allocation;
@@ -748,7 +736,8 @@ void on_dlg_response(GtkDialog* dialog, int response_id, void* user_data)
         g_free(str);
     }
 
-    data = (FilePropertiesDialogData*)g_object_get_data(G_OBJECT(dialog), "DialogData");
+    FilePropertiesDialogData* data =
+        (FilePropertiesDialogData*)g_object_get_data(G_OBJECT(dialog), "DialogData");
     if (data)
     {
         if (data->update_label_timer)
@@ -760,6 +749,8 @@ void on_dlg_response(GtkDialog* dialog, int response_id, void* user_data)
 
         if (response_id == GTK_RESPONSE_OK)
         {
+            bool mod_change;
+            PtkFileTask* task;
             // change file dates
             char* cmd = NULL;
             char* quoted_time;
@@ -839,7 +830,7 @@ void on_dlg_response(GtkDialog* dialog, int response_id, void* user_data)
             }
 
             /* Check if we need chown */
-            owner_name = gtk_entry_get_text(data->owner);
+            const char* owner_name = gtk_entry_get_text(data->owner);
             if (owner_name && *owner_name &&
                 (!data->owner_name || strcmp(owner_name, data->owner_name)))
             {
@@ -850,7 +841,7 @@ void on_dlg_response(GtkDialog* dialog, int response_id, void* user_data)
                     return;
                 }
             }
-            group_name = gtk_entry_get_text(data->group);
+            const char* group_name = gtk_entry_get_text(data->group);
             if (group_name && *group_name &&
                 (!data->group_name || strcmp(group_name, data->group_name)))
             {
@@ -862,6 +853,7 @@ void on_dlg_response(GtkDialog* dialog, int response_id, void* user_data)
                 }
             }
 
+            int i;
             for (i = 0; i < N_CHMOD_ACTIONS; ++i)
             {
                 if (gtk_toggle_button_get_inconsistent(data->chmod_btns[i]))
@@ -881,7 +873,7 @@ void on_dlg_response(GtkDialog* dialog, int response_id, void* user_data)
 
             if (uid != -1 || gid != -1 || mod_change)
             {
-                file_list = NULL;
+                GList* file_list = NULL;
                 for (l = data->file_list; l; l = l->next)
                 {
                     file = (VFSFileInfo*)l->data;

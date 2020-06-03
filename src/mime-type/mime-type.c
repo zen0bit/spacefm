@@ -88,7 +88,9 @@ static bool mime_type_is_data_plain_text(const char* data, int len);
  */
 const char* mime_type_get_by_filename(const char* filename, struct stat* statbuf)
 {
-    const char *type = NULL, *suffix_pos = NULL, *prev_suffix_pos = (const char*)-1;
+    const char* type = NULL;
+    const char* suffix_pos = NULL;
+    const char* prev_suffix_pos = (const char*)-1;
     int i;
     MimeCache* cache;
 
@@ -112,7 +114,8 @@ const char* mime_type_get_by_filename(const char* filename, struct stat* statbuf
 
     if (G_UNLIKELY(!type)) /* glob matching */
     {
-        int max_glob_len = 0, glob_len = 0;
+        int max_glob_len = 0;
+        int glob_len = 0;
         for (i = 0; !type && i < n_caches; ++i)
         {
             cache = caches[i];
@@ -257,7 +260,6 @@ const char* mime_type_get_by_file(const char* filepath, struct stat* statbuf, co
 static char* parse_xml_icon(const char* buf, size_t len, bool is_local)
 { // Note: This function modifies contents of buf
     char* icon_tag = NULL;
-    char* end_tag;
 
     if (is_local)
     {
@@ -284,7 +286,7 @@ static char* parse_xml_icon(const char* buf, size_t len, bool is_local)
         return NULL; // no icon found
 
     // find />
-    end_tag = g_strstr_len(icon_tag, len, "/>");
+    char* end_tag = g_strstr_len(icon_tag, len, "/>");
     if (!end_tag)
         return NULL;
     end_tag[0] = '\0';
@@ -306,9 +308,10 @@ static char* parse_xml_icon(const char* buf, size_t len, bool is_local)
 static char* parse_xml_desc(const char* buf, size_t len, const char* locale)
 {
     const char* buf_end = buf + len;
-    const char *comment = NULL, *comment_end, *eng_comment;
-    size_t eng_comment_len = 0, comment_len = 0;
-    char target[64];
+    const char* comment = NULL;
+    const char* comment_end;
+    const char* eng_comment;
+    size_t comment_len = 0;
     static const char end_comment_tag[] = "</comment>";
 
     eng_comment = g_strstr_len(buf, len, "<comment>"); /* default English comment */
@@ -319,10 +322,11 @@ static char* parse_xml_desc(const char* buf, size_t len, const char* locale)
     comment_end = g_strstr_len(eng_comment, len, end_comment_tag); /* find </comment> */
     if (G_UNLIKELY(!comment_end))
         return NULL;
-    eng_comment_len = comment_end - eng_comment;
+    size_t eng_comment_len = comment_end - eng_comment;
 
     if (G_LIKELY(locale))
     {
+        char target[64];
         int target_len = g_snprintf(target, 64, "<comment xml:lang=\"%s\">", locale);
         buf = comment_end + 10;
         len = (buf_end - buf);
@@ -345,14 +349,13 @@ static char* parse_xml_desc(const char* buf, size_t len, const char* locale)
 static char* _mime_type_get_desc_icon(const char* file_path, const char* locale, bool is_local,
                                       char** icon_name)
 {
-    int fd;
     struct stat statbuf; // skip stat
-    char *buffer, *_locale, *desc;
+
     // char file_path[ 256 ];  //sfm to improve speed, file_path is passed
 
     // g_snprintf( file_path, 256, "%s/mime/%s.xml", data_dir, type );
 
-    fd = open(file_path, O_RDONLY, 0);
+    int fd = open(file_path, O_RDONLY, 0);
     if (G_UNLIKELY(fd == -1))
         return NULL;
     if (G_UNLIKELY(fstat(fd, &statbuf) == -1))
@@ -360,6 +363,8 @@ static char* _mime_type_get_desc_icon(const char* file_path, const char* locale,
         close(fd);
         return NULL;
     }
+
+    char* buffer;
 #ifdef HAVE_MMAP
     buffer = (char*)mmap(NULL, statbuf.st_size, PROT_READ, MAP_SHARED, fd, 0);
 #else
@@ -374,7 +379,7 @@ static char* _mime_type_get_desc_icon(const char* file_path, const char* locale,
     if (G_UNLIKELY(buffer == (void*)-1))
         return NULL;
 
-    _locale = NULL;
+    char* _locale = NULL;
     if (!locale)
     {
         const char* const* langs = g_get_language_names();
@@ -384,7 +389,7 @@ static char* _mime_type_get_desc_icon(const char* file_path, const char* locale,
         else
             locale = langs[0];
     }
-    desc = parse_xml_desc(buffer, statbuf.st_size, locale);
+    char* desc = parse_xml_desc(buffer, statbuf.st_size, locale);
     g_free(_locale);
 
     // only look for <icon /> tag in .local
@@ -410,7 +415,6 @@ static char* _mime_type_get_desc_icon(const char* file_path, const char* locale,
 char* mime_type_get_desc_icon(const char* type, const char* locale, char** icon_name)
 {
     char* desc;
-    const char* const* dir;
     char file_path[256];
     int acc;
 
@@ -438,7 +442,7 @@ char* mime_type_get_desc_icon(const char* type, const char* locale, char** icon_
     }
 
     // look in system dirs
-    dir = g_get_system_data_dirs();
+    const char* const* dir = g_get_system_data_dirs();
     for (; *dir; ++dir)
     {
         /* FIXME: This path shouldn't be hard-coded. */
@@ -478,21 +482,19 @@ void mime_type_init()
  * and $HOME/.local/share/mime/mime.cache. */
 void mime_cache_load_all()
 {
-    const char* const* dirs;
-    int i;
     const char filename[] = "/mime/mime.cache";
-    char* path;
 
-    dirs = g_get_system_data_dirs();
+    const char* const* dirs = g_get_system_data_dirs();
     n_caches = g_strv_length((char**)dirs) + 1;
     caches = (MimeCache**)g_slice_alloc(n_caches * sizeof(MimeCache*));
 
-    path = g_build_filename(g_get_user_data_dir(), filename, NULL);
+    char* path = g_build_filename(g_get_user_data_dir(), filename, NULL);
     caches[0] = mime_cache_new(path);
     g_free(path);
     if (caches[0]->magic_max_extent > mime_cache_max_extent)
         mime_cache_max_extent = caches[0]->magic_max_extent;
 
+    int i;
     for (i = 1; i < n_caches; ++i)
     {
         path = g_build_filename(dirs[i - 1], filename, NULL);
@@ -563,7 +565,6 @@ bool mime_type_is_data_plain_text(const char* data, int len)
 
 bool mime_type_is_text_file(const char* file_path, const char* mime_type)
 {
-    int file;
     int rlen;
     bool ret = FALSE;
 
@@ -581,7 +582,7 @@ bool mime_type_is_text_file(const char* file_path, const char* mime_type)
     if (!file_path)
         return FALSE;
 
-    file = open(file_path, O_RDONLY);
+    int file = open(file_path, O_RDONLY);
     if (file != -1)
     {
         struct stat statbuf;
@@ -636,19 +637,17 @@ bool mime_type_is_executable_file(const char* file_path, const char* mime_type)
 /* Check if the specified mime_type is the subclass of the specified parent type */
 bool mime_type_is_subclass(const char* type, const char* parent)
 {
-    int i;
-    const char** parents = NULL;
-    const char** p;
-
     /* special case, the type specified is identical to the parent type. */
     if (G_UNLIKELY(!strcmp(type, parent)))
         return TRUE;
 
+    int i;
     for (i = 0; i < n_caches; ++i)
     {
-        parents = mime_cache_lookup_parents(caches[i], type);
+        const char** parents = mime_cache_lookup_parents(caches[i], type);
         if (parents)
         {
+            const char** p;
             for (p = parents; *p; ++p)
             {
                 if (!strcmp(parent, *p))

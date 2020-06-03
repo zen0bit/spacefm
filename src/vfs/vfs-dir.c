@@ -307,10 +307,9 @@ void vfs_dir_set_property(GObject* obj, unsigned int prop_id, const GValue* valu
 static GList* vfs_dir_find_file(VFSDir* dir, const char* file_name, VFSFileInfo* file)
 {
     GList* l;
-    VFSFileInfo* file2;
     for (l = dir->file_list; l; l = l->next)
     {
-        file2 = (VFSFileInfo*)l->data;
+        VFSFileInfo* file2 = (VFSFileInfo*)l->data;
         if (G_UNLIKELY(file == file2))
             return l;
         if (file2->name && !strcmp(file2->name, file_name))
@@ -344,9 +343,6 @@ void vfs_dir_emit_file_created(VFSDir* dir, const char* file_name, bool force)
 
 void vfs_dir_emit_file_deleted(VFSDir* dir, const char* file_name, VFSFileInfo* file)
 {
-    GList* l;
-    VFSFileInfo* file_found;
-
     if (G_UNLIKELY(!strcmp(file_name, dir->path)))
     {
         /* Special Case: The directory itself was deleted... */
@@ -362,10 +358,10 @@ void vfs_dir_emit_file_deleted(VFSDir* dir, const char* file_name, VFSFileInfo* 
         return;
     }
 
-    l = vfs_dir_find_file(dir, file_name, file);
+    GList* l = vfs_dir_find_file(dir, file_name, file);
     if (G_LIKELY(l))
     {
-        file_found = vfs_file_info_ref((VFSFileInfo*)l->data);
+        VFSFileInfo* file_found = vfs_file_info_ref((VFSFileInfo*)l->data);
         if (!g_slist_find(dir->changed_files, file_found))
         {
             dir->changed_files = g_slist_prepend(dir->changed_files, file_found);
@@ -382,7 +378,6 @@ void vfs_dir_emit_file_deleted(VFSDir* dir, const char* file_name, VFSFileInfo* 
 
 void vfs_dir_emit_file_changed(VFSDir* dir, const char* file_name, VFSFileInfo* file, bool force)
 {
-    GList* l;
     // printf("vfs_dir_emit_file_changed dir=%s file_name=%s avoid=%s\n", dir->path, file_name,
     // dir->avoid_changes ? "TRUE" : "FALSE" );
 
@@ -398,7 +393,7 @@ void vfs_dir_emit_file_changed(VFSDir* dir, const char* file_name, VFSFileInfo* 
 
     vfs_dir_lock(dir);
 
-    l = vfs_dir_find_file(dir, file_name, file);
+    GList* l = vfs_dir_find_file(dir, file_name, file);
     if (G_LIKELY(l))
     {
         file = vfs_file_info_ref((VFSFileInfo*)l->data);
@@ -433,9 +428,8 @@ void vfs_dir_emit_file_changed(VFSDir* dir, const char* file_name, VFSFileInfo* 
 
 void vfs_dir_emit_thumbnail_loaded(VFSDir* dir, VFSFileInfo* file)
 {
-    GList* l;
     vfs_dir_lock(dir);
-    l = vfs_dir_find_file(dir, file->name, file);
+    GList* l = vfs_dir_find_file(dir, file->name, file);
     if (l)
     {
         g_assert(file == (VFSFileInfo*)l->data);
@@ -456,8 +450,7 @@ void vfs_dir_emit_thumbnail_loaded(VFSDir* dir, VFSFileInfo* file)
 
 VFSDir* vfs_dir_new(const char* path)
 {
-    VFSDir* dir;
-    dir = (VFSDir*)g_object_new(VFS_TYPE_DIR, NULL);
+    VFSDir* dir = (VFSDir*)g_object_new(VFS_TYPE_DIR, NULL);
     dir->path = g_strdup(path);
 
     dir->avoid_changes = vfs_volume_dir_avoid_changes(path);
@@ -535,9 +528,8 @@ char* gethidden(const char* path) // MOD added
 
 bool ishidden(const char* hidden, const char* file_name) // MOD added
 {                                                        // assumes hidden,file_name != NULL
-    char* str;
     char c;
-    str = strstr(hidden, file_name);
+    char* str = strstr(hidden, file_name);
     while (str)
     {
         if (str == hidden)
@@ -617,9 +609,6 @@ void* vfs_dir_load_thread(VFSAsyncTask* task, VFSDir* dir)
 {
     const char* file_name;
     char* full_path;
-    GDir* dir_content;
-    VFSFileInfo* file;
-    char* hidden = NULL; // MOD added
 
     dir->file_listed = 0;
     dir->load_complete = 0;
@@ -629,12 +618,12 @@ void* vfs_dir_load_thread(VFSAsyncTask* task, VFSDir* dir)
         /* Install file alteration monitor */
         dir->monitor = vfs_file_monitor_add_dir(dir->path, vfs_dir_monitor_callback, dir);
 
-        dir_content = g_dir_open(dir->path, 0, NULL);
+        GDir* dir_content = g_dir_open(dir->path, 0, NULL);
 
         if (dir_content)
         {
             // MOD  dir contains .hidden file?
-            hidden = gethidden(dir->path);
+            char* hidden = gethidden(dir->path);
 
             while (!vfs_async_task_is_cancelled(dir->task) &&
                    (file_name = g_dir_read_name(dir_content)))
@@ -651,7 +640,7 @@ void* vfs_dir_load_thread(VFSAsyncTask* task, VFSDir* dir)
                 }
                 /* FIXME: Is locking GDK needed here? */
                 /* GDK_THREADS_ENTER(); */
-                file = vfs_file_info_new();
+                VFSFileInfo* file = vfs_file_info_new();
                 if (G_LIKELY(vfs_file_info_get(file, full_path, file_name)))
                 {
                     vfs_dir_lock(dir);
@@ -685,17 +674,15 @@ bool vfs_dir_is_file_listed(VFSDir* dir)
 
 bool update_file_info(VFSDir* dir, VFSFileInfo* file)
 {
-    char* full_path;
-    char* file_name;
     bool ret = FALSE;
 
     /* FIXME: Dirty hack: steal the string to prevent memory allocation */
-    file_name = file->name;
+    char* file_name = file->name;
     if (file->name == file->disp_name)
         file->disp_name = NULL;
     file->name = NULL;
 
-    full_path = g_build_filename(dir->path, file_name, NULL);
+    char* full_path = g_build_filename(dir->path, file_name, NULL);
     if (G_LIKELY(full_path))
     {
         if (G_LIKELY(vfs_file_info_get(file, full_path, file_name)))
@@ -728,15 +715,14 @@ bool update_file_info(VFSDir* dir, VFSFileInfo* file)
 void update_changed_files(void* key, void* data, void* user_data)
 {
     VFSDir* dir = (VFSDir*)data;
-    GSList* l;
-    VFSFileInfo* file;
 
     if (dir->changed_files)
     {
         vfs_dir_lock(dir);
+        GSList* l;
         for (l = dir->changed_files; l; l = l->next)
         {
-            file = vfs_file_info_ref((VFSFileInfo*)l->data); ///
+            VFSFileInfo* file = vfs_file_info_ref((VFSFileInfo*)l->data); ///
             if (update_file_info(dir, file))
             {
                 g_signal_emit(dir, signals[FILE_CHANGED_SIGNAL], 0, file);
@@ -753,20 +739,19 @@ void update_changed_files(void* key, void* data, void* user_data)
 void update_created_files(void* key, void* data, void* user_data)
 {
     VFSDir* dir = (VFSDir*)data;
-    GSList* l;
-    char* full_path;
-    VFSFileInfo* file;
-    GList* ll;
 
     if (dir->created_files)
     {
         vfs_dir_lock(dir);
+        GSList* l;
         for (l = dir->created_files; l; l = l->next)
         {
+            VFSFileInfo* file;
+            GList* ll;
             if (!(ll = vfs_dir_find_file(dir, (char*)l->data, NULL)))
             {
                 // file is not in dir file_list
-                full_path = g_build_filename(dir->path, (char*)l->data, NULL);
+                char* full_path = g_build_filename(dir->path, (char*)l->data, NULL);
                 file = vfs_file_info_new();
                 if (vfs_file_info_get(file, full_path, NULL))
                 {
@@ -926,7 +911,6 @@ static void reload_mime_type(char* key, VFSDir* dir, void* user_data)
 {
     GList* l;
     VFSFileInfo* file;
-    char* full_path;
 
     if (G_UNLIKELY(!dir || !dir->file_list))
         return;
@@ -934,7 +918,7 @@ static void reload_mime_type(char* key, VFSDir* dir, void* user_data)
     for (l = dir->file_list; l; l = l->next)
     {
         file = (VFSFileInfo*)l->data;
-        full_path = g_build_filename(dir->path, vfs_file_info_get_name(file), NULL);
+        char* full_path = g_build_filename(dir->path, vfs_file_info_get_name(file), NULL);
         vfs_file_info_reload_mime_type(file, full_path);
         /* g_debug( "reload %s", full_path ); */
         g_free(full_path);

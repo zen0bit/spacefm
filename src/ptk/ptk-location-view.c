@@ -96,29 +96,26 @@ static GtkTargetEntry drag_targets[] = {{"text/uri-list", 0, 0}};
 
 static void on_model_destroy(void* data, GObject* object)
 {
-    GtkIconTheme* icon_theme;
-
     vfs_volume_remove_callback(on_volume_event, (void*)object);
 
     model = NULL;
     n_vols = 0;
 
-    icon_theme = gtk_icon_theme_get_default();
+    GtkIconTheme* icon_theme = gtk_icon_theme_get_default();
     g_signal_handler_disconnect(icon_theme, theme_changed);
 }
 
 void update_volume_icons()
 {
-    GtkIconTheme* icon_theme;
+    if (!model)
+        return;
+
     GtkTreeIter it;
     GdkPixbuf* icon;
     VFSVolume* vol;
 
-    if (!model)
-        return;
-
     // GtkListStore* list = GTK_LIST_STORE( model );
-    icon_theme = gtk_icon_theme_get_default();
+    GtkIconTheme* icon_theme = gtk_icon_theme_get_default();
     int icon_size = app_settings.small_icon_size;
     if (icon_size > PANE_MAX_ICON_SIZE)
         icon_size = PANE_MAX_ICON_SIZE;
@@ -151,24 +148,22 @@ void update_all_icons()
 
 void update_change_detection()
 {
-    const GList* l;
-    int p, n, i;
-    PtkFileBrowser* file_browser;
-    GtkNotebook* notebook;
-    FMMainWindow* a_window;
-    const char* pwd;
-
     // update all windows/all panels/all browsers
+    const GList* l;
     for (l = fm_main_window_get_all(); l; l = l->next)
     {
-        a_window = FM_MAIN_WINDOW(l->data);
+        FMMainWindow* a_window = FM_MAIN_WINDOW(l->data);
+        int p;
         for (p = 1; p < 5; p++)
         {
-            notebook = GTK_NOTEBOOK(a_window->panel[p - 1]);
-            n = gtk_notebook_get_n_pages(notebook);
+            GtkNotebook* notebook = GTK_NOTEBOOK(a_window->panel[p - 1]);
+            int n = gtk_notebook_get_n_pages(notebook);
+            int i;
             for (i = 0; i < n; ++i)
             {
-                file_browser = PTK_FILE_BROWSER(gtk_notebook_get_nth_page(notebook, i));
+                PtkFileBrowser* file_browser =
+                    PTK_FILE_BROWSER(gtk_notebook_get_nth_page(notebook, i));
+                const char* pwd;
                 if (file_browser && (pwd = ptk_file_browser_get_cwd(file_browser)))
                 {
                     // update current dir change detection
@@ -185,22 +180,21 @@ void update_change_detection()
 
 void update_all()
 {
-    const GList* l;
-    VFSVolume* vol;
-    GtkTreeIter it;
-    VFSVolume* v = NULL;
-    bool havevol;
-
     if (!model)
         return;
 
+    VFSVolume* v = NULL;
+    bool havevol;
+
     const GList* volumes = vfs_volume_get_all_volumes();
+    const GList* l;
     for (l = volumes; l; l = l->next)
     {
-        vol = (VFSVolume*)l->data;
+        VFSVolume* vol = (VFSVolume*)l->data;
         if (vol)
         {
             // search model for volume vol
+            GtkTreeIter it;
             if (gtk_tree_model_get_iter_first(model, &it))
             {
                 do
@@ -234,19 +228,18 @@ void update_all()
 
 static void update_names()
 {
-    GtkTreeIter it;
-    VFSVolume* v;
-    VFSVolume* vol;
+    VFSVolume* v = NULL;
     const GList* l;
     const GList* volumes = vfs_volume_get_all_volumes();
     for (l = volumes; l; l = l->next)
     {
         if (l->data)
         {
-            vol = l->data;
+            VFSVolume* vol = l->data;
             vfs_volume_set_info(vol);
 
             // search model for volume vol
+            GtkTreeIter it;
             if (gtk_tree_model_get_iter_first(model, &it))
             {
                 do
@@ -262,21 +255,18 @@ static void update_names()
 
 bool ptk_location_view_chdir(GtkTreeView* location_view, const char* cur_dir)
 {
-    GtkTreeIter it;
-    GtkTreeSelection* tree_sel;
-    VFSVolume* vol;
-    const char* mount_point;
-
     if (!cur_dir || !GTK_IS_TREE_VIEW(location_view))
         return FALSE;
 
-    tree_sel = gtk_tree_view_get_selection(location_view);
+    GtkTreeSelection* tree_sel = gtk_tree_view_get_selection(location_view);
+    GtkTreeIter it;
     if (gtk_tree_model_get_iter_first(model, &it))
     {
         do
         {
+            VFSVolume* vol;
             gtk_tree_model_get(model, &it, COL_DATA, &vol, -1);
-            mount_point = vfs_volume_get_mount_point(vol);
+            const char* mount_point = vfs_volume_get_mount_point(vol);
             if (mount_point && !strcmp(cur_dir, mount_point))
             {
                 gtk_tree_selection_select_iter(tree_sel, &it);
@@ -298,12 +288,11 @@ VFSVolume* ptk_location_view_get_selected_vol(GtkTreeView* location_view)
 {
     // printf("ptk_location_view_get_selected_vol    view = %d\n", location_view );
     GtkTreeIter it;
-    GtkTreeSelection* tree_sel;
-    VFSVolume* vol;
 
-    tree_sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(location_view));
+    GtkTreeSelection* tree_sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(location_view));
     if (gtk_tree_selection_get_selected(tree_sel, NULL, &it))
     {
+        VFSVolume* vol;
         gtk_tree_model_get(model, &it, COL_DATA, &vol, -1);
         return vol;
     }
@@ -313,14 +302,15 @@ VFSVolume* ptk_location_view_get_selected_vol(GtkTreeView* location_view)
 void on_row_activated(GtkTreeView* view, GtkTreePath* tree_path, GtkTreeViewColumn* col,
                       PtkFileBrowser* file_browser)
 {
-    VFSVolume* vol;
-    GtkTreeIter it;
-    const char* mount_point;
     // printf("on_row_activated   view = %d\n", view );
     if (!file_browser)
         return;
+
+    GtkTreeIter it;
     if (!gtk_tree_model_get_iter(model, &it, tree_path))
         return;
+
+    VFSVolume* vol;
     gtk_tree_model_get(model, &it, COL_DATA, &vol, -1);
     if (!vol)
         return;
@@ -333,7 +323,7 @@ void on_row_activated(GtkTreeView* view, GtkTreePath* tree_path, GtkTreeViewColu
         try_mount(view, vol);
         if (vfs_volume_is_mounted(vol))
         {
-            mount_point = vfs_volume_get_mount_point(vol);
+            const char* mount_point = vfs_volume_get_mount_point(vol);
             if (mount_point && mount_point[0] != '\0')
             {
                 gtk_list_store_set(GTK_LIST_STORE(model), &it, COL_PATH, mount_point, -1);
@@ -381,10 +371,8 @@ bool ptk_location_view_open_block(const char* block, bool new_tab)
 
 void ptk_location_view_init_model(GtkListStore* list)
 {
-    const GList* l;
-
     n_vols = 0;
-    l = vfs_volume_get_all_volumes();
+    const GList* l = vfs_volume_get_all_volumes();
     vfs_volume_add_callback(on_volume_event, model);
 
     for (; l; l = l->next)
@@ -396,23 +384,17 @@ void ptk_location_view_init_model(GtkListStore* list)
 
 GtkWidget* ptk_location_view_new(PtkFileBrowser* file_browser)
 {
-    GtkWidget* view;
-    GtkTreeViewColumn* col;
-    GtkCellRenderer* renderer;
-    GtkListStore* list;
-    GtkIconTheme* icon_theme;
-
     if (!model)
     {
-        list = gtk_list_store_new(N_COLS,
-                                  GDK_TYPE_PIXBUF,
-                                  G_TYPE_STRING,
-                                  G_TYPE_STRING,
-                                  G_TYPE_POINTER);
+        GtkListStore* list = gtk_list_store_new(N_COLS,
+                                                GDK_TYPE_PIXBUF,
+                                                G_TYPE_STRING,
+                                                G_TYPE_STRING,
+                                                G_TYPE_POINTER);
         g_object_weak_ref(G_OBJECT(list), on_model_destroy, NULL);
         model = (GtkTreeModel*)list;
         ptk_location_view_init_model(list);
-        icon_theme = gtk_icon_theme_get_default();
+        GtkIconTheme* icon_theme = gtk_icon_theme_get_default();
         theme_changed =
             g_signal_connect(icon_theme, "changed", G_CALLBACK(update_volume_icons), NULL);
     }
@@ -421,7 +403,7 @@ GtkWidget* ptk_location_view_new(PtkFileBrowser* file_browser)
         g_object_ref(G_OBJECT(model));
     }
 
-    view = gtk_tree_view_new_with_model(model);
+    GtkWidget* view = gtk_tree_view_new_with_model(model);
     g_object_unref(G_OBJECT(model));
     // printf("ptk_location_view_new   view = %d\n", view );
     GtkTreeSelection* tree_sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
@@ -429,8 +411,8 @@ GtkWidget* ptk_location_view_new(PtkFileBrowser* file_browser)
 
     gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(view), FALSE);
 
-    col = gtk_tree_view_column_new();
-    renderer = gtk_cell_renderer_pixbuf_new();
+    GtkTreeViewColumn* col = gtk_tree_view_column_new();
+    GtkCellRenderer* renderer = gtk_cell_renderer_pixbuf_new();
     gtk_tree_view_column_pack_start(col, renderer, FALSE);
     gtk_tree_view_column_set_attributes(col, renderer, "pixbuf", COL_ICON, NULL);
 
@@ -493,16 +475,12 @@ void on_volume_event(VFSVolume* vol, VFSVolumeState state, void* user_data)
 
 void add_volume(VFSVolume* vol, bool set_icon)
 {
-    GtkIconTheme* icon_theme;
-    GdkPixbuf* icon;
-    GtkTreeIter it;
-    const char* mnt;
-
     if (!volume_is_visible(vol))
         return;
 
     // sfm - vol already exists?
     VFSVolume* v = NULL;
+    GtkTreeIter it;
     if (gtk_tree_model_get_iter_first(model, &it))
     {
         do
@@ -514,7 +492,7 @@ void add_volume(VFSVolume* vol, bool set_icon)
         return;
 
     // get mount point
-    mnt = vfs_volume_get_mount_point(vol);
+    const char* mnt = vfs_volume_get_mount_point(vol);
     if (mnt && !*mnt)
         mnt = NULL;
 
@@ -531,11 +509,11 @@ void add_volume(VFSVolume* vol, bool set_icon)
                                       -1);
     if (set_icon)
     {
-        icon_theme = gtk_icon_theme_get_default();
+        GtkIconTheme* icon_theme = gtk_icon_theme_get_default();
         int icon_size = app_settings.small_icon_size;
         if (icon_size > PANE_MAX_ICON_SIZE)
             icon_size = PANE_MAX_ICON_SIZE;
-        icon = vfs_load_icon(icon_theme, vfs_volume_get_icon(vol), icon_size);
+        GdkPixbuf* icon = vfs_load_icon(icon_theme, vfs_volume_get_icon(vol), icon_size);
         gtk_list_store_set(GTK_LIST_STORE(model), &it, COL_ICON, icon, -1);
         if (icon)
             g_object_unref(icon);
@@ -545,12 +523,11 @@ void add_volume(VFSVolume* vol, bool set_icon)
 
 void remove_volume(VFSVolume* vol)
 {
-    GtkTreeIter it;
-    VFSVolume* v = NULL;
-
     if (!vol)
         return;
 
+    GtkTreeIter it;
+    VFSVolume* v = NULL;
     if (gtk_tree_model_get_iter_first(model, &it))
     {
         do
@@ -566,14 +543,11 @@ void remove_volume(VFSVolume* vol)
 
 void update_volume(VFSVolume* vol)
 {
-    GtkIconTheme* icon_theme;
-    GdkPixbuf* icon;
-    GtkTreeIter it;
-    VFSVolume* v = NULL;
-
     if (!vol)
         return;
 
+    GtkTreeIter it;
+    VFSVolume* v = NULL;
     if (gtk_tree_model_get_iter_first(model, &it))
     {
         do
@@ -587,12 +561,12 @@ void update_volume(VFSVolume* vol)
         return;
     }
 
-    icon_theme = gtk_icon_theme_get_default();
+    GtkIconTheme* icon_theme = gtk_icon_theme_get_default();
     int icon_size = app_settings.small_icon_size;
     if (icon_size > PANE_MAX_ICON_SIZE)
         icon_size = PANE_MAX_ICON_SIZE;
 
-    icon = vfs_load_icon(icon_theme, vfs_volume_get_icon(vol), icon_size);
+    GdkPixbuf* icon = vfs_load_icon(icon_theme, vfs_volume_get_icon(vol), icon_size);
     gtk_list_store_set(GTK_LIST_STORE(model),
                        &it,
                        COL_ICON,
@@ -609,8 +583,6 @@ void update_volume(VFSVolume* vol)
 char* ptk_location_view_get_mount_point_dir(const char* name)
 {
     char* parent = NULL;
-    char* str;
-    char* value;
 
     // clean mount points
     if (name)
@@ -635,6 +607,7 @@ char* ptk_location_view_get_mount_point_dir(const char* name)
             {
                 if (!strstr(parent, varname[i]))
                     continue;
+                char* value;
                 switch (i)
                 {
                     case 0: // $USER
@@ -655,7 +628,7 @@ char* ptk_location_view_get_mount_point_dir(const char* name)
                     default:
                         value = g_strdup("");
                 }
-                str = parent;
+                char* str = parent;
                 parent = replace_string(parent, varname[i], value, FALSE);
                 g_free(str);
                 g_free(value);
@@ -680,15 +653,13 @@ void ptk_location_view_clean_mount_points()
     /* This function was moved from vfs-volume-nohal.c because HAL
      * build also requires it. */
 
-    GDir* dir;
-    const char* name;
-    char* del_path;
+    // clean cache and Auto-Mount|Mount Dirs  (eg for fuse mounts)
     char* path;
     int i;
-
-    // clean cache and Auto-Mount|Mount Dirs  (eg for fuse mounts)
     for (i = 0; i < 2; i++)
     {
+        char* del_path;
+
         if (i == 0)
             path = g_build_filename(g_get_user_cache_dir(), "spacefm-mount", NULL);
         else // i == 1
@@ -703,8 +674,10 @@ void ptk_location_view_clean_mount_points()
             g_free(path);
             path = del_path;
         }
+        GDir* dir;
         if ((dir = g_dir_open(path, 0, NULL)) != NULL)
         {
+            const char* name;
             while ((name = g_dir_read_name(dir)) != NULL)
             {
                 del_path = g_build_filename(path, name, NULL);
@@ -828,9 +801,6 @@ char* ptk_location_view_create_mount_point(int mode, VFSVolume* vol, netmount_t*
 
 void on_autoopen_net_cb(VFSFileTask* task, AutoOpen* ao)
 {
-    const GList* l;
-    VFSVolume* vol;
-
     if (!(ao && ao->device_file))
         return;
 
@@ -839,9 +809,10 @@ void on_autoopen_net_cb(VFSFileTask* task, AutoOpen* ao)
     VFSVolume* device_file_vol = NULL;
     VFSVolume* mount_point_vol = NULL;
     const GList* volumes = vfs_volume_get_all_volumes();
+    const GList* l;
     for (l = volumes; l; l = l->next)
     {
-        vol = (VFSVolume*)l->data;
+        VFSVolume* vol = (VFSVolume*)l->data;
         if (vol->is_mounted)
         {
             if (!strcmp(vol->device_file, ao->device_file))
@@ -910,7 +881,6 @@ void on_autoopen_net_cb(VFSFileTask* task, AutoOpen* ao)
 void ptk_location_view_mount_network(PtkFileBrowser* file_browser, const char* url, bool new_tab,
                                      bool force_new_mount)
 {
-    char* line;
     char* mount_point = NULL;
     netmount_t* netmount = NULL;
 
@@ -1009,7 +979,8 @@ void ptk_location_view_mount_network(PtkFileBrowser* file_browser, const char* u
     else
         keepterm = g_strdup("");
 
-    line = g_strdup_printf("%s%s\n%s", ssh_udevil ? "echo Connecting...\n\n" : "", cmd, keepterm);
+    char* line =
+        g_strdup_printf("%s%s\n%s", ssh_udevil ? "echo Connecting...\n\n" : "", cmd, keepterm);
     g_free(keepterm);
     g_free(cmd);
 
@@ -1414,15 +1385,14 @@ static void on_eject(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2)
 
 bool on_autoopen_cb(VFSFileTask* task, AutoOpen* ao)
 {
-    const GList* l;
-    VFSVolume* vol;
     // printf("on_autoopen_cb\n");
     const GList* volumes = vfs_volume_get_all_volumes();
+    const GList* l;
     for (l = volumes; l; l = l->next)
     {
         if (((VFSVolume*)l->data)->devnum == ao->devnum)
         {
-            vol = (VFSVolume*)l->data;
+            VFSVolume* vol = (VFSVolume*)l->data;
             vol->inhibit_auto = FALSE;
             if (vol->is_mounted)
             {
@@ -2463,7 +2433,6 @@ bool volume_is_visible(VFSVolume* vol)
 
 void ptk_location_view_on_action(GtkWidget* view, XSet* set)
 {
-    char* xname;
     // printf("ptk_location_view_on_action\n");
     if (!view)
         return;
@@ -2500,6 +2469,7 @@ void ptk_location_view_on_action(GtkWidget* view, XSet* set)
     else
     {
         // require vol != NULL
+        char* xname;
         if (g_str_has_prefix(set->name, "dev_menu_"))
         {
             xname = set->name + 9;
@@ -2661,9 +2631,6 @@ static void show_devices_menu(GtkTreeView* view, VFSVolume* vol, PtkFileBrowser*
 
 bool on_button_press_event(GtkTreeView* view, GdkEventButton* evt, void* user_data)
 {
-    GtkTreeIter it;
-    GtkTreeSelection* tree_sel = NULL;
-    GtkTreePath* tree_path = NULL;
     VFSVolume* vol = NULL;
     bool ret = FALSE;
 
@@ -2689,9 +2656,11 @@ bool on_button_press_event(GtkTreeView* view, GdkEventButton* evt, void* user_da
         return FALSE;
 
     // get selected vol
+    GtkTreePath* tree_path = NULL;
     if (gtk_tree_view_get_path_at_pos(view, evt->x, evt->y, &tree_path, NULL, NULL, NULL))
     {
-        tree_sel = gtk_tree_view_get_selection(view);
+        GtkTreeSelection* tree_sel = gtk_tree_view_get_selection(view);
+        GtkTreeIter it;
         if (gtk_tree_model_get_iter(model, &it, tree_path))
         {
             gtk_tree_selection_select_iter(tree_sel, &it);
@@ -3077,12 +3046,13 @@ void ptk_location_view_dev_menu(GtkWidget* parent, PtkFileBrowser* file_browser,
 void ptk_bookmark_view_import_gtk(const char* path, XSet* book_set)
 { // import bookmarks file from spacefm < 1.0 or gtk bookmarks file
     char line[2048];
-    unsigned long upath_len;
-    XSet* set;
-    XSet* newset;
+
     XSet* set_prev = NULL;
     XSet* set_first = NULL;
-    char *sep, *name, *upath, *tpath;
+    char* sep;
+    char* name;
+    char* upath;
+    char* tpath;
     char* upath_name = NULL;
 
     // int count = 0;
@@ -3109,6 +3079,7 @@ void ptk_bookmark_view_import_gtk(const char* path, XSet* book_set)
             tpath = g_filename_from_uri(line, NULL, NULL);
             if (tpath)
             {
+                unsigned long upath_len;
                 upath = g_filename_to_utf8(tpath, -1, NULL, &upath_len, NULL);
                 g_free(tpath);
             }
@@ -3137,7 +3108,7 @@ void ptk_bookmark_view_import_gtk(const char* path, XSet* book_set)
             }
 
             // add new bookmark
-            newset = xset_custom_new();
+            XSet* newset = xset_custom_new();
             newset->z = upath;
             newset->menu_label = g_strdup(name);
             newset->x = g_strdup("3"); // XSET_CMD_BOOKMARK
@@ -3177,7 +3148,7 @@ void ptk_bookmark_view_import_gtk(const char* path, XSet* book_set)
                     return;
                 }
             }
-            set = book_set ? book_set : xset_get("main_book");
+            XSet* set = book_set ? book_set : xset_get("main_book");
             if (!set->child)
             {
                 // make set_first the child
@@ -3204,15 +3175,14 @@ void ptk_bookmark_view_import_gtk(const char* path, XSet* book_set)
 
 static XSet* get_selected_bookmark_set(GtkTreeView* view)
 {
-    GtkTreeIter it;
-    GtkTreeSelection* tree_sel;
-    char* name = NULL;
-
     GtkListStore* list = GTK_LIST_STORE(gtk_tree_view_get_model(view));
     if (!list)
         return NULL;
 
-    tree_sel = gtk_tree_view_get_selection(view);
+    char* name = NULL;
+
+    GtkTreeIter it;
+    GtkTreeSelection* tree_sel = gtk_tree_view_get_selection(view);
     if (gtk_tree_selection_get_selected(tree_sel, NULL, &it))
         gtk_tree_model_get(GTK_TREE_MODEL(list), &it, COL_PATH, &name, -1);
     XSet* set = xset_is(name);
@@ -3469,19 +3439,18 @@ static void ptk_bookmark_view_reload_list(GtkTreeView* view, XSet* book_set)
 
 static void on_bookmark_device(GtkMenuItem* item, VFSVolume* vol)
 {
-    const char* url;
-    XSet* set;
-    XSet* newset;
-    XSet* sel_set;
-
     GtkWidget* view = (GtkWidget*)g_object_get_data(G_OBJECT(item), "view");
     PtkFileBrowser* file_browser =
         (PtkFileBrowser*)g_object_get_data(G_OBJECT(view), "file_browser");
     if (!file_browser)
         return;
 
+    XSet* set;
+    XSet* newset;
+    XSet* sel_set;
+
     // udi is the original user-entered URL, if available, else mtab url
-    url = vol->udi;
+    const char* url = vol->udi;
 
     if (g_str_has_prefix(url, "curlftpfs#"))
         url += 10;
@@ -3586,11 +3555,6 @@ XSet* ptk_bookmark_view_get_first_bookmark(XSet* book_set)
 static XSet* find_cwd_match_bookmark(XSet* parent_set, const char* cwd, bool recurse,
                                      XSet* skip_set, XSet** found_parent_set)
 { // This function must be as FAST as possible
-    XSet* set;
-    XSet* found_set;
-    char* sep;
-    char* url;
-
     *found_parent_set = NULL;
 
     // if !no_skip, items in this parent are considered already examined, but
@@ -3601,17 +3565,17 @@ static XSet* find_cwd_match_bookmark(XSet* parent_set, const char* cwd, bool rec
 
     // printf( "    scan %s %s %s\n", parent_set->menu_label, no_skip ? "" : "skip", recurse ?
     // "recurse" : "" );
-    set = xset_is(parent_set->child);
+    XSet* set = xset_is(parent_set->child);
     while (set)
     {
         if (no_skip && set->z && set->x && !set->lock && set->x[0] == '3' /* XSET_CMD_BOOKMARK */ &&
             set->menu_style < XSET_MENU_SUBMENU && g_str_has_prefix(set->z, cwd))
         {
             // found a possible match - confirm
-            sep = strchr(set->z, ';');
+            char* sep = strchr(set->z, ';');
             if (sep)
                 sep[0] = '\0';
-            url = g_strstrip(g_strdup(set->z));
+            char* url = g_strstrip(g_strdup(set->z));
             if (sep)
                 sep[0] = ';';
             if (!g_strcmp0(cwd, url))
@@ -3626,6 +3590,7 @@ static XSet* find_cwd_match_bookmark(XSet* parent_set, const char* cwd, bool rec
         else if (set->menu_style == XSET_MENU_SUBMENU && recurse && set->child)
         {
             // set is a parent - recurse contents
+            XSet* found_set;
             if ((found_set = find_cwd_match_bookmark(set, cwd, TRUE, skip_set, found_parent_set)))
                 return found_set;
         }
@@ -3638,9 +3603,6 @@ bool ptk_bookmark_view_chdir(GtkTreeView* view, PtkFileBrowser* file_browser, bo
 {
     // select bookmark of cur dir if recurse and option 'Follow Dir'
     // select bookmark of cur dir if !recurse, ignoring option 'Follow Dir'
-    XSet* parent_set = NULL;
-    XSet* set;
-
     if (!file_browser || !view || (recurse && !xset_get_b_panel(file_browser->mypanel, "book_fol")))
         return FALSE;
 
@@ -3648,7 +3610,7 @@ bool ptk_bookmark_view_chdir(GtkTreeView* view, PtkFileBrowser* file_browser, bo
     // printf("\n\n\nchdir %s\n", cwd);
 
     // cur dir is already selected?
-    set = get_selected_bookmark_set(view);
+    XSet* set = get_selected_bookmark_set(view);
     if (set && !set->lock && set->z && set->menu_style < XSET_MENU_SUBMENU && set->x &&
         strtol(set->x, NULL, 10) == XSET_CMD_BOOKMARK && g_str_has_prefix(set->z, cwd))
     {
@@ -3668,6 +3630,7 @@ bool ptk_bookmark_view_chdir(GtkTreeView* view, PtkFileBrowser* file_browser, bo
 
     // look in current bookmark list
     XSet* start_set = xset_is(file_browser->book_set_name);
+    XSet* parent_set = NULL;
     set = start_set ? find_cwd_match_bookmark(start_set, cwd, FALSE, NULL, &parent_set) : NULL;
     if (!set && recurse)
     {
@@ -3712,10 +3675,6 @@ char* ptk_bookmark_view_get_selected_dir(GtkTreeView* view)
 void ptk_bookmark_view_add_bookmark(GtkMenuItem* menuitem, PtkFileBrowser* file_browser,
                                     const char* url)
 { // adding from file browser - bookmarks may not be shown
-    XSet* set;
-    XSet* newset;
-    XSet* sel_set;
-
     if (!file_browser)
         return;
 
@@ -3725,6 +3684,10 @@ void ptk_bookmark_view_add_bookmark(GtkMenuItem* menuitem, PtkFileBrowser* file_
         if (ptk_bookmark_view_chdir(GTK_TREE_VIEW(file_browser->side_book), file_browser, FALSE))
             return;
     }
+
+    XSet* set;
+    XSet* newset;
+    XSet* sel_set;
 
     if (menuitem || !url)
         url = ptk_file_browser_get_cwd(PTK_FILE_BROWSER(file_browser));
@@ -3798,15 +3761,12 @@ void ptk_bookmark_view_add_bookmark(GtkMenuItem* menuitem, PtkFileBrowser* file_
 void ptk_bookmark_view_xset_changed(GtkTreeView* view, PtkFileBrowser* file_browser,
                                     const char* changed_name)
 { // a custom xset has changed - need to update view?
-    XSet* changed_set;
-    XSet* set;
-
     // printf( "ptk_bookmark_view_xset_changed\n");
     GtkListStore* list = GTK_LIST_STORE(gtk_tree_view_get_model(view));
     if (!(list && file_browser && file_browser->book_set_name && changed_name))
         return;
 
-    changed_set = xset_is(changed_name);
+    XSet* changed_set = xset_is(changed_name);
     if (!strcmp(file_browser->book_set_name, changed_name))
     {
         // The loaded book set itself has changed - reload list
@@ -3826,7 +3786,7 @@ void ptk_bookmark_view_xset_changed(GtkTreeView* view, PtkFileBrowser* file_brow
     bool is_child = FALSE;
     if (changed_set)
     {
-        set = changed_set;
+        XSet* set = changed_set;
         while (set->prev)
             set = xset_get(set->prev);
         if (set->parent && !strcmp(file_browser->book_set_name, set->parent))
@@ -4118,12 +4078,10 @@ static void on_bookmark_row_activated(GtkTreeView* view, GtkTreePath* path,
 static void show_bookmarks_menu(GtkTreeView* view, PtkFileBrowser* file_browser,
                                 unsigned int button, uint32_t time)
 {
-    GtkWidget* popup;
-    XSet* set;
     XSet* insert_set = NULL;
     bool bookmark_selected = TRUE;
 
-    set = get_selected_bookmark_set(view);
+    XSet* set = get_selected_bookmark_set(view);
     if (!set)
     {
         // No bookmark selected so use menu set
@@ -4150,7 +4108,8 @@ static void show_bookmarks_menu(GtkTreeView* view, PtkFileBrowser* file_browser,
     xset_set_cb_panel(file_browser->mypanel, "font_book", main_update_fonts, file_browser);
     xset_set_cb("book_icon", main_window_update_all_bookmark_views, NULL);
     xset_set_cb("book_menu_icon", main_window_update_all_bookmark_views, NULL);
-    popup = xset_design_show_menu(NULL, set, insert_set ? insert_set : set, button, time);
+    GtkWidget* popup =
+        xset_design_show_menu(NULL, set, insert_set ? insert_set : set, button, time);
 
     // Add Settings submenu
     gtk_menu_shell_append(GTK_MENU_SHELL(popup), gtk_separator_menu_item_new());
@@ -4232,11 +4191,6 @@ static bool on_bookmark_button_press_event(GtkTreeView* view, GdkEventButton* ev
 static bool on_bookmark_button_release_event(GtkTreeView* view, GdkEventButton* evt,
                                              PtkFileBrowser* file_browser)
 {
-    GtkTreeIter it;
-    GtkTreeSelection* tree_sel;
-    GtkTreePath* tree_path;
-    int pos;
-
     // don't activate row if drag was begun
     if (evt->type != GDK_BUTTON_RELEASE || !file_browser->bookmark_button_press)
         return FALSE;
@@ -4244,6 +4198,7 @@ static bool on_bookmark_button_release_event(GtkTreeView* view, GdkEventButton* 
 
     if (evt->button == 1) // left
     {
+        GtkTreePath* tree_path;
         gtk_tree_view_get_path_at_pos(view, evt->x, evt->y, &tree_path, NULL, NULL, NULL);
         if (!tree_path)
         {
@@ -4254,9 +4209,9 @@ static bool on_bookmark_button_release_event(GtkTreeView* view, GdkEventButton* 
         if (!xset_get_b("book_single"))
             return FALSE;
 
-        tree_sel = gtk_tree_view_get_selection(view);
+        GtkTreeSelection* tree_sel = gtk_tree_view_get_selection(view);
+        GtkTreeIter it;
         gtk_tree_model_get_iter(gtk_tree_view_get_model(view), &it, tree_path);
-        pos = gtk_tree_path_get_indices(tree_path)[0];
         gtk_tree_selection_select_iter(tree_sel, &it);
 
         gtk_tree_view_row_activated(view, tree_path, NULL);
@@ -4290,24 +4245,18 @@ static int is_row_separator(GtkTreeModel* model, GtkTreeIter* it, PtkFileBrowser
 
 GtkWidget* ptk_bookmark_view_new(PtkFileBrowser* file_browser)
 {
-    GtkWidget* view;
-    GtkTreeViewColumn* col;
-    GtkCellRenderer* renderer;
-    GtkListStore* list;
-    GtkIconTheme* icon_theme;
-
-    list =
+    GtkListStore* list =
         gtk_list_store_new(N_COLS, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_BOOLEAN);
     g_object_weak_ref(G_OBJECT(list), on_bookmark_model_destroy, file_browser);
 
-    view = gtk_tree_view_new_with_model(GTK_TREE_MODEL(list));
+    GtkWidget* view = gtk_tree_view_new_with_model(GTK_TREE_MODEL(list));
 
     /* gtk_tree_view_new_with_model adds a ref so we don't need original ref
      * Otherwise on_bookmark_model_destroy was not running - list model
      * wasn't being freed? */
     g_object_unref(list);
 
-    icon_theme = gtk_icon_theme_get_default();
+    GtkIconTheme* icon_theme = gtk_icon_theme_get_default();
     if (icon_theme)
         g_signal_connect(icon_theme,
                          "changed",
@@ -4325,10 +4274,10 @@ GtkWidget* ptk_bookmark_view_new(PtkFileBrowser* file_browser)
 
     gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(view), FALSE);
 
-    col = gtk_tree_view_column_new();
+    GtkTreeViewColumn* col = gtk_tree_view_column_new();
     gtk_tree_view_column_set_sort_indicator(col, FALSE);
 
-    renderer = gtk_cell_renderer_pixbuf_new();
+    GtkCellRenderer* renderer = gtk_cell_renderer_pixbuf_new();
     gtk_tree_view_column_pack_start(col, renderer, FALSE);
     gtk_tree_view_column_set_attributes(col, renderer, "pixbuf", COL_ICON, NULL);
 

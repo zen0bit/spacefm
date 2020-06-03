@@ -26,9 +26,6 @@
 
 GdkPixbuf* vfs_load_icon(GtkIconTheme* theme, const char* icon_name, int size)
 {
-    GdkPixbuf* icon = NULL;
-    const char* file;
-
     if (!icon_name)
         return NULL;
 
@@ -44,7 +41,8 @@ GdkPixbuf* vfs_load_icon(GtkIconTheme* theme, const char* icon_name, int size)
     if (G_UNLIKELY(!inf))
         return NULL;
 
-    file = gtk_icon_info_get_filename(inf);
+    const char* file = gtk_icon_info_get_filename(inf);
+    GdkPixbuf* icon = NULL;
     if (G_LIKELY(file))
         icon = gdk_pixbuf_new_from_file_at_size(file, size, size, NULL);
     else

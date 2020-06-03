@@ -32,14 +32,13 @@ const char desktop_entry_name[] = "Desktop Entry";
  */
 VFSAppDesktop* vfs_app_desktop_new(const char* file_name)
 {
-    GKeyFile* file;
     bool load;
     char* relative_path;
 
     VFSAppDesktop* app = g_slice_new0(VFSAppDesktop);
     app->n_ref = 1;
 
-    file = g_key_file_new();
+    GKeyFile* file = g_key_file_new();
 
     if (!file_name)
     {
@@ -134,12 +133,11 @@ const char* vfs_app_desktop_get_icon_name(VFSAppDesktop* app)
 static GdkPixbuf* load_icon_file(const char* file_name, int size)
 {
     GdkPixbuf* icon = NULL;
-    char* file_path;
     const char** dirs = (const char**)g_get_system_data_dirs();
     const char** dir;
     for (dir = dirs; *dir; ++dir)
     {
-        file_path = g_build_filename(*dir, "pixmaps", file_name, NULL);
+        char* file_path = g_build_filename(*dir, "pixmaps", file_name, NULL);
         icon = gdk_pixbuf_new_from_file_at_scale(file_path, size, size, TRUE, NULL);
         g_free(file_path);
         if (icon)
@@ -151,7 +149,8 @@ static GdkPixbuf* load_icon_file(const char* file_name, int size)
 GdkPixbuf* vfs_app_desktop_get_icon(VFSAppDesktop* app, int size, bool use_fallback)
 {
     GtkIconTheme* theme;
-    char *icon_name = NULL, *suffix;
+    char* icon_name = NULL;
+    char* suffix;
     GdkPixbuf* icon = NULL;
 
     if (app->icon_name)

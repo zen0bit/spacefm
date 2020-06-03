@@ -42,18 +42,17 @@ static char* archive_handler_get_first_extension(XSet* handler_xset)
     // for multiple MIME types and therefore file extensions. Functions
     // like archive creation need only one extension
     char* first_ext = NULL;
-    char* name;
-    int i;
     if (handler_xset && handler_xset->x)
     {
         // find first extension
         char** pathnames = g_strsplit(handler_xset->x, " ", -1);
         if (pathnames)
         {
+            int i;
             for (i = 0; pathnames[i]; ++i)
             {
                 // getting just the extension of the pathname list element
-                name = get_name_extension(pathnames[i], FALSE, &first_ext);
+                char* name = get_name_extension(pathnames[i], FALSE, &first_ext);
                 g_free(name);
                 if (first_ext)
                 {
@@ -102,17 +101,14 @@ static bool archive_handler_run_in_term(XSet* handler_xset, int operation)
 
 static void on_format_changed(GtkComboBox* combo, void* user_data)
 {
-    int len = 0;
-    char *path, *name, *new_name;
-
     // Obtaining reference to dialog
     GtkFileChooser* dlg = GTK_FILE_CHOOSER(user_data);
 
     // Obtaining new archive filename
-    path = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
+    char* path = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dlg));
     if (!path)
         return;
-    name = g_path_get_basename(path);
+    char* name = g_path_get_basename(path);
     g_free(path);
 
     // Fetching the combo model
@@ -132,8 +128,10 @@ static void on_format_changed(GtkComboBox* combo, void* user_data)
     }
 
     // Loop through available handlers
+    int len = 0;
     XSet* handler_xset;
-    char *xset_name = NULL, *extension;
+    char* xset_name = NULL;
+    char* extension;
     do
     {
         gtk_tree_model_get(GTK_TREE_MODEL(list),
@@ -183,7 +181,7 @@ static void on_format_changed(GtkComboBox* combo, void* user_data)
             extension = archive_handler_get_first_extension(handler_xset);
 
             // Appending extension to original filename
-            new_name = g_strconcat(name, extension, NULL);
+            char* new_name = g_strconcat(name, extension, NULL);
 
             // Updating new archive filename
             gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(dlg), new_name);
@@ -258,7 +256,6 @@ static char* generate_bash_error_function(bool run_in_terminal, char* parent_quo
 char* replace_archive_subs(const char* line, const char* n, const char* N, const char* o,
                            const char* x, const char* g)
 {
-    char* s;
     char* old_s;
     char* sub;
     char* percent;
@@ -267,7 +264,7 @@ char* replace_archive_subs(const char* line, const char* n, const char* N, const
     if (!line)
         return g_strdup("");
 
-    s = g_strdup("");
+    char* s = g_strdup("");
     char* ptr = (char*)line;
     while (ptr[0])
     {
@@ -326,26 +323,17 @@ char* replace_archive_subs(const char* line, const char* n, const char* N, const
 
 void ptk_file_archiver_create(PtkFileBrowser* file_browser, GList* files, const char* cwd)
 {
-    GList* l;
-    GtkWidget *combo, *dlg;
-    GtkFileFilter* filter;
-
-    char *cmd_to_run = NULL, *desc = NULL, *dest_file = NULL, *ext = NULL, *s1 = NULL, *str = NULL,
-         *udest_file = NULL, *udest_quote = NULL, *final_command = NULL;
-    int i, n, format, res;
-    struct stat statbuf;
-
     /* Generating dialog - extra NULL on the NULL-terminated list to
      * placate an irrelevant compilation warning. See notes in
      * ptk-handler.c:ptk_handler_show_config about GTK failure to
      * identify top-level widget */
     GtkWidget* top_level =
         file_browser ? gtk_widget_get_toplevel(GTK_WIDGET(file_browser->main_window)) : NULL;
-    dlg = gtk_file_chooser_dialog_new(_("Create Archive"),
-                                      top_level ? GTK_WINDOW(top_level) : NULL,
-                                      GTK_FILE_CHOOSER_ACTION_SAVE,
-                                      NULL,
-                                      NULL);
+    GtkWidget* dlg = gtk_file_chooser_dialog_new(_("Create Archive"),
+                                                 top_level ? GTK_WINDOW(top_level) : NULL,
+                                                 GTK_FILE_CHOOSER_ACTION_SAVE,
+                                                 NULL,
+                                                 NULL);
 
     /* Adding standard buttons and saving references in the dialog
      * 'Configure' button has custom text but a stock image */
@@ -374,7 +362,7 @@ void ptk_file_archiver_create(PtkFileBrowser* file_browser, GList* files, const 
         FALSE);
 #endif
 
-    filter = gtk_file_filter_new();
+    GtkFileFilter* filter = gtk_file_filter_new();
 
     /* Top hbox has 'Command:' label, 'Archive Format:' label then format
      * combobox */
@@ -392,7 +380,7 @@ void ptk_file_archiver_create(PtkFileBrowser* file_browser, GList* files, const 
     // presence or a particular order
     // Model is xset name then extensions the handler deals with
     GtkListStore* list = gtk_list_store_new(2, G_TYPE_STRING, G_TYPE_STRING);
-    combo = gtk_combo_box_new_with_model(GTK_TREE_MODEL(list));
+    GtkWidget* combo = gtk_combo_box_new_with_model(GTK_TREE_MODEL(list));
     // gtk_combo_box_new_with_model adds a ref
     g_object_unref(list);
     g_object_set_data(G_OBJECT(dlg), "combo-model", (void*)list);
@@ -437,12 +425,13 @@ void ptk_file_archiver_create(PtkFileBrowser* file_browser, GList* files, const 
 
     // Looping for handlers (NULL-terminated list)
     GtkTreeIter iter;
-    char *xset_name, *extensions;
+    char* extensions;
     XSet* handler_xset;
     // Get xset name of last used handler
-    xset_name = xset_get_s("arc_dlg"); // do not free
-    format = 4;                        // default tar.gz
-    n = 0;
+    char* xset_name = xset_get_s("arc_dlg"); // do not free
+    int format = 4;                          // default tar.gz
+    int n = 0;
+    int i;
     for (i = 0; archive_handlers[i] != NULL; ++i)
     {
         // Fetching handler
@@ -518,7 +507,7 @@ void ptk_file_archiver_create(PtkFileBrowser* file_browser, GList* files, const 
 
     /* Loading command for handler, based off the format handler */
     // Obtaining iterator from string turned into a path into the model
-    str = g_strdup_printf("%d", format);
+    char* str = g_strdup_printf("%d", format);
     if (gtk_tree_model_get_iter_from_string(GTK_TREE_MODEL(list), &iter, str))
     {
         gtk_tree_model_get(GTK_TREE_MODEL(list),
@@ -585,10 +574,11 @@ void ptk_file_archiver_create(PtkFileBrowser* file_browser, GList* files, const 
     gtk_file_chooser_set_do_overwrite_confirmation(GTK_FILE_CHOOSER(dlg), TRUE);
 
     // Populating name of archive and setting the correct directory
+    char* dest_file;
     if (files)
     {
         // Fetching first extension handler deals with
-        ext = archive_handler_get_first_extension(handler_xset);
+        char* ext = archive_handler_get_first_extension(handler_xset);
         dest_file =
             g_strjoin(NULL, vfs_file_info_get_disp_name((VFSFileInfo*)files->data), ext, NULL);
         gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(dlg), dest_file);
@@ -618,6 +608,7 @@ void ptk_file_archiver_create(PtkFileBrowser* file_browser, GList* files, const 
     bool run_in_terminal;
     gtk_widget_show_all(dlg);
 
+    int res;
     while ((res = gtk_dialog_run(GTK_DIALOG(dlg))))
     {
         if (res == GTK_RESPONSE_OK)
@@ -795,7 +786,16 @@ void ptk_file_archiver_create(PtkFileBrowser* file_browser, GList* files, const 
 
     // Make Archive Creation Command
 
+    char* desc;
+    char* ext;
+    char* udest_file;
+    char* udest_quote;
+    char* s1;
+    char* final_command;
+    char* cmd_to_run;
+
     // Dealing with separate archives for each source file/directory ('%O')
+    GList* l;
     if (g_strstr_len(command, -1, "%O"))
     {
         /* '%O' is present - the archiving command should be generated
@@ -828,6 +828,7 @@ void ptk_file_archiver_create(PtkFileBrowser* file_browser, GList* files, const 
                 udest_file = g_strconcat(dest_dir, "/", desc, ext, NULL);
 
                 // Looping to find a path that doesnt exist
+                struct stat statbuf;
                 n = 1;
                 while (lstat(udest_file, &statbuf) == 0)
                 {
@@ -886,7 +887,7 @@ void ptk_file_archiver_create(PtkFileBrowser* file_browser, GList* files, const 
         /* '%O' isn't present - the normal single command is needed
          * Obtaining valid quoted UTF8 file name %o for archive to create */
         udest_file = g_filename_display_name(dest_file);
-        char* udest_quote = bash_quote(udest_file);
+        udest_quote = bash_quote(udest_file);
         g_free(udest_file);
         char* all = g_strdup("");
         char* first;
@@ -1003,19 +1004,30 @@ static void on_create_subfolder_toggled(GtkToggleButton* togglebutton, GtkWidget
 void ptk_file_archiver_extract(PtkFileBrowser* file_browser, GList* files, const char* cwd,
                                const char* dest_dir, int job, bool archive_presence_checked)
 { /* This function is also used to list the contents of archives */
-    GtkWidget* dlg;
     GtkWidget* dlgparent = NULL;
     char* choose_dir = NULL;
-    bool create_parent = FALSE, in_term = FALSE, keep_term = FALSE;
-    bool write_access = FALSE, list_contents = FALSE;
+    bool create_parent = FALSE;
+    bool in_term = FALSE;
+    bool keep_term = FALSE;
+    bool write_access = FALSE;
+    bool list_contents = FALSE;
     char* parent_quote = NULL;
     VFSFileInfo* file;
     VFSMimeType* mime_type;
     const char* dest;
     GList* l;
-    char *dest_quote = NULL, *full_path = NULL, *full_quote = NULL, *perm = NULL, *cmd = NULL,
-         *str = NULL, *final_command = NULL, *s1 = NULL, *extension = NULL;
-    int i, n, res;
+    char* dest_quote = NULL;
+    char* full_path = NULL;
+    char* full_quote = NULL;
+    char* perm = NULL;
+    char* cmd = NULL;
+    char* str = NULL;
+    char* final_command = NULL;
+    char* s1 = NULL;
+    char* extension = NULL;
+    int i;
+    int n;
+    int res;
     struct stat statbuf;
     GSList* handlers_slist = NULL;
 
@@ -1077,11 +1089,11 @@ void ptk_file_archiver_extract(PtkFileBrowser* file_browser, GList* files, const
     {
         /* It hasn't - generating dialog to ask user. Only dealing with
          * user-writable contents if the user isn't root */
-        dlg = gtk_file_chooser_dialog_new(_("Extract To"),
-                                          dlgparent ? GTK_WINDOW(dlgparent) : NULL,
-                                          GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
-                                          NULL,
-                                          NULL);
+        GtkWidget* dlg = gtk_file_chooser_dialog_new(_("Extract To"),
+                                                     dlgparent ? GTK_WINDOW(dlgparent) : NULL,
+                                                     GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
+                                                     NULL,
+                                                     NULL);
 
         /* Adding standard buttons and saving references in the dialog
          * 'Configure' button has custom text but a stock image */

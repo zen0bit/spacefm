@@ -104,8 +104,6 @@ bool vfs_file_monitor_init()
 VFSFileMonitor* vfs_file_monitor_add(char* path, bool is_dir, VFSFileMonitorCallback cb,
                                      void* user_data)
 {
-    VFSFileMonitor* monitor;
-    VFSFileMonitorCallbackEntry cb_ent;
     char resolved_path[PATH_MAX];
     char* real_path;
 
@@ -128,7 +126,7 @@ VFSFileMonitor* vfs_file_monitor_add(char* path, bool is_dir, VFSFileMonitorCall
     else
         real_path = resolved_path;
 
-    monitor = (VFSFileMonitor*)g_hash_table_lookup(monitor_hash, real_path);
+    VFSFileMonitor* monitor = (VFSFileMonitor*)g_hash_table_lookup(monitor_hash, real_path);
     if (!monitor)
     {
         monitor = g_slice_new0(VFSFileMonitor);
@@ -191,6 +189,7 @@ VFSFileMonitor* vfs_file_monitor_add(char* path, bool is_dir, VFSFileMonitorCall
         /* g_debug( "monitor installed: %s, %p", path, monitor ); */
         if (cb)
         { /* Install a callback */
+            VFSFileMonitorCallbackEntry cb_ent;
             cb_ent.callback = cb;
             cb_ent.user_data = user_data;
             monitor->callbacks = g_array_append_val(monitor->callbacks, cb_ent);
@@ -202,13 +201,11 @@ VFSFileMonitor* vfs_file_monitor_add(char* path, bool is_dir, VFSFileMonitorCall
 
 void vfs_file_monitor_remove(VFSFileMonitor* fm, VFSFileMonitorCallback cb, void* user_data)
 {
-    int i;
-    VFSFileMonitorCallbackEntry* callbacks;
-
     // printf( "vfs_file_monitor_remove\n" );
     if (cb && fm && fm->callbacks)
     {
-        callbacks = (VFSFileMonitorCallbackEntry*)fm->callbacks->data;
+        VFSFileMonitorCallbackEntry* callbacks = (VFSFileMonitorCallbackEntry*)fm->callbacks->data;
+        int i;
         for (i = 0; i < fm->callbacks->len; ++i)
         {
             if (callbacks[i].callback == cb && callbacks[i].user_data == user_data)
@@ -280,16 +277,14 @@ static VFSFileMonitorEvent translate_inotify_event(int inotify_mask)
 
 static void dispatch_event(VFSFileMonitor* monitor, VFSFileMonitorEvent evt, const char* file_name)
 {
-    VFSFileMonitorCallbackEntry* cb;
-    VFSFileMonitorCallback func;
-    int i;
     /* Call the callback functions */
     if (monitor->callbacks && monitor->callbacks->len)
     {
-        cb = (VFSFileMonitorCallbackEntry*)monitor->callbacks->data;
+        VFSFileMonitorCallbackEntry* cb = (VFSFileMonitorCallbackEntry*)monitor->callbacks->data;
+        int i;
         for (i = 0; i < monitor->callbacks->len; ++i)
         {
-            func = cb[i].callback;
+            VFSFileMonitorCallback func = cb[i].callback;
             func(monitor, evt, file_name, cb[i].user_data);
         }
     }
@@ -300,9 +295,6 @@ static bool on_fam_event(GIOChannel* channel, GIOCondition cond, void* user_data
 {
 #define BUF_LEN (1024 * (sizeof(struct inotify_event) + 16))
     char buf[BUF_LEN];
-    int i, len;
-
-    VFSFileMonitor* monitor = NULL;
 
     if (cond & (G_IO_HUP | G_IO_ERR))
     {
@@ -321,6 +313,7 @@ static bool on_fam_event(GIOChannel* channel, GIOCondition cond, void* user_data
                                     it has been removed by disconnect_from_fam(). */
     }
 
+    int len;
     while ((len = read(inotify_fd, buf, BUF_LEN)) < 0 && errno == EINTR)
         ;
     if (len < 0)
@@ -339,15 +332,15 @@ static bool on_fam_event(GIOChannel* channel, GIOCondition cond, void* user_data
         /* goto error_cancel; */
         return FALSE;
     }
-    i = 0;
+    int i = 0;
     while (i < len)
     {
         struct inotify_event* ievent = (struct inotify_event*)&buf[i];
         /* FIXME: 2 different paths can have the same wd because of link
          *        This was fixed in spacefm 0.8.7 ?? */
-        monitor = (VFSFileMonitor*)g_hash_table_find(monitor_hash,
-                                                     find_monitor,
-                                                     GINT_TO_POINTER(ievent->wd));
+        VFSFileMonitor* monitor = (VFSFileMonitor*)g_hash_table_find(monitor_hash,
+                                                                     find_monitor,
+                                                                     GINT_TO_POINTER(ievent->wd));
         if (G_LIKELY(monitor))
         {
             const char* file_name;

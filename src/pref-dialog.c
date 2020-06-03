@@ -92,8 +92,11 @@ static void dir_unload_thumbnails(const char* path, VFSDir* dir, void* user_data
 static void on_response(GtkDialog* dlg, int response, FMPrefDlg* user_data)
 
 {
-    int i, n;
-    int ibig_icon = -1, ismall_icon = -1, itool_icon = -1;
+    int i;
+    int n;
+    int ibig_icon = -1;
+    int ismall_icon = -1;
+    int itool_icon = -1;
 
     int max_thumb;
     bool show_thumbnail;
@@ -474,7 +477,9 @@ void on_show_thumbnail_toggled(GtkWidget* widget, FMPrefDlg* data)
 bool fm_edit_preference(GtkWindow* parent, int page)
 {
     int i;
-    int ibig_icon = -1, ismall_icon = -1, itool_icon = -1;
+    int ibig_icon = -1;
+    int ismall_icon = -1;
+    int itool_icon = -1;
     GtkWidget* dlg;
 
     if (!data)

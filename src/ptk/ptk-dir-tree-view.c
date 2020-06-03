@@ -64,7 +64,6 @@ static bool on_dir_tree_view_drag_drop(GtkWidget* widget, GdkDragContext* drag_c
 static bool filter_func(GtkTreeModel* model, GtkTreeIter* iter, void* data)
 {
     VFSFileInfo* file;
-    const char* name;
     GtkTreeView* view = (GtkTreeView*)data;
     bool show_hidden = GPOINTER_TO_INT(g_object_get_qdata(G_OBJECT(view), dir_tree_view_data));
 
@@ -74,7 +73,7 @@ static bool filter_func(GtkTreeModel* model, GtkTreeIter* iter, void* data)
     gtk_tree_model_get(model, iter, COL_DIR_TREE_INFO, &file, -1);
     if (G_LIKELY(file))
     {
-        name = vfs_file_info_get_name(file);
+        const char* name = vfs_file_info_get_name(file);
         if (G_UNLIKELY(name && name[0] == '.'))
         {
             vfs_file_info_unref(file);
@@ -93,7 +92,6 @@ static void on_destroy(GtkWidget* w)
 /* Create a new dir tree view */
 GtkWidget* ptk_dir_tree_view_new(PtkFileBrowser* browser, bool show_hidden)
 {
-    GtkTreeView* dir_tree_view;
     GtkTreeViewColumn* col;
     GtkCellRenderer* renderer;
     GtkTreeModel* model;
@@ -101,7 +99,7 @@ GtkWidget* ptk_dir_tree_view_new(PtkFileBrowser* browser, bool show_hidden)
     GtkTreePath* tree_path;
     GtkTreeModel* filter;
 
-    dir_tree_view = GTK_TREE_VIEW(gtk_tree_view_new());
+    GtkTreeView* dir_tree_view = GTK_TREE_VIEW(gtk_tree_view_new());
     gtk_tree_view_set_headers_visible(dir_tree_view, FALSE);
     gtk_tree_view_set_enable_tree_lines(dir_tree_view, TRUE);
 
@@ -206,22 +204,19 @@ GtkWidget* ptk_dir_tree_view_new(PtkFileBrowser* browser, bool show_hidden)
 
 bool ptk_dir_tree_view_chdir(GtkTreeView* dir_tree_view, const char* path)
 {
-    GtkTreeModel* model;
-    GtkTreeIter it, parent_it;
+    GtkTreeIter it;
+    GtkTreeIter parent_it;
     GtkTreePath* tree_path = NULL;
-    char **dirs, **dir;
-    bool found;
-    VFSFileInfo* info;
 
     if (!path || *path != '/')
         return FALSE;
 
-    dirs = g_strsplit(path + 1, "/", -1);
+    char** dirs = g_strsplit(path + 1, "/", -1);
 
     if (!dirs)
         return FALSE;
 
-    model = gtk_tree_view_get_model(dir_tree_view);
+    GtkTreeModel* model = gtk_tree_view_get_model(dir_tree_view);
 
     if (!gtk_tree_model_iter_children(model, &parent_it, NULL))
     {
@@ -237,6 +232,7 @@ bool ptk_dir_tree_view_chdir(GtkTreeView* dir_tree_view, const char* path)
         goto _found;
     }
 
+    char** dir;
     for (dir = dirs; *dir; ++dir)
     {
         if (!gtk_tree_model_iter_children(model, &it, &parent_it))
@@ -244,7 +240,8 @@ bool ptk_dir_tree_view_chdir(GtkTreeView* dir_tree_view, const char* path)
             g_strfreev(dirs);
             return FALSE;
         }
-        found = FALSE;
+        bool found = FALSE;
+        VFSFileInfo* info;
         do
         {
             gtk_tree_model_get(model, &it, COL_DIR_TREE_INFO, &info, -1);
@@ -289,11 +286,10 @@ _found:
 /* FIXME: should this API be put here? Maybe it belongs to prk-dir-tree.c */
 char* ptk_dir_view_get_dir_path(GtkTreeModel* model, GtkTreeIter* it)
 {
-    GtkTreeModel* tree;
     GtkTreeIter real_it;
 
     gtk_tree_model_filter_convert_iter_to_child_iter(GTK_TREE_MODEL_FILTER(model), &real_it, it);
-    tree = gtk_tree_model_filter_get_model(GTK_TREE_MODEL_FILTER(model));
+    GtkTreeModel* tree = gtk_tree_model_filter_get_model(GTK_TREE_MODEL_FILTER(model));
     return ptk_dir_tree_get_dir_path(PTK_DIR_TREE(tree), &real_it);
 }
 
@@ -302,9 +298,8 @@ char* ptk_dir_tree_view_get_selected_dir(GtkTreeView* dir_tree_view)
 {
     GtkTreeModel* model;
     GtkTreeIter it;
-    GtkTreeSelection* tree_sel;
 
-    tree_sel = gtk_tree_view_get_selection(dir_tree_view);
+    GtkTreeSelection* tree_sel = gtk_tree_view_get_selection(dir_tree_view);
     if (gtk_tree_selection_get_selected(tree_sel, &model, &it))
         return ptk_dir_view_get_dir_path(model, &it);
     return NULL;
@@ -343,9 +338,8 @@ bool sel_func(GtkTreeSelection* selection, GtkTreeModel* model, GtkTreePath* pat
 
 void ptk_dir_tree_view_show_hidden_files(GtkTreeView* dir_tree_view, bool show_hidden)
 {
-    GtkTreeModel* filter;
     g_object_set_qdata(G_OBJECT(dir_tree_view), dir_tree_view_data, GINT_TO_POINTER(show_hidden));
-    filter = gtk_tree_view_get_model(dir_tree_view);
+    GtkTreeModel* filter = gtk_tree_view_get_model(dir_tree_view);
     gtk_tree_model_filter_refilter(GTK_TREE_MODEL_FILTER(filter));
 }
 
@@ -353,11 +347,10 @@ void on_dir_tree_view_row_expanded(GtkTreeView* treeview, GtkTreeIter* iter, Gtk
                                    void* user_data)
 {
     GtkTreeIter real_it;
-    GtkTreePath* real_path;
     GtkTreeModel* filter = gtk_tree_view_get_model(treeview);
     PtkDirTree* tree = PTK_DIR_TREE(user_data);
     gtk_tree_model_filter_convert_iter_to_child_iter(GTK_TREE_MODEL_FILTER(filter), &real_it, iter);
-    real_path =
+    GtkTreePath* real_path =
         gtk_tree_model_filter_convert_path_to_child_path(GTK_TREE_MODEL_FILTER(filter), path);
     ptk_dir_tree_expand_row(tree, &real_it, real_path);
     gtk_tree_path_free(real_path);
@@ -367,11 +360,10 @@ void on_dir_tree_view_row_collapsed(GtkTreeView* treeview, GtkTreeIter* iter, Gt
                                     void* user_data)
 {
     GtkTreeIter real_it;
-    GtkTreePath* real_path;
     GtkTreeModel* filter = gtk_tree_view_get_model(treeview);
     PtkDirTree* tree = PTK_DIR_TREE(user_data);
     gtk_tree_model_filter_convert_iter_to_child_iter(GTK_TREE_MODEL_FILTER(filter), &real_it, iter);
-    real_path =
+    GtkTreePath* real_path =
         gtk_tree_model_filter_convert_path_to_child_path(GTK_TREE_MODEL_FILTER(filter), path);
     ptk_dir_tree_collapse_row(tree, &real_it, real_path);
     gtk_tree_path_free(real_path);
@@ -379,7 +371,6 @@ void on_dir_tree_view_row_collapsed(GtkTreeView* treeview, GtkTreeIter* iter, Gt
 
 bool on_dir_tree_view_button_press(GtkWidget* view, GdkEventButton* evt, PtkFileBrowser* browser)
 {
-    GtkTreeModel* model;
     GtkTreePath* tree_path;
     GtkTreeViewColumn* tree_col;
     GtkTreeIter it;
@@ -387,7 +378,7 @@ bool on_dir_tree_view_button_press(GtkWidget* view, GdkEventButton* evt, PtkFile
     if (evt->type == GDK_BUTTON_PRESS && (evt->button == 1 || evt->button == 3))
     {
         // middle click 2 handled in ptk-file-browser.c on_dir_tree_button_press
-        model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
+        GtkTreeModel* model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
         if (gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(view),
                                           evt->x,
                                           evt->y,
@@ -521,7 +512,6 @@ bool on_dir_tree_view_key_press(GtkWidget* view, GdkEventKey* evt, PtkFileBrowse
 static char* dir_tree_view_get_drop_dir(GtkWidget* view, int x, int y)
 {
     GtkTreePath* tree_path = NULL;
-    GtkTreeModel* model;
     GtkTreeIter it;
     VFSFileInfo* file;
     char* dest_path = NULL;
@@ -536,7 +526,7 @@ static char* dir_tree_view_get_drop_dir(GtkWidget* view, int x, int y)
     }
     if (tree_path)
     {
-        model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
+        GtkTreeModel* model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
         if (gtk_tree_model_get_iter(model, &it, tree_path))
         {
             gtk_tree_model_get(model, &it, COL_DIR_TREE_INFO, &file, -1);
@@ -565,14 +555,7 @@ void on_dir_tree_view_drag_data_received(GtkWidget* widget, GdkDragContext* drag
                                          unsigned int time,
                                          void* user_data) // MOD added
 {
-    char **list, **puri;
-    GList* files = NULL;
-    PtkFileTask* task;
-    VFSFileTaskType file_action = VFS_FILE_TASK_MOVE;
     PtkFileBrowser* file_browser = (PtkFileBrowser*)user_data;
-    char* dest_dir;
-    char* file_path;
-    GtkWidget* parent_win;
 
     /*  Don't call the default handler  */
     g_signal_stop_emission_by_name(widget, "drag-data-received");
@@ -580,9 +563,12 @@ void on_dir_tree_view_drag_data_received(GtkWidget* widget, GdkDragContext* drag
     if ((gtk_selection_data_get_length(sel_data) >= 0) &&
         (gtk_selection_data_get_format(sel_data) == 8))
     {
-        dest_dir = dir_tree_view_get_drop_dir(widget, x, y);
+        char* dest_dir = dir_tree_view_get_drop_dir(widget, x, y);
         if (dest_dir)
         {
+            char* file_path;
+            char** list;
+            char** puri;
             puri = list = gtk_selection_data_get_uris(sel_data);
             if (file_browser->pending_drag_status_tree)
             {
@@ -625,6 +611,7 @@ void on_dir_tree_view_drag_data_received(GtkWidget* widget, GdkDragContext* drag
 
             if (puri)
             {
+                GList* files = NULL;
                 if (0 == (gdk_drag_context_get_selected_action(drag_context) &
                           (GDK_ACTION_MOVE | GDK_ACTION_COPY | GDK_ACTION_LINK)))
                 {
@@ -645,10 +632,14 @@ void on_dir_tree_view_drag_data_received(GtkWidget* widget, GdkDragContext* drag
                 }
                 g_strfreev(list);
 
+                VFSFileTaskType file_action;
                 switch (gdk_drag_context_get_selected_action(drag_context))
                 {
                     case GDK_ACTION_COPY:
                         file_action = VFS_FILE_TASK_COPY;
+                        break;
+                    case GDK_ACTION_MOVE:
+                        file_action = VFS_FILE_TASK_MOVE;
                         break;
                     case GDK_ACTION_LINK:
                         file_action = VFS_FILE_TASK_LINK;
@@ -663,12 +654,12 @@ void on_dir_tree_view_drag_data_received(GtkWidget* widget, GdkDragContext* drag
                 {
                     /* Accept the drop and perform file actions */
                     {
-                        parent_win = gtk_widget_get_toplevel(GTK_WIDGET(file_browser));
-                        task = ptk_file_task_new(file_action,
-                                                 files,
-                                                 dest_dir,
-                                                 GTK_WINDOW(parent_win),
-                                                 file_browser->task_view);
+                        GtkWidget* parent_win = gtk_widget_get_toplevel(GTK_WIDGET(file_browser));
+                        PtkFileTask* task = ptk_file_task_new(file_action,
+                                                              files,
+                                                              dest_dir,
+                                                              GTK_WINDOW(parent_win),
+                                                              file_browser->task_view);
                         ptk_file_task_run(task);
                     }
                 }
@@ -709,11 +700,9 @@ bool on_dir_tree_view_drag_motion(GtkWidget* widget, GdkDragContext* drag_contex
                                   PtkFileBrowser* file_browser) // MOD added
 {
     GdkDragAction suggested_action;
-    GdkAtom target;
-    GtkTargetList* target_list;
 
-    target_list = gtk_target_list_new(drag_targets, G_N_ELEMENTS(drag_targets));
-    target = gtk_drag_dest_find_target(widget, drag_context, target_list);
+    GtkTargetList* target_list = gtk_target_list_new(drag_targets, G_N_ELEMENTS(drag_targets));
+    GdkAtom target = gtk_drag_dest_find_target(widget, drag_context, target_list);
     gtk_target_list_unref(target_list);
 
     if (target == GDK_NONE)

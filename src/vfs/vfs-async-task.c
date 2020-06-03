@@ -145,8 +145,7 @@ bool on_idle(void* _task)
 void* vfs_async_task_thread(void* _task)
 {
     VFSAsyncTask* task = VFS_ASYNC_TASK(_task);
-    void* ret = NULL;
-    ret = task->func(task, task->user_data);
+    void* ret = task->func(task, task->user_data);
 
     vfs_async_task_lock(task);
     task->idle_id = g_idle_add(on_idle, task); // runs in main loop thread

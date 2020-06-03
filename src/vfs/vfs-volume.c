@@ -174,12 +174,8 @@ static char* _dupv8(const char* s)
  */
 static char* decode_udev_encoded_string(const char* str)
 {
-    GString* s;
-    char* ret;
-    const char* end_valid;
+    GString* s = g_string_new(NULL);
     unsigned int n;
-
-    s = g_string_new(NULL);
     for (n = 0; str[n] != '\0'; n++)
     {
         if (str[n] == '\\')
@@ -204,6 +200,8 @@ static char* decode_udev_encoded_string(const char* str)
         }
     }
 
+    char* ret;
+    const char* end_valid;
     if (!g_utf8_validate(s->str, -1, &end_valid))
     {
         g_print(
@@ -228,12 +226,9 @@ static int ptr_str_array_compare(const char** a, const char** b)
 
 static double sysfs_get_double(const char* dir, const char* attribute)
 {
-    double result;
     char* contents;
-    char* filename;
-
-    result = 0.0;
-    filename = g_build_filename(dir, attribute, NULL);
+    double result = 0.0;
+    char* filename = g_build_filename(dir, attribute, NULL);
     if (g_file_get_contents(filename, &contents, NULL, NULL))
     {
         result = atof(contents);
@@ -246,11 +241,8 @@ static double sysfs_get_double(const char* dir, const char* attribute)
 
 static char* sysfs_get_string(const char* dir, const char* attribute)
 {
-    char* result;
-    char* filename;
-
-    result = NULL;
-    filename = g_build_filename(dir, attribute, NULL);
+    char* result = NULL;
+    char* filename = g_build_filename(dir, attribute, NULL);
     if (!g_file_get_contents(filename, &result, NULL, NULL))
     {
         result = g_strdup("");
@@ -262,12 +254,9 @@ static char* sysfs_get_string(const char* dir, const char* attribute)
 
 static int sysfs_get_int(const char* dir, const char* attribute)
 {
-    int result;
+    int result = 0;
     char* contents;
-    char* filename;
-
-    result = 0;
-    filename = g_build_filename(dir, attribute, NULL);
+    char* filename = g_build_filename(dir, attribute, NULL);
     if (g_file_get_contents(filename, &contents, NULL, NULL))
     {
         result = strtol(contents, NULL, 0);
@@ -280,12 +269,9 @@ static int sysfs_get_int(const char* dir, const char* attribute)
 
 static uint64_t sysfs_get_uint64(const char* dir, const char* attribute)
 {
-    uint64_t result;
     char* contents;
-    char* filename;
-
-    result = 0;
-    filename = g_build_filename(dir, attribute, NULL);
+    uint64_t result = 0;
+    char* filename = g_build_filename(dir, attribute, NULL);
     if (g_file_get_contents(filename, &contents, NULL, NULL))
     {
         result = strtoll(contents, NULL, 0);
@@ -298,11 +284,8 @@ static uint64_t sysfs_get_uint64(const char* dir, const char* attribute)
 
 static bool sysfs_file_exists(const char* dir, const char* attribute)
 {
-    bool result;
-    char* filename;
-
-    result = FALSE;
-    filename = g_build_filename(dir, attribute, NULL);
+    bool result = FALSE;
+    char* filename = g_build_filename(dir, attribute, NULL);
     if (g_file_test(filename, G_FILE_TEST_EXISTS))
     {
         result = TRUE;
@@ -314,19 +297,15 @@ static bool sysfs_file_exists(const char* dir, const char* attribute)
 
 static char* sysfs_resolve_link(const char* sysfs_path, const char* name)
 {
-    char* full_path;
     char link_path[PATH_MAX];
     char resolved_path[PATH_MAX];
-    ssize_t num;
-    bool found_it;
+    bool found_it = FALSE;
 
-    found_it = FALSE;
-
-    full_path = g_build_filename(sysfs_path, name, NULL);
+    char* full_path = g_build_filename(sysfs_path, name, NULL);
 
     // g_debug ("name='%s'", name);
     // g_debug ("full_path='%s'", full_path);
-    num = readlink(full_path, link_path, sizeof(link_path) - 1);
+    ssize_t num = readlink(full_path, link_path, sizeof(link_path) - 1);
     if (num != -1)
     {
         char* absolute_path;
@@ -391,29 +370,20 @@ bool info_is_system_internal(device_t* device)
 
 void info_drive_connection(device_t* device)
 {
-    char* s;
-    char* p;
-    char* model;
-    char* vendor;
-    char* subsystem;
-    char* serial;
-    char* revision;
-    const char* connection_interface;
-    uint64_t connection_speed;
-
-    connection_interface = NULL;
-    connection_speed = 0;
+    const char* connection_interface = NULL;
+    uint64_t connection_speed = 0;
 
     /* walk up the device tree to figure out the subsystem */
-    s = g_strdup(device->native_path);
+    char* s = g_strdup(device->native_path);
     do
     {
-        p = sysfs_resolve_link(s, "subsystem");
+        char* model;
+        char* p = sysfs_resolve_link(s, "subsystem");
         if (!device->device_is_removable && sysfs_get_int(s, "removable") != 0)
             device->device_is_removable = TRUE;
         if (p != NULL)
         {
-            subsystem = g_path_get_basename(p);
+            char* subsystem = g_path_get_basename(p);
             g_free(p);
 
             if (!strcmp(subsystem, "scsi"))
@@ -427,7 +397,7 @@ void info_drive_connection(device_t* device)
                  *  - replaces whitespace with _
                  *  - is missing for e.g. Firewire
                  */
-                vendor = sysfs_get_string(s, "vendor");
+                char* vendor = sysfs_get_string(s, "vendor");
                 if (vendor != NULL)
                 {
                     g_strstrip(vendor);
@@ -516,7 +486,7 @@ void info_drive_connection(device_t* device)
                     g_free(model);
                 }
 
-                serial = sysfs_get_string(s, "serial");
+                char* serial = sysfs_get_string(s, "serial");
                 if (serial != NULL)
                 {
                     g_strstrip(serial);
@@ -530,7 +500,7 @@ void info_drive_connection(device_t* device)
                 }
 
                 /* TODO: use hwrev and fwrev files? */
-                revision = sysfs_get_string(s, "date");
+                char* revision = sysfs_get_string(s, "date");
                 if (revision != NULL)
                 {
                     g_strstrip(revision);
@@ -967,10 +937,6 @@ void info_device_properties(device_t* device)
 
 char* info_mount_points(device_t* device)
 {
-    char* contents;
-    char** lines;
-    GError* error;
-    unsigned int n;
     GList* mounts = NULL;
 
     unsigned int dmajor = MAJOR(device->devnum);
@@ -990,10 +956,10 @@ char* info_mount_points(device_t* device)
         return NULL;
     }
 
-    contents = NULL;
-    lines = NULL;
+    char* contents = NULL;
+    char** lines = NULL;
 
-    error = NULL;
+    GError* error = NULL;
     if (!g_file_get_contents(MOUNTINFO, &contents, NULL, &error))
     {
         g_warning("Error reading %s: %s", MOUNTINFO, error->message);
@@ -1007,6 +973,7 @@ char* info_mount_points(device_t* device)
      */
 
     lines = g_strsplit(contents, "\n", 0);
+    unsigned int n;
     for (n = 0; lines[n] != NULL; n++)
     {
         unsigned int mount_id;
@@ -1057,7 +1024,8 @@ char* info_mount_points(device_t* device)
 
     if (mounts)
     {
-        char *points, *old_points;
+        char* points;
+        char* old_points;
         GList* l;
         // Sort the list to ensure that shortest mount paths appear first
         mounts = g_list_sort(mounts, (GCompareFunc)g_strcmp0);
@@ -1159,28 +1127,17 @@ void info_partition(device_t* device)
      */
     if (udev_device_get_property_value(device->udevice, "UDISKS_PARTITION"))
     {
-        const char* size;
-        const char* scheme;
-        const char* type;
-        const char* label;
-        const char* uuid;
-        const char* flags;
-        const char* offset;
-        const char* alignment_offset;
-        const char* slave_sysfs_path;
-        const char* number;
-
         // clang-format off
-        scheme = udev_device_get_property_value(device->udevice, "UDISKS_PARTITION_SCHEME");
-        size = udev_device_get_property_value(device->udevice, "UDISKS_PARTITION_SIZE");
-        type = udev_device_get_property_value(device->udevice, "UDISKS_PARTITION_TYPE");
-        label = udev_device_get_property_value(device->udevice, "UDISKS_PARTITION_LABEL");
-        uuid = udev_device_get_property_value(device->udevice, "UDISKS_PARTITION_UUID");
-        flags = udev_device_get_property_value(device->udevice, "UDISKS_PARTITION_FLAGS");
-        offset = udev_device_get_property_value(device->udevice, "UDISKS_PARTITION_OFFSET");
-        alignment_offset = udev_device_get_property_value(device->udevice, "UDISKS_PARTITION_ALIGNMENT_OFFSET");
-        number = udev_device_get_property_value(device->udevice, "UDISKS_PARTITION_NUMBER");
-        slave_sysfs_path = udev_device_get_property_value(device->udevice, "UDISKS_PARTITION_SLAVE");
+        const char* scheme = udev_device_get_property_value(device->udevice, "UDISKS_PARTITION_SCHEME");
+        const char* size = udev_device_get_property_value(device->udevice, "UDISKS_PARTITION_SIZE");
+        const char* type = udev_device_get_property_value(device->udevice, "UDISKS_PARTITION_TYPE");
+        const char* label = udev_device_get_property_value(device->udevice, "UDISKS_PARTITION_LABEL");
+        const char* uuid = udev_device_get_property_value(device->udevice, "UDISKS_PARTITION_UUID");
+        const char* flags = udev_device_get_property_value(device->udevice, "UDISKS_PARTITION_FLAGS");
+        const char* offset = udev_device_get_property_value(device->udevice, "UDISKS_PARTITION_OFFSET");
+        const char* alignment_offset = udev_device_get_property_value(device->udevice, "UDISKS_PARTITION_ALIGNMENT_OFFSET");
+        const char* number = udev_device_get_property_value(device->udevice, "UDISKS_PARTITION_NUMBER");
+        const char* slave_sysfs_path = udev_device_get_property_value(device->udevice, "UDISKS_PARTITION_SLAVE");
         // clang-format on
 
         if (slave_sysfs_path != NULL && scheme != NULL && number != NULL &&
@@ -1208,22 +1165,18 @@ void info_partition(device_t* device)
      */
     if (!is_partition && sysfs_file_exists(device->native_path, "start"))
     {
-        uint64_t size;
-        uint64_t offset;
-        uint64_t alignment_offset;
-        char* s;
-        unsigned int n;
-
-        size = sysfs_get_uint64(device->native_path, "size");
-        alignment_offset = sysfs_get_uint64(device->native_path, "alignment_offset");
+        uint64_t size = sysfs_get_uint64(device->native_path, "size");
+        uint64_t alignment_offset = sysfs_get_uint64(device->native_path, "alignment_offset");
 
         device->partition_size = g_strdup_printf("%lu", size * 512);
         device->partition_alignment_offset = g_strdup_printf("%lu", alignment_offset);
 
-        offset = sysfs_get_uint64(device->native_path, "start") * device->device_block_size;
+        uint64_t offset =
+            sysfs_get_uint64(device->native_path, "start") * device->device_block_size;
         device->partition_offset = g_strdup_printf("%lu", offset);
 
-        s = device->native_path;
+        char* s = device->native_path;
+        unsigned int n;
         for (n = strlen(s) - 1; n >= 0 && g_ascii_isdigit(s[n]); n--)
             ;
         device->partition_number = g_strdup_printf("%ld", strtol(s + n + 1, NULL, 0));
@@ -1260,8 +1213,6 @@ void info_partition(device_t* device)
 
 void info_optical_disc(device_t* device)
 {
-    const char* cdrom_disc_state;
-
     const char* optical_state = udev_device_get_property_value(device->udevice, "ID_CDROM");
 
     if (optical_state && strtol(optical_state, NULL, 10) != 0)
@@ -1273,7 +1224,7 @@ void info_optical_disc(device_t* device)
         device->optical_disc_num_audio_tracks = g_strdup(udev_device_get_property_value(device->udevice, "ID_CDROM_MEDIA_TRACK_COUNT_AUDIO"));
         device->optical_disc_num_sessions = g_strdup(udev_device_get_property_value(device->udevice, "ID_CDROM_MEDIA_SESSION_COUNT"));
 
-        cdrom_disc_state = udev_device_get_property_value(device->udevice, "ID_CDROM_MEDIA_STATE");
+        const char* cdrom_disc_state = udev_device_get_property_value(device->udevice, "ID_CDROM_MEDIA_STATE");
 
         device->optical_disc_is_blank = (!g_strcmp0(cdrom_disc_state, "blank"));
         device->optical_disc_is_appendable = (!g_strcmp0(cdrom_disc_state, "appendable"));
@@ -1524,18 +1475,14 @@ int cmp_devmounts(devmount_t* a, devmount_t* b)
 
 void parse_mounts(bool report)
 {
-    char* contents;
-    char** lines;
-    GError* error;
-    unsigned int n;
     // printf("\n@@@@@@@@@@@@@ parse_mounts %s\n\n", report ? "TRUE" : "FALSE" );
-    contents = NULL;
-    lines = NULL;
+    char* contents = NULL;
+    char** lines = NULL;
     struct udev_device* udevice;
     dev_t devnum;
     char* str;
 
-    error = NULL;
+    GError* error = NULL;
     if (!g_file_get_contents(MOUNTINFO, &contents, NULL, &error))
     {
         g_warning("Error reading %s: %s", MOUNTINFO, error->message);
@@ -1571,6 +1518,7 @@ void parse_mounts(bool report)
      * Parsers should ignore all unrecognised optional fields.
      */
     lines = g_strsplit(contents, "\n", 0);
+    unsigned int n;
     for (n = 0; lines[n] != NULL; n++)
     {
         unsigned int mount_id;
@@ -1716,7 +1664,8 @@ void parse_mounts(bool report)
     g_strfreev(lines);
     // printf("\nLINES DONE\n\n");
     // translate each mount points list to string
-    char *points, *old_points;
+    char* points;
+    char* old_points;
     GList* m;
     for (l = newmounts; l; l = l->next)
     {
@@ -1941,14 +1890,12 @@ static bool cb_udev_monitor_watch(GIOChannel* channel, GIOCondition cond, void* 
     }
 
     struct udev_device* udevice;
-    const char* action;
     const char* acted = NULL;
-    char* devnode;
     VFSVolume* volume;
     if ((udevice = udev_monitor_receive_device(umonitor)))
     {
-        action = udev_device_get_action(udevice);
-        devnode = g_strdup(udev_device_get_devnode(udevice));
+        const char* action = udev_device_get_action(udevice);
+        char* devnode = g_strdup(udev_device_get_devnode(udevice));
         if (action)
         {
             // print action
@@ -2308,22 +2255,17 @@ VFSVolume* vfs_volume_read_by_device(struct udev_device* udevice)
 bool path_is_mounted_mtab(const char* mtab_file, const char* path, char** device_file,
                           char** fs_type)
 {
-    char* contents;
-    char** lines;
-    GError* error;
-    unsigned int n;
+    if (!path)
+        return FALSE;
+
     bool ret = FALSE;
-    char* point;
     char encoded_file[PATH_MAX];
     char encoded_point[PATH_MAX];
     char encoded_fstype[PATH_MAX];
 
-    if (!path)
-        return FALSE;
-
-    contents = NULL;
-    lines = NULL;
-    error = NULL;
+    char* contents = NULL;
+    char** lines = NULL;
+    GError* error = NULL;
 
     char* mtab_path = g_build_filename(SYSCONFDIR, "mtab", NULL);
 
@@ -2348,6 +2290,7 @@ bool path_is_mounted_mtab(const char* mtab_file, const char* path, char** device
     }
     g_free(mtab_path);
     lines = g_strsplit(contents, "\n", 0);
+    unsigned int n;
     for (n = 0; lines[n] != NULL; n++)
     {
         if (lines[n][0] == '\0')
@@ -2359,7 +2302,7 @@ bool path_is_mounted_mtab(const char* mtab_file, const char* path, char** device
             continue;
         }
 
-        point = g_strcompress(encoded_point);
+        char* point = g_strcompress(encoded_point);
         if (!g_strcmp0(point, path))
         {
             if (device_file)
@@ -2378,8 +2321,6 @@ bool path_is_mounted_mtab(const char* mtab_file, const char* path, char** device
 
 bool mtab_fstype_is_handled_by_protocol(const char* mtab_fstype)
 {
-    int i;
-    XSet* set;
     bool found = FALSE;
     const char* handlers_list;
     if (mtab_fstype && mtab_fstype[0] && (handlers_list = xset_get_s("dev_net_cnf")))
@@ -2392,6 +2333,8 @@ bool mtab_fstype_is_handled_by_protocol(const char* mtab_fstype)
         if (handlers)
         {
             // test handlers
+            XSet* set;
+            int i;
             for (i = 0; handlers[i]; i++)
             {
                 if (!handlers[i][0] || !(set = xset_is(handlers[i])) ||
@@ -2575,7 +2518,6 @@ VFSVolume* vfs_volume_read_by_mount(dev_t devnum, const char* mount_points)
 { // read a non-block device
     VFSVolume* volume;
     char* str;
-    int i;
     netmount_t* netmount = NULL;
 
     if (devnum == 0 || !mount_points)
@@ -2595,7 +2537,7 @@ VFSVolume* vfs_volume_read_by_mount(dev_t devnum, const char* mount_points)
     if (!(path_is_mounted_mtab(NULL, point, &name, &mtab_fstype) && name && name[0] != '\0'))
         return NULL;
 
-    i = split_network_url(name, &netmount);
+    int i = split_network_url(name, &netmount);
     if (i == 1)
     {
         // network URL
@@ -3090,7 +3032,6 @@ char* vfs_volume_handler_cmd(int mode, int action, VFSVolume* vol, const char* o
 
 bool vfs_volume_is_automount(VFSVolume* vol)
 { // determine if volume should be automounted or auto-unmounted
-    int i, j;
     char* test;
     char* value;
 
@@ -3102,8 +3043,10 @@ bool vfs_volume_is_automount(VFSVolume* vol)
         return FALSE;
 
     char* showhidelist = g_strdup_printf(" %s ", xset_get_s("dev_automount_volumes"));
+    int i;
     for (i = 0; i < 3; i++)
     {
+        int j;
         for (j = 0; j < 2; j++)
         {
             if (i == 0)
@@ -3467,7 +3410,6 @@ void vfs_volume_exec(VFSVolume* vol, const char* command)
 void vfs_volume_autoexec(VFSVolume* vol)
 {
     char* command = NULL;
-    char* path;
 
     // Note: audiocd is is_mountable
     if (!vol->is_mountable || global_inhibit_auto || vol->device_type != DEVICE_TYPE_BLOCK ||
@@ -3488,7 +3430,7 @@ void vfs_volume_autoexec(VFSVolume* vol)
         }
         else
         {
-            path = g_build_filename(vol->mount_point, "VIDEO_TS", NULL);
+            char* path = g_build_filename(vol->mount_point, "VIDEO_TS", NULL);
             if (vol->is_dvd && g_file_test(path, G_FILE_TEST_IS_DIR))
                 command = xset_get_s("dev_exec_video");
             else
@@ -3579,22 +3521,21 @@ void vfs_volume_automount(VFSVolume* vol)
 
 static void vfs_volume_device_added(VFSVolume* volume, bool automount)
 { // frees volume if needed
-    GList* l;
-    bool was_mounted, was_audiocd, was_mountable;
     char* changed_mount_point = NULL;
 
     if (!volume || !volume->udi || !volume->device_file)
         return;
 
     // check if we already have this volume device file
+    GList* l;
     for (l = volumes; l; l = l->next)
     {
         if (((VFSVolume*)l->data)->devnum == volume->devnum)
         {
             // update existing volume
-            was_mounted = ((VFSVolume*)l->data)->is_mounted;
-            was_audiocd = ((VFSVolume*)l->data)->is_audiocd;
-            was_mountable = ((VFSVolume*)l->data)->is_mountable;
+            bool was_mounted = ((VFSVolume*)l->data)->is_mounted;
+            bool was_audiocd = ((VFSVolume*)l->data)->is_audiocd;
+            bool was_mountable = ((VFSVolume*)l->data)->is_mountable;
 
             // detect changed mount point
             if (!was_mounted && volume->is_mounted)
@@ -3725,14 +3666,13 @@ static bool vfs_volume_nonblock_removed(dev_t devnum)
 
 static void vfs_volume_device_removed(struct udev_device* udevice)
 {
-    GList* l;
-    VFSVolume* volume;
-
     if (!udevice)
         return;
 
     dev_t devnum = udev_device_get_devnum(udevice);
 
+    GList* l;
+    VFSVolume* volume;
     for (l = volumes; l; l = l->next)
     {
         if (((VFSVolume*)l->data)->device_type == DEVICE_TYPE_BLOCK &&
@@ -3965,9 +3905,6 @@ const GList* vfs_volume_get_all_volumes()
 
 VFSVolume* vfs_volume_get_by_device_or_point(const char* device_file, const char* point)
 {
-    VFSVolume* vol;
-    GList* l;
-
     if (!point && !device_file)
         return NULL;
 
@@ -3983,9 +3920,10 @@ VFSVolume* vfs_volume_get_by_device_or_point(const char* device_file, const char
 
     if (G_LIKELY(volumes))
     {
+        GList* l;
         for (l = volumes; l; l = l->next)
         {
-            vol = (VFSVolume*)l->data;
+            VFSVolume* vol = (VFSVolume*)l->data;
             if (device_file && !strcmp(device_file, vol->device_file))
                 return vol;
             if (point && vol->is_mounted && vol->mount_point)
@@ -4000,12 +3938,10 @@ VFSVolume* vfs_volume_get_by_device_or_point(const char* device_file, const char
 
 static void call_callbacks(VFSVolume* vol, VFSVolumeState state)
 {
-    int i;
-    VFSVolumeCallbackData* e;
-
     if (callbacks)
     {
-        e = (VFSVolumeCallbackData*)callbacks->data;
+        VFSVolumeCallbackData* e = (VFSVolumeCallbackData*)callbacks->data;
+        int i;
         for (i = 0; i < callbacks->len; ++i)
             (*e[i].cb)(vol, state, e[i].user_data);
     }
@@ -4018,12 +3954,13 @@ static void call_callbacks(VFSVolume* vol, VFSVolumeState state)
 
 void vfs_volume_add_callback(VFSVolumeCallback cb, void* user_data)
 {
-    VFSVolumeCallbackData e;
     if (!cb)
         return;
 
     if (!callbacks)
         callbacks = g_array_sized_new(FALSE, FALSE, sizeof(VFSVolumeCallbackData), 8);
+
+    VFSVolumeCallbackData e;
     e.cb = cb;
     e.user_data = user_data;
     callbacks = g_array_append_val(callbacks, e);
@@ -4031,13 +3968,11 @@ void vfs_volume_add_callback(VFSVolumeCallback cb, void* user_data)
 
 void vfs_volume_remove_callback(VFSVolumeCallback cb, void* user_data)
 {
-    int i;
-    VFSVolumeCallbackData* e;
-
     if (!callbacks)
         return;
 
-    e = (VFSVolumeCallbackData*)callbacks->data;
+    VFSVolumeCallbackData* e = (VFSVolumeCallbackData*)callbacks->data;
+    int i;
     for (i = 0; i < callbacks->len; ++i)
     {
         if (e[i].cb == cb && e[i].user_data == user_data)

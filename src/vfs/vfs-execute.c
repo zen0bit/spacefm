@@ -115,19 +115,16 @@ bool vfs_exec_on_screen(GdkScreen* screen, const char* work_dir, char** argv, ch
     SnDisplay* display;
     int startup_id_index = -1;
 #endif
-    bool ret;
     extern char** environ;
-    char** new_env = envp;
-    int i, n_env = 0;
-    char* display_name;
     int display_index = -1;
 
     if (!envp)
         envp = environ;
 
-    n_env = g_strv_length(envp);
+    int n_env = g_strv_length(envp);
 
-    new_env = g_new0(char*, n_env + 4);
+    char** new_env = g_new0(char*, n_env + 4);
+    int i;
     for (i = 0; i < n_env; ++i)
     {
         /* g_debug( "old envp[%d] = \"%s\"" , i, envp[i]); */
@@ -187,7 +184,7 @@ bool vfs_exec_on_screen(GdkScreen* screen, const char* work_dir, char** argv, ch
 #endif
 
     /* This is taken from gdk_spawn_on_screen */
-    display_name = gdk_screen_make_display_name(screen);
+    char* display_name = gdk_screen_make_display_name(screen);
     if (display_index >= 0)
         new_env[display_index] = g_strconcat("DISPLAY=", display_name, NULL);
     else
@@ -196,7 +193,7 @@ bool vfs_exec_on_screen(GdkScreen* screen, const char* work_dir, char** argv, ch
     g_free(display_name);
     new_env[i] = NULL;
 
-    ret = g_spawn_async(work_dir, argv, new_env, flags, NULL, NULL, NULL, err);
+    bool ret = g_spawn_async(work_dir, argv, new_env, flags, NULL, NULL, NULL, err);
 
     /* for debugging */
 #if 0
