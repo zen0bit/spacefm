@@ -208,9 +208,9 @@ g_cclosure_marshal_VOID__POINTER_POINTER(GClosure* closure, GValue* return_value
                                          unsigned int n_param_values, const GValue* param_values,
                                          void* invocation_hint G_GNUC_UNUSED, void* marshal_data)
 {
-    register GCClosure* cc = (GCClosure*)closure;
-    register void* data1;
-    register void* data2;
+    GCClosure* cc = (GCClosure*)closure;
+    void* data1;
+    void* data2;
 
     g_return_if_fail(n_param_values == 3);
 
@@ -228,7 +228,7 @@ g_cclosure_marshal_VOID__POINTER_POINTER(GClosure* closure, GValue* return_value
     typedef void (
         *GMarshalFunc_VOID__POINTER_POINTER)(void* data1, void* arg_1, void* arg_2, void* data2);
 
-    register GMarshalFunc_VOID__POINTER_POINTER callback =
+    GMarshalFunc_VOID__POINTER_POINTER callback =
         (GMarshalFunc_VOID__POINTER_POINTER)(marshal_data ? marshal_data : cc->callback);
 
     callback(data1,
@@ -244,10 +244,10 @@ static void g_cclosure_marshal_VOID__POINTER_INT(GClosure* closure, GValue* retu
 {
     typedef void (
         *GMarshalFunc_VOID__POINTER_INT)(void* data1, void* arg_1, int arg_2, void* data2);
-    register GMarshalFunc_VOID__POINTER_INT callback;
-    register GCClosure* cc = (GCClosure*)closure;
-    register void* data1;
-    register void* data2;
+    GMarshalFunc_VOID__POINTER_INT callback;
+    GCClosure* cc = (GCClosure*)closure;
+    void* data1;
+    void* data2;
 
     g_return_if_fail(n_param_values == 3);
 

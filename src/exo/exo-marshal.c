@@ -55,10 +55,10 @@ void _exo_marshal_BOOLEAN__VOID(GClosure* closure, GValue* return_value,
                                 void* invocation_hint, void* marshal_data)
 {
     typedef bool (*GMarshalFunc_BOOLEAN__VOID)(void* data1, void* data2);
-    register GMarshalFunc_BOOLEAN__VOID callback;
-    register GCClosure* cc = (GCClosure*)closure;
-    register void* data1;
-    register void* data2;
+    GMarshalFunc_BOOLEAN__VOID callback;
+    GCClosure* cc = (GCClosure*)closure;
+    void* data1;
+    void* data2;
     bool v_return;
 
     g_return_if_fail(return_value != NULL);
