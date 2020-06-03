@@ -313,7 +313,7 @@ static GList* vfs_dir_find_file(VFSDir* dir, const char* file_name, VFSFileInfo*
         file2 = (VFSFileInfo*)l->data;
         if (G_UNLIKELY(file == file2))
             return l;
-        if (file2->name && 0 == strcmp(file2->name, file_name))
+        if (file2->name && !strcmp(file2->name, file_name))
         {
             return l;
         }
@@ -328,7 +328,7 @@ void vfs_dir_emit_file_created(VFSDir* dir, const char* file_name, bool force)
     // if ( !force && dir->avoid_changes )
     //    return;
 
-    if (G_UNLIKELY(0 == strcmp(file_name, dir->path)))
+    if (G_UNLIKELY(!strcmp(file_name, dir->path)))
     {
         // Special Case: The directory itself was created?
         return;
@@ -347,7 +347,7 @@ void vfs_dir_emit_file_deleted(VFSDir* dir, const char* file_name, VFSFileInfo* 
     GList* l;
     VFSFileInfo* file_found;
 
-    if (G_UNLIKELY(0 == strcmp(file_name, dir->path)))
+    if (G_UNLIKELY(!strcmp(file_name, dir->path)))
     {
         /* Special Case: The directory itself was deleted... */
         file = NULL;
@@ -389,7 +389,7 @@ void vfs_dir_emit_file_changed(VFSDir* dir, const char* file_name, VFSFileInfo* 
     if (!force && dir->avoid_changes)
         return;
 
-    if (G_UNLIKELY(0 == strcmp(file_name, dir->path)))
+    if (G_UNLIKELY(!strcmp(file_name, dir->path)))
     {
         // Special Case: The directory itself was changed
         g_signal_emit(dir, signals[FILE_CHANGED_SIGNAL], 0, NULL);
@@ -596,9 +596,9 @@ void vfs_dir_load(VFSDir* dir)
 
         /* FIXME: We should check access here! */
 
-        if (G_UNLIKELY(strcmp(dir->path, vfs_get_desktop_dir()) == 0))
+        if (G_UNLIKELY(!strcmp(dir->path, vfs_get_desktop_dir())))
             dir->is_desktop = TRUE;
-        else if (G_UNLIKELY(strcmp(dir->path, g_get_home_dir()) == 0))
+        else if (G_UNLIKELY(!strcmp(dir->path, g_get_home_dir())))
             dir->is_home = TRUE;
         if (G_UNLIKELY(is_dir_mount_point(dir->path)))
             dir->is_mount_point = TRUE;

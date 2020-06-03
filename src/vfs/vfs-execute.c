@@ -131,7 +131,7 @@ bool vfs_exec_on_screen(GdkScreen* screen, const char* work_dir, char** argv, ch
     for (i = 0; i < n_env; ++i)
     {
         /* g_debug( "old envp[%d] = \"%s\"" , i, envp[i]); */
-        if (0 == strncmp(envp[i], "DISPLAY=", 8))
+        if (!strncmp(envp[i], "DISPLAY=", 8))
             display_index = i;
         else
         {

@@ -593,7 +593,7 @@ bool _exo_icon_chooser_model_get_iter_for_icon_name(ExoIconChooserModel* model, 
 
         /* compare this item's icon name */
         item = (ExoIconChooserModelItem*)lp->data;
-        if (strcmp(icon_name, item->icon_name) == 0)
+        if (!strcmp(icon_name, item->icon_name))
             found = TRUE;
 
         /* look in the alternative names */
@@ -602,7 +602,7 @@ bool _exo_icon_chooser_model_get_iter_for_icon_name(ExoIconChooserModel* model, 
             for (i = 0; !found && i < item->other_names->len; ++i)
             {
                 other_name = g_ptr_array_index(item->other_names, i);
-                if (strcmp(icon_name, other_name) == 0)
+                if (!strcmp(icon_name, other_name))
                     found = TRUE;
             }
         }

@@ -755,7 +755,7 @@ static PtkDirTreeNode* find_node(PtkDirTreeNode* parent, const char* name)
     PtkDirTreeNode* child;
     for (child = parent->children; child; child = child->next)
     {
-        if (G_LIKELY(child->file) && 0 == strcmp(vfs_file_info_get_name(child->file), name))
+        if (G_LIKELY(child->file) && !strcmp(vfs_file_info_get_name(child->file), name))
         {
             return child;
         }

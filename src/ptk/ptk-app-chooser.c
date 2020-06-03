@@ -214,8 +214,8 @@ GtkWidget* app_chooser_dialog_new(GtkWindow* parent, VFSMimeType* mime_type, boo
     }
     /* Don't set default handler for directories and files with unknown type */
     if (!show_default ||
-        /*  0 == strcmp( vfs_mime_type_get_type( mime_type ), XDG_MIME_TYPE_UNKNOWN ) || */
-        (0 == strcmp(vfs_mime_type_get_type(mime_type), XDG_MIME_TYPE_DIRECTORY) && !dir_default))
+        /*  !strcmp( vfs_mime_type_get_type( mime_type ), XDG_MIME_TYPE_UNKNOWN ) || */
+        (!strcmp(vfs_mime_type_get_type(mime_type), XDG_MIME_TYPE_DIRECTORY) && !dir_default))
     {
         gtk_widget_hide((GtkWidget*)gtk_builder_get_object(builder, "set_default"));
     }

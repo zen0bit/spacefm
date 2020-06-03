@@ -548,7 +548,7 @@ bool fm_edit_preference(GtkWindow* parent, int page)
         {
             for (i = 0; i < G_N_ELEMENTS(terminal_programs); ++i)
             {
-                if (0 == strcmp(terminal_programs[i], terminal))
+                if (!strcmp(terminal_programs[i], terminal))
                     break;
             }
             if (i >= G_N_ELEMENTS(terminal_programs))
@@ -690,7 +690,7 @@ bool fm_edit_preference(GtkWindow* parent, int page)
         {
             for (i = 0; i < G_N_ELEMENTS(date_formats); ++i)
             {
-                if (0 == strcmp(date_formats[i], date_s))
+                if (!strcmp(date_formats[i], date_s))
                     break;
             }
             if (i >= G_N_ELEMENTS(date_formats))

@@ -272,7 +272,7 @@ static void on_combo_change(GtkComboBox* combo, void* user_data)
                         gtk_tree_model_get(model, &it, 2, &tmp, -1);
                         if (!tmp)
                             continue;
-                        if (0 == strcmp(tmp, action))
+                        if (!strcmp(tmp, action))
                         {
                             exist = TRUE;
                             g_free(tmp);

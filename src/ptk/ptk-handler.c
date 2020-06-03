@@ -1551,7 +1551,7 @@ static void on_configure_drag_end(GtkWidget* widget, GdkDragContext* drag_contex
         gtk_tree_model_get(GTK_TREE_MODEL(hnd->list), &iter, COL_XSET_NAME, &xset_name, -1);
 
         archive_handlers_temp = archive_handlers;
-        if (g_strcmp0(archive_handlers, "") == 0)
+        if (!g_strcmp0(archive_handlers, ""))
         {
             archive_handlers = g_strdup(xset_name);
         }
@@ -1852,7 +1852,7 @@ static void on_configure_button_press(GtkButton* widget, HandlerData* hnd)
                     //                        archive_handlers[i], xset_name);
 
                     new_archive_handlers_s_temp = new_archive_handlers_s;
-                    if (g_strcmp0(new_archive_handlers_s, "") == 0)
+                    if (!g_strcmp0(new_archive_handlers_s, ""))
                     {
                         new_archive_handlers_s = g_strdup(archive_handlers[i]);
                     }
@@ -1876,7 +1876,7 @@ static void on_configure_button_press(GtkButton* widget, HandlerData* hnd)
         // Removing handler from the list
         gtk_list_store_remove(GTK_LIST_STORE(model), &it);
 
-        if (g_strcmp0(new_archive_handlers_s, "") == 0)
+        if (!g_strcmp0(new_archive_handlers_s, ""))
         {
             /* Making remove and apply buttons insensitive if the last
              * handler has been removed */

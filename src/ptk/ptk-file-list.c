@@ -420,7 +420,7 @@ void ptk_file_list_get_value(GtkTreeModel* tree_model, GtkTreeIter* iter, int co
         case COL_FILE_SIZE:
             if (S_ISDIR(info->mode) ||
                 (S_ISLNK(info->mode) &&
-                 0 == strcmp(vfs_mime_type_get_type(info->mime_type), XDG_MIME_TYPE_DIRECTORY)))
+                 !strcmp(vfs_mime_type_get_type(info->mime_type), XDG_MIME_TYPE_DIRECTORY)))
                 g_value_set_string(value, NULL);
             else
                 g_value_set_string(value, vfs_file_info_get_disp_size(info));
@@ -704,7 +704,7 @@ bool ptk_file_list_find_iter(PtkFileList* list, GtkTreeIter* it, VFSFileInfo* fi
     {
         VFSFileInfo* fi2 = (VFSFileInfo*)l->data;
         if (G_UNLIKELY(fi2 == fi ||
-                       0 == strcmp(vfs_file_info_get_name(fi), vfs_file_info_get_name(fi2))))
+                       !strcmp(vfs_file_info_get_name(fi), vfs_file_info_get_name(fi2))))
         {
             it->stamp = list->stamp;
             it->user_data = l;

@@ -380,10 +380,10 @@ bool info_is_system_internal(device_t* device)
     /* devices on certain buses are never system internal */
     if (device->drive_connection_interface != NULL)
     {
-        if (strcmp(device->drive_connection_interface, "ata_serial_esata") == 0 ||
-            strcmp(device->drive_connection_interface, "sdio") == 0 ||
-            strcmp(device->drive_connection_interface, "usb") == 0 ||
-            strcmp(device->drive_connection_interface, "firewire") == 0)
+        if (!strcmp(device->drive_connection_interface, "ata_serial_esata") ||
+            !strcmp(device->drive_connection_interface, "sdio") ||
+            !strcmp(device->drive_connection_interface, "usb") ||
+            !strcmp(device->drive_connection_interface, "firewire"))
             return FALSE;
     }
     return TRUE;
@@ -416,7 +416,7 @@ void info_drive_connection(device_t* device)
             subsystem = g_path_get_basename(p);
             g_free(p);
 
-            if (strcmp(subsystem, "scsi") == 0)
+            if (!strcmp(subsystem, "scsi"))
             {
                 connection_interface = "scsi";
                 connection_speed = 0;
@@ -455,13 +455,13 @@ void info_drive_connection(device_t* device)
                  *       information before we can properly get the type and speed.
                  */
 
-                if (device->drive_vendor != NULL && strcmp(device->drive_vendor, "ATA") == 0)
+                if (device->drive_vendor != NULL && !strcmp(device->drive_vendor, "ATA"))
                 {
                     connection_interface = "ata";
                     break;
                 }
             }
-            else if (strcmp(subsystem, "usb") == 0)
+            else if (!strcmp(subsystem, "usb"))
             {
                 double usb_speed;
 
@@ -476,7 +476,7 @@ void info_drive_connection(device_t* device)
                     break;
                 }
             }
-            else if (strcmp(subsystem, "firewire") == 0 || strcmp(subsystem, "ieee1394") == 0)
+            else if (!strcmp(subsystem, "firewire") || !strcmp(subsystem, "ieee1394"))
             {
                 /* TODO: krh has promised a speed file in sysfs; theoretically, the speed can
                  *       be anything from 100, 200, 400, 800 and 3200. Till then we just hardcode
@@ -487,7 +487,7 @@ void info_drive_connection(device_t* device)
                 connection_speed = 400 * (1000 * 1000);
                 break;
             }
-            else if (strcmp(subsystem, "mmc") == 0)
+            else if (!strcmp(subsystem, "mmc"))
             {
                 /* TODO: what about non-SD, e.g. MMC? Is that another bus? */
                 connection_interface = "sdio";
@@ -545,7 +545,7 @@ void info_drive_connection(device_t* device)
                 /* TODO: interface speed; the kernel driver knows; would be nice
                  * if it could export it */
             }
-            else if (strcmp(subsystem, "platform") == 0)
+            else if (!strcmp(subsystem, "platform"))
             {
                 const char* sysfs_name;
 
@@ -567,7 +567,7 @@ void info_drive_connection(device_t* device)
         *p = '\0';
 
         /* but stop at the root */
-        if (strcmp(s, "/sys/devices") == 0)
+        if (!strcmp(s, "/sys/devices"))
             break;
 
     } while (TRUE);
@@ -756,21 +756,21 @@ void info_drive_properties(device_t* device)
     }
     /* special handling for SDIO since we don't yet have a sdio_id helper in udev to set properties
      */
-    if (g_strcmp0(device->drive_connection_interface, "sdio") == 0)
+    if (!g_strcmp0(device->drive_connection_interface, "sdio"))
     {
         char* type;
 
         type = sysfs_get_string(device->native_path, "../../type");
         g_strstrip(type);
-        if (g_strcmp0(type, "MMC") == 0)
+        if (!g_strcmp0(type, "MMC"))
         {
             g_ptr_array_add(media_compat_array, "flash_mmc");
         }
-        else if (g_strcmp0(type, "SD") == 0)
+        else if (!g_strcmp0(type, "SD"))
         {
             g_ptr_array_add(media_compat_array, "flash_sd");
         }
-        else if (g_strcmp0(type, "SDHC") == 0)
+        else if (!g_strcmp0(type, "SDHC"))
         {
             g_ptr_array_add(media_compat_array, "flash_sdhc");
         }
@@ -806,7 +806,7 @@ void info_drive_properties(device_t* device)
     // drive_can_detach
     // right now, we only offer to detach USB devices
     drive_can_detach = FALSE;
-    if (g_strcmp0(device->drive_connection_interface, "usb") == 0)
+    if (!g_strcmp0(device->drive_connection_interface, "usb"))
     {
         drive_can_detach = TRUE;
     }
@@ -856,7 +856,7 @@ void info_device_properties(device_t* device)
     partition_scheme = udev_device_get_property_value(device->udevice, "UDISKS_PARTITION_SCHEME");
     if ((value = udev_device_get_property_value(device->udevice, "UDISKS_PARTITION_TYPE")))
         partition_type = atoi(value);
-    if (g_strcmp0(partition_scheme, "mbr") == 0 &&
+    if (!g_strcmp0(partition_scheme, "mbr") &&
         (partition_type == 0x05 || partition_type == 0x0f || partition_type == 0x85))
     {
     }
@@ -1273,10 +1273,10 @@ void info_optical_disc(device_t* device)
         device->optical_disc_num_sessions = g_strdup(udev_device_get_property_value(device->udevice, "ID_CDROM_MEDIA_SESSION_COUNT"));
 
         cdrom_disc_state = udev_device_get_property_value(device->udevice, "ID_CDROM_MEDIA_STATE");
-        
-        device->optical_disc_is_blank = (g_strcmp0(cdrom_disc_state, "blank") == 0);
-        device->optical_disc_is_appendable = (g_strcmp0(cdrom_disc_state, "appendable") == 0);
-        device->optical_disc_is_closed = (g_strcmp0(cdrom_disc_state, "complete") == 0);
+
+        device->optical_disc_is_blank = (!g_strcmp0(cdrom_disc_state, "blank"));
+        device->optical_disc_is_appendable = (!g_strcmp0(cdrom_disc_state, "appendable"));
+        device->optical_disc_is_closed = (!g_strcmp0(cdrom_disc_state, "complete"));
         // clang-format on
     }
     else

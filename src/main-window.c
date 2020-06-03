@@ -6953,7 +6953,7 @@ char main_window_socket_command(char* argv[], char** reply)
                 gtk_selection_data_free(sel_data);
                 return 0;
             }
-            if (0 == strncmp((char*)gtk_selection_data_get_data(sel_data), "cut", 3))
+            if (!strncmp((char*)gtk_selection_data_get_data(sel_data), "cut", 3))
             {
                 if (!strcmp(argv[i], "clipboard_copy_files"))
                 {

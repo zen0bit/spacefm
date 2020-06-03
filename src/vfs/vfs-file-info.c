@@ -622,7 +622,7 @@ bool vfs_file_info_is_dir(VFSFileInfo* fi)
     if (S_ISDIR(fi->mode))
         return TRUE;
     if (S_ISLNK(fi->mode) &&
-        0 == strcmp(vfs_mime_type_get_type(fi->mime_type), XDG_MIME_TYPE_DIRECTORY))
+        !strcmp(vfs_mime_type_get_type(fi->mime_type), XDG_MIME_TYPE_DIRECTORY))
     {
         return TRUE;
     }

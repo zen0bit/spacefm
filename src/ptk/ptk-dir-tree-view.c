@@ -250,7 +250,7 @@ bool ptk_dir_tree_view_chdir(GtkTreeView* dir_tree_view, const char* path)
             gtk_tree_model_get(model, &it, COL_DIR_TREE_INFO, &info, -1);
             if (!info)
                 continue;
-            if (0 == strcmp(vfs_file_info_get_name(info), *dir))
+            if (!strcmp(vfs_file_info_get_name(info), *dir))
             {
                 tree_path = gtk_tree_model_get_path(model, &it);
 

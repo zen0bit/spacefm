@@ -208,41 +208,41 @@ static void parse_general_settings(char* line)
     name = line;
     value = sep + 1;
     *sep = '\0';
-    if (0 == strcmp(name, "show_thumbnail"))
+    if (!strcmp(name, "show_thumbnail"))
         app_settings.show_thumbnail = atoi(value);
-    else if (0 == strcmp(name, "max_thumb_size"))
+    else if (!strcmp(name, "max_thumb_size"))
         app_settings.max_thumb_size = atoi(value) << 10;
-    else if (0 == strcmp(name, "big_icon_size"))
+    else if (!strcmp(name, "big_icon_size"))
     {
         app_settings.big_icon_size = atoi(value);
         if (app_settings.big_icon_size <= 0 || app_settings.big_icon_size > max_icon_size)
             app_settings.big_icon_size = big_icon_size_default;
     }
-    else if (0 == strcmp(name, "small_icon_size"))
+    else if (!strcmp(name, "small_icon_size"))
     {
         app_settings.small_icon_size = atoi(value);
         if (app_settings.small_icon_size <= 0 || app_settings.small_icon_size > max_icon_size)
             app_settings.small_icon_size = small_icon_size_default;
     }
-    else if (0 == strcmp(name, "tool_icon_size"))
+    else if (!strcmp(name, "tool_icon_size"))
     {
         app_settings.tool_icon_size = atoi(value);
         if (app_settings.tool_icon_size < 0 || app_settings.tool_icon_size > GTK_ICON_SIZE_DIALOG)
             app_settings.tool_icon_size = tool_icon_size_default;
     }
-    else if (0 == strcmp(name, "single_click"))
+    else if (!strcmp(name, "single_click"))
         app_settings.single_click = atoi(value);
-    else if (0 == strcmp(name, "no_single_hover"))
+    else if (!strcmp(name, "no_single_hover"))
         app_settings.no_single_hover = atoi(value);
-    else if (0 == strcmp(name, "sort_order"))
+    else if (!strcmp(name, "sort_order"))
         app_settings.sort_order = atoi(value);
-    else if (0 == strcmp(name, "sort_type"))
+    else if (!strcmp(name, "sort_type"))
         app_settings.sort_type = atoi(value);
-    else if (0 == strcmp(name, "use_si_prefix"))
+    else if (!strcmp(name, "use_si_prefix"))
         app_settings.use_si_prefix = atoi(value);
-    else if (0 == strcmp(name, "no_execute"))
+    else if (!strcmp(name, "no_execute"))
         app_settings.no_execute = atoi(value); // MOD
-    else if (0 == strcmp(name, "no_confirm"))
+    else if (!strcmp(name, "no_confirm"))
         app_settings.no_confirm = atoi(value); // MOD
 }
 
@@ -257,17 +257,17 @@ static void parse_window_state(char* line)
     name = line;
     value = sep + 1;
     *sep = '\0';
-    if (0 == strcmp(name, "width"))
+    if (!strcmp(name, "width"))
     {
         v = atoi(value);
         app_settings.width = (v > 0 ? v : 640);
     }
-    if (0 == strcmp(name, "height"))
+    if (!strcmp(name, "height"))
     {
         v = atoi(value);
         app_settings.height = (v > 0 ? v : 480);
     }
-    if (0 == strcmp(name, "maximized"))
+    if (!strcmp(name, "maximized"))
     {
         app_settings.maximized = atoi(value);
     }
@@ -283,9 +283,9 @@ static void parse_interface_settings(char* line)
     name = line;
     value = sep + 1;
     *sep = '\0';
-    if (0 == strcmp(name, "always_show_tabs"))
+    if (!strcmp(name, "always_show_tabs"))
         app_settings.always_show_tabs = atoi(value);
-    else if (0 == strcmp(name, "show_close_tab_buttons"))
+    else if (!strcmp(name, "show_close_tab_buttons"))
         app_settings.hide_close_tab_buttons = !atoi(value);
 }
 
@@ -505,13 +505,13 @@ void load_settings(char* config_dir, bool git_settings)
             if (line[0] == '[')
             {
                 strtok(line, "]");
-                if (0 == strcmp(line + 1, "General"))
+                if (!strcmp(line + 1, "General"))
                     func = &parse_general_settings;
-                else if (0 == strcmp(line + 1, "Window"))
+                else if (!strcmp(line + 1, "Window"))
                     func = &parse_window_state;
-                else if (0 == strcmp(line + 1, "Interface"))
+                else if (!strcmp(line + 1, "Interface"))
                     func = &parse_interface_settings;
-                else if (0 == strcmp(line + 1, "MOD")) // MOD
+                else if (!strcmp(line + 1, "MOD")) // MOD
                     func = &xset_parse;
                 else
                     func = NULL;
@@ -3185,7 +3185,7 @@ XSet* xset_import_plugin(const char* plug_dir, int* use)
         if (line[0] == '[')
         {
             section_name = strtok(line, "]");
-            if (0 == strcmp(line + 1, "Plugin"))
+            if (!strcmp(line + 1, "Plugin"))
                 func = TRUE;
             else
                 func = FALSE;

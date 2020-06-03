@@ -115,7 +115,7 @@ static int strv_index(char** strv, const char* str)
     {
         for (p = strv; *p; ++p)
         {
-            if (0 == strcmp(*p, str))
+            if (!strcmp(*p, str))
                 return (p - strv);
         }
     }
@@ -356,7 +356,7 @@ bool mime_type_has_action(const char* type, const char* desktop_id)
         for (action = actions; !found && *action; ++action)
         {
             /* Try to match directly by desktop_id first */
-            if (is_desktop && 0 == strcmp(*action, desktop_id))
+            if (is_desktop && !strcmp(*action, desktop_id))
             {
                 found = TRUE;
             }
@@ -368,14 +368,13 @@ bool mime_type_has_action(const char* type, const char* desktop_id)
                 if (filename && g_key_file_load_from_file(kf, filename, 0, NULL))
                 {
                     cmd2 = g_key_file_get_string(kf, group_desktop, "Exec", NULL);
-                    if (cmd && cmd2 &&
-                        0 == strcmp(cmd, cmd2)) /* 2 desktop files have same "Exec" */
+                    if (cmd && cmd2 && !strcmp(cmd, cmd2)) /* 2 desktop files have same "Exec" */
                     {
                         if (is_desktop)
                         {
                             name2 = g_key_file_get_string(kf, group_desktop, "Name", NULL);
                             /* Then, check if the "Name" keys of 2 desktop files are the same. */
-                            if (name && name2 && 0 == strcmp(name, name2))
+                            if (name && name2 && !strcmp(name, name2))
                             {
                                 /* Both "Exec" and "Name" keys of the 2 desktop files are
                                  *  totally the same. So, despite having different desktop id

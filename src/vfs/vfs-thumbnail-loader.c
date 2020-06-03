@@ -267,7 +267,7 @@ void vfs_thumbnail_loader_request(VFSDir* dir, VFSFileInfo* file, bool is_big)
     {
         req = (ThumbnailRequest*)l->data;
         /* If file with the same name is already in our queue */
-        if (req->file == file || 0 == strcmp(req->file->name, file->name))
+        if (req->file == file || !strcmp(req->file->name, file->name))
             break;
     }
     if (l)
@@ -361,7 +361,7 @@ static GdkPixbuf* _vfs_thumbnail_load(const char* file_path, const char* uri, in
     VFSMimeType* mimetype = vfs_mime_type_get_from_file_name(file_path);
     if (mimetype)
     {
-        if (strncmp(vfs_mime_type_get_type(mimetype), "video/", 6) == 0)
+        if (!strncmp(vfs_mime_type_get_type(mimetype), "video/", 6))
             file_is_video = TRUE;
         vfs_mime_type_unref(mimetype);
     }

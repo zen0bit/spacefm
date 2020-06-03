@@ -274,7 +274,7 @@ void ptk_clipboard_paste_files(GtkWindow* parent_win, const char* dest_dir, GtkT
         }
 
         uri_list_str = (char*)gtk_selection_data_get_data(sel_data);
-        if (0 == strncmp((char*)gtk_selection_data_get_data(sel_data), "cut", 3))
+        if (!strncmp((char*)gtk_selection_data_get_data(sel_data), "cut", 3))
             action = VFS_FILE_TASK_MOVE;
         else
             action = VFS_FILE_TASK_COPY;
@@ -555,7 +555,7 @@ GList* ptk_clipboard_get_file_paths(const char* cwd, bool* is_cut, int* missing_
         }
 
         uri_list_str = (char*)gtk_selection_data_get_data(sel_data);
-        *is_cut = (0 == strncmp((char*)gtk_selection_data_get_data(sel_data), "cut", 3));
+        *is_cut = (!strncmp((char*)gtk_selection_data_get_data(sel_data), "cut", 3));
 
         if (uri_list_str)
         {

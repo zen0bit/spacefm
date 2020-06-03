@@ -230,7 +230,7 @@ GdkPixbuf* vfs_mime_type_get_icon(VFSMimeType* mime_type, bool big)
 
     icon_theme = gtk_icon_theme_get_default();
 
-    if (G_UNLIKELY(0 == strcmp(mime_type->type, XDG_MIME_TYPE_DIRECTORY)))
+    if (G_UNLIKELY(!strcmp(mime_type->type, XDG_MIME_TYPE_DIRECTORY)))
     {
         icon = vfs_load_icon(icon_theme, "gtk-directory", size);
         if (G_UNLIKELY(!icon))
@@ -427,7 +427,7 @@ char** vfs_mime_type_join_actions(char** list1, unsigned long len1, char** list2
     {
         for (i = 0; i < len1; ++i)
         {
-            if (0 == strcmp(ret[i], list2[j]))
+            if (!strcmp(ret[i], list2[j]))
                 break;
         }
         if (i >= len1)

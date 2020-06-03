@@ -641,7 +641,7 @@ bool mime_type_is_subclass(const char* type, const char* parent)
     const char** p;
 
     /* special case, the type specified is identical to the parent type. */
-    if (G_UNLIKELY(0 == strcmp(type, parent)))
+    if (G_UNLIKELY(!strcmp(type, parent)))
         return TRUE;
 
     for (i = 0; i < n_caches; ++i)
@@ -651,7 +651,7 @@ bool mime_type_is_subclass(const char* type, const char* parent)
         {
             for (p = parents; *p; ++p)
             {
-                if (0 == strcmp(parent, *p))
+                if (!strcmp(parent, *p))
                     return TRUE;
             }
         }
