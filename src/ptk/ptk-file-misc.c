@@ -1266,7 +1266,7 @@ void on_opt_toggled(GtkMenuItem* item, MoveSet* mset)
             desc = C_("Title|CreateNew|", "File");
         else if (new_folder)
             desc = C_("Title|CreateNew|", "Directory");
-        else
+        else if (new_link)
             desc = C_("Title|CreateNew|", "Link");
     }
     else
