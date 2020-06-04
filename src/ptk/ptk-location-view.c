@@ -1109,8 +1109,6 @@ static void on_mount(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2)
         ptk_file_exec_new(task_name, NULL, view, file_browser ? file_browser->task_view : NULL);
     g_free(task_name);
 
-    if (strstr(line, "udisks ")) // udisks v1
-        task->task->exec_type = VFS_EXEC_UDISKS;
     char* keep_term;
     if (run_in_terminal)
         keep_term = g_strdup_printf(keep_term_when_done, press_enter_to_close);
@@ -1185,8 +1183,6 @@ static void on_mount_root(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2)
         g_free(task_name);
         task->task->exec_command = cmd;
         task->task->exec_write_root = change_root;
-        if (strstr(cmd, "udisks ")) // udisks v1
-            task->task->exec_type = VFS_EXEC_UDISKS;
         task->task->exec_as_user = g_strdup_printf("root");
         task->task->exec_sync = TRUE;
         task->task->exec_popup = FALSE;
@@ -1241,8 +1237,6 @@ static void on_umount_root(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2)
         char* task_name = g_strdup_printf(_("Unmount As Root %s"), vol->device_file);
         PtkFileTask* task = ptk_file_exec_new(task_name, NULL, view, file_browser->task_view);
         g_free(task_name);
-        if (strstr(cmd, "udisks ")) // udisks v1
-            task->task->exec_type = VFS_EXEC_UDISKS;
         task->task->exec_command = cmd;
         task->task->exec_write_root = change_root;
         task->task->exec_as_user = g_strdup_printf("root");
@@ -1283,8 +1277,6 @@ static void on_umount(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2)
     PtkFileTask* task =
         ptk_file_exec_new(task_name, NULL, view, file_browser ? file_browser->task_view : NULL);
     g_free(task_name);
-    if (strstr(line, "udisks ")) // udisks v1
-        task->task->exec_type = VFS_EXEC_UDISKS;
     char* keep_term;
     if (run_in_terminal)
         keep_term = g_strdup_printf(keep_term_when_done, press_enter_to_close);
@@ -1383,8 +1375,6 @@ static void on_eject(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2)
         task =
             ptk_file_exec_new(task_name, NULL, view, file_browser ? file_browser->task_view : NULL);
         g_free(task_name);
-        if (strstr(line, "udisks ")) // udisks v1
-            task->task->exec_type = VFS_EXEC_UDISKS;
         task->task->exec_command = line;
         task->task->exec_sync = !run_in_terminal;
         task->task->exec_export = !!file_browser;
@@ -1478,8 +1468,6 @@ static bool try_mount(GtkTreeView* view, VFSVolume* vol)
     PtkFileTask* task =
         ptk_file_exec_new(task_name, NULL, GTK_WIDGET(view), file_browser->task_view);
     g_free(task_name);
-    if (strstr(line, "udisks ")) // udisks v1
-        task->task->exec_type = VFS_EXEC_UDISKS;
     char* keep_term;
     if (run_in_terminal)
         keep_term = g_strdup_printf(keep_term_when_done, press_enter_to_close);
@@ -1549,8 +1537,6 @@ static void on_open_tab(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2)
         char* task_name = g_strdup_printf(_("Mount %s"), vol->device_file);
         PtkFileTask* task = ptk_file_exec_new(task_name, NULL, view, file_browser->task_view);
         g_free(task_name);
-        if (strstr(line, "udisks ")) // udisks v1
-            task->task->exec_type = VFS_EXEC_UDISKS;
         char* keep_term;
         if (run_in_terminal)
             keep_term = g_strdup_printf(keep_term_when_done, press_enter_to_close);
@@ -1622,8 +1608,6 @@ static void on_open(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2)
         PtkFileTask* task =
             ptk_file_exec_new(task_name, NULL, view, file_browser ? file_browser->task_view : NULL);
         g_free(task_name);
-        if (strstr(line, "udisks ")) // udisks v1
-            task->task->exec_type = VFS_EXEC_UDISKS;
         char* keep_term;
         if (run_in_terminal)
             keep_term = g_strdup_printf(keep_term_when_done, press_enter_to_close);
@@ -1725,8 +1709,6 @@ static void on_remount(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2)
     }
     else
         line = mount_command;
-    if (strstr(line, "udisks ")) // udisks v1
-        task->task->exec_type = VFS_EXEC_UDISKS;
     task->task->exec_command = line;
     task->task->exec_sync = !mount_in_terminal && !unmount_in_terminal;
     task->task->exec_export = TRUE;
@@ -1787,8 +1769,6 @@ static void on_reload(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2)
         char* task_name = g_strdup_printf("Reload %s", vol->device_file);
         task = ptk_file_exec_new(task_name, NULL, view, file_browser->task_view);
         g_free(task_name);
-        if (strstr(line, "udisks ")) // udisks v1
-            task->task->exec_type = VFS_EXEC_UDISKS;
         task->task->exec_command = line;
         task->task->exec_sync = !run_in_terminal;
         task->task->exec_export = TRUE;

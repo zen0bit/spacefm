@@ -77,7 +77,6 @@ typedef enum
 {
     VFS_EXEC_NORMAL,
     VFS_EXEC_CUSTOM,
-    VFS_EXEC_UDISKS
 } VFSExecType;
 
 typedef struct _VFSFileTask VFSFileTask;

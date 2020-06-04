@@ -1224,30 +1224,7 @@ static bool cb_exec_out_watch(GIOChannel* channel, GIOCondition cond, VFSFileTas
     char buf[2048];
     if (g_io_channel_read_chars(channel, buf, sizeof(buf), &size, NULL) == G_IO_STATUS_NORMAL &&
         size > 0)
-    {
-        // gtk_text_buffer_get_iter_at_mark( task->exec_err_buf, &iter,
-        //                                                    task->exec_mark_end );
-        if (task->exec_type == VFS_EXEC_UDISKS &&
-            task->exec_show_error // prevent progress_cb opening taskmanager
-            && g_strstr_len(buf, size, "ount failed:"))
-        {
-            // bug in udisks - exit status not set
-            if (size > 81 && !strncmp(buf,
-                                      "Mount failed: Error mounting: mount exited with exit code "
-                                      "1: helper failed with:\n",
-                                      81)) // cleanup output - useless line
-                // gtk_text_buffer_insert( task->exec_err_buf, &iter, buf + 81, size - 81 );
-                append_add_log(task, buf + 81, size - 81);
-            else
-                // gtk_text_buffer_insert( task->exec_err_buf, &iter, buf, size );
-                append_add_log(task, buf, size);
-            call_state_callback(task, VFS_FILE_TASK_ERROR);
-        }
-        else // no error
-            // gtk_text_buffer_insert( task->exec_err_buf, &iter, buf, size );
-            append_add_log(task, buf, size);
-        // task->err_count++;   //notify of new output - does not indicate error for exec
-    }
+        append_add_log(task, buf, size);
     else
         printf("cb_exec_out_watch: g_io_channel_read_chars != G_IO_STATUS_NORMAL\n");
 
