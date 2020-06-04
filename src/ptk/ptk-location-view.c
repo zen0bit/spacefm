@@ -4301,9 +4301,9 @@ bool on_bookmark_key_press_event(GtkWidget* w, GdkEventKey* event, PtkFileBrowse
     return FALSE;
 }
 
-static bool is_row_separator(GtkTreeModel* model, GtkTreeIter* it, PtkFileBrowser* file_browser)
+static int is_row_separator(GtkTreeModel* model, GtkTreeIter* it, PtkFileBrowser* file_browser)
 {
-    bool is_sep = FALSE;
+    const int is_sep = 0;
     gtk_tree_model_get(model, it, COL_DATA, &is_sep, -1);
     return is_sep;
 }
