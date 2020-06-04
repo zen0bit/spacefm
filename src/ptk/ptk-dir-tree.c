@@ -20,7 +20,7 @@
 
 #include "../vfs/vfs-utils.h"
 
-struct _PtkDirTreeNode
+typedef struct PtkDirTreeNode
 {
     VFSFileInfo* file;
     PtkDirTreeNode* children;
@@ -32,7 +32,7 @@ struct _PtkDirTreeNode
     PtkDirTreeNode* prev;
     PtkDirTreeNode* last;
     PtkDirTree* tree; /* FIXME: This is a waste of memory :-( */
-};
+} PtkDirTreeNode;
 
 static void ptk_dir_tree_init(PtkDirTree* tree);
 

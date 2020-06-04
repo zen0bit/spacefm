@@ -60,7 +60,7 @@ enum
     N_RES_COLS
 };
 
-typedef struct _FindFile
+typedef struct FindFile
 {
     GtkWidget* win;
     GtkWidget* search_criteria;
@@ -119,7 +119,7 @@ typedef struct _FindFile
     VFSAsyncTask* task;
 } FindFile;
 
-typedef struct
+typedef struct FoundFile
 {
     VFSFileInfo* fi;
     char* dir_path;

@@ -53,10 +53,7 @@ enum
     PTK_LIST_SORT_DIR_LAST
 };
 
-typedef struct _PtkFileList PtkFileList;
-typedef struct _PtkFileListClass PtkFileListClass;
-
-struct _PtkFileList
+typedef struct PtkFileList
 {
     GObject parent;
     /* <private> */
@@ -76,9 +73,9 @@ struct _PtkFileList
     char sort_dir;          // sfm
     /* Random integer to check whether an iter belongs to our model */
     int stamp;
-};
+} PtkFileList;
 
-struct _PtkFileListClass
+typedef struct PtkFileListClass
 {
     GObjectClass parent;
     /* Default signal handlers */
@@ -86,7 +83,7 @@ struct _PtkFileListClass
     void (*file_deleted)(VFSDir* dir, const char* file_name);
     void (*file_changed)(VFSDir* dir, const char* file_name);
     void (*load_complete)(VFSDir* dir);
-};
+} PtkFileListClass;
 
 GType ptk_file_list_get_type(void);
 

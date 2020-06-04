@@ -38,7 +38,7 @@ enum
     CONTEXT_COL_VALUE
 };
 
-typedef struct
+typedef struct ContextData
 {
     GtkWidget* dlg;
     GtkWidget* parent;

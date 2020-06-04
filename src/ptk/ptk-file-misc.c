@@ -43,13 +43,13 @@
 #include "ptk-handler.h"
 #include "utils.h"
 
-typedef struct
+typedef struct ParentInfo
 {
     PtkFileBrowser* file_browser;
     const char* cwd;
 } ParentInfo;
 
-typedef struct
+typedef struct MoveSet
 {
     char* full_path;
     const char* old_path;

@@ -30,14 +30,14 @@
 
 #include <libffmpegthumbnailer/videothumbnailerc.h>
 
-struct _VFSThumbnailLoader
+typedef struct VFSThumbnailLoader
 {
     VFSDir* dir;
     GQueue* queue;
     VFSAsyncTask* task;
     unsigned int idle_handler;
     GQueue* update_queue;
-};
+} VFSThumbnailLoader;
 
 enum
 {
@@ -46,7 +46,7 @@ enum
     N_LOAD_TYPES
 };
 
-typedef struct _ThumbnailRequest
+typedef struct ThumbnailRequest
 {
     int n_requests[N_LOAD_TYPES];
     VFSFileInfo* file;

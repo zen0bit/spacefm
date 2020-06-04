@@ -31,7 +31,7 @@
 
 G_BEGIN_DECLS
 
-struct _MimeCache
+typedef struct MimeCache
 {
     char* file_path;
     bool has_reverse_suffix : 1; /* since mime.cache v1.1, shared mime info v0.4 */
@@ -57,8 +57,7 @@ struct _MimeCache
     uint32_t n_magics;
     uint32_t magic_max_extent;
     const char* magics;
-};
-typedef struct _MimeCache MimeCache;
+} MimeCache;
 
 MimeCache* mime_cache_new(const char* file_path);
 bool mime_cache_load(MimeCache* cache, const char* file_path);

@@ -26,7 +26,7 @@ enum
     PANEL_BOTH
 };
 
-typedef struct _FMMainWindow
+typedef struct FMMainWindow
 {
     /* Private */
     GtkWindow parent;
@@ -71,7 +71,7 @@ typedef struct _FMMainWindow
     bool fullscreen;
 } FMMainWindow;
 
-typedef struct _FMMainWindowClass
+typedef struct FMMainWindowClass
 {
     GtkWindowClass parent;
 

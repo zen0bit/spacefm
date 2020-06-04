@@ -36,7 +36,7 @@ static unsigned int theme_change_notify = 0;
 
 static void on_icon_theme_changed(GtkIconTheme* icon_theme, void* user_data);
 
-typedef struct
+typedef struct VFSMimeReloadCbEnt
 {
     GFreeFunc cb;
     void* user_data;

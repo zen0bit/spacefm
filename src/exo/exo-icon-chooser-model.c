@@ -24,8 +24,6 @@
 #include "exo-private.h"
 #include "exo-string.h"
 
-typedef struct _ExoIconChooserModelItem ExoIconChooserModelItem;
-
 static void exo_icon_chooser_model_tree_model_init(GtkTreeModelIface* iface);
 static void exo_icon_chooser_model_finalize(GObject* object);
 static GtkTreeModelFlags exo_icon_chooser_model_get_flags(GtkTreeModel* tree_model);
@@ -50,20 +48,12 @@ static void exo_icon_chooser_model_icon_theme_changed(GtkIconTheme* icon_theme,
 static void exo_icon_chooser_model_item_to_list(void* key, void* value, void* data);
 static void exo_icon_chooser_model_item_free(void* data);
 
-struct _ExoIconChooserModelClass
+typedef struct ExoIconChooserModelClass
 {
     GObjectClass __parent__;
-};
+} ExoIconChooserModelClass;
 
-struct _ExoIconChooserModel
-{
-    GObject __parent__;
-    GtkIconTheme* icon_theme;
-    GList* items;
-    int stamp;
-};
-
-struct _ExoIconChooserModelItem
+typedef struct ExoIconChooserModelItem
 {
     char* icon_name;
     ExoIconChooserContext context;
@@ -73,7 +63,7 @@ struct _ExoIconChooserModelItem
 
     /* icon names of symlinks to this item */
     GPtrArray* other_names;
-};
+} ExoIconChooserModelItem;
 
 static const char CONTEXT_NAMES[][14] = {
     "Actions",       /* EXO_ICON_CHOOSER_CONTEXT_ACTIONS */

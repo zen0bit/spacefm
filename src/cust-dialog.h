@@ -92,7 +92,7 @@ static const char* cdlg_option[] =  // order must match ElementType order
 // scroll vbox?
 // menu?
 
-typedef enum
+typedef enum ElementType
 {
     CDLG_TITLE,
     CDLG_WINDOW_ICON,
@@ -128,7 +128,7 @@ typedef enum
     CDLG_COMMAND
 } ElementType;
 
-typedef struct
+typedef struct CustomElement
 {
     ElementType type;
     char* name;

@@ -20,9 +20,7 @@
 
 G_BEGIN_DECLS
 
-typedef struct _VFSAppDesktop VFSAppDesktop;
-
-struct _VFSAppDesktop
+typedef struct VFSAppDesktop
 {
     char* file_name;
     char* disp_name;
@@ -37,7 +35,7 @@ struct _VFSAppDesktop
 
     /* <private> */
     int n_ref;
-};
+} VFSAppDesktop;
 
 /*
  * If file_name is not a full path, this function searches default paths

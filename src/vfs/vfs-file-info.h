@@ -26,7 +26,7 @@
 
 G_BEGIN_DECLS
 
-typedef enum
+typedef enum VFSFileInfoFlag
 {
     VFS_FILE_INFO_NONE = 0,
     VFS_FILE_INFO_HOME_DIR = (1 << 0),
@@ -37,9 +37,7 @@ typedef enum
     VFS_FILE_INFO_VIRTUAL = (1 << 5)
 } VFSFileInfoFlag; /* For future use, not all supported now */
 
-typedef struct _VFSFileInfo VFSFileInfo;
-
-struct _VFSFileInfo
+typedef struct VFSFileInfo
 {
     /* struct stat file_stat; */
     /* Only use some members of struct stat to reduce memory usage */
@@ -68,7 +66,7 @@ struct _VFSFileInfo
     VFSFileInfoFlag flags; /* if it's a special file */
     /*<private>*/
     int n_ref;
-};
+} VFSFileInfo;
 
 void vfs_file_info_set_utf8_filename(bool is_utf8);
 

@@ -64,7 +64,7 @@ static bool exo_tree_view_move_cursor(GtkTreeView* view, GtkMovementStep step, i
 static bool exo_tree_view_single_click_timeout(void* user_data);
 static void exo_tree_view_single_click_timeout_destroy(void* user_data);
 
-struct _ExoTreeViewPrivate
+typedef struct ExoTreeViewPrivate
 {
     /* whether the next button-release-event should emit "row-activate" */
     unsigned int button_release_activates : 1;
@@ -86,7 +86,7 @@ struct _ExoTreeViewPrivate
 
     /* the column which is the only activable */
     GtkTreeViewColumn* activable_column;
-};
+} ExoTreeViewPrivate;
 
 static GObjectClass* exo_tree_view_parent_class;
 

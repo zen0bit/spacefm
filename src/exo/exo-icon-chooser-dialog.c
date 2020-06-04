@@ -72,7 +72,7 @@ static void exo_icon_chooser_dialog_entry_clear(GtkEntry* entry, GtkEntryIconPos
 #endif
 static void exo_icon_chooser_dialog_selection_changed(ExoIconChooserDialog* icon_chooser_dialog);
 
-struct _ExoIconChooserDialogPrivate
+typedef struct ExoIconChooserDialogPrivate
 {
     GtkWidget* combo;
     GtkWidget* filter_entry;
@@ -80,7 +80,7 @@ struct _ExoIconChooserDialogPrivate
     GtkWidget* file_chooser;
     GtkWidget* file_preview;
     char* casefolded_text;
-};
+} ExoIconChooserDialogPrivate;
 
 static const char CONTEXT_TITLES[][80] = {
     /* EXO_ICON_CHOOSER_CONTEXT_ACTIONS */

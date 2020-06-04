@@ -18,7 +18,7 @@
 #include <sys/types.h>
 #include <gtk/gtk.h>
 
-typedef enum
+typedef enum VFSFileTaskType
 {
     VFS_FILE_TASK_MOVE = 0,
     VFS_FILE_TASK_COPY,
@@ -30,7 +30,7 @@ typedef enum
     VFS_FILE_TASK_LAST
 } VFSFileTaskType;
 
-typedef enum
+typedef enum ChmodActionType
 {
     OWNER_R = 0,
     OWNER_W,
@@ -49,9 +49,7 @@ typedef enum
 
 extern const mode_t chmod_flags[];
 
-struct _VFSFileTask;
-
-typedef enum
+typedef enum VFSFileTaskState
 {
     VFS_FILE_TASK_RUNNING,
     VFS_FILE_TASK_SIZE_TIMEOUT,
@@ -62,7 +60,7 @@ typedef enum
     VFS_FILE_TASK_FINISH
 } VFSFileTaskState;
 
-typedef enum
+typedef enum VFSFileTaskOverwriteMode
 {
     // do not reposition first four values
     VFS_FILE_TASK_OVERWRITE,     /* Overwrite current dest file / Ask */
@@ -73,18 +71,18 @@ typedef enum
     VFS_FILE_TASK_RENAME         /* Rename file */
 } VFSFileTaskOverwriteMode;
 
-typedef enum
+typedef enum VFSExecType
 {
     VFS_EXEC_NORMAL,
     VFS_EXEC_CUSTOM,
 } VFSExecType;
 
-typedef struct _VFSFileTask VFSFileTask;
+typedef struct VFSFileTask VFSFileTask;
 
 typedef bool (*VFSFileTaskStateCallback)(VFSFileTask*, VFSFileTaskState state, void* state_data,
                                          void* user_data);
 
-struct _VFSFileTask
+typedef struct VFSFileTask
 {
     VFSFileTaskType type;
     GList* src_paths; /* All source files. This list will be freed
@@ -172,7 +170,7 @@ struct _VFSFileTask
     void* exec_set;
     GCond* exec_cond;
     void* exec_ptask;
-};
+} VFSFileTask;
 
 /*
  * source_files sould be a newly allocated list, and it will be

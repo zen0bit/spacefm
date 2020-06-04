@@ -35,10 +35,7 @@ G_BEGIN_DECLS
 #define PTK_TEXT_RENDERER(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST((obj), PTK_TYPE_TEXT_RENDERER, PtkTextRenderer))
 
-typedef struct _PtkTextRenderer PtkTextRenderer;
-typedef struct _PtkTextRendererClass PtkTextRendererClass;
-
-struct _PtkTextRenderer
+typedef struct PtkTextRenderer
 {
     GtkCellRenderer parent;
 
@@ -58,12 +55,12 @@ struct _PtkTextRenderer
     int wrap_width;
     PangoEllipsizeMode ellipsize;
     PangoWrapMode wrap_mode;
-};
+} PtkTextRenderer;
 
-struct _PtkTextRendererClass
+typedef struct PtkTextRendererClass
 {
     GtkCellRendererClass parent_class;
-};
+} PtkTextRendererClass;
 
 GType ptk_text_renderer_get_type(void) G_GNUC_CONST;
 GtkCellRenderer* ptk_text_renderer_new(void);

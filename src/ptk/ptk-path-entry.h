@@ -18,7 +18,7 @@
 
 G_BEGIN_DECLS
 
-typedef struct
+typedef struct EntryData
 {
     PtkFileBrowser* browser;
     unsigned int seek_timer;

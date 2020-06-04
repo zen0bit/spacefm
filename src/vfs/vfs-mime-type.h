@@ -21,9 +21,7 @@
 
 G_BEGIN_DECLS
 
-typedef struct _VFSMimeType VFSMimeType;
-
-struct _VFSMimeType
+typedef struct VFSMimeType
 {
     char* type;        /* mime_type-type string */
     char* description; /* description of the mimele type */
@@ -31,10 +29,7 @@ struct _VFSMimeType
     GdkPixbuf* small_icon;
     /*<private>*/
     int n_ref;
-    /*  FIXME: Don't cache mime actions
-    char** actions;
-    */
-};
+} VFSMimeType;
 
 void vfs_mime_type_init();
 

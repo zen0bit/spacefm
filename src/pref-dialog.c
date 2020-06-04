@@ -30,8 +30,7 @@
 #include "ptk/ptk-file-browser.h"
 #include "ptk/ptk-location-view.h"
 
-typedef struct _FMPrefDlg FMPrefDlg;
-struct _FMPrefDlg
+typedef struct FMPrefDlg
 {
     GtkWidget* dlg;
     GtkWidget* notebook;
@@ -65,7 +64,7 @@ struct _FMPrefDlg
     GtkWidget* editor_terminal;
     GtkWidget* root_editor;
     GtkWidget* root_editor_terminal;
-};
+} FMPrefDlg;
 
 extern bool daemon_mode; /* defined in main.c */
 

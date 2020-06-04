@@ -25,8 +25,7 @@ G_BEGIN_DECLS
  * free the list after calling this function.
  */
 
-typedef struct _PtkFileMenu PtkFileMenu;
-struct _PtkFileMenu
+typedef struct PtkFileMenu
 {
     PtkFileBrowser* browser;
     char* cwd;
@@ -34,7 +33,7 @@ struct _PtkFileMenu
     VFSFileInfo* info;
     GList* sel_files;
     GtkAccelGroup* accel_group;
-};
+} PtkFileMenu;
 
 GtkWidget* ptk_file_menu_new(PtkFileBrowser* browser, const char* file_path, VFSFileInfo* info,
                              const char* cwd, GList* sel_files);

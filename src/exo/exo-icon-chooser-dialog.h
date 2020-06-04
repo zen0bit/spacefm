@@ -26,9 +26,7 @@
 
 G_BEGIN_DECLS
 
-typedef struct _ExoIconChooserDialogPrivate ExoIconChooserDialogPrivate;
-typedef struct _ExoIconChooserDialogClass ExoIconChooserDialogClass;
-typedef struct _ExoIconChooserDialog ExoIconChooserDialog;
+typedef struct ExoIconChooserDialogPrivate ExoIconChooserDialogPrivate;
 
 #define EXO_TYPE_ICON_CHOOSER_DIALOG (exo_icon_chooser_dialog_get_type())
 #define EXO_ICON_CHOOSER_DIALOG(obj) \
@@ -36,7 +34,7 @@ typedef struct _ExoIconChooserDialog ExoIconChooserDialog;
 #define EXO_IS_ICON_CHOOSER_DIALOG(obj) \
     (G_TYPE_CHECK_INSTANCE_TYPE((obj), EXO_TYPE_ICON_CHOOSER_DIALOG))
 
-struct _ExoIconChooserDialogClass
+typedef struct ExoIconChooserDialogClass
 {
     /*< private >*/
     GtkDialogClass __parent__;
@@ -48,13 +46,13 @@ struct _ExoIconChooserDialogClass
     void (*reserved4)(void);
     void (*reserved5)(void);
     void (*reserved6)(void);
-};
+} ExoIconChooserDialogClass;
 
-struct _ExoIconChooserDialog
+typedef struct ExoIconChooserDialog
 {
     /*< private >*/
     GtkDialog __parent__;
-};
+} ExoIconChooserDialog;
 
 GType exo_icon_chooser_dialog_get_type(void) G_GNUC_CONST;
 

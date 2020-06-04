@@ -24,9 +24,7 @@
 
 G_BEGIN_DECLS
 
-typedef struct _ExoCellRendererIconPrivate ExoCellRendererIconPrivate;
-typedef struct _ExoCellRendererIconClass ExoCellRendererIconClass;
-typedef struct _ExoCellRendererIcon ExoCellRendererIcon;
+typedef struct ExoCellRendererIconPrivate ExoCellRendererIconPrivate;
 
 #define EXO_TYPE_CELL_RENDERER_ICON (exo_cell_renderer_icon_get_type())
 #define EXO_CELL_RENDERER_ICON(obj) \
@@ -34,7 +32,7 @@ typedef struct _ExoCellRendererIcon ExoCellRendererIcon;
 #define EXO_IS_CELL_RENDERER_ICON(obj) \
     (G_TYPE_CHECK_INSTANCE_TYPE((obj), EXO_TYPE_CELL_RENDERER_ICON))
 
-struct _ExoCellRendererIconClass
+typedef struct ExoCellRendererIconClass
 {
     /*< private >*/
     GtkCellRendererClass __parent__;
@@ -46,7 +44,7 @@ struct _ExoCellRendererIconClass
     void (*reserved4)(void);
     void (*reserved5)(void);
     void (*reserved6)(void);
-};
+} ExoCellRendererIconClass;
 
 /**
  * ExoCellRendererIcon:
@@ -54,11 +52,11 @@ struct _ExoCellRendererIconClass
  * The #ExoIconChooserDialog struct contains only private fields and
  * should not be directly accessed.
  **/
-struct _ExoCellRendererIcon
+typedef struct ExoCellRendererIcon
 {
     /*< private >*/
     GtkCellRenderer __parent__;
-};
+} ExoCellRendererIcon;
 
 GType exo_cell_renderer_icon_get_type(void) G_GNUC_CONST;
 

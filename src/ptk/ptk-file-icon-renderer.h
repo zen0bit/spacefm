@@ -25,10 +25,7 @@ G_BEGIN_DECLS
 #define PTK_FILE_ICON_RENDERER(obj) \
     (G_TYPE_CHECK_INSTANCE_CAST((obj), PTK_TYPE_FILE_ICON_RENDERER, PtkFileIconRenderer))
 
-typedef struct _PtkFileIconRenderer PtkFileIconRenderer;
-typedef struct _PtkFileIconRendererClass PtkFileIconRendererClass;
-
-struct _PtkFileIconRenderer
+typedef struct PtkFileIconRenderer
 {
     GtkCellRendererPixbuf parent;
 
@@ -37,12 +34,12 @@ struct _PtkFileIconRenderer
     VFSFileInfo* info;
     /* long flags; */
     bool follow_state;
-};
+} PtkFileIconRenderer;
 
-struct _PtkFileIconRendererClass
+typedef struct PtkFileIconRendererClass
 {
     GtkCellRendererPixbufClass parent_class;
-};
+} PtkFileIconRendererClass;
 
 GType ptk_file_icon_renderer_get_type(void);
 

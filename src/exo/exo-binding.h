@@ -29,8 +29,8 @@
 
 G_BEGIN_DECLS
 
-typedef struct _ExoBinding ExoBinding;
-typedef struct _ExoMutualBinding ExoMutualBinding;
+typedef struct ExoBinding ExoBinding;
+typedef struct ExoMutualBinding ExoMutualBinding;
 
 /**
  * ExoBindingTransform:

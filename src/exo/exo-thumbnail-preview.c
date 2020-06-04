@@ -40,24 +40,16 @@
  * Thumbnail sizes used by the thumbnail database.
  **/
 
-typedef enum /*< skip >*/
+typedef enum ExoThumbnailSize
 {
     EXO_THUMBNAIL_SIZE_NORMAL = 128,
     EXO_THUMBNAIL_SIZE_LARGE = 256,
 } ExoThumbnailSize;
 
-struct _ExoThumbnailPreviewClass
+typedef struct ExoThumbnailPreviewClass
 {
     GtkFrameClass __parent__;
-};
-
-struct _ExoThumbnailPreview
-{
-    GtkFrame __parent__;
-    GtkWidget* image;
-    GtkWidget* name_label;
-    GtkWidget* size_label;
-};
+} ExoThumbnailPreviewClass;
 
 bool exo_noop_true(void)
 {

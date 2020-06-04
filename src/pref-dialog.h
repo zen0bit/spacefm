@@ -13,7 +13,7 @@
 
 G_BEGIN_DECLS
 
-typedef enum
+typedef enum PrefDlgPage
 {
     PREF_GENERAL,
     PREF_ADVANCED

@@ -19,9 +19,7 @@
 
 G_BEGIN_DECLS
 
-typedef struct _VFSVolume VFSVolume;
-
-typedef enum
+typedef enum VFSVolumeState
 {
     VFS_VOLUME_ADDED,
     VFS_VOLUME_REMOVED,
@@ -30,6 +28,8 @@ typedef enum
     VFS_VOLUME_EJECT,
     VFS_VOLUME_CHANGED
 } VFSVolumeState;
+
+typedef struct VFSVolume VFSVolume;
 
 typedef void (*VFSVolumeCallback)(VFSVolume* vol, VFSVolumeState state, void* user_data);
 
@@ -76,7 +76,7 @@ enum
     DEVICE_TYPE_OTHER // eg fuseiso mounted file
 };
 
-struct _VFSVolume
+typedef struct VFSVolume
 {
     dev_t devnum;
     int device_type;
@@ -105,7 +105,7 @@ struct _VFSVolume
     bool inhibit_auto : 1;
     time_t automount_time;
     void* open_main_window;
-};
+} VFSVolume;
 
 char* vfs_volume_get_mount_command(VFSVolume* vol, char* default_options, bool* run_in_terminal);
 char* vfs_volume_get_mount_options(VFSVolume* vol, char* options);

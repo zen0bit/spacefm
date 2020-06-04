@@ -27,10 +27,7 @@ G_BEGIN_DECLS
 #define VFS_TYPE_DIR (vfs_dir_get_type())
 #define VFS_DIR(obj) (G_TYPE_CHECK_INSTANCE_CAST((obj), VFS_TYPE_DIR, VFSDir))
 
-typedef struct _VFSDir VFSDir;
-typedef struct _VFSDirClass VFSDirClass;
-
-struct _VFSDir
+typedef struct VFSDir
 {
     GObject parent;
 
@@ -64,14 +61,14 @@ struct _VFSDir
     bool show_hidden : 1;
     bool avoid_changes : 1; // sfm
 
-    struct _VFSThumbnailLoader* thumbnail_loader;
+    struct VFSThumbnailLoader* thumbnail_loader;
 
     GSList* changed_files;
     GSList* created_files; // MOD
     long xhidden_count;    // MOD
-};
+} VFSDir;
 
-struct _VFSDirClass
+typedef struct VFSDirClass
 {
     GObjectClass parent;
     /* Default signal handlers */
@@ -83,7 +80,7 @@ struct _VFSDirClass
     void (*load_complete)(VFSDir* dir);
     /*  void (*need_reload) ( VFSDir* dir ); */
     /*  void (*update_mime) ( VFSDir* dir ); */
-};
+} VFSDirClass;
 
 void vfs_dir_lock(VFSDir* dir);
 void vfs_dir_unlock(VFSDir* dir);

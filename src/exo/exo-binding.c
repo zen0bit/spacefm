@@ -73,7 +73,7 @@
  * button. No need to write signal handlers for this purpose any more.
  **/
 
-typedef struct
+typedef struct ExoBindingLink
 {
     GObject* dst_object;
     GParamSpec* dst_pspec;
@@ -89,12 +89,12 @@ typedef struct
  * Opaque structure representing a one-way binding between two properties.
  * It is automatically removed if one of the bound objects is finalized.
  **/
-struct _ExoBinding
+typedef struct ExoBinding
 {
     GObject* src_object;
     GDestroyNotify destroy;
     ExoBindingLink blink;
-};
+} ExoBinding;
 
 /**
  * ExoMutualBinding:
@@ -102,12 +102,12 @@ struct _ExoBinding
  * Opaque structure representing a mutual binding between two properties.
  * It is automatically freed if one of the bound objects is finalized.
  **/
-struct _ExoMutualBinding
+typedef struct ExoMutualBinding
 {
     GDestroyNotify destroy;
     ExoBindingLink direct;
     ExoBindingLink reverse;
-};
+} ExoMutualBinding;
 
 static void exo_bind_properties_transfer(GObject* src_object, GParamSpec* src_pspec,
                                          GObject* dst_object, GParamSpec* dst_pspec,

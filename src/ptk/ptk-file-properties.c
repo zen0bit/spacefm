@@ -46,7 +46,7 @@ const char* chmod_names[] = {"owner_r",
                              "set_gid",
                              "sticky"};
 
-typedef struct
+typedef struct FilePropertiesDialogData
 {
     char* dir_path;
     GList* file_list;

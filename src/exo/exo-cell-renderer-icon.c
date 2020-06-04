@@ -91,14 +91,14 @@ static void exo_cell_renderer_icon_render(GtkCellRenderer* renderer,
 #endif
                                           GtkCellRendererState flags);
 
-struct _ExoCellRendererIconPrivate
+typedef struct ExoCellRendererIconPrivate
 {
     unsigned int follow_state : 1;
     unsigned int icon_static : 1;
     char* icon;
     GIcon* gicon;
     int size;
-};
+} ExoCellRendererIconPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE(ExoCellRendererIcon, exo_cell_renderer_icon, GTK_TYPE_CELL_RENDERER)
 

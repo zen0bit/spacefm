@@ -56,7 +56,7 @@ static bool vfs_volume_nonblock_removed(dev_t devnum);
 static void call_callbacks(VFSVolume* vol, VFSVolumeState state);
 void unmount_if_mounted(VFSVolume* vol);
 
-typedef struct _VFSVolumeCallbackData
+typedef struct VFSVolumeCallbackData
 {
     VFSVolumeCallback cb;
     void* user_data;

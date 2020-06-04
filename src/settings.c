@@ -3229,7 +3229,7 @@ XSet* xset_import_plugin(const char* plug_dir, int* use)
     return plugin_good ? rset : NULL;
 }
 
-typedef struct _PluginData
+typedef struct PluginData
 {
     FMMainWindow* main_window;
     GtkWidget* handler_dlg;

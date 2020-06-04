@@ -32,7 +32,7 @@
 
 G_BEGIN_DECLS
 
-typedef struct _VFSThumbnailLoader VFSThumbnailLoader;
+typedef struct VFSThumbnailLoader VFSThumbnailLoader;
 
 VFSThumbnailLoader* vfs_thumbnail_loader_new(VFSDir* dir);
 void vfs_thumbnail_loader_free(VFSThumbnailLoader* loader);

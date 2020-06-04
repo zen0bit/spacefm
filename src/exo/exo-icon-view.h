@@ -32,9 +32,9 @@
 
 G_BEGIN_DECLS;
 
-typedef struct _ExoIconViewPrivate ExoIconViewPrivate;
-typedef struct _ExoIconViewClass ExoIconViewClass;
-typedef struct _ExoIconView ExoIconView;
+typedef struct ExoIconViewPrivate ExoIconViewPrivate;
+typedef struct ExoIconViewClass ExoIconViewClass;
+typedef struct ExoIconView ExoIconView;
 
 #define EXO_TYPE_ICON_VIEW    (exo_icon_view_get_type())
 #define EXO_ICON_VIEW(obj)    (G_TYPE_CHECK_INSTANCE_CAST((obj), EXO_TYPE_ICON_VIEW, ExoIconView))
@@ -80,7 +80,7 @@ typedef void (*ExoIconViewSearchPositionFunc)(ExoIconView* icon_view, GtkWidget*
  * Specifies whether to display the drop indicator,
  * i.e. where to drop into the icon view.
  **/
-typedef enum
+typedef enum ExoIconViewDropPosition
 {
     EXO_ICON_VIEW_NO_DROP,
     EXO_ICON_VIEW_DROP_INTO,
@@ -100,21 +100,21 @@ typedef enum
  * @EXO_ICON_VIEW_LAYOUT_COLS lays out items horizontally in columns from left
  * to right.
  **/
-typedef enum
+typedef enum ExoIconViewLayoutMode
 {
     EXO_ICON_VIEW_LAYOUT_ROWS,
     EXO_ICON_VIEW_LAYOUT_COLS
 } ExoIconViewLayoutMode;
 
-struct _ExoIconView
+typedef struct ExoIconView
 {
     GtkContainer __parent__;
 
     /*< private >*/
     ExoIconViewPrivate* priv;
-};
+} ExoIconView;
 
-struct _ExoIconViewClass
+typedef struct ExoIconViewClass
 {
     GtkContainerClass __parent__;
 
@@ -134,21 +134,7 @@ struct _ExoIconViewClass
     bool (*move_cursor)(ExoIconView* icon_view, GtkMovementStep step, int count);
     bool (*activate_cursor_item)(ExoIconView* icon_view);
     bool (*start_interactive_search)(ExoIconView* icon_view);
-
-    /*< private >*/
-    /*
-      void (*reserved0) (void);
-      void (*reserved1) (void);
-      void (*reserved2) (void);
-      void (*reserved3) (void);
-      void (*reserved4) (void);
-      void (*reserved5) (void);
-      void (*reserved6) (void);
-      void (*reserved7) (void);
-      void (*reserved8) (void);
-      void (*reserved9) (void);
-    */
-};
+} ExoIconViewClass;
 
 GType exo_icon_view_get_type(void) G_GNUC_CONST;
 

@@ -26,8 +26,13 @@
 
 G_BEGIN_DECLS
 
-typedef struct _ExoIconChooserModelClass ExoIconChooserModelClass;
-typedef struct _ExoIconChooserModel ExoIconChooserModel;
+typedef struct ExoIconChooserModel
+{
+    GObject __parent__;
+    GtkIconTheme* icon_theme;
+    GList* items;
+    int stamp;
+} ExoIconChooserModel;
 
 #define EXO_TYPE_ICON_CHOOSER_MODEL (exo_icon_chooser_model_get_type())
 #define EXO_ICON_CHOOSER_MODEL(obj) \
@@ -41,7 +46,7 @@ typedef struct _ExoIconChooserModel ExoIconChooserModel;
  * The list of default contexts for the icon themes
  * according to the Icon Naming Spec, Version 0.7.
  **/
-typedef enum
+typedef enum ExoIconChooserContext
 {
     /* the contexts provided by the model */
     EXO_ICON_CHOOSER_CONTEXT_ACTIONS,
@@ -71,7 +76,7 @@ typedef enum
  *
  * The columns provided by the #ExoIconChooserModel.
  **/
-typedef enum
+typedef enum ExoIconChooserModelColumn
 {
     EXO_ICON_CHOOSER_MODEL_COLUMN_CONTEXT,
     EXO_ICON_CHOOSER_MODEL_COLUMN_ICON_NAME,

@@ -22,14 +22,14 @@ G_BEGIN_DECLS
     (G_TYPE_CHECK_INSTANCE_CAST((obj), PTK_TYPE_FILE_BROWSER, PtkFileBrowser))
 #define PTK_IS_FILE_BROWSER(obj) (G_TYPE_CHECK_INSTANCE_TYPE((obj), PTK_TYPE_FILE_BROWSER))
 
-typedef enum
+typedef enum PtkFBViewMode
 {
     PTK_FB_ICON_VIEW,
     PTK_FB_LIST_VIEW,
     PTK_FB_COMPACT_VIEW
 } PtkFBViewMode;
 
-typedef enum
+typedef enum PtkFBSortOrder
 {
     PTK_FB_SORT_BY_NAME = 0,
     PTK_FB_SORT_BY_SIZE,
@@ -39,7 +39,7 @@ typedef enum
     PTK_FB_SORT_BY_OWNER
 } PtkFBSortOrder;
 
-typedef enum
+typedef enum PtkFBChdirMode
 {
     PTK_FB_CHDIR_NORMAL,
     PTK_FB_CHDIR_ADD_HISTORY,
@@ -48,10 +48,7 @@ typedef enum
     PTK_FB_CHDIR_FORWARD
 } PtkFBChdirMode;
 
-typedef struct _PtkFileBrowser PtkFileBrowser;
-typedef struct _PtkFileBrowserClass PtkFileBrowserClass;
-
-struct _PtkFileBrowser
+typedef struct PtkFileBrowser
 {
     /* parent class */
     GtkVBox parent;
@@ -134,9 +131,9 @@ struct _PtkFileBrowser
     GtkTreeIter book_iter_inserted;
     char* select_path;
     char* status_bar_custom;
-};
+} PtkFileBrowser;
 
-typedef enum
+typedef enum PtkOpenAction
 {
     PTK_OPEN_DIR,
     PTK_OPEN_NEW_TAB,
@@ -145,7 +142,7 @@ typedef enum
     PTK_OPEN_FILE
 } PtkOpenAction;
 
-struct _PtkFileBrowserClass
+typedef struct PtkFileBrowserClass
 {
     GtkPanedClass parent;
 
@@ -157,7 +154,7 @@ struct _PtkFileBrowserClass
     void (*content_change)(PtkFileBrowser* file_browser);
     void (*sel_change)(PtkFileBrowser* file_browser);
     void (*pane_mode_change)(PtkFileBrowser* file_browser);
-};
+} PtkFileBrowserClass;
 
 GType ptk_file_browser_get_type(void);
 

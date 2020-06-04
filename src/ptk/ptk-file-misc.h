@@ -22,7 +22,7 @@
 
 G_BEGIN_DECLS
 
-typedef struct _AutoOpenCreate
+typedef struct AutoOpenCreate
 {
     char* path;
     PtkFileBrowser* file_browser;
@@ -30,7 +30,7 @@ typedef struct _AutoOpenCreate
     bool open_file;
 } AutoOpenCreate;
 
-typedef enum
+typedef enum PtkRenameMode
 {
     PTK_RENAME,
     PTK_RENAME_NEW_FILE,

@@ -100,10 +100,10 @@ static void exo_cell_renderer_ellipsized_text_render(GtkCellRenderer* renderer,
 
                                                      GtkCellRendererState flags);
 
-struct _ExoCellRendererEllipsizedTextPrivate
+typedef struct ExoCellRendererEllipsizedTextPrivate
 {
     bool follow_state;
-};
+} ExoCellRendererEllipsizedTextPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE(ExoCellRendererEllipsizedText, exo_cell_renderer_ellipsized_text,
                            GTK_TYPE_CELL_RENDERER_TEXT)

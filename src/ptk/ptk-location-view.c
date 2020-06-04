@@ -74,7 +74,7 @@ enum
     N_COLS
 };
 
-typedef struct _AutoOpen
+typedef struct AutoOpen
 {
     PtkFileBrowser* file_browser;
     char* device_file;

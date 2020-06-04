@@ -132,7 +132,7 @@ const char* cmds_mnt[] =
  * existing scripts! */
 const char* script_header = "#!/bin/bash\n";
 
-typedef struct
+typedef struct HandlerData
 {
     GtkWidget* dlg;
     GtkWidget* parent;
@@ -172,7 +172,7 @@ typedef struct
     GtkWidget* icon_choose_btn;
 } HandlerData;
 
-typedef struct _Handler
+typedef struct Handler
 {
     // enabled              set->b
     const char* xset_name;    //                      set->name

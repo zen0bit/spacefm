@@ -209,7 +209,7 @@ enum
     PLUGIN_USE_NORMAL
 };
 
-typedef struct
+typedef struct XSet
 {
     char* name;
     char b; // tri-state 0=unset(false) 1=true 2=false
@@ -284,7 +284,7 @@ extern GList* xset_cmd_history;
 // These will contain the su settings from /etc/spacefm/spacefm.conf
 extern char* settings_terminal_su;
 
-typedef struct
+typedef struct XSetContext
 {
     bool valid;
     char* var[40];

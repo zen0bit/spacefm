@@ -24,8 +24,13 @@
 
 G_BEGIN_DECLS
 
-typedef struct _ExoThumbnailPreviewClass ExoThumbnailPreviewClass;
-typedef struct _ExoThumbnailPreview ExoThumbnailPreview;
+typedef struct ExoThumbnailPreview
+{
+    GtkFrame __parent__;
+    GtkWidget* image;
+    GtkWidget* name_label;
+    GtkWidget* size_label;
+} ExoThumbnailPreview;
 
 #define EXO_TYPE_THUMBNAIL_PREVIEW (exo_thumbnail_preview_get_type())
 #define EXO_THUMBNAIL_PREVIEW(obj) \

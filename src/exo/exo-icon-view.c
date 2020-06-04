@@ -104,7 +104,7 @@ enum
 };
 
 /* Icon view flags */
-typedef enum
+typedef enum ExoIconViewFlags
 {
     EXO_ICON_VIEW_DRAW_KEYFOCUS = (1l << 0), /* whether to draw keyboard focus */
     EXO_ICON_VIEW_ITERS_PERSIST =
@@ -126,9 +126,183 @@ typedef enum
 #define EXO_ICON_VIEW_FLAG_SET(icon_view, flag) \
     ((EXO_ICON_VIEW(icon_view)->priv->flags & (flag)) == (flag))
 
-typedef struct _ExoIconViewCellInfo ExoIconViewCellInfo;
-typedef struct _ExoIconViewChild ExoIconViewChild;
-typedef struct _ExoIconViewItem ExoIconViewItem;
+typedef struct ExoIconViewItem
+{
+    GtkTreeIter iter;
+
+    /* Bounding box (a value of -1 for width indicates
+     * that the item needs to be layouted first)
+     */
+    GdkRectangle area;
+
+    /* Individual cells.
+     * box[i] is the actual area occupied by cell i,
+     * before, after are used to calculate the cell
+     * area relative to the box.
+     * See exo_icon_view_get_cell_area().
+     */
+    int n_cells;
+    GdkRectangle* box;
+    int* before;
+    int* after;
+
+    unsigned int row: ((sizeof(unsigned int) / 2) * 8) - 1;
+    unsigned int col: ((sizeof(unsigned int) / 2) * 8) - 1;
+    unsigned int selected : 1;
+    unsigned int selected_before_rubberbanding : 1;
+} ExoIconViewItem;
+
+typedef struct ExoIconViewCellInfo
+{
+    GtkCellRenderer* cell;
+    unsigned int expand : 1;
+    unsigned int pack : 1;
+    unsigned int editing : 1;
+    int position;
+    GSList* attributes;
+    GtkCellLayoutDataFunc func;
+    void* func_data;
+    GDestroyNotify destroy;
+    bool is_text;
+} ExoIconViewCellInfo;
+
+typedef struct ExoIconViewChild
+{
+    ExoIconViewItem* item;
+    GtkWidget* widget;
+    int cell;
+} ExoIconViewChild;
+
+typedef struct ExoIconViewPrivate
+{
+    int width, height;
+    int rows, cols;
+
+    GtkSelectionMode selection_mode;
+
+    ExoIconViewLayoutMode layout_mode;
+
+    GdkWindow* bin_window;
+
+    GList* children;
+
+    GtkTreeModel* model;
+
+    GList* items;
+
+    GtkAdjustment* hadjustment;
+    GtkAdjustment* vadjustment;
+#if (GTK_MAJOR_VERSION == 3)
+    GtkScrollablePolicy hscroll_policy;
+    GtkScrollablePolicy vscroll_policy;
+#endif
+
+    unsigned int layout_idle_id;
+
+    bool doing_rubberband;
+    int rubberband_x1, rubberband_y1;
+    int rubberband_x2, rubberband_y2;
+#if (GTK_MAJOR_VERSION == 3)
+    GdkRGBA rubberband_border_color;
+    GdkRGBA rubberband_fill_color;
+#elif (GTK_MAJOR_VERSION == 2)
+    GdkColor* rubberband_border_color;
+    GdkColor* rubberband_fill_color;
+#endif
+
+    unsigned int scroll_timeout_id;
+    int scroll_value_diff;
+    int event_last_x, event_last_y;
+
+    ExoIconViewItem* anchor_item;
+    ExoIconViewItem* cursor_item;
+    ExoIconViewItem* edited_item;
+    GtkCellEditable* editable;
+    ExoIconViewItem* prelit_item;
+
+    ExoIconViewItem* last_single_clicked;
+
+    GList* cell_list;
+    int n_cells;
+
+    int cursor_cell;
+
+    GtkOrientation orientation;
+
+    int columns;
+    int item_width;
+    int spacing;
+    int row_spacing;
+    int column_spacing;
+    int margin;
+
+    int text_column;
+    int markup_column;
+    int pixbuf_column;
+
+    int pixbuf_cell;
+    int text_cell;
+
+    /* Drag-and-drop. */
+    GdkModifierType start_button_mask;
+    int pressed_button;
+    int press_start_x;
+    int press_start_y;
+
+    GtkTargetList* source_targets;
+    GdkDragAction source_actions;
+
+    GtkTargetList* dest_targets;
+    GdkDragAction dest_actions;
+
+    GtkTreeRowReference* dest_item;
+    ExoIconViewDropPosition dest_pos;
+
+    /* delayed scrolling */
+    GtkTreeRowReference* scroll_to_path;
+    float scroll_to_row_align;
+    float scroll_to_col_align;
+    unsigned int scroll_to_use_align : 1;
+
+    /* misc flags */
+    unsigned int source_set : 1;
+    unsigned int dest_set : 1;
+    unsigned int reorderable : 1;
+    unsigned int empty_view_drop : 1;
+
+    unsigned int ctrl_pressed : 1;
+    unsigned int shift_pressed : 1;
+
+    /* Single-click support
+     * The single_click_timeout is the timeout after which the
+     * prelited item will be automatically selected in single
+     * click mode (0 to disable).
+     */
+    unsigned int single_click : 1;
+    unsigned int single_click_timeout;
+    unsigned int single_click_timeout_id;
+    unsigned int single_click_timeout_state;
+
+    /* Interactive search support */
+    unsigned int enable_search : 1;
+    unsigned int search_imcontext_changed : 1;
+    int search_column;
+    int search_selected_iter;
+    unsigned int search_timeout_id;
+    bool search_disable_popdown;
+    ExoIconViewSearchEqualFunc search_equal_func;
+    void* search_equal_data;
+    GDestroyNotify search_equal_destroy;
+    ExoIconViewSearchPositionFunc search_position_func;
+    void* search_position_data;
+    GDestroyNotify search_position_destroy;
+    int search_entry_changed_id;
+    GtkWidget* search_entry;
+    GtkWidget* search_window;
+
+    /* ExoIconViewFlags */
+    unsigned int flags;
+} ExoIconViewPrivate;
 
 #define EXO_ICON_VIEW_GET_PRIVATE(obj) \
     (G_TYPE_INSTANCE_GET_PRIVATE((obj), EXO_TYPE_ICON_VIEW, ExoIconViewPrivate))
@@ -302,184 +476,6 @@ static bool exo_icon_view_search_scroll_event(GtkWidget* widget, GdkEventScroll*
                                               ExoIconView* icon_view);
 static bool exo_icon_view_search_timeout(void* user_data);
 static void exo_icon_view_search_timeout_destroy(void* user_data);
-
-struct _ExoIconViewCellInfo
-{
-    GtkCellRenderer* cell;
-    unsigned int expand : 1;
-    unsigned int pack : 1;
-    unsigned int editing : 1;
-    int position;
-    GSList* attributes;
-    GtkCellLayoutDataFunc func;
-    void* func_data;
-    GDestroyNotify destroy;
-    bool is_text;
-};
-
-struct _ExoIconViewChild
-{
-    ExoIconViewItem* item;
-    GtkWidget* widget;
-    int cell;
-};
-
-struct _ExoIconViewItem
-{
-    GtkTreeIter iter;
-
-    /* Bounding box (a value of -1 for width indicates
-     * that the item needs to be layouted first)
-     */
-    GdkRectangle area;
-
-    /* Individual cells.
-     * box[i] is the actual area occupied by cell i,
-     * before, after are used to calculate the cell
-     * area relative to the box.
-     * See exo_icon_view_get_cell_area().
-     */
-    int n_cells;
-    GdkRectangle* box;
-    int* before;
-    int* after;
-
-    unsigned int row: ((sizeof(unsigned int) / 2) * 8) - 1;
-    unsigned int col: ((sizeof(unsigned int) / 2) * 8) - 1;
-    unsigned int selected : 1;
-    unsigned int selected_before_rubberbanding : 1;
-};
-
-struct _ExoIconViewPrivate
-{
-    int width, height;
-    int rows, cols;
-
-    GtkSelectionMode selection_mode;
-
-    ExoIconViewLayoutMode layout_mode;
-
-    GdkWindow* bin_window;
-
-    GList* children;
-
-    GtkTreeModel* model;
-
-    GList* items;
-
-    GtkAdjustment* hadjustment;
-    GtkAdjustment* vadjustment;
-#if (GTK_MAJOR_VERSION == 3)
-    GtkScrollablePolicy hscroll_policy;
-    GtkScrollablePolicy vscroll_policy;
-#endif
-
-    unsigned int layout_idle_id;
-
-    bool doing_rubberband;
-    int rubberband_x1, rubberband_y1;
-    int rubberband_x2, rubberband_y2;
-#if (GTK_MAJOR_VERSION == 3)
-    GdkRGBA rubberband_border_color;
-    GdkRGBA rubberband_fill_color;
-#elif (GTK_MAJOR_VERSION == 2)
-    GdkColor* rubberband_border_color;
-    GdkColor* rubberband_fill_color;
-#endif
-
-    unsigned int scroll_timeout_id;
-    int scroll_value_diff;
-    int event_last_x, event_last_y;
-
-    ExoIconViewItem* anchor_item;
-    ExoIconViewItem* cursor_item;
-    ExoIconViewItem* edited_item;
-    GtkCellEditable* editable;
-    ExoIconViewItem* prelit_item;
-
-    ExoIconViewItem* last_single_clicked;
-
-    GList* cell_list;
-    int n_cells;
-
-    int cursor_cell;
-
-    GtkOrientation orientation;
-
-    int columns;
-    int item_width;
-    int spacing;
-    int row_spacing;
-    int column_spacing;
-    int margin;
-
-    int text_column;
-    int markup_column;
-    int pixbuf_column;
-
-    int pixbuf_cell;
-    int text_cell;
-
-    /* Drag-and-drop. */
-    GdkModifierType start_button_mask;
-    int pressed_button;
-    int press_start_x;
-    int press_start_y;
-
-    GtkTargetList* source_targets;
-    GdkDragAction source_actions;
-
-    GtkTargetList* dest_targets;
-    GdkDragAction dest_actions;
-
-    GtkTreeRowReference* dest_item;
-    ExoIconViewDropPosition dest_pos;
-
-    /* delayed scrolling */
-    GtkTreeRowReference* scroll_to_path;
-    float scroll_to_row_align;
-    float scroll_to_col_align;
-    unsigned int scroll_to_use_align : 1;
-
-    /* misc flags */
-    unsigned int source_set : 1;
-    unsigned int dest_set : 1;
-    unsigned int reorderable : 1;
-    unsigned int empty_view_drop : 1;
-
-    unsigned int ctrl_pressed : 1;
-    unsigned int shift_pressed : 1;
-
-    /* Single-click support
-     * The single_click_timeout is the timeout after which the
-     * prelited item will be automatically selected in single
-     * click mode (0 to disable).
-     */
-    unsigned int single_click : 1;
-    unsigned int single_click_timeout;
-    unsigned int single_click_timeout_id;
-    unsigned int single_click_timeout_state;
-
-    /* Interactive search support */
-    unsigned int enable_search : 1;
-    unsigned int search_imcontext_changed : 1;
-    int search_column;
-    int search_selected_iter;
-    unsigned int search_timeout_id;
-    bool search_disable_popdown;
-    ExoIconViewSearchEqualFunc search_equal_func;
-    void* search_equal_data;
-    GDestroyNotify search_equal_destroy;
-    ExoIconViewSearchPositionFunc search_position_func;
-    void* search_position_data;
-    GDestroyNotify search_position_destroy;
-    int search_entry_changed_id;
-    GtkWidget* search_entry;
-    GtkWidget* search_window;
-
-    /* ExoIconViewFlags */
-    unsigned int flags;
-};
 
 static GObjectClass* exo_icon_view_parent_class;
 static unsigned int icon_view_signals[LAST_SIGNAL];

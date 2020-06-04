@@ -28,18 +28,17 @@ G_BEGIN_DECLS
 #define PTK_IS_CHECK_MENU_ITEM(ent) (ent->stock_icon == (char*)1)
 #define PTK_IS_RADIO_MENU_ITEM(ent) (ent->stock_icon == (char*)2)
 
-struct _PtkMenuItemEntry
+typedef struct PtkMenuItemEntry
 {
     const char* label;      /* or stock id */
     const char* stock_icon; /* or menu type  1: check, 2: radio */
     GCallback callback;
     unsigned int key;
     GdkModifierType mod;
-    struct _PtkMenuItemEntry* sub_menu;
+    struct PtkMenuItemEntry* sub_menu;
     GtkWidget** ret;
     GtkWidget* menu; // MOD
-};
-typedef struct _PtkMenuItemEntry PtkMenuItemEntry;
+} PtkMenuItemEntry;
 
 GtkWidget* ptk_menu_new_from_data(PtkMenuItemEntry* entries, void* cb_data,
                                   GtkAccelGroup* accel_group);
