@@ -64,7 +64,7 @@ typedef struct AppSettings
 extern AppSettings app_settings;
 
 void load_conf();
-void load_settings(char* config_dir);
+void load_settings(char* config_dir, bool git_settings);
 void save_settings(void* main_window_ptr);
 void free_settings();
 const char* xset_get_config_dir();

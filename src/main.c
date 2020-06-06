@@ -104,6 +104,7 @@ static int panel = -1;
 
 static bool find_files = FALSE;
 static char* config_dir = NULL;
+static bool disable_git_settings = FALSE;
 
 static int n_pcmanfm_ref = 0;
 
@@ -118,6 +119,7 @@ static GOptionEntry opt_entries[] =
     {"show-pref", '\0', 0, G_OPTION_ARG_INT, &show_pref, N_("Show Preferences ('N' is the Pref tab number)"), "N"},
     {"daemon-mode", 'd', 0, G_OPTION_ARG_NONE, &daemon_mode, N_("Run as a daemon"), NULL},
     {"config", 'c', 0, G_OPTION_ARG_STRING, &config_dir, N_("Use DIR as configuration directory"), "DIR"},
+    {"disable-git", 'G', 0, G_OPTION_ARG_NONE, &disable_git_settings, N_("Don't use git to keep session history"), NULL},
     {"find-files", 'f', 0, G_OPTION_ARG_NONE, &find_files, N_("Show File Search"), NULL},
     {"dialog", 'g', 0, G_OPTION_ARG_NONE, &custom_dialog, N_("Show a custom dialog (See -g help)"), NULL},
     {"socket-cmd", 's', 0, G_OPTION_ARG_NONE, &socket_cmd, N_("Send a socket command (See -s help)"), NULL},
@@ -987,6 +989,13 @@ int main(int argc, char* argv[])
         return 1;
     }
 
+    // --disable-git
+    bool git_settings;
+    if (!disable_git_settings)
+        git_settings = TRUE;
+    else
+        git_settings = FALSE;
+
     // --version
     if (version_opt)
     {
@@ -1044,7 +1053,9 @@ int main(int argc, char* argv[])
     /* Initialize our mime-type system */
     vfs_mime_type_init();
 
-    load_settings(config_dir); /* load config file */ // MOD was before vfs_file_monitor_init
+    /* load config file */
+    // MOD was before vfs_file_monitor_init
+    load_settings(config_dir, git_settings);
 
     app_settings.sdebug = sdebug;
 

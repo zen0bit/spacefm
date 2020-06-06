@@ -353,7 +353,7 @@ void load_conf()
         settings_tmp_dir = g_strdup(DEFAULT_TMP_DIR);
 }
 
-void load_settings(char* config_dir)
+void load_settings(char* config_dir, bool git_settings)
 {
     FILE* file;
     char* path = NULL;
@@ -364,13 +364,23 @@ void load_settings(char* config_dir)
 
     settings_tmp_dir = g_get_user_cache_dir();
 
-    if (G_UNLIKELY(!(g_file_test("/usr/bin/git", G_FILE_TEST_IS_EXECUTABLE))))
-        git_backed_settings = FALSE;
-
     if (config_dir)
         settings_config_dir = config_dir;
     else
         settings_config_dir = g_build_filename(g_get_user_config_dir(), "spacefm", NULL);
+
+    if (git_settings)
+    {
+        if (!g_find_program_in_path("git"))
+        {
+            fprintf(stderr, "spacefm: git backed settings enabled but git is not installed.\n");
+            git_backed_settings = FALSE;
+        }
+    }
+    else
+    {
+        git_backed_settings = FALSE;
+    }
 
     /* General */
     app_settings.show_thumbnail = show_thumbnail_default;
