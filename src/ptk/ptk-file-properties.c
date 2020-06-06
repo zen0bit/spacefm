@@ -333,11 +333,11 @@ GtkWidget* file_properties_dlg_new(GtkWindow* parent, const char* dir_path, GLis
                                    int page)
 {
 #if (GTK_MAJOR_VERSION == 3)
-    GtkBuilder* builder = _gtk_builder_new_from_file(PACKAGE_UI_DIR, "/file_properties3.ui", NULL);
+    const char* file_properties_ui = "/file_properties3.ui";
 #elif (GTK_MAJOR_VERSION == 2)
-    GtkBuilder* builder = _gtk_builder_new_from_file(PACKAGE_UI_DIR, "/file_properties2.ui", NULL);
+    const char* file_properties_ui = "/file_properties2.ui";
 #endif
-
+    GtkBuilder* builder = _gtk_builder_new_from_file(PACKAGE_UI_DIR, file_properties_ui, NULL);
     GtkWidget* dlg = (GtkWidget*)gtk_builder_get_object(builder, "dlg");
     GtkNotebook* notebook = (GtkNotebook*)gtk_builder_get_object(builder, "notebook");
     xset_set_window_icon(GTK_WINDOW(dlg));

@@ -181,10 +181,11 @@ GtkWidget* app_chooser_dialog_new(GtkWindow* parent, VFSMimeType* mime_type, boo
     dir_default         Show 'Set as default' also for type dir
     */
 #if (GTK_MAJOR_VERSION == 3)
-    GtkBuilder* builder = _gtk_builder_new_from_file(PACKAGE_UI_DIR, "/appchooserdlg3.ui", NULL);
+    const char* appchooserdlg_ui = "/appchooserdlg3.ui";
 #elif (GTK_MAJOR_VERSION == 2)
-    GtkBuilder* builder = _gtk_builder_new_from_file(PACKAGE_UI_DIR, "/appchooserdlg2.ui", NULL);
+    const char* appchooserdlg_ui = "/appchooserdlg2.ui";
 #endif
+    GtkBuilder* builder = _gtk_builder_new_from_file(PACKAGE_UI_DIR, appchooserdlg_ui, NULL);
     GtkWidget* dlg = (GtkWidget*)gtk_builder_get_object(builder, "dlg");
     GtkWidget* file_type = (GtkWidget*)gtk_builder_get_object(builder, "file_type");
     char* mime_desc;
