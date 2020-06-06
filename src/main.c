@@ -313,11 +313,7 @@ bool single_instance_check()
 
     addr.sun_family = AF_UNIX;
     get_socket_name(addr.sun_path, sizeof(addr.sun_path));
-#ifdef SUN_LEN
     addr_len = SUN_LEN(&addr);
-#else
-    addr_len = strlen(addr.sun_path) + sizeof(addr.sun_family);
-#endif
 
     /* try to connect to existing instance */
     if (sock && connect(sock, (struct sockaddr*)&addr, addr_len) == 0)
@@ -529,11 +525,7 @@ int send_socket_command(int argc, char* argv[], char** reply) // sfm
     // open socket
     addr.sun_family = AF_UNIX;
     get_socket_name(addr.sun_path, sizeof(addr.sun_path));
-#ifdef SUN_LEN
     addr_len = SUN_LEN(&addr);
-#else
-    addr_len = strlen(addr.sun_path) + sizeof(addr.sun_family);
-#endif
 
     if (connect(sock, (struct sockaddr*)&addr, addr_len) != 0)
     {
@@ -1014,9 +1006,6 @@ int main(int argc, char* argv[])
 #endif
 #ifdef HAVE_MMAP
         printf("MMAP ");
-#endif
-#ifdef SUN_LEN
-        printf("SUN_LEN ");
 #endif
 #ifdef _DEBUG_THREAD
         printf("DEBUG_THREAD ");
