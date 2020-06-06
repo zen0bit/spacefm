@@ -412,7 +412,7 @@ static GdkPixbuf* _vfs_thumbnail_load(const char* file_path, const char* uri, in
     }
     if (!thumbnail || (w < size && h < size) ||
         !(thumb_mtime = gdk_pixbuf_get_option(thumbnail, "tEXt::Thumb::MTime")) ||
-        atol(thumb_mtime) != mtime)
+        strtol(thumb_mtime, NULL, 10) != mtime)
     {
         if (thumbnail)
             g_object_unref(thumbnail);

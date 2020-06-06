@@ -271,12 +271,12 @@ bool get_rule_next(char** s, int* sub, int* comp, char** value)
     vs = get_element_next(s);
     if (!vs)
         return FALSE;
-    *sub = atoi(vs);
+    *sub = strtol(vs, NULL, 10);
     g_free(vs);
     if (*sub < 0 || *sub >= G_N_ELEMENTS(context_sub))
         return FALSE;
     vs = get_element_next(s);
-    *comp = atoi(vs);
+    *comp = strtol(vs, NULL, 10);
     g_free(vs);
     if (*comp < 0 || *comp >= G_N_ELEMENTS(context_comp))
         return FALSE;
@@ -307,14 +307,14 @@ int xset_context_test(XSetContext* context, char* rules, bool def_disable)
     char* elements = rules;
     if (!(s = get_element_next(&elements)))
         return 0;
-    action = atoi(s);
+    action = strtol(s, NULL, 10);
     g_free(s);
     if (action < 0 || action > 3)
         return 0;
 
     if (!(s = get_element_next(&elements)))
         return 0;
-    match = atoi(s);
+    match = strtol(s, NULL, 10);
     g_free(s);
     if (match < 0 || match > 3)
         return 0;
@@ -378,10 +378,10 @@ int xset_context_test(XSetContext* context, char* rules, bool def_disable)
                     test = !g_str_has_suffix(context->var[sub], eleval);
                     break;
                 case CONTEXT_COMP_LESS:
-                    test = atoi(context->var[sub]) < atoi(eleval);
+                    test = strtol(context->var[sub], NULL, 10) < strtol(eleval, NULL, 10);
                     break;
                 case CONTEXT_COMP_GREATER:
-                    test = atoi(context->var[sub]) > atoi(eleval);
+                    test = strtol(context->var[sub], NULL, 10) > strtol(eleval, NULL, 10);
                     break;
                 case CONTEXT_COMP_MATCH:
                 case CONTEXT_COMP_NMATCH:
@@ -618,7 +618,7 @@ void on_context_sub_changed(GtkComboBox* box, ContextData* ctxt)
     char* def_comp = get_element_next(&elements);
     if (def_comp)
     {
-        gtk_combo_box_set_active(GTK_COMBO_BOX(ctxt->box_comp), atoi(def_comp));
+        gtk_combo_box_set_active(GTK_COMBO_BOX(ctxt->box_comp), strtol(def_comp, NULL, 10));
         g_free(def_comp);
     }
     while ((value = get_element_next(&elements)))
@@ -1120,7 +1120,7 @@ void on_type_changed(GtkComboBox* box, ContextData* ctxt)
     }
 
     // load command data
-    if (rset->x && atoi(rset->x) == XSET_CMD_SCRIPT)
+    if (rset->x && strtol(rset->x, NULL, 10) == XSET_CMD_SCRIPT)
     {
         gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ctxt->cmd_opt_script), TRUE);
         gtk_widget_hide(ctxt->cmd_line_label);
@@ -2096,11 +2096,11 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     char* match = get_element_next(&elements);
     if (match && action)
     {
-        i = atoi(match);
+        i = strtol(match, NULL, 10);
         if (i < 0 || i > 3)
             i = 0;
         gtk_combo_box_set_active(GTK_COMBO_BOX(ctxt->box_match), i);
-        i = atoi(action);
+        i = strtol(action, NULL, 10);
         if (i < 0 || i > 3)
             i = 0;
         gtk_combo_box_set_active(GTK_COMBO_BOX(ctxt->box_action), i);
@@ -2429,7 +2429,7 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
         // custom command
         for (i = 0; i < G_N_ELEMENTS(item_types); i++)
             gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(ctxt->item_type), _(item_types[i]));
-        x = rset->x ? atoi(rset->x) : 0;
+        x = rset->x ? strtol(rset->x, NULL, 10) : 0;
         if (x < XSET_CMD_APP) // line or script
             item_type = ITEM_TYPE_COMMAND;
         else if (x == XSET_CMD_APP)

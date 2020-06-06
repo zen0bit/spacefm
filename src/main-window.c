@@ -1430,9 +1430,9 @@ void show_panels(GtkMenuItem* item, FMMainWindow* main_window)
             }
             g_free(str);
             // load dynamic slider positions for this panel context
-            main_window->panel_slide_x[p - 1] = set->x ? atoi(set->x) : 0;
-            main_window->panel_slide_y[p - 1] = set->y ? atoi(set->y) : 0;
-            main_window->panel_slide_s[p - 1] = set->s ? atoi(set->s) : 0;
+            main_window->panel_slide_x[p - 1] = set->x ? strtol(set->x, NULL, 10) : 0;
+            main_window->panel_slide_y[p - 1] = set->y ? strtol(set->y, NULL, 10) : 0;
+            main_window->panel_slide_s[p - 1] = set->s ? strtol(set->s, NULL, 10) : 0;
             // printf( "loaded panel %d: %d, %d, %d\n", p,
             if (!gtk_notebook_get_n_pages(GTK_NOTEBOOK(main_window->panel[p - 1])))
             {
@@ -1496,7 +1496,7 @@ void show_panels(GtkMenuItem* item, FMMainWindow* main_window)
                     if (set->x && !set->ob1)
                     {
                         // set current tab
-                        cur_tabx = atoi(set->x);
+                        cur_tabx = strtol(set->x, NULL, 10);
                         if (cur_tabx >= 0 && cur_tabx < gtk_notebook_get_n_pages(GTK_NOTEBOOK(
                                                             main_window->panel[p - 1])))
                         {
@@ -3858,7 +3858,7 @@ static bool on_main_window_keypress(FMMainWindow* main_window, GdkEventKey* even
                 else if (!strcmp(xname, "hide"))
                     i = -3;
                 else
-                    i = atoi(xname);
+                    i = strtol(xname, NULL, 10);
                 focus_panel(NULL, main_window, i);
             }
             else if (g_str_has_prefix(set->name, "plug_"))
@@ -6074,7 +6074,7 @@ char main_window_socket_command(char* argv[], char** reply)
         {
             if (!argv[i + 1])
                 goto _missing_arg;
-            panel = atoi(argv[i + 1]);
+            panel = strtol(argv[i + 1], NULL, 10);
             i += 2;
             continue;
         }
@@ -6082,7 +6082,7 @@ char main_window_socket_command(char* argv[], char** reply)
         {
             if (!argv[i + 1])
                 goto _missing_arg;
-            tab = atoi(argv[i + 1]);
+            tab = strtol(argv[i + 1], NULL, 10);
             i += 2;
             continue;
         }
@@ -6169,15 +6169,15 @@ char main_window_socket_command(char* argv[], char** reply)
                 {
                     if (argv[i + 2])
                     {
-                        width = atoi(argv[i + 1]);
-                        height = atoi(argv[i + 2]);
+                        width = strtol(argv[i + 1], NULL, 10);
+                        height = strtol(argv[i + 2], NULL, 10);
                     }
                 }
                 else
                 {
                     str[0] = '\0';
-                    width = atoi(argv[i + 1]);
-                    height = atoi(str + 1);
+                    width = strtol(argv[i + 1], NULL, 10);
+                    height = strtol(str + 1, NULL, 10);
                 }
             }
             if (height < 1 || width < 1)
@@ -6211,7 +6211,7 @@ char main_window_socket_command(char* argv[], char** reply)
         {
             width = -1;
             if (argv[i + 1])
-                width = atoi(argv[i + 1]);
+                width = strtol(argv[i + 1], NULL, 10);
             if (width < 0)
             {
                 *reply = g_strdup(_("spacefm: invalid slider value\n"));
@@ -6239,7 +6239,7 @@ char main_window_socket_command(char* argv[], char** reply)
                 else if (!strcmp(argv[i + 1], "hide"))
                     width = -3;
                 else
-                    width = atoi(argv[i + 1]);
+                    width = strtol(argv[i + 1], NULL, 10);
             }
             if (width == 0 || width < -3 || width > 4)
             {
@@ -6279,7 +6279,7 @@ char main_window_socket_command(char* argv[], char** reply)
                 else if (!strcmp(argv[i + 1], "close"))
                     width = -3;
                 else
-                    width = atoi(argv[i + 1]);
+                    width = strtol(argv[i + 1], NULL, 10);
             }
             if (width == 0 || width < -3 ||
                 width > gtk_notebook_get_n_pages(GTK_NOTEBOOK(main_window->panel[panel - 1])))
@@ -6368,7 +6368,7 @@ char main_window_socket_command(char* argv[], char** reply)
         {
             width = -1;
             if (argv[i + 1])
-                width = atoi(argv[i + 1]);
+                width = strtol(argv[i + 1], NULL, 10);
             if (width < 0)
             {
                 *reply = g_strdup(_("spacefm: invalid slider value\n"));
@@ -6388,7 +6388,7 @@ char main_window_socket_command(char* argv[], char** reply)
         { // COLUMN WIDTH
             width = 0;
             if (argv[i + 1] && argv[i + 2])
-                width = atoi(argv[i + 2]);
+                width = strtol(argv[i + 2], NULL, 10);
             if (width < 1)
             {
                 *reply = g_strdup(_("spacefm: invalid column width\n"));
@@ -6547,8 +6547,8 @@ char main_window_socket_command(char* argv[], char** reply)
                 }
                 else
                 {
-                    width = atoi(argv[i + 2]);
-                    height = argv[i + 3] ? atoi(argv[i + 3]) : -1;
+                    width = strtol(argv[i + 2], NULL, 10);
+                    height = argv[i + 3] ? strtol(argv[i + 3], NULL, 10) : -1;
                 }
                 gtk_editable_set_position(GTK_EDITABLE(file_browser->path_bar), -1);
                 gtk_editable_select_region(GTK_EDITABLE(file_browser->path_bar), width, height);
@@ -7093,7 +7093,7 @@ char main_window_socket_command(char* argv[], char** reply)
                 ptask->task->percent = 50;
             else
             {
-                j = atoi(argv[i + 2]);
+                j = strtol(argv[i + 2], NULL, 10);
                 if (j < 0)
                     j = 0;
                 if (j > 100)

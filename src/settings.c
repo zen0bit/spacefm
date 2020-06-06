@@ -209,41 +209,41 @@ static void parse_general_settings(char* line)
     value = sep + 1;
     *sep = '\0';
     if (!strcmp(name, "show_thumbnail"))
-        app_settings.show_thumbnail = atoi(value);
+        app_settings.show_thumbnail = strtol(value, NULL, 10);
     else if (!strcmp(name, "max_thumb_size"))
-        app_settings.max_thumb_size = atoi(value) << 10;
+        app_settings.max_thumb_size = strtol(value, NULL, 10) << 10;
     else if (!strcmp(name, "big_icon_size"))
     {
-        app_settings.big_icon_size = atoi(value);
+        app_settings.big_icon_size = strtol(value, NULL, 10);
         if (app_settings.big_icon_size <= 0 || app_settings.big_icon_size > max_icon_size)
             app_settings.big_icon_size = big_icon_size_default;
     }
     else if (!strcmp(name, "small_icon_size"))
     {
-        app_settings.small_icon_size = atoi(value);
+        app_settings.small_icon_size = strtol(value, NULL, 10);
         if (app_settings.small_icon_size <= 0 || app_settings.small_icon_size > max_icon_size)
             app_settings.small_icon_size = small_icon_size_default;
     }
     else if (!strcmp(name, "tool_icon_size"))
     {
-        app_settings.tool_icon_size = atoi(value);
+        app_settings.tool_icon_size = strtol(value, NULL, 10);
         if (app_settings.tool_icon_size < 0 || app_settings.tool_icon_size > GTK_ICON_SIZE_DIALOG)
             app_settings.tool_icon_size = tool_icon_size_default;
     }
     else if (!strcmp(name, "single_click"))
-        app_settings.single_click = atoi(value);
+        app_settings.single_click = strtol(value, NULL, 10);
     else if (!strcmp(name, "no_single_hover"))
-        app_settings.no_single_hover = atoi(value);
+        app_settings.no_single_hover = strtol(value, NULL, 10);
     else if (!strcmp(name, "sort_order"))
-        app_settings.sort_order = atoi(value);
+        app_settings.sort_order = strtol(value, NULL, 10);
     else if (!strcmp(name, "sort_type"))
-        app_settings.sort_type = atoi(value);
+        app_settings.sort_type = strtol(value, NULL, 10);
     else if (!strcmp(name, "use_si_prefix"))
-        app_settings.use_si_prefix = atoi(value);
+        app_settings.use_si_prefix = strtol(value, NULL, 10);
     else if (!strcmp(name, "no_execute"))
-        app_settings.no_execute = atoi(value); // MOD
+        app_settings.no_execute = strtol(value, NULL, 10); // MOD
     else if (!strcmp(name, "no_confirm"))
-        app_settings.no_confirm = atoi(value); // MOD
+        app_settings.no_confirm = strtol(value, NULL, 10); // MOD
 }
 
 static void parse_window_state(char* line)
@@ -259,17 +259,17 @@ static void parse_window_state(char* line)
     *sep = '\0';
     if (!strcmp(name, "width"))
     {
-        v = atoi(value);
+        v = strtol(value, NULL, 10);
         app_settings.width = (v > 0 ? v : 640);
     }
     if (!strcmp(name, "height"))
     {
-        v = atoi(value);
+        v = strtol(value, NULL, 10);
         app_settings.height = (v > 0 ? v : 480);
     }
     if (!strcmp(name, "maximized"))
     {
-        app_settings.maximized = atoi(value);
+        app_settings.maximized = strtol(value, NULL, 10);
     }
 }
 
@@ -284,9 +284,9 @@ static void parse_interface_settings(char* line)
     value = sep + 1;
     *sep = '\0';
     if (!strcmp(name, "always_show_tabs"))
-        app_settings.always_show_tabs = atoi(value);
+        app_settings.always_show_tabs = strtol(value, NULL, 10);
     else if (!strcmp(name, "show_close_tab_buttons"))
-        app_settings.hide_close_tab_buttons = !atoi(value);
+        app_settings.hide_close_tab_buttons = !strtol(value, NULL, 10);
 }
 
 static void parse_conf(const char* etc_path, char* line)
@@ -1143,7 +1143,7 @@ int xset_get_int_set(XSet* set, const char* var)
         return set->keymod;
     if (!varstring)
         return 0;
-    return atoi(varstring);
+    return strtol(varstring, NULL, 10);
 }
 
 int xset_get_int(const char* name, const char* var)
@@ -1405,12 +1405,12 @@ XSet* xset_set_set(XSet* set, const char* var, const char* value)
         set->z = g_strdup(value);
     }
     else if (!strcmp(var, "key"))
-        set->key = atoi(value);
+        set->key = strtol(value, NULL, 10);
     else if (!strcmp(var, "keymod"))
-        set->keymod = atoi(value);
+        set->keymod = strtol(value, NULL, 10);
     else if (!strcmp(var, "style"))
     {
-        set->menu_style = atoi(value);
+        set->menu_style = strtol(value, NULL, 10);
     }
     else if (!strcmp(var, "desc"))
     {
@@ -1521,7 +1521,7 @@ XSet* xset_set_set(XSet* set, const char* var, const char* value)
     }
     else if (!strcmp(var, "tool"))
     {
-        set->tool = atoi(value);
+        set->tool = strtol(value, NULL, 10);
     }
     else if (!strcmp(var, "task"))
     {
@@ -1580,7 +1580,7 @@ XSet* xset_set_set(XSet* set, const char* var, const char* value)
             set->disable = FALSE;
     }
     else if (!strcmp(var, "op"))
-        set->opener = atoi(value);
+        set->opener = strtol(value, NULL, 10);
     return set;
 }
 

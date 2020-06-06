@@ -3321,7 +3321,7 @@ static void update_bookmark_list_item(GtkListStore* list, GtkTreeIter* it, XSet*
     {
         if (set->menu_style != XSET_MENU_CHECK)
             icon1 = icon_name;
-        cmd_type = set->x ? atoi(set->x) : -1;
+        cmd_type = set->x ? strtol(set->x, NULL, 10) : -1;
         if (!set->lock && cmd_type == XSET_CMD_BOOKMARK)
         {
             // Bookmark
@@ -3650,7 +3650,7 @@ bool ptk_bookmark_view_chdir(GtkTreeView* view, PtkFileBrowser* file_browser, bo
     // cur dir is already selected?
     set = get_selected_bookmark_set(view);
     if (set && !set->lock && set->z && set->menu_style < XSET_MENU_SUBMENU && set->x &&
-        atoi(set->x) == XSET_CMD_BOOKMARK && g_str_has_prefix(set->z, cwd))
+        strtol(set->x, NULL, 10) == XSET_CMD_BOOKMARK && g_str_has_prefix(set->z, cwd))
     {
         char* sep = strchr(set->z, ';');
         if (sep)
@@ -3691,7 +3691,7 @@ char* ptk_bookmark_view_get_selected_dir(GtkTreeView* view)
     XSet* set = get_selected_bookmark_set(view);
     if (set)
     {
-        int cmd_type = set->x ? atoi(set->x) : -1;
+        int cmd_type = set->x ? strtol(set->x, NULL, 10) : -1;
         if (!set->lock && cmd_type == XSET_CMD_BOOKMARK && set->z)
         {
             char* sep = strchr(set->z, ';');

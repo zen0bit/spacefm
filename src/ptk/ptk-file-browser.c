@@ -1703,7 +1703,7 @@ void ptk_file_browser_update_views(GtkWidget* item, PtkFileBrowser* file_browser
                 {
                     // get column width for this panel context
                     set = xset_get_panel_mode(p, column_names[j], mode);
-                    width = set->y ? atoi(set->y) : 100;
+                    width = set->y ? strtol(set->y, NULL, 10) : 100;
                     // printf("        %d\t%s\n", width, title );
                     if (width)
                     {
@@ -4148,7 +4148,7 @@ void init_list_view(PtkFileBrowser* file_browser, GtkTreeView* list_view)
             gtk_tree_view_column_set_min_width(col, 50);
             gtk_tree_view_column_set_sizing(col, GTK_TREE_VIEW_COLUMN_FIXED);
             set = xset_get_panel_mode(p, column_names[j], mode);
-            width = set->y ? atoi(set->y) : 100;
+            width = set->y ? strtol(set->y, NULL, 10) : 100;
             if (width)
             {
                 if (cols[j] == COL_FILE_NAME && !app_settings.always_show_tabs &&
@@ -5000,13 +5000,13 @@ void ptk_file_browser_copycmd(PtkFileBrowser* file_browser, GList* sel_files, ch
     else if (!strcmp(setname, "copy_tab_next"))
         copy_dest = main_window_get_tab_cwd(file_browser, -2);
     else if (!strncmp(setname, "copy_tab_", 9))
-        copy_dest = main_window_get_tab_cwd(file_browser, atoi(setname + 9));
+        copy_dest = main_window_get_tab_cwd(file_browser, strtol(setname + 9, NULL, 10));
     else if (!strcmp(setname, "copy_panel_prev"))
         copy_dest = main_window_get_panel_cwd(file_browser, -1);
     else if (!strcmp(setname, "copy_panel_next"))
         copy_dest = main_window_get_panel_cwd(file_browser, -2);
     else if (!strncmp(setname, "copy_panel_", 11))
-        copy_dest = main_window_get_panel_cwd(file_browser, atoi(setname + 11));
+        copy_dest = main_window_get_panel_cwd(file_browser, strtol(setname + 11, NULL, 10));
     else if (!strcmp(setname, "copy_loc_last"))
     {
         set2 = xset_get("copy_loc_last");
@@ -5017,13 +5017,13 @@ void ptk_file_browser_copycmd(PtkFileBrowser* file_browser, GList* sel_files, ch
     else if (!strcmp(setname, "move_tab_next"))
         move_dest = main_window_get_tab_cwd(file_browser, -2);
     else if (!strncmp(setname, "move_tab_", 9))
-        move_dest = main_window_get_tab_cwd(file_browser, atoi(setname + 9));
+        move_dest = main_window_get_tab_cwd(file_browser, strtol(setname + 9, NULL, 10));
     else if (!strcmp(setname, "move_panel_prev"))
         move_dest = main_window_get_panel_cwd(file_browser, -1);
     else if (!strcmp(setname, "move_panel_next"))
         move_dest = main_window_get_panel_cwd(file_browser, -2);
     else if (!strncmp(setname, "move_panel_", 11))
-        move_dest = main_window_get_panel_cwd(file_browser, atoi(setname + 11));
+        move_dest = main_window_get_panel_cwd(file_browser, strtol(setname + 11, NULL, 10));
     else if (!strcmp(setname, "move_loc_last"))
     {
         set2 = xset_get("copy_loc_last");
@@ -5957,7 +5957,7 @@ void ptk_file_browser_on_action(PtkFileBrowser* browser, char* setname)
             else if (!strcmp(xname, "close"))
                 i = -3;
             else
-                i = atoi(xname);
+                i = strtol(xname, NULL, 10);
             ptk_file_browser_go_tab(NULL, browser, i);
         }
     }
@@ -6023,7 +6023,7 @@ void ptk_file_browser_on_action(PtkFileBrowser* browser, char* setname)
         {
             xname = g_strdup(set->name + 5);
             xname[1] = '\0';
-            i = atoi(xname);
+            i = strtol(xname, NULL, 10);
             xname[1] = '_';
             g_free(xname);
         }

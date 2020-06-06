@@ -1066,7 +1066,7 @@ char* vfs_file_task_get_cpids(GPid pid)
             pida = g_strdup(pids);
             nl[0] = '\n';
             pids = nl + 1;
-            pidi = atoi(pida);
+            pidi = strtol(pida, NULL, 10);
             g_free(pida);
             if (pidi)
             {
@@ -1105,7 +1105,7 @@ void vfs_file_task_kill_cpids(char* cpids, int signal)
         pida = g_strdup(pids);
         nl[0] = '\n';
         pids = nl + 1;
-        pidi = atoi(pida);
+        pidi = strtol(pida, NULL, 10);
         g_free(pida);
         if (pidi)
         {

@@ -2603,7 +2603,7 @@ void ptk_file_menu_action(PtkFileBrowser* browser, char* setname)
             else if (!strcmp(xname, "next"))
                 i = -2;
             else
-                i = atoi(xname);
+                i = strtol(xname, NULL, 10);
             main_window_open_in_panel(data->browser, i, data->file_path);
         }
         else if (g_str_has_prefix(set->name, "opentab_"))
@@ -2618,7 +2618,7 @@ void ptk_file_menu_action(PtkFileBrowser* browser, char* setname)
                 else if (!strcmp(xname, "next"))
                     i = -2;
                 else
-                    i = atoi(xname);
+                    i = strtol(xname, NULL, 10);
                 ptk_file_browser_open_in_tab(data->browser, i, data->file_path);
             }
         }

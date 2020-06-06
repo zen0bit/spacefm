@@ -2406,7 +2406,7 @@ bool on_activate_link(GtkLabel* label, char* uri, HandlerData* hnd)
     // click apply to save handler
     on_configure_button_press(GTK_BUTTON(hnd->btn_apply), hnd);
     // open in editor
-    int action = atoi(uri);
+    int action = strtol(uri, NULL, 10);
     if (action > HANDLER_LIST || action < 0)
         return TRUE;
 

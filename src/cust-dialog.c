@@ -90,7 +90,7 @@ static void get_width_height_pad(char* val, int* width, int* height, int* pad)
             sep[0] = '\0';
         else if ((sep = strchr(val, ' ')))
             sep[0] = '\0';
-        *width = atoi(val);
+        *width = strtol(val, NULL, 10);
         if (sep)
         {
             sep[0] = 'x';
@@ -99,11 +99,11 @@ static void get_width_height_pad(char* val, int* width, int* height, int* pad)
                 sep[0] = '\0';
             else if ((sep = strchr(str, ' ')))
                 sep[0] = '\0';
-            *height = atoi(str);
+            *height = strtol(str, NULL, 10);
             if (sep)
             {
                 sep[0] = ' ';
-                i = atoi(sep + 1);
+                i = strtol(sep + 1, NULL, 10);
                 // ignore pad == -1
                 if (i != -1 && pad)
                 {
@@ -139,8 +139,8 @@ static void fill_combo_box(CustomElement* el, GList* arglist)
     // prepare default value
     if (el->val)
     {
-        if (el->val[0] == '+' && atoi(el->val + 1) >= 0)
-            default_row = atoi(el->val + 1);
+        if (el->val[0] == '+' && strtol(el->val + 1, NULL, 10) >= 0)
+            default_row = strtol(el->val + 1, NULL, 10);
         else
             default_value = el->val;
     }
@@ -391,7 +391,7 @@ static void fill_tree_view(CustomElement* el, GList* arglist)
                 str = (char*)args->data; // next argument
                 args = args->next;       // skip next argument
             }
-            if (col && str && (i = atoi(str)) > 0)
+            if (col && str && (i = strtol(str, NULL, 10)) > 0)
                 gtk_tree_view_column_set_fixed_width(col, i);
             continue;
         }
@@ -525,7 +525,7 @@ static void fill_tree_view(CustomElement* el, GList* arglist)
             // set row data
             if (coltypes[colx] == G_TYPE_INT)
             {
-                i = atoi(arg);
+                i = strtol(arg, NULL, 10);
                 if (i < 0)
                     i = 0;
                 if (i > 100)
@@ -533,7 +533,7 @@ static void fill_tree_view(CustomElement* el, GList* arglist)
                 gtk_list_store_set(list, &iter, colx, i, -1);
             }
             else if (coltypes[colx] == G_TYPE_INT64)
-                gtk_list_store_set(list, &iter, colx, atoi(arg), -1);
+                gtk_list_store_set(list, &iter, colx, strtol(arg, NULL, 10), -1);
             else if (coltypes[colx] == G_TYPE_DOUBLE)
                 gtk_list_store_set(list, &iter, colx, strtod(arg, NULL), -1);
             else
@@ -934,7 +934,7 @@ static void set_element_value(CustomElement* el, const char* name, char* value)
                 }
                 else
                 {
-                    i = value ? atoi(value) : 0;
+                    i = value ? strtol(value, NULL, 10) : 0;
                     if (i < 0)
                         i = 0;
                     if (i > 100)
@@ -991,7 +991,7 @@ static void set_element_value(CustomElement* el, const char* name, char* value)
             if (el_name->widgets->next && el_name->timeout)
             {
                 g_source_remove(el_name->timeout);
-                el_name->option = atoi(value) + 1;
+                el_name->option = strtol(value, NULL, 10) + 1;
                 if (el_name->option <= 1)
                     el_name->option = 21;
                 on_timeout_timer(el_name);
@@ -2189,8 +2189,8 @@ static void write_source(GtkWidget* dlg, CustomElement* el_pressed, FILE* out, b
                 break;
             case CDLG_WINDOW_SIZE:
                 get_width_height_pad(el->val, &width, &height, &pad); // get pad
-                if (el->args && el->args->next && atoi((char*)el->args->next->data) > 0)
-                    pad = atoi((char*)el->args->next->data);
+                if (el->args && el->args->next && strtol((char*)el->args->next->data, NULL, 10) > 0)
+                    pad = strtol((char*)el->args->next->data, NULL, 10);
                 if (el->args && ((char*)el->args->data)[0] == '@')
                 {
                     // save file
@@ -2570,10 +2570,10 @@ static void update_element(CustomElement* el, GtkWidget* box, GSList** radio, in
                 sep = strchr((char*)args->data, ' ');
             if (sep)
                 sep[0] = '\0';
-            selstart = atoi((char*)args->data);
+            selstart = strtol((char*)args->data, NULL, 10);
             if (sep)
             {
-                selend = atoi(sep + 1);
+                selend = strtol(sep + 1, NULL, 10);
                 if (selend > 0)
                     selend++;
                 sep[0] = ':';
@@ -3290,7 +3290,7 @@ static void update_element(CustomElement* el, GtkWidget* box, GSList** radio, in
                 }
                 else
                 {
-                    i = el->val ? atoi(el->val) : 0;
+                    i = el->val ? strtol(el->val, NULL, 10) : 0;
                     if (i < 0)
                         i = 0;
                     if (i > 100)
@@ -3357,7 +3357,7 @@ static void update_element(CustomElement* el, GtkWidget* box, GSList** radio, in
                 if (args)
                     get_text_value(el, (char*)args->data, FALSE, FALSE);
                 if (el->val)
-                    i = atoi(el->val);
+                    i = strtol(el->val, NULL, 10);
                 else
                     i = 0;
                 if (i < 0)
@@ -3402,7 +3402,7 @@ static void update_element(CustomElement* el, GtkWidget* box, GSList** radio, in
             {
                 if (args)
                     get_text_value(el, (char*)args->data, FALSE, FALSE);
-                el->option = el->val ? atoi(el->val) : 20;
+                el->option = el->val ? strtol(el->val, NULL, 10) : 20;
                 if (el->option <= 0)
                     el->option = 20;
             }
@@ -3615,8 +3615,8 @@ static void build_dialog(GList* elements)
         {
             get_text_value(el, (char*)el->args->data, FALSE, TRUE);
             get_width_height_pad(el->val, &width, &height, &pad);
-            if (el->args->next && atoi((char*)el->args->next->data) > 0)
-                pad = atoi((char*)el->args->next->data);
+            if (el->args->next && strtol((char*)el->args->next->data, NULL, 10) > 0)
+                pad = strtol((char*)el->args->next->data, NULL, 10);
             gtk_window_set_default_size(GTK_WINDOW(dlg), width, height);
             el->option = 1; // activates auto resize from @FILE
             is_sized = TRUE;
