@@ -39,8 +39,10 @@ void print_task_command_spawn(char* argv[], int pid)
 char* randhex8()
 {
     char hex[9];
-    unsigned int n = rand();
-    g_snprintf(hex, sizeof(hex), "%08x", n);
+    unsigned int n = mrand48();
+    snprintf(hex, sizeof(hex), "%08x", n);
+    // printf("rand  : %d\n", n);
+    // printf("hex   : %s\n", hex);
     return g_strdup(hex);
 }
 

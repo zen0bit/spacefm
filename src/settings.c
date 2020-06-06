@@ -8620,7 +8620,7 @@ void xset_defaults()
 {
     XSet* set;
 
-    srand((unsigned int)time(0) + getpid());
+    mrand48();
 
     // set_last must be set (to anything)
     set_last = xset_get("separator");
