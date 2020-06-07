@@ -3376,7 +3376,7 @@ char* vfs_volume_get_mount_options(VFSVolume* vol, char* options)
             if (!strstr(opts, test))
             {
                 // add option
-                strcpy(newoptr, single);
+                strncpy(newoptr, single, sizeof(char));
                 newoptr = newo + strlen(newo);
                 newoptr[0] = ',';
                 newoptr[1] = '\0';
@@ -3398,7 +3398,7 @@ char* vfs_volume_get_mount_options(VFSVolume* vol, char* options)
                 if (!strstr(newo, test))
                 {
                     // add +fs option
-                    strcpy(newoptr, single);
+                    strncpy(newoptr, single, sizeof(char));
                     newoptr = newo + strlen(newo);
                     newoptr[0] = ',';
                     newoptr[1] = '\0';

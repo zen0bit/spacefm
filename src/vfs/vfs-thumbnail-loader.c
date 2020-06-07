@@ -384,7 +384,7 @@ static GdkPixbuf* _vfs_thumbnail_load(const char* file_path, const char* uri, in
     g_checksum_update(cs, uri, strlen(uri));
     memcpy(file_name, g_checksum_get_string(cs), md5_len);
     g_checksum_free(cs);
-    strcpy((file_name + md5_len), ".png");
+    strncpy((file_name + md5_len), ".png", sizeof(file_name + md5_len));
 
     thumbnail_file = g_build_filename(g_get_user_cache_dir(), "thumbnails/normal", file_name, NULL);
 

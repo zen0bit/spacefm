@@ -279,14 +279,14 @@ GdkPixbuf* vfs_mime_type_get_icon(VFSMimeType* mime_type, bool big)
         if (sep)
         {
             /* convert mime-type foo/bar to foo-bar */
-            strcpy(icon_name, mime_type->type);
+            strncpy(icon_name, mime_type->type, sizeof(icon_name));
             icon_name[(sep - mime_type->type)] = '-';
             /* is there an icon named foo-bar? */
             icon = vfs_load_icon(icon_theme, icon_name, size);
             if (!icon)
             {
                 /* maybe we can find a legacy icon named gnome-mime-foo-bar */
-                strcpy(icon_name, "gnome-mime-");
+                strncpy(icon_name, "gnome-mime-", sizeof(icon_name));
                 strncat(icon_name, mime_type->type, (sep - mime_type->type));
                 strcat(icon_name, "-");
                 strcat(icon_name, sep + 1);
