@@ -1948,7 +1948,7 @@ void write_root_saver(GString* buf, const char* path, const char* name, const ch
 
     char* save = g_strdup_printf("%s-%s=%s", name, var, value);
     char* qsave = bash_quote(save);
-    g_string_append_printf(buf, "echo %s >> \"%s\"\n", qsave, path);
+    g_string_append_printf(buf, "echo %s >>| \"%s\"\n", qsave, path);
     g_free(save);
     g_free(qsave);
 }
@@ -1960,7 +1960,7 @@ gboolean write_root_settings(GString* buf, const char* path)
 
     g_string_append_printf(buf,
                            "\n#save root settings\nmkdir -p %s/spacefm\n"
-                           "echo -e '#SpaceFM As-Root Session File\\n\\' > '%s'\n",
+                           "echo -e '#SpaceFM As-Root Session File\\n\\' >| '%s'\n",
                            SYSCONFDIR,
                            path);
 
@@ -1980,7 +1980,7 @@ gboolean write_root_settings(GString* buf, const char* path)
                 write_root_saver(buf, path, set->name, "y", set->y);
                 if (set->b != XSET_B_UNSET)
                     g_string_append_printf(buf,
-                                           "echo '%s-b=%d' >> \"%s\"\n",
+                                           "echo '%s-b=%d' >>| \"%s\"\n",
                                            set->name,
                                            set->b,
                                            path);
