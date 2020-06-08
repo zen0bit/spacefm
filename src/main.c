@@ -82,9 +82,9 @@ static bool folder_initialized = FALSE;
 static bool daemon_initialized = FALSE;
 
 static int sock;
-GIOChannel* io_channel = NULL;
+static GIOChannel* io_channel = NULL;
 
-bool daemon_mode = FALSE;
+static bool daemon_mode = FALSE;
 
 static char* default_files[2] = {NULL, NULL};
 static char** files = NULL;
@@ -142,9 +142,9 @@ static bool handle_parsed_commandline_args();
 static void open_file(const char* path);
 
 static char* dup_to_absolute_file_path(char** file);
-void receive_socket_command(int client, GString* args); // sfm
+static void receive_socket_command(int client, GString* args); // sfm
 
-char* get_inode_tag()
+static char* get_inode_tag()
 {
     struct stat stat_buf;
 
@@ -158,7 +158,7 @@ char* get_inode_tag()
                            stat_buf.st_ino);
 }
 
-bool on_socket_event(GIOChannel* ioc, GIOCondition cond, void* data)
+static bool on_socket_event(GIOChannel* ioc, GIOCondition cond, void* data)
 {
     if (cond & G_IO_IN)
     {
@@ -286,7 +286,7 @@ bool on_socket_event(GIOChannel* ioc, GIOCondition cond, void* data)
     return TRUE;
 }
 
-void get_socket_name(char* buf, int len)
+static void get_socket_name(char* buf, int len)
 {
     char* dpy = g_strdup(g_getenv("DISPLAY"));
     if (dpy && !strcmp(dpy, ":0.0"))
@@ -299,7 +299,7 @@ void get_socket_name(char* buf, int len)
     g_free(dpy);
 }
 
-bool single_instance_check()
+static bool single_instance_check()
 {
     int ret;
 
@@ -428,7 +428,7 @@ _exit:
     exit(ret);
 }
 
-void single_instance_finalize()
+static void single_instance_finalize()
 {
     char lock_file[256];
 
@@ -440,7 +440,7 @@ void single_instance_finalize()
     unlink(lock_file);
 }
 
-void receive_socket_command(int client, GString* args) // sfm
+static void receive_socket_command(int client, GString* args) // sfm
 {
     char** argv;
     char cmd;
@@ -502,7 +502,7 @@ void receive_socket_command(int client, GString* args) // sfm
     g_free(reply);
 }
 
-int send_socket_command(int argc, char* argv[], char** reply) // sfm
+static int send_socket_command(int argc, char* argv[], char** reply) // sfm
 {
     *reply = NULL;
     if (argc < 3)
@@ -606,7 +606,7 @@ static void _debug_gdk_threads_leave()
 }
 #endif
 
-void init_folder()
+static void init_folder()
 {
     if (G_LIKELY(folder_initialized))
         return;
@@ -632,7 +632,7 @@ static void init_daemon()
     daemon_initialized = TRUE;
 }
 
-char* dup_to_absolute_file_path(char** file)
+static char* dup_to_absolute_file_path(char** file)
 {
     char* file_path;
     char* real_path;
@@ -737,7 +737,7 @@ static void open_in_tab(FMMainWindow** main_window, const char* real_path)
     gtk_window_present(GTK_WINDOW(*main_window));
 }
 
-bool handle_parsed_commandline_args()
+static bool handle_parsed_commandline_args()
 {
     FMMainWindow* main_window = NULL;
     char** file;
@@ -883,7 +883,7 @@ static void check_locale()
     }
 }
 
-void tmp_clean()
+static void tmp_clean()
 {
     char* command = g_strdup_printf("rm -rf %s", xset_get_user_tmp_dir());
     print_command(command);
@@ -1091,7 +1091,7 @@ int main(int argc, char* argv[])
     return 0;
 }
 
-void open_file(const char* path)
+static void open_file(const char* path)
 {
     VFSFileInfo* file = vfs_file_info_new();
     vfs_file_info_get(file, path, NULL);

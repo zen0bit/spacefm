@@ -257,8 +257,8 @@ static char* generate_bash_error_function(bool run_in_terminal, char* parent_quo
                            finished_with_errors);
 }
 
-char* replace_archive_subs(const char* line, const char* n, const char* N, const char* o,
-                           const char* x, const char* g)
+static char* replace_archive_subs(const char* line, const char* n, const char* N, const char* o,
+                                  const char* x, const char* g)
 {
     char* old_s;
     char* sub;

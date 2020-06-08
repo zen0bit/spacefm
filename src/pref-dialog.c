@@ -66,8 +66,6 @@ typedef struct FMPrefDlg
     GtkWidget* root_editor_terminal;
 } FMPrefDlg;
 
-extern bool daemon_mode; /* defined in main.c */
-
 static FMPrefDlg* data = NULL;
 static const int tool_icon_sizes[] = {0,
                                       GTK_ICON_SIZE_MENU,
@@ -447,7 +445,7 @@ static void on_response(GtkDialog* dlg, int response, FMPrefDlg* user_data)
     pcmanfm_unref();
 }
 
-void on_date_format_changed(GtkComboBox* widget, FMPrefDlg* data)
+static void on_date_format_changed(GtkComboBox* widget, FMPrefDlg* data)
 {
     char buf[128];
     const char* etext;
@@ -458,13 +456,13 @@ void on_date_format_changed(GtkComboBox* widget, FMPrefDlg* data)
     gtk_label_set_text(GTK_LABEL(data->date_display), buf);
 }
 
-void on_single_click_toggled(GtkWidget* widget, FMPrefDlg* data)
+static void on_single_click_toggled(GtkWidget* widget, FMPrefDlg* data)
 {
     gtk_widget_set_sensitive(data->single_hover,
                              gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->single_click)));
 }
 
-void on_show_thumbnail_toggled(GtkWidget* widget, FMPrefDlg* data)
+static void on_show_thumbnail_toggled(GtkWidget* widget, FMPrefDlg* data)
 {
     gtk_widget_set_sensitive(data->max_thumb_size,
                              gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data->show_thumbnail)));

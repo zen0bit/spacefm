@@ -91,7 +91,7 @@ GtkWidget* fm_main_window_create_tab_label(FMMainWindow* main_window, PtkFileBro
 void fm_main_window_update_tab_label(FMMainWindow* main_window, PtkFileBrowser* file_browser,
                                      const char* path);
 
-void fm_main_window_preference(FMMainWindow* main_window);
+// void fm_main_window_preference(FMMainWindow* main_window);
 
 /* get last active window */
 FMMainWindow* fm_main_window_get_last_active();
@@ -108,7 +108,7 @@ void main_task_view_remove_task(PtkFileTask* task);
 void main_task_pause_all_queued(PtkFileTask* ptask);
 void main_task_start_queued(GtkWidget* view, PtkFileTask* new_task);
 void on_close_notebook_page(GtkButton* btn, PtkFileBrowser* file_browser);
-void show_panels(GtkMenuItem* item, FMMainWindow* main_window);
+// void show_panels(GtkMenuItem* item, FMMainWindow* main_window);
 void show_panels_all_windows(GtkMenuItem* item, FMMainWindow* main_window);
 void update_views_all_windows(GtkWidget* item, PtkFileBrowser* file_browser);
 void main_window_update_all_bookmark_views();

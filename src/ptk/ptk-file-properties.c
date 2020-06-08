@@ -33,18 +33,18 @@
 #include "ptk-app-chooser.h"
 #include "utils.h"
 
-const char* chmod_names[] = {"owner_r",
-                             "owner_w",
-                             "owner_x",
-                             "group_r",
-                             "group_w",
-                             "group_x",
-                             "others_r",
-                             "others_w",
-                             "others_x",
-                             "set_uid",
-                             "set_gid",
-                             "sticky"};
+static const char* chmod_names[] = {"owner_r",
+                                    "owner_w",
+                                    "owner_x",
+                                    "group_r",
+                                    "group_w",
+                                    "group_x",
+                                    "others_r",
+                                    "others_w",
+                                    "others_x",
+                                    "set_uid",
+                                    "set_gid",
+                                    "sticky"};
 
 typedef struct FilePropertiesDialogData
 {
@@ -149,7 +149,7 @@ static void* calc_size(void* user_data)
     return NULL;
 }
 
-bool on_update_labels(FilePropertiesDialogData* data)
+static bool on_update_labels(FilePropertiesDialogData* data)
 {
     char buf[64];
     char buf2[32];
@@ -688,7 +688,7 @@ static uid_t uid_from_name(const char* user_name)
     return uid;
 }
 
-gid_t gid_from_name(const char* group_name)
+static gid_t gid_from_name(const char* group_name)
 {
     gid_t gid = -1;
 
@@ -713,7 +713,7 @@ gid_t gid_from_name(const char* group_name)
     return gid;
 }
 
-void on_dlg_response(GtkDialog* dialog, int response_id, void* user_data)
+static void on_dlg_response(GtkDialog* dialog, int response_id, void* user_data)
 {
     uid_t uid = -1;
     gid_t gid = -1;

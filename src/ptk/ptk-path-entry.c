@@ -51,7 +51,7 @@ static char* get_cwd(GtkEntry* entry)
     return NULL;
 }
 
-bool seek_path(GtkEntry* entry)
+static bool seek_path(GtkEntry* entry)
 {
     if (!GTK_IS_ENTRY(entry))
         return FALSE;
@@ -131,7 +131,7 @@ bool seek_path(GtkEntry* entry)
     return FALSE;
 }
 
-void seek_path_delayed(GtkEntry* entry, unsigned int delay)
+static void seek_path_delayed(GtkEntry* entry, unsigned int delay)
 {
     EntryData* edata = (EntryData*)g_object_get_data(G_OBJECT(entry), "edata");
     if (!(edata && edata->browser))
@@ -274,7 +274,7 @@ static void on_changed(GtkEntry* entry, void* user_data)
     seek_path_delayed(GTK_ENTRY(entry), 0);
 }
 
-void insert_complete(GtkEntry* entry)
+static void insert_complete(GtkEntry* entry)
 {
     // find a real completion
     const char* prefix = gtk_entry_get_text(GTK_ENTRY(entry));
@@ -416,14 +416,14 @@ static bool on_key_press(GtkWidget* entry, GdkEventKey* evt, EntryData* edata)
     return FALSE;
 }
 
-bool on_insert_prefix(GtkEntryCompletion* completion, char* prefix, GtkWidget* entry)
+static bool on_insert_prefix(GtkEntryCompletion* completion, char* prefix, GtkWidget* entry)
 {
     // don't use the default handler because it inserts partial names
     return TRUE;
 }
 
-bool on_match_selected(GtkEntryCompletion* completion, GtkTreeModel* model, GtkTreeIter* iter,
-                       GtkWidget* entry)
+static bool on_match_selected(GtkEntryCompletion* completion, GtkTreeModel* model,
+                              GtkTreeIter* iter, GtkWidget* entry)
 {
     char* path = NULL;
     gtk_tree_model_get(model, iter, COL_PATH, &path, -1);
@@ -489,17 +489,17 @@ static bool on_focus_out(GtkWidget* entry, GdkEventFocus* evt, void* user_data)
     return FALSE;
 }
 
-void ptk_path_entry_man(GtkWidget* widget, GtkWidget* parent)
+static void ptk_path_entry_man(GtkWidget* widget, GtkWidget* parent)
 {
     xset_show_help(parent, NULL, "#gui-pathbar");
 }
 
-void on_protocol_handlers(GtkWidget* widget, PtkFileBrowser* file_browser)
+static void on_protocol_handlers(GtkWidget* widget, PtkFileBrowser* file_browser)
 {
     ptk_handler_show_config(HANDLER_MODE_NET, file_browser, NULL);
 }
 
-void on_add_bookmark(GtkWidget* widget, PtkFileBrowser* file_browser)
+static void on_add_bookmark(GtkWidget* widget, PtkFileBrowser* file_browser)
 {
     if (!(file_browser && file_browser->path_bar))
         return;
@@ -602,7 +602,7 @@ static bool on_button_release(GtkEntry* entry, GdkEventButton* evt, void* user_d
     return FALSE;
 }
 
-void on_populate_popup(GtkEntry* entry, GtkMenu* menu, PtkFileBrowser* file_browser)
+static void on_populate_popup(GtkEntry* entry, GtkMenu* menu, PtkFileBrowser* file_browser)
 {
     if (!file_browser)
         return;
@@ -632,8 +632,8 @@ void on_populate_popup(GtkEntry* entry, GtkMenu* menu, PtkFileBrowser* file_brow
     g_signal_connect(menu, "key-press-event", G_CALLBACK(xset_menu_keypress), NULL);
 }
 
-void on_entry_insert(GtkEntryBuffer* buf, unsigned int position, char* chars, unsigned int n_chars,
-                     void* user_data)
+static void on_entry_insert(GtkEntryBuffer* buf, unsigned int position, char* chars,
+                            unsigned int n_chars, void* user_data)
 {
     const char* text = gtk_entry_buffer_get_text(buf);
     if (!text)
@@ -668,7 +668,7 @@ void on_entry_insert(GtkEntryBuffer* buf, unsigned int position, char* chars, un
     }
 }
 
-void entry_data_free(EntryData* edata)
+static void entry_data_free(EntryData* edata)
 {
     g_slice_free(EntryData, edata);
 }

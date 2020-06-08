@@ -48,13 +48,13 @@
     "devpts proc fusectl pstore sysfs tmpfs devtmpfs ramfs aufs overlayfs cgroup binfmt_misc " \
     "rpc_pipefs fuse.gvfsd-fuse"
 
-VFSVolume* vfs_volume_read_by_device(struct udev_device* udevice);
-VFSVolume* vfs_volume_read_by_mount(dev_t devnum, const char* mount_points);
+static VFSVolume* vfs_volume_read_by_device(struct udev_device* udevice);
+static VFSVolume* vfs_volume_read_by_mount(dev_t devnum, const char* mount_points);
 static void vfs_volume_device_added(VFSVolume* volume, bool automount);
 static void vfs_volume_device_removed(struct udev_device* udevice);
 static bool vfs_volume_nonblock_removed(dev_t devnum);
 static void call_callbacks(VFSVolume* vol, VFSVolumeState state);
-void unmount_if_mounted(VFSVolume* vol);
+static void unmount_if_mounted(VFSVolume* vol);
 
 typedef struct VFSVolumeCallbackData
 {
@@ -64,7 +64,7 @@ typedef struct VFSVolumeCallbackData
 
 static GList* volumes = NULL;
 static GArray* callbacks = NULL;
-bool global_inhibit_auto = FALSE;
+static bool global_inhibit_auto = FALSE;
 
 typedef struct devmount_t
 {
@@ -75,11 +75,11 @@ typedef struct devmount_t
     GList* mounts;
 } devmount_t;
 
-GList* devmounts = NULL;
-struct udev* udev = NULL;
-struct udev_monitor* umonitor = NULL;
-GIOChannel* uchannel = NULL;
-GIOChannel* mchannel = NULL;
+static GList* devmounts = NULL;
+static struct udev* udev = NULL;
+static struct udev_monitor* umonitor = NULL;
+static GIOChannel* uchannel = NULL;
+static GIOChannel* mchannel = NULL;
 
 /* *************************************************************************
  * device info
@@ -330,7 +330,7 @@ static char* sysfs_resolve_link(const char* sysfs_path, const char* name)
         return NULL;
 }
 
-bool info_is_system_internal(device_t* device)
+static bool info_is_system_internal(device_t* device)
 {
     const char* value;
 
@@ -368,7 +368,7 @@ bool info_is_system_internal(device_t* device)
     return TRUE;
 }
 
-void info_drive_connection(device_t* device)
+static void info_drive_connection(device_t* device)
 {
     const char* connection_interface = NULL;
     uint64_t connection_speed = 0;
@@ -627,7 +627,7 @@ static const struct
     {NULL, NULL},
 };
 
-void info_drive_properties(device_t* device)
+static void info_drive_properties(device_t* device)
 {
     GPtrArray* media_compat_array;
     const char* media_in_drive;
@@ -787,7 +787,7 @@ void info_drive_properties(device_t* device)
     device->drive_can_detach = drive_can_detach;
 }
 
-void info_device_properties(device_t* device)
+static void info_device_properties(device_t* device)
 {
     const char* value;
 
@@ -935,7 +935,7 @@ void info_device_properties(device_t* device)
     }
 }
 
-char* info_mount_points(device_t* device)
+static char* info_mount_points(device_t* device)
 {
     GList* mounts = NULL;
 
@@ -1045,7 +1045,7 @@ char* info_mount_points(device_t* device)
         return NULL;
 }
 
-void info_partition_table(device_t* device)
+static void info_partition_table(device_t* device)
 {
     bool is_partition_table = FALSE;
     const char* value;
@@ -1118,7 +1118,7 @@ void info_partition_table(device_t* device)
     }
 }
 
-void info_partition(device_t* device)
+static void info_partition(device_t* device)
 {
     bool is_partition = FALSE;
 
@@ -1211,7 +1211,7 @@ void info_partition(device_t* device)
     }
 }
 
-void info_optical_disc(device_t* device)
+static void info_optical_disc(device_t* device)
 {
     const char* optical_state = udev_device_get_property_value(device->udevice, "ID_CDROM");
 
@@ -1284,7 +1284,7 @@ static void device_free(device_t* device)
     g_slice_free(device_t, device);
 }
 
-device_t* device_alloc(struct udev_device* udevice)
+static device_t* device_alloc(struct udev_device* udevice)
 {
     device_t* device = g_slice_new0(device_t);
     device->udevice = udevice;
@@ -1351,7 +1351,7 @@ device_t* device_alloc(struct udev_device* udevice)
     return device;
 }
 
-bool device_get_info(device_t* device)
+static bool device_get_info(device_t* device)
 {
     info_device_properties(device);
     if (!device->native_path || device->devnum == 0)
@@ -1366,7 +1366,7 @@ bool device_get_info(device_t* device)
     return TRUE;
 }
 
-char* device_show_info(device_t* device)
+static char* device_show_info(device_t* device)
 {
     char* line[140];
     int i = 0;
@@ -1462,7 +1462,7 @@ char* device_show_info(device_t* device)
  * udev & mount monitors
  * ************************************************************************ */
 
-int cmp_devmounts(devmount_t* a, devmount_t* b)
+static int cmp_devmounts(devmount_t* a, devmount_t* b)
 {
     if (!a && !b)
         return 0;
@@ -1473,7 +1473,7 @@ int cmp_devmounts(devmount_t* a, devmount_t* b)
     return 1;
 }
 
-void parse_mounts(bool report)
+static void parse_mounts(bool report)
 {
     // printf("\n@@@@@@@@@@@@@ parse_mounts %s\n\n", report ? "TRUE" : "FALSE" );
     char* contents = NULL;
@@ -1810,7 +1810,7 @@ static void free_devmounts()
     devmounts = NULL;
 }
 
-const char* get_devmount_fstype(int major, int minor)
+static const char* get_devmount_fstype(int major, int minor)
 {
     GList* l;
 
@@ -1926,7 +1926,7 @@ static bool cb_udev_monitor_watch(GIOChannel* channel, GIOCondition cond, void* 
     return TRUE;
 }
 
-void vfs_free_volume_members(VFSVolume* volume)
+static void vfs_free_volume_members(VFSVolume* volume)
 {
     g_free(volume->device_file);
     g_free(volume->udi);
@@ -2166,7 +2166,7 @@ void vfs_volume_set_info(VFSVolume* volume)
         volume->udi = g_strdup(volume->device_file);
 }
 
-VFSVolume* vfs_volume_read_by_device(struct udev_device* udevice)
+static VFSVolume* vfs_volume_read_by_device(struct udev_device* udevice)
 { // uses udev to read device parameters into returned volume
     VFSVolume* volume = NULL;
 
@@ -2523,7 +2523,7 @@ _net_free:
     return 0;
 }
 
-VFSVolume* vfs_volume_read_by_mount(dev_t devnum, const char* mount_points)
+static VFSVolume* vfs_volume_read_by_mount(dev_t devnum, const char* mount_points)
 { // read a non-block device
     VFSVolume* volume;
     char* str;
@@ -3054,7 +3054,7 @@ char* vfs_volume_handler_cmd(int mode, int action, VFSVolume* vol, const char* o
     return command;
 }
 
-bool vfs_volume_is_automount(VFSVolume* vol)
+static bool vfs_volume_is_automount(VFSVolume* vol)
 { // determine if volume should be automounted or auto-unmounted
     char* test;
     char* value;
@@ -3405,7 +3405,7 @@ char* vfs_volume_get_mount_command(VFSVolume* vol, char* default_options, bool* 
     return command;
 }
 
-void exec_task(const char* command, bool run_in_terminal)
+static void exec_task(const char* command, bool run_in_terminal)
 { // run command as async task with optional terminal
     if (!(command && command[0]))
         return;
@@ -3421,7 +3421,7 @@ void exec_task(const char* command, bool run_in_terminal)
     ptk_file_task_run(task);
 }
 
-void vfs_volume_exec(VFSVolume* vol, const char* command)
+static void vfs_volume_exec(VFSVolume* vol, const char* command)
 {
     // printf( "vfs_volume_exec %s %s\n", vol->device_file, command );
     if (!(command && command[0]) || vol->device_type != DEVICE_TYPE_BLOCK)
@@ -3438,7 +3438,7 @@ void vfs_volume_exec(VFSVolume* vol, const char* command)
     g_free(s1);
 }
 
-void vfs_volume_autoexec(VFSVolume* vol)
+static void vfs_volume_autoexec(VFSVolume* vol)
 {
     char* command = NULL;
 
@@ -3511,7 +3511,7 @@ void vfs_volume_autoexec(VFSVolume* vol)
     vfs_volume_exec(vol, command);
 }
 
-void vfs_volume_autounmount(VFSVolume* vol)
+static void vfs_volume_autounmount(VFSVolume* vol)
 {
     if (!vol->is_mounted || !vfs_volume_is_automount(vol))
         return;
@@ -3727,7 +3727,7 @@ static void vfs_volume_device_removed(struct udev_device* udevice)
     ptk_location_view_clean_mount_points();
 }
 
-void unmount_if_mounted(VFSVolume* vol)
+static void unmount_if_mounted(VFSVolume* vol)
 {
     if (!vol->device_file)
         return;
@@ -3753,7 +3753,7 @@ void unmount_if_mounted(VFSVolume* vol)
     g_free(line);
 }
 
-bool on_cancel_inhibit_timer(void* user_data)
+static bool on_cancel_inhibit_timer(void* user_data)
 {
     global_inhibit_auto = FALSE;
     return FALSE;

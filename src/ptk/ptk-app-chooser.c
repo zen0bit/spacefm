@@ -154,23 +154,24 @@ static GtkTreeModel* create_model_from_mime_type(VFSMimeType* mime_type)
     return (GtkTreeModel*)list;
 }
 
-bool on_cmdline_keypress(GtkWidget* widget, GdkEventKey* event, GtkNotebook* notebook)
+static bool on_cmdline_keypress(GtkWidget* widget, GdkEventKey* event, GtkNotebook* notebook)
 {
     gtk_widget_set_sensitive(GTK_WIDGET(notebook),
                              gtk_entry_get_text_length((GtkEntry*)widget) == 0);
     return FALSE;
 }
 
-void on_view_row_activated(GtkTreeView* tree_view, GtkTreePath* path, GtkTreeViewColumn* col,
-                           GtkWidget* dlg)
+static void on_view_row_activated(GtkTreeView* tree_view, GtkTreePath* path, GtkTreeViewColumn* col,
+                                  GtkWidget* dlg)
 {
     GtkBuilder* builder = (GtkBuilder*)g_object_get_data(G_OBJECT(dlg), "builder");
     GtkWidget* ok = (GtkWidget*)gtk_builder_get_object(builder, "okbutton");
     gtk_button_clicked(GTK_BUTTON(ok));
 }
 
-GtkWidget* app_chooser_dialog_new(GtkWindow* parent, VFSMimeType* mime_type, bool focus_all_apps,
-                                  bool show_command, bool show_default, bool dir_default)
+static GtkWidget* app_chooser_dialog_new(GtkWindow* parent, VFSMimeType* mime_type,
+                                         bool focus_all_apps, bool show_command, bool show_default,
+                                         bool dir_default)
 {
     /*
     focus_all_apps      Focus All Apps tab by default
@@ -332,7 +333,7 @@ void on_notebook_switch_page(GtkNotebook* notebook, GtkWidget* page, unsigned in
  * These two can be separated by check if the returned string is ended
  * with ".desktop" postfix.
  */
-char* app_chooser_dialog_get_selected_app(GtkWidget* dlg)
+static char* app_chooser_dialog_get_selected_app(GtkWidget* dlg)
 {
     GtkBuilder* builder = (GtkBuilder*)g_object_get_data(G_OBJECT(dlg), "builder");
     GtkEntry* entry = GTK_ENTRY((GtkWidget*)gtk_builder_get_object(builder, "cmdline"));
@@ -363,7 +364,7 @@ char* app_chooser_dialog_get_selected_app(GtkWidget* dlg)
 /*
  * Check if the user set the selected app default handler.
  */
-bool app_chooser_dialog_get_set_default(GtkWidget* dlg)
+static bool app_chooser_dialog_get_set_default(GtkWidget* dlg)
 {
     GtkBuilder* builder = (GtkBuilder*)g_object_get_data(G_OBJECT(dlg), "builder");
     GtkWidget* check = (GtkWidget*)gtk_builder_get_object(builder, "set_default");
@@ -559,7 +560,7 @@ char* ptk_choose_app_for_mime_type(GtkWindow* parent, VFSMimeType* mime_type, bo
     return app;
 }
 
-void load_all_apps_in_dir(const char* dir_path, GtkListStore* list, VFSAsyncTask* task)
+static void load_all_apps_in_dir(const char* dir_path, GtkListStore* list, VFSAsyncTask* task)
 {
     GDir* dir = g_dir_open(dir_path, 0, NULL);
     if (dir)
@@ -610,7 +611,7 @@ void load_all_apps_in_dir(const char* dir_path, GtkListStore* list, VFSAsyncTask
     }
 }
 
-void* load_all_known_apps_thread(VFSAsyncTask* task)
+static void* load_all_known_apps_thread(VFSAsyncTask* task)
 {
     GDK_THREADS_ENTER();
     GtkListStore* list = GTK_LIST_STORE(vfs_async_task_get_data(task));

@@ -136,8 +136,8 @@ typedef struct MoveSet
     bool is_move;
 } MoveSet;
 
-void on_toggled(GtkMenuItem* item, MoveSet* mset);
-char* get_template_dir();
+static void on_toggled(GtkMenuItem* item, MoveSet* mset);
+static char* get_template_dir();
 
 void ptk_delete_files(GtkWindow* parent_win, const char* cwd, GList* sel_files,
                       GtkTreeView* task_view)
@@ -208,7 +208,7 @@ char* get_real_link_target(const char* link_path)
     return target_path;
 }
 
-void on_help_activate(GtkMenuItem* item, MoveSet* mset)
+static void on_help_activate(GtkMenuItem* item, MoveSet* mset)
 {
     xset_show_help(GTK_WIDGET(mset->dlg), NULL, mset->create_new ? "#gui-newf" : "#gui-rename");
 }
@@ -263,7 +263,7 @@ static bool on_move_entry_keypress(GtkWidget* widget, GdkEventKey* event, MoveSe
     return FALSE;
 }
 
-void on_move_change(GtkWidget* widget, MoveSet* mset)
+static void on_move_change(GtkWidget* widget, MoveSet* mset)
 {
     char* name;
     char* full_name;
@@ -763,7 +763,7 @@ void on_move_change(GtkWidget* widget, MoveSet* mset)
                                       NULL);
 }
 
-void select_input(GtkWidget* widget, MoveSet* mset)
+static void select_input(GtkWidget* widget, MoveSet* mset)
 {
     if (GTK_IS_EDITABLE(widget))
         gtk_editable_select_region(GTK_EDITABLE(widget), 0, -1);
@@ -854,7 +854,7 @@ static bool on_button_focus(GtkWidget* widget, GtkDirectionType direction, MoveS
     return FALSE;
 }
 
-void on_revert_button_press(GtkWidget* widget, MoveSet* mset)
+static void on_revert_button_press(GtkWidget* widget, MoveSet* mset)
 {
     GtkWidget* temp = mset->last_widget;
     gtk_text_buffer_set_text(mset->buf_full_path, mset->new_path, -1);
@@ -863,7 +863,7 @@ void on_revert_button_press(GtkWidget* widget, MoveSet* mset)
     gtk_widget_grab_focus(mset->last_widget);
 }
 
-void on_create_browse_button_press(GtkWidget* widget, MoveSet* mset)
+static void on_create_browse_button_press(GtkWidget* widget, MoveSet* mset)
 {
     int action;
     const char* title;
@@ -1009,7 +1009,7 @@ enum
     MODE_PATH
 };
 
-void on_browse_mode_toggled(GtkMenuItem* item, GtkWidget* dlg)
+static void on_browse_mode_toggled(GtkMenuItem* item, GtkWidget* dlg)
 {
     int i;
     GtkWidget** mode = (GtkWidget**)g_object_get_data(G_OBJECT(dlg), "mode");
@@ -1039,7 +1039,7 @@ void on_browse_mode_toggled(GtkMenuItem* item, GtkWidget* dlg)
     }
 }
 
-void on_browse_button_press(GtkWidget* widget, MoveSet* mset)
+static void on_browse_button_press(GtkWidget* widget, MoveSet* mset)
 {
     char* str;
     GtkTextIter iter;
@@ -1187,7 +1187,7 @@ void on_browse_button_press(GtkWidget* widget, MoveSet* mset)
     gtk_widget_destroy(dlg);
 }
 
-void on_font_change(GtkMenuItem* item, MoveSet* mset)
+static void on_font_change(GtkMenuItem* item, MoveSet* mset)
 {
     PangoFontDescription* font_desc = NULL;
 
@@ -1236,7 +1236,7 @@ void on_font_change(GtkMenuItem* item, MoveSet* mset)
         pango_font_description_free(font_desc);
 }
 
-void on_opt_toggled(GtkMenuItem* item, MoveSet* mset)
+static void on_opt_toggled(GtkMenuItem* item, MoveSet* mset)
 {
     const char* action;
     char* btn_label = NULL;
@@ -1348,7 +1348,7 @@ void on_opt_toggled(GtkMenuItem* item, MoveSet* mset)
         on_toggled(NULL, mset);
 }
 
-void on_toggled(GtkMenuItem* item, MoveSet* mset)
+static void on_toggled(GtkMenuItem* item, MoveSet* mset)
 {
     // int (*show) () = NULL;
     void (*show)() = NULL;
@@ -1530,13 +1530,13 @@ void on_toggled(GtkMenuItem* item, MoveSet* mset)
     }
 }
 
-bool on_mnemonic_activate(GtkWidget* widget, bool arg1, MoveSet* mset)
+static bool on_mnemonic_activate(GtkWidget* widget, bool arg1, MoveSet* mset)
 {
     select_input(widget, mset);
     return FALSE;
 }
 
-void on_options_button_press(GtkWidget* btn, MoveSet* mset)
+static void on_options_button_press(GtkWidget* btn, MoveSet* mset)
 {
     GtkWidget* popup = gtk_menu_new();
     GtkAccelGroup* accel_group = gtk_accel_group_new();
@@ -1723,7 +1723,7 @@ static bool on_label_focus(GtkWidget* widget, GtkDirectionType direction, MoveSe
     return TRUE;
 }
 
-void copy_entry_to_clipboard(GtkWidget* widget, MoveSet* mset)
+static void copy_entry_to_clipboard(GtkWidget* widget, MoveSet* mset)
 {
     GtkClipboard* clip = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);
     GtkTextBuffer* buf = NULL;
@@ -1773,7 +1773,7 @@ void copy_entry_to_clipboard(GtkWidget* widget, MoveSet* mset)
     g_free(text);
 }
 
-bool on_label_button_press(GtkWidget* widget, GdkEventButton* event, MoveSet* mset)
+static bool on_label_button_press(GtkWidget* widget, GdkEventButton* event, MoveSet* mset)
 {
     switch (event->type)
     {
@@ -1828,7 +1828,7 @@ bool on_label_button_press(GtkWidget* widget, GdkEventButton* event, MoveSet* ms
     return TRUE;
 }
 
-char* get_unique_name(const char* dir, const char* ext)
+static char* get_unique_name(const char* dir, const char* ext)
 {
     char* name;
     char* path;
@@ -1860,7 +1860,7 @@ char* get_unique_name(const char* dir, const char* ext)
     return path;
 }
 
-char* get_template_dir()
+static char* get_template_dir()
 {
     char* templates_path = g_strdup(g_get_user_special_dir(G_USER_DIRECTORY_TEMPLATES));
 
@@ -1895,7 +1895,8 @@ char* get_template_dir()
     return templates_path;
 }
 
-GList* get_templates(const char* templates_dir, const char* subdir, GList* templates, bool getdir)
+static GList* get_templates(const char* templates_dir, const char* subdir, GList* templates,
+                            bool getdir)
 {
     char* templates_path;
 
@@ -1963,7 +1964,7 @@ GList* get_templates(const char* templates_dir, const char* subdir, GList* templ
     return templates;
 }
 
-void on_template_changed(GtkWidget* widget, MoveSet* mset)
+static void on_template_changed(GtkWidget* widget, MoveSet* mset)
 {
     char* str = NULL;
 
@@ -2009,7 +2010,7 @@ void on_template_changed(GtkWidget* widget, MoveSet* mset)
     g_free(text);
 }
 
-bool update_new_display_delayed(char* path)
+static bool update_new_display_delayed(char* path)
 {
     char* dir_path = g_path_get_dirname(path);
     VFSDir* vdir = vfs_dir_get_by_path_soft(dir_path);
@@ -2028,7 +2029,7 @@ bool update_new_display_delayed(char* path)
     return FALSE;
 }
 
-void update_new_display(const char* path)
+static void update_new_display(const char* path)
 {
     // for devices like nfs, emit created so the new file is shown
     // update now

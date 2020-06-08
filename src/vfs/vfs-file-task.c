@@ -61,9 +61,10 @@ const mode_t chmod_flags[] = {S_IRUSR,
  */
 static void get_total_size_of_dir(VFSFileTask* task, const char* path, off_t* size,
                                   struct stat* have_stat);
-void vfs_file_task_error(VFSFileTask* task, int errnox, const char* action, const char* target);
-void vfs_file_task_exec_error(VFSFileTask* task, int errnox, char* action);
-void add_task_dev(VFSFileTask* task, dev_t dev);
+static void vfs_file_task_error(VFSFileTask* task, int errnox, const char* action,
+                                const char* target);
+static void vfs_file_task_exec_error(VFSFileTask* task, int errnox, char* action);
+static void add_task_dev(VFSFileTask* task, dev_t dev);
 static bool should_abort(VFSFileTask* task);
 
 static void vfs_file_task_init(VFSFileTask* task)
@@ -81,12 +82,12 @@ void vfs_file_task_unlock(VFSFileTask* task)
     g_mutex_unlock(task->mutex);
 }
 
-void vfs_file_task_clear(VFSFileTask* task)
+static void vfs_file_task_clear(VFSFileTask* task)
 {
     g_mutex_clear(&task->mutex);
 }
 
-void append_add_log(VFSFileTask* task, const char* msg, int msg_len)
+static void append_add_log(VFSFileTask* task, const char* msg, int msg_len)
 {
     vfs_file_task_lock(task);
     GtkTextIter iter;
@@ -289,7 +290,7 @@ static bool check_overwrite(VFSFileTask* task, const char* dest_file, bool* dest
     }
 }
 
-bool check_dest_in_src(VFSFileTask* task, const char* src_dir)
+static bool check_dest_in_src(VFSFileTask* task, const char* src_dir)
 {
     char real_src_path[PATH_MAX];
     char real_dest_path[PATH_MAX];
@@ -320,7 +321,7 @@ bool check_dest_in_src(VFSFileTask* task, const char* src_dir)
     return FALSE;
 }
 
-void update_file_display(const char* path)
+static void update_file_display(const char* path)
 {
     // for devices like nfs, emit created and flush to avoid a
     // blocking stat call in GUI thread during writes
@@ -1211,7 +1212,7 @@ _unref_channel:
     return FALSE;
 }
 
-char* get_sha256sum(char* path)
+static char* get_sha256sum(char* path)
 {
     const char* sha256sum = g_find_program_in_path("/usr/bin/sha256sum");
     if (!sha256sum)
@@ -1239,7 +1240,7 @@ char* get_sha256sum(char* path)
     return sum;
 }
 
-void vfs_file_task_exec_error(VFSFileTask* task, int errnox, char* action)
+static void vfs_file_task_exec_error(VFSFileTask* task, int errnox, char* action)
 {
     char* msg;
 
@@ -1759,7 +1760,7 @@ _exit_with_error_lean:
     // printf("vfs_file_task_exec DONE ERROR\n");
 }
 
-bool on_size_timeout(VFSFileTask* task)
+static bool on_size_timeout(VFSFileTask* task)
 {
     if (!task->abort)
         task->state = VFS_FILE_TASK_SIZE_TIMEOUT;
@@ -2106,7 +2107,7 @@ void vfs_file_task_free(VFSFileTask* task)
     g_slice_free(VFSFileTask, task);
 }
 
-void add_task_dev(VFSFileTask* task, dev_t dev)
+static void add_task_dev(VFSFileTask* task, dev_t dev)
 {
     dev_t parent = 0;
     if (!g_slist_find(task->devs, GUINT_TO_POINTER(dev)))
@@ -2133,7 +2134,8 @@ void add_task_dev(VFSFileTask* task, dev_t dev)
  * calculation is cancelled.
  * NOTE: *size should be set to zero before calling this function.
  */
-void get_total_size_of_dir(VFSFileTask* task, const char* path, off_t* size, struct stat* have_stat)
+static void get_total_size_of_dir(VFSFileTask* task, const char* path, off_t* size,
+                                  struct stat* have_stat)
 {
     if (task->abort)
         return;
@@ -2196,7 +2198,8 @@ void vfs_file_task_set_state_callback(VFSFileTask* task, VFSFileTaskStateCallbac
     task->state_cb_data = user_data;
 }
 
-void vfs_file_task_error(VFSFileTask* task, int errnox, const char* action, const char* target)
+static void vfs_file_task_error(VFSFileTask* task, int errnox, const char* action,
+                                const char* target)
 {
     task->error = errnox;
     char* msg = g_strdup_printf(_("\n%s %s\nError: %s\n"), action, target, g_strerror(errnox));

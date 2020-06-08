@@ -39,7 +39,7 @@ static void fill_buffer_from_file(CustomElement* el, GtkTextBuffer* buf, char* p
 static void write_source(GtkWidget* dlg, CustomElement* el_pressed, FILE* out, bool is_cancel);
 static bool destroy_dlg(GtkWidget* dlg);
 static void on_button_clicked(GtkButton* button, CustomElement* el);
-void on_combo_changed(GtkComboBox* box, CustomElement* el);
+static void on_combo_changed(GtkComboBox* box, CustomElement* el);
 static bool on_timeout_timer(CustomElement* el);
 static bool press_last_button(GtkWidget* dlg);
 static bool on_progress_timer(CustomElement* el);
@@ -218,7 +218,7 @@ static void select_in_combo_box(CustomElement* el, const char* value)
     } while (gtk_tree_model_iter_next(model, &iter));
 }
 
-char* get_column_value(GtkTreeModel* model, GtkTreeIter* iter, int col_index)
+static char* get_column_value(GtkTreeModel* model, GtkTreeIter* iter, int col_index)
 {
     char* str = NULL;
     int64_t i64;
@@ -246,7 +246,7 @@ char* get_column_value(GtkTreeModel* model, GtkTreeIter* iter, int col_index)
     return str;
 }
 
-char* get_tree_view_selected(CustomElement* el, const char* prefix)
+static char* get_tree_view_selected(CustomElement* el, const char* prefix)
 {
     char* selected = NULL;
     char* indices = NULL;
@@ -621,7 +621,7 @@ static void select_in_tree_view(CustomElement* el, const char* value, bool selec
     } while (gtk_tree_model_iter_next(model, &iter));
 }
 
-GList* args_from_file(const char* path)
+static GList* args_from_file(const char* path)
 {
     char line[2048];
     GList* args = NULL;
@@ -2291,7 +2291,7 @@ static bool on_timeout_timer(CustomElement* el)
     return TRUE;
 }
 
-void on_widget_grab_focus(GtkWidget* widget, CustomElement* el)
+static void on_widget_grab_focus(GtkWidget* widget, CustomElement* el)
 {
     GList* l;
     char* val;
@@ -2315,12 +2315,12 @@ void on_widget_grab_focus(GtkWidget* widget, CustomElement* el)
     g_free(elval);
 }
 
-void on_list_selection_changed(GtkTreeSelection* tree_sel, CustomElement* el)
+static void on_list_selection_changed(GtkTreeSelection* tree_sel, CustomElement* el)
 {
     on_widget_grab_focus(GTK_WIDGET(el->widgets->next->data), el);
 }
 
-void on_combo_changed(GtkComboBox* box, CustomElement* el)
+static void on_combo_changed(GtkComboBox* box, CustomElement* el)
 {
     on_widget_grab_focus(GTK_WIDGET(box), el);
     if (el->type != CDLG_DROP || !el->cmd_args)
@@ -2365,7 +2365,7 @@ static bool on_widget_button_press_event(GtkWidget* widget, GdkEventButton* evt,
     return FALSE;
 }
 
-void on_option_toggled(GtkToggleButton* togglebutton, CustomElement* el)
+static void on_option_toggled(GtkToggleButton* togglebutton, CustomElement* el)
 {
     if (el->type == CDLG_TIMEOUT)
     {
@@ -2433,12 +2433,12 @@ static bool press_last_button(GtkWidget* dlg)
     return FALSE;
 }
 
-void on_chooser_selection_changed(GtkFileChooser* chooser, CustomElement* el)
+static void on_chooser_selection_changed(GtkFileChooser* chooser, CustomElement* el)
 {
     on_widget_grab_focus(GTK_WIDGET(chooser), el);
 }
 
-void on_chooser_activated(GtkFileChooser* chooser, CustomElement* el)
+static void on_chooser_activated(GtkFileChooser* chooser, CustomElement* el)
 {
     if (el->cmd_args)
     {
@@ -2451,7 +2451,7 @@ void on_chooser_activated(GtkFileChooser* chooser, CustomElement* el)
         press_last_button(el->widgets->data);
 }
 
-bool on_window_delete(GtkWidget* widget, GdkEvent* event, CustomElement* el)
+static bool on_window_delete(GtkWidget* widget, GdkEvent* event, CustomElement* el)
 {
     if (el && el->cmd_args)
     {
@@ -3685,7 +3685,7 @@ static void build_dialog(GList* elements)
     enable_click_event = TRUE;
 }
 
-void signal_handler()
+static void signal_handler()
 {
     if (signal_dialog)
     {

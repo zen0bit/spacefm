@@ -306,7 +306,7 @@ int xset_get_int(const char* name, const char* var);
 int xset_get_int_panel(int panel, const char* name, const char* var);
 XSet* xset_set_panel(int panel, const char* name, const char* var, const char* value);
 XSet* xset_set_cb_panel(int panel, const char* name, void (*cb_func)(), void* cb_data);
-bool xset_get_b_set(XSet* set);
+// bool xset_get_b_set(XSet* set);
 XSet* xset_get_panel_mode(int panel, const char* name, char mode);
 bool xset_get_b_panel_mode(int panel, const char* name, char mode);
 XSet* xset_set_b_panel_mode(int panel, const char* name, char mode, bool bval);
@@ -320,7 +320,7 @@ void xset_set_key(GtkWidget* parent, XSet* set);
 XSet* xset_set(const char* name, const char* var, const char* value);
 XSet* xset_set_set(XSet* set, const char* var, const char* value);
 void xset_custom_delete(XSet* set, bool delete_next);
-void xset_custom_activate(GtkWidget* item, XSet* set);
+// void xset_custom_activate(GtkWidget* item, XSet* set);
 XSet* xset_custom_remove(XSet* set);
 char* xset_custom_get_app_name_icon(XSet* set, GdkPixbuf** icon, int icon_size);
 GdkPixbuf* xset_custom_get_bookmark_icon(XSet* set, int icon_size);
@@ -346,8 +346,8 @@ bool xset_text_dialog(GtkWidget* parent, const char* title, GtkWidget* image, bo
                       const char* defreset, bool edit_care, const char* help);
 char* xset_file_dialog(GtkWidget* parent, GtkFileChooserAction action, const char* title,
                        const char* deffolder, const char* deffile);
-char* xset_font_dialog(GtkWidget* parent, const char* title, const char* preview,
-                       const char* deffont);
+// char* xset_font_dialog(GtkWidget* parent, const char* title, const char* preview,
+//                        const char* deffont);
 void xset_edit(GtkWidget* parent, const char* path, bool force_root, bool no_root);
 void xset_open_url(GtkWidget* parent, const char* url);
 void xset_fill_toolbar(GtkWidget* parent, PtkFileBrowser* file_browser, GtkWidget* toolbar,

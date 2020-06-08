@@ -41,8 +41,8 @@ static GtkTreeModel* model = NULL;
 static int n_vols = 0;
 static unsigned int theme_changed = 0; /* GtkIconTheme::"changed" handler */
 
-GdkPixbuf* global_icon_bookmark = NULL;
-GdkPixbuf* global_icon_submenu = NULL;
+static GdkPixbuf* global_icon_bookmark = NULL;
+static GdkPixbuf* global_icon_submenu = NULL;
 
 static void ptk_location_view_init_model(GtkListStore* list);
 
@@ -53,7 +53,7 @@ static void remove_volume(VFSVolume* vol);
 static void update_volume(VFSVolume* vol);
 
 static bool on_button_press_event(GtkTreeView* view, GdkEventButton* evt, void* user_data);
-bool on_key_press_event(GtkWidget* w, GdkEventKey* event, PtkFileBrowser* file_browser);
+static bool on_key_press_event(GtkWidget* w, GdkEventKey* event, PtkFileBrowser* file_browser);
 
 static void on_bookmark_model_destroy(void* data, GObject* object);
 static void on_bookmark_device(GtkMenuItem* item, VFSVolume* vol);
@@ -84,12 +84,12 @@ typedef struct AutoOpen
     int job;
 } AutoOpen;
 
-bool volume_is_visible(VFSVolume* vol);
-void update_all();
+static bool volume_is_visible(VFSVolume* vol);
+static void update_all();
 
 // do not translate - bash security
-const char* press_enter_to_close = "[ Finished ]  Press Enter to close";
-const char* keep_term_when_done = "\\n[[ $? -eq 0 ]] || ( read -p '%s: ' )\\n\"";
+static const char* press_enter_to_close = "[ Finished ]  Press Enter to close";
+static const char* keep_term_when_done = "\\n[[ $? -eq 0 ]] || ( read -p '%s: ' )\\n\"";
 
 /*  Drag & Drop/Clipboard targets  */
 static GtkTargetEntry drag_targets[] = {{"text/uri-list", 0, 0}};
@@ -139,14 +139,14 @@ void update_volume_icons()
     }
 }
 
-void update_all_icons()
+static void update_all_icons()
 {
     update_volume_icons();
     // dev_icon_network is used by bookmark view
     main_window_update_all_bookmark_views();
 }
 
-void update_change_detection()
+static void update_change_detection()
 {
     // update all windows/all panels/all browsers
     const GList* l;
@@ -178,7 +178,7 @@ void update_change_detection()
     }
 }
 
-void update_all()
+static void update_all()
 {
     if (!model)
         return;
@@ -299,8 +299,8 @@ VFSVolume* ptk_location_view_get_selected_vol(GtkTreeView* location_view)
     return NULL;
 }
 
-void on_row_activated(GtkTreeView* view, GtkTreePath* tree_path, GtkTreeViewColumn* col,
-                      PtkFileBrowser* file_browser)
+static void on_row_activated(GtkTreeView* view, GtkTreePath* tree_path, GtkTreeViewColumn* col,
+                             PtkFileBrowser* file_browser)
 {
     // printf("on_row_activated   view = %d\n", view );
     if (!file_browser)
@@ -369,7 +369,7 @@ bool ptk_location_view_open_block(const char* block, bool new_tab)
     return FALSE;
 }
 
-void ptk_location_view_init_model(GtkListStore* list)
+static void ptk_location_view_init_model(GtkListStore* list)
 {
     n_vols = 0;
     const GList* l = vfs_volume_get_all_volumes();
@@ -452,7 +452,7 @@ GtkWidget* ptk_location_view_new(PtkFileBrowser* file_browser)
     return view;
 }
 
-void on_volume_event(VFSVolume* vol, VFSVolumeState state, void* user_data)
+static void on_volume_event(VFSVolume* vol, VFSVolumeState state, void* user_data)
 {
     switch (state)
     {
@@ -473,7 +473,7 @@ void on_volume_event(VFSVolume* vol, VFSVolumeState state, void* user_data)
     }
 }
 
-void add_volume(VFSVolume* vol, bool set_icon)
+static void add_volume(VFSVolume* vol, bool set_icon)
 {
     if (!volume_is_visible(vol))
         return;
@@ -521,7 +521,7 @@ void add_volume(VFSVolume* vol, bool set_icon)
     ++n_vols;
 }
 
-void remove_volume(VFSVolume* vol)
+static void remove_volume(VFSVolume* vol)
 {
     if (!vol)
         return;
@@ -541,7 +541,7 @@ void remove_volume(VFSVolume* vol)
     --n_vols;
 }
 
-void update_volume(VFSVolume* vol)
+static void update_volume(VFSVolume* vol)
 {
     if (!vol)
         return;
@@ -808,7 +808,7 @@ char* ptk_location_view_create_mount_point(int mode, VFSVolume* vol, netmount_t*
     return point;
 }
 
-void on_autoopen_net_cb(VFSFileTask* task, AutoOpen* ao)
+static void on_autoopen_net_cb(VFSFileTask* task, AutoOpen* ao)
 {
     if (!(ao && ao->device_file))
         return;
@@ -1392,7 +1392,7 @@ static void on_eject(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2)
     ptk_file_task_run(task);
 }
 
-bool on_autoopen_cb(VFSFileTask* task, AutoOpen* ao)
+static bool on_autoopen_cb(VFSFileTask* task, AutoOpen* ao)
 {
     // printf("on_autoopen_cb\n");
     const GList* volumes = vfs_volume_get_all_volumes();
@@ -2356,7 +2356,7 @@ static void on_handler_show_config(GtkMenuItem* item, GtkWidget* view, XSet* set
     ptk_handler_show_config(mode, file_browser, NULL);
 }
 
-bool volume_is_visible(VFSVolume* vol)
+static bool volume_is_visible(VFSVolume* vol)
 {
     // check show/hide
     int i, j;
@@ -2638,7 +2638,7 @@ static void show_devices_menu(GtkTreeView* view, VFSVolume* vol, PtkFileBrowser*
     gtk_menu_popup(GTK_MENU(popup), NULL, NULL, NULL, NULL, button, time);
 }
 
-bool on_button_press_event(GtkTreeView* view, GdkEventButton* evt, void* user_data)
+static bool on_button_press_event(GtkTreeView* view, GdkEventButton* evt, void* user_data)
 {
     VFSVolume* vol = NULL;
     bool ret = FALSE;
@@ -2714,7 +2714,7 @@ bool on_button_press_event(GtkTreeView* view, GdkEventButton* evt, void* user_da
     return ret;
 }
 
-bool on_key_press_event(GtkWidget* w, GdkEventKey* event, PtkFileBrowser* file_browser)
+static bool on_key_press_event(GtkWidget* w, GdkEventKey* event, PtkFileBrowser* file_browser)
 {
     int keymod = (event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK |
                                   GDK_SUPER_MASK | GDK_HYPER_MASK | GDK_META_MASK));
@@ -2732,7 +2732,7 @@ bool on_key_press_event(GtkWidget* w, GdkEventKey* event, PtkFileBrowser* file_b
     return FALSE;
 }
 
-void on_dev_menu_hide(GtkWidget* widget, GtkWidget* dev_menu)
+static void on_dev_menu_hide(GtkWidget* widget, GtkWidget* dev_menu)
 {
     gtk_widget_set_sensitive(widget, TRUE);
     gtk_menu_shell_deactivate(GTK_MENU_SHELL(dev_menu));
@@ -2915,7 +2915,7 @@ static void show_dev_design_menu(GtkWidget* menu, GtkWidget* dev_item, VFSVolume
     gtk_menu_shell_select_first(GTK_MENU_SHELL(popup), TRUE);
 }
 
-bool on_dev_menu_keypress(GtkWidget* menu, GdkEventKey* event, void* user_data)
+static bool on_dev_menu_keypress(GtkWidget* menu, GdkEventKey* event, void* user_data)
 {
     GtkWidget* item = gtk_menu_shell_get_selected_item(GTK_MENU_SHELL(menu));
     if (item)
@@ -2937,7 +2937,7 @@ bool on_dev_menu_keypress(GtkWidget* menu, GdkEventKey* event, void* user_data)
     return FALSE;
 }
 
-bool on_dev_menu_button_press(GtkWidget* item, GdkEventButton* event, VFSVolume* vol)
+static bool on_dev_menu_button_press(GtkWidget* item, GdkEventButton* event, VFSVolume* vol)
 {
     GtkWidget* menu = (GtkWidget*)g_object_get_data(G_OBJECT(item), "menu");
     int keymod = (event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK |
@@ -2972,7 +2972,7 @@ bool on_dev_menu_button_press(GtkWidget* item, GdkEventButton* event, VFSVolume*
     return TRUE;
 }
 
-int cmp_dev_name(VFSVolume* a, VFSVolume* b)
+static int cmp_dev_name(VFSVolume* a, VFSVolume* b)
 {
     return g_strcmp0(vfs_volume_get_disp_name(a), vfs_volume_get_disp_name(b));
 }
@@ -4232,7 +4232,8 @@ static bool on_bookmark_button_release_event(GtkTreeView* view, GdkEventButton* 
     return FALSE;
 }
 
-bool on_bookmark_key_press_event(GtkWidget* w, GdkEventKey* event, PtkFileBrowser* file_browser)
+static bool on_bookmark_key_press_event(GtkWidget* w, GdkEventKey* event,
+                                        PtkFileBrowser* file_browser)
 {
     int keymod = (event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK |
                                   GDK_SUPER_MASK | GDK_HYPER_MASK | GDK_META_MASK));

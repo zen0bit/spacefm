@@ -116,7 +116,7 @@ void* vfs_async_task_get_data(VFSAsyncTask* task)
     return task->user_data;
 }
 
-void vfs_async_task_finalize(GObject* object)
+static void vfs_async_task_finalize(GObject* object)
 {
     VFSAsyncTask* task;
     /* FIXME: destroying the object without calling vfs_async_task_cancel
@@ -133,7 +133,7 @@ void vfs_async_task_finalize(GObject* object)
         (*G_OBJECT_CLASS(parent_class)->finalize)(object);
 }
 
-bool on_idle(void* _task)
+static bool on_idle(void* _task)
 {
     VFSAsyncTask* task = VFS_ASYNC_TASK(_task);
     // GDK_THREADS_ENTER();   // not needed because this runs in main thread
@@ -142,7 +142,7 @@ bool on_idle(void* _task)
     return TRUE; /* the idle handler is removed in vfs_async_thread_cleanup. */
 }
 
-void* vfs_async_task_thread(void* _task)
+static void* vfs_async_task_thread(void* _task)
 {
     VFSAsyncTask* task = VFS_ASYNC_TASK(_task);
     void* ret = task->func(task, task->user_data);
@@ -161,7 +161,7 @@ void vfs_async_task_execute(VFSAsyncTask* task)
     task->thread = g_thread_new("async_task", vfs_async_task_thread, task);
 }
 
-void vfs_async_thread_cleanup(VFSAsyncTask* task, bool finalize)
+static void vfs_async_thread_cleanup(VFSAsyncTask* task, bool finalize)
 {
     if (task->idle_id)
     {
@@ -217,7 +217,7 @@ void vfs_async_task_cancel(VFSAsyncTask* task)
     vfs_async_task_real_cancel(task, FALSE);
 }
 
-void vfs_async_task_finish(VFSAsyncTask* task, bool is_cancelled)
+static void vfs_async_task_finish(VFSAsyncTask* task, bool is_cancelled)
 {
     /* default handler of "finish" signal. */
 }

@@ -24,7 +24,7 @@
 // sfm breaks vfs independence for exec_in_terminal
 #include "../ptk/ptk-file-task.h"
 
-const char desktop_entry_name[] = "Desktop Entry";
+static const char desktop_entry_name[] = "Desktop Entry";
 
 /*
  * If file_name is not a full path, this function searches default paths
@@ -215,7 +215,7 @@ bool vfs_app_desktop_open_in_terminal(VFSAppDesktop* app)
     return app->terminal;
 }
 
-bool vfs_app_desktop_uses_startup_notify(VFSAppDesktop* app)
+static bool vfs_app_desktop_uses_startup_notify(VFSAppDesktop* app)
 {
     return app->startup;
 }
@@ -369,7 +369,7 @@ _finish:
     return g_string_free(cmd, FALSE);
 }
 
-void exec_in_terminal(const char* app_name, const char* cwd, const char* cmd)
+static void exec_in_terminal(const char* app_name, const char* cwd, const char* cmd)
 {
     // task
     PtkFileTask* task = ptk_file_exec_new(app_name, cwd, NULL, NULL);

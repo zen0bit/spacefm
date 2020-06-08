@@ -54,33 +54,34 @@
 #define DEFAULT_TMP_DIR "/tmp"
 
 AppSettings app_settings = {0};
-const bool show_thumbnail_default = FALSE;
-const int max_thumb_size_default = 8 << 20;
-const int big_icon_size_default = 48;
-const int max_icon_size = 512;
-const int small_icon_size_default = 22;
-const int tool_icon_size_default = 0;
+static const bool show_thumbnail_default = FALSE;
+static const int max_thumb_size_default = 8 << 20;
+static const int big_icon_size_default = 48;
+static const int max_icon_size = 512;
+static const int small_icon_size_default = 22;
+static const int tool_icon_size_default = 0;
 
 /* Default values of interface settings */
-const bool always_show_tabs_default = TRUE;
-const bool hide_close_tab_buttons_default = FALSE;
+static const bool always_show_tabs_default = TRUE;
+static const bool hide_close_tab_buttons_default = FALSE;
 
 // MOD settings
-void xset_write(GString* buf);
-void xset_parse(char* line);
-void read_root_settings();
-void xset_defaults();
-const bool use_si_prefix_default = FALSE;
+static void xset_write(GString* buf);
+static void xset_parse(char* line);
+static void read_root_settings();
+static void xset_defaults();
+static const bool use_si_prefix_default = FALSE;
+
 GList* xsets = NULL;
-GList* keysets = NULL;
-XSet* set_clipboard = NULL;
-bool clipboard_is_cut;
-XSet* set_last;
-char* settings_config_dir = NULL;
-char* settings_tmp_dir = NULL;
-char* settings_user_tmp_dir = NULL;
-XSetContext* xset_context = NULL;
-XSet* book_icon_set_cached = NULL;
+static GList* keysets = NULL;
+static XSet* set_clipboard = NULL;
+static bool clipboard_is_cut;
+static XSet* set_last;
+static char* settings_config_dir = NULL;
+static char* settings_tmp_dir = NULL;
+static char* settings_user_tmp_dir = NULL;
+static XSetContext* xset_context = NULL;
+static XSet* book_icon_set_cached = NULL;
 
 XSet* evt_win_focus = NULL;
 XSet* evt_win_move = NULL;
@@ -100,40 +101,42 @@ GList* xset_cmd_history = NULL;
 char* settings_terminal_su = NULL;
 
 // delayed session saving
-unsigned int xset_autosave_timer = 0;
-bool xset_autosave_request = FALSE;
+static unsigned int xset_autosave_timer = 0;
+static bool xset_autosave_request = FALSE;
 
 typedef void (*SettingsParseFunc)(char* line);
 
-void xset_free_all();
-void xset_default_keys();
-char* xset_color_dialog(GtkWidget* parent, char* title, char* defcolor);
-GtkWidget* xset_design_additem(GtkWidget* menu, const char* label, const char* stock_icon, int job,
-                               XSet* set);
-bool xset_design_cb(GtkWidget* item, GdkEventButton* event, XSet* set);
-bool on_autosave_timer(void* main_window);
-const char* icon_stock_to_id(const char* name);
-void xset_builtin_tool_activate(char tool_type, XSet* set, GdkEventButton* event);
-XSet* xset_new_builtin_toolitem(char tool_type);
-void xset_custom_insert_after(XSet* target, XSet* set);
-XSet* xset_custom_copy(XSet* set, bool copy_next, bool delete_set);
-void xset_free(XSet* set);
+static void xset_free_all();
+static void xset_default_keys();
+static char* xset_color_dialog(GtkWidget* parent, char* title, char* defcolor);
+static GtkWidget* xset_design_additem(GtkWidget* menu, const char* label, const char* stock_icon,
+                                      int job, XSet* set);
+static bool xset_design_cb(GtkWidget* item, GdkEventButton* event, XSet* set);
+static bool on_autosave_timer(void* main_window);
+static const char* icon_stock_to_id(const char* name);
+static void xset_builtin_tool_activate(char tool_type, XSet* set, GdkEventButton* event);
+static XSet* xset_new_builtin_toolitem(char tool_type);
+static void xset_custom_insert_after(XSet* target, XSet* set);
+static XSet* xset_custom_copy(XSet* set, bool copy_next, bool delete_set);
+static void xset_free(XSet* set);
+static char* xset_font_dialog(GtkWidget* parent, const char* title, const char* preview,
+                              const char* deffont);
 
-const char* user_manual_url = "http://ignorantguru.github.io/spacefm/spacefm-manual-en.html";
-const char* homepage = "http://ignorantguru.github.io/spacefm/"; // also in aboutdlg.ui
+static const char* user_manual_url = "http://ignorantguru.github.io/spacefm/spacefm-manual-en.html";
+static const char* homepage = "http://ignorantguru.github.io/spacefm/"; // also in aboutdlg.ui
 
-const char* enter_command_line =
+static const char* enter_command_line =
     N_("Enter program or bash command line:\n\nUse:\n\t%%F\tselected files  or  %%f first selected "
        "file\n\t%%N\tselected filenames  or  %%n first selected filename\n\t%%d\tcurrent "
        "directory\n\t%%v\tselected device (eg /dev/sda1)\n\t%%m\tdevice mount point (eg "
        "/media/dvd);  %%l device label\n\t%%b\tselected bookmark\n\t%%t\tselected task directory;  "
        "%%p task pid\n\t%%a\tmenu item value\n\t$fm_panel, $fm_tab, etc");
 
-const char* icon_desc =
+static const char* icon_desc =
     N_("Enter an icon name, icon file path, or stock item name:\n\nOr click Choose to select an "
        "icon.  Not all icons may work properly due to various issues.");
 
-const char* enter_menu_name_new =
+static const char* enter_menu_name_new =
     N_("Enter new item name:\n\nPrecede a character with an underscore (_) to underline that "
        "character as a shortcut key if desired.\n\nTIP: To change this item later, right-click on "
        "the item to open the Design Menu.");
@@ -778,7 +781,7 @@ static void auto_save_start(bool delay)
     }
 }
 
-bool on_autosave_timer(void* ptr)
+static bool on_autosave_timer(void* ptr)
 {
     // printf("AUTOSAVE timeout\n" );
     if (xset_autosave_timer)
@@ -828,7 +831,7 @@ void xset_autosave_cancel()
     }
 }
 
-void xset_free_all()
+static void xset_free_all()
 {
     XSet* set;
     GList* l;
@@ -894,7 +897,7 @@ void xset_free_all()
     }
 }
 
-void xset_free(XSet* set)
+static void xset_free(XSet* set)
 {
     if (set->name)
         g_free(set->name);
@@ -940,7 +943,7 @@ void xset_free(XSet* set)
     set_last = NULL;
 }
 
-XSet* xset_new(const char* name)
+static XSet* xset_new(const char* name)
 {
     XSet* set = g_slice_new(XSet);
     set->name = g_strdup(name);
@@ -1062,7 +1065,7 @@ bool xset_get_b_panel_mode(int panel, const char* name, char mode)
     return b;
 }
 
-bool xset_get_b_set(XSet* set)
+static bool xset_get_b_set(XSet* set)
 {
     return (set->b == XSET_B_TRUE);
 }
@@ -1111,7 +1114,7 @@ XSet* xset_set_b_panel_mode(int panel, const char* name, char mode, bool bval)
     return set;
 }
 
-int xset_get_int_set(XSet* set, const char* var)
+static int xset_get_int_set(XSet* set, const char* var)
 {
     if (!set || !var)
         return -1;
@@ -1147,7 +1150,7 @@ int xset_get_int_panel(int panel, const char* name, const char* var)
     return i;
 }
 
-XSet* xset_is_main_bookmark(XSet* set)
+static XSet* xset_is_main_bookmark(XSet* set)
 {
     XSet* set_parent = NULL;
 
@@ -1258,7 +1261,7 @@ static void xset_write_set(GString* buf, XSet* set)
     }
 }
 
-void xset_write(GString* buf)
+static void xset_write(GString* buf)
 {
     GList* l;
 
@@ -1273,7 +1276,7 @@ void xset_write(GString* buf)
     }
 }
 
-void xset_parse(char* line)
+static void xset_parse(char* line)
 {
     char* sep = strchr(line, '=');
     if (!sep)
@@ -1733,8 +1736,8 @@ bool xset_opener(PtkFileBrowser* file_browser, char job)
     return found;
 }
 
-void write_root_saver(GString* buf, const char* path, const char* name, const char* var,
-                      const char* value)
+static void write_root_saver(GString* buf, const char* path, const char* name, const char* var,
+                             const char* value)
 {
     if (!value)
         return;
@@ -1785,7 +1788,7 @@ bool write_root_settings(GString* buf, const char* path)
     return TRUE;
 }
 
-void read_root_settings()
+static void read_root_settings()
 {
     GList* l;
     XSet* set;
@@ -1884,7 +1887,7 @@ XSetContext* xset_context_new()
     return xset_context;
 }
 
-const char* icon_stock_to_id(const char* name)
+static const char* icon_stock_to_id(const char* name)
 {
     if (!name)
         return NULL;
@@ -2147,7 +2150,7 @@ void xset_add_menu(PtkFileBrowser* file_browser, GtkWidget* menu, GtkAccelGroup*
     }
 }
 
-GtkWidget* xset_new_menuitem(const char* label, const char* icon)
+static GtkWidget* xset_new_menuitem(const char* label, const char* icon)
 {
     GtkWidget* item;
 
@@ -2570,7 +2573,7 @@ char* xset_custom_get_script(XSet* set, bool create)
     return path;
 }
 
-char* xset_custom_get_help(GtkWidget* parent, XSet* set)
+static char* xset_custom_get_help(GtkWidget* parent, XSet* set)
 {
     char* dir;
     char* path;
@@ -2671,7 +2674,7 @@ char* xset_custom_get_help(GtkWidget* parent, XSet* set)
     return NULL;
 }
 
-char* xset_custom_new_name()
+static char* xset_custom_new_name()
 {
     char* setname;
 
@@ -2703,7 +2706,7 @@ char* xset_custom_new_name()
     return setname;
 }
 
-void xset_custom_copy_files(XSet* src, XSet* dest)
+static void xset_custom_copy_files(XSet* src, XSet* dest)
 {
     char* path_src;
     char* path_dest;
@@ -2807,7 +2810,7 @@ void xset_custom_copy_files(XSet* src, XSet* dest)
     }
 }
 
-XSet* xset_custom_copy(XSet* set, bool copy_next, bool delete_set)
+static XSet* xset_custom_copy(XSet* set, bool copy_next, bool delete_set)
 {
     // printf("\nxset_custom_copy( %s, %s, %s)\n", set->name, copy_next ? "TRUE" : "FALSE",
     // delete_set ? "TRUE" : "FALSE" );
@@ -2927,7 +2930,7 @@ _redo:
     g_free(path);
 }
 
-void xset_set_plugin_mirror(XSet* pset)
+static void xset_set_plugin_mirror(XSet* pset)
 {
     XSet* set;
     GList* l;
@@ -2983,7 +2986,7 @@ XSet* xset_get_plugin_mirror(XSet* set)
     return newset;
 }
 
-int compare_plugin_sets(XSet* a, XSet* b)
+static int compare_plugin_sets(XSet* a, XSet* b)
 {
     return g_utf8_collate(a->menu_label, b->menu_label);
 }
@@ -3012,7 +3015,7 @@ GList* xset_get_plugins(bool included)
     return plugins;
 }
 
-XSet* xset_get_by_plug_name(const char* plug_dir, const char* plug_name)
+static XSet* xset_get_by_plug_name(const char* plug_dir, const char* plug_name)
 {
     GList* l;
     if (!plug_name)
@@ -3035,7 +3038,7 @@ XSet* xset_get_by_plug_name(const char* plug_dir, const char* plug_name)
     return set;
 }
 
-void xset_parse_plugin(const char* plug_dir, char* line, int use)
+static void xset_parse_plugin(const char* plug_dir, char* line, int use)
 {
     char* sep = strchr(line, '=');
     char* name;
@@ -3241,7 +3244,7 @@ typedef struct PluginData
     int job;
 } PluginData;
 
-void on_install_plugin_cb(VFSFileTask* task, PluginData* plugin_data)
+static void on_install_plugin_cb(VFSFileTask* task, PluginData* plugin_data)
 {
     XSet* set;
     char* msg;
@@ -3427,7 +3430,7 @@ void on_install_plugin_cb(VFSFileTask* task, PluginData* plugin_data)
     g_slice_free(PluginData, plugin_data);
 }
 
-void xset_remove_plugin(GtkWidget* parent, PtkFileBrowser* file_browser, XSet* set)
+static void xset_remove_plugin(GtkWidget* parent, PtkFileBrowser* file_browser, XSet* set)
 {
     char* msg;
 
@@ -3604,7 +3607,7 @@ void install_plugin_file(void* main_win, GtkWidget* handler_dlg, const char* pat
     ptk_file_task_run(task);
 }
 
-bool xset_custom_export_files(XSet* set, char* plug_dir)
+static bool xset_custom_export_files(XSet* set, char* plug_dir)
 {
     char* path_src;
     char* path_dest;
@@ -3658,7 +3661,7 @@ bool xset_custom_export_files(XSet* set, char* plug_dir)
     return ret;
 }
 
-bool xset_custom_export_write(GString* buf, XSet* set, char* plug_dir)
+static bool xset_custom_export_write(GString* buf, XSet* set, char* plug_dir)
 { // recursively write set, submenu sets, and next sets
     xset_write_set(buf, set);
     if (!xset_custom_export_files(set, plug_dir))
@@ -3951,7 +3954,7 @@ static void open_spec(PtkFileBrowser* file_browser, const char* url, bool in_new
     g_free(tilde_url);
 }
 
-void xset_custom_activate(GtkWidget* item, XSet* set)
+static void xset_custom_activate(GtkWidget* item, XSet* set)
 {
     GtkWidget* parent;
     GtkWidget* task_view = NULL;
@@ -4288,7 +4291,7 @@ XSet* xset_custom_remove(XSet* set)
     return NULL;
 }
 
-void xset_custom_insert_after(XSet* target, XSet* set)
+static void xset_custom_insert_after(XSet* target, XSet* set)
 { // inserts single set 'set', no next
     XSet* target_next;
 
@@ -4334,7 +4337,7 @@ void xset_custom_insert_after(XSet* target, XSet* set)
     }
 }
 
-bool xset_clipboard_in_set(XSet* set)
+static bool xset_clipboard_in_set(XSet* set)
 { // look upward to see if clipboard is in set's tree
     if (!set_clipboard || set->lock)
         return FALSE;
@@ -4537,7 +4540,7 @@ void xset_open_url(GtkWidget* parent, const char* url)
     ptk_file_task_run(task);
 }
 
-char* xset_get_manual_url()
+static char* xset_get_manual_url()
 {
     char* path;
     char* url = xset_get_s("main_help_url");
@@ -4775,7 +4778,7 @@ char* xset_get_keyname(XSet* set, int key_val, int key_mod)
     return mod;
 }
 
-bool on_set_key_keypress(GtkWidget* widget, GdkEventKey* event, GtkWidget* dlg)
+static bool on_set_key_keypress(GtkWidget* widget, GdkEventKey* event, GtkWidget* dlg)
 {
     GList* l;
     int* newkey = (int*)g_object_get_data(G_OBJECT(dlg), "newkey");
@@ -5003,7 +5006,7 @@ void xset_set_key(GtkWidget* parent, XSet* set)
     }
 }
 
-void xset_design_job(GtkWidget* item, XSet* set)
+static void xset_design_job(GtkWidget* item, XSet* set)
 {
     XSet* newset;
     XSet* mset;
@@ -5863,7 +5866,7 @@ void xset_design_job(GtkWidget* item, XSet* set)
     xset_autosave(FALSE, FALSE);
 }
 
-bool xset_job_is_valid(XSet* set, int job)
+static bool xset_job_is_valid(XSet* set, int job)
 {
     bool no_remove = FALSE;
     bool no_paste = FALSE;
@@ -5932,7 +5935,7 @@ bool xset_job_is_valid(XSet* set, int job)
     return FALSE;
 }
 
-bool xset_design_menu_keypress(GtkWidget* widget, GdkEventKey* event, XSet* set)
+static bool xset_design_menu_keypress(GtkWidget* widget, GdkEventKey* event, XSet* set)
 {
     int job = -1;
 
@@ -6165,7 +6168,7 @@ bool xset_design_menu_keypress(GtkWidget* widget, GdkEventKey* event, XSet* set)
     return FALSE;
 }
 
-void on_menu_hide(GtkWidget* widget, GtkWidget* design_menu)
+static void on_menu_hide(GtkWidget* widget, GtkWidget* design_menu)
 {
     gtk_widget_set_sensitive(widget, TRUE);
     gtk_menu_shell_deactivate(GTK_MENU_SHELL(design_menu));
@@ -6178,8 +6181,8 @@ static void set_check_menu_item_block(GtkWidget* item)
     g_signal_handlers_unblock_matched(item, G_SIGNAL_MATCH_FUNC, 0, 0, NULL, xset_design_job, NULL);
 }
 
-GtkWidget* xset_design_additem(GtkWidget* menu, const char* label, const char* stock_icon, int job,
-                               XSet* set)
+static GtkWidget* xset_design_additem(GtkWidget* menu, const char* label, const char* stock_icon,
+                                      int job, XSet* set)
 {
     GtkWidget* item;
     if (stock_icon)
@@ -6557,7 +6560,7 @@ GtkWidget* xset_design_show_menu(GtkWidget* menu, XSet* set, XSet* book_insert, 
     return design_menu;
 }
 
-bool xset_design_cb(GtkWidget* item, GdkEventButton* event, XSet* set)
+static bool xset_design_cb(GtkWidget* item, GdkEventButton* event, XSet* set)
 {
     int job = -1;
 
@@ -7079,7 +7082,7 @@ int xset_msg_dialog(GtkWidget* parent, int action, const char* title, GtkWidget*
     return response;
 }
 
-void on_multi_input_insert(GtkTextBuffer* buf)
+static void on_multi_input_insert(GtkTextBuffer* buf)
 { // remove linefeeds from pasted text
     GtkTextIter iter, siter;
     // bool changed = FALSE;
@@ -7155,7 +7158,7 @@ void on_multi_input_insert(GtkTextBuffer* buf)
     g_free(b);
 }
 
-void on_multi_input_font_change(GtkMenuItem* item, GtkTextView* input)
+static void on_multi_input_font_change(GtkMenuItem* item, GtkTextView* input)
 {
     char* fontname = xset_get_s("input_font");
     if (fontname)
@@ -7176,7 +7179,7 @@ void on_multi_input_font_change(GtkMenuItem* item, GtkTextView* input)
 #endif
 }
 
-void on_multi_input_popup(GtkTextView* input, GtkMenu* menu, void* user_data)
+static void on_multi_input_popup(GtkTextView* input, GtkMenu* menu, void* user_data)
 {
     GtkAccelGroup* accel_group = gtk_accel_group_new();
     XSet* set = xset_get("sep_multi");
@@ -7633,8 +7636,8 @@ static bool on_fontdlg_keypress(GtkWidget* widget, GdkEventKey* event, GtkWidget
     return FALSE;
 }
 
-char* xset_font_dialog(GtkWidget* parent, const char* title, const char* preview,
-                       const char* deffont)
+static char* xset_font_dialog(GtkWidget* parent, const char* title, const char* preview,
+                              const char* deffont)
 {
     char* fontname = NULL;
     GtkWidget* image;
@@ -7791,7 +7794,7 @@ char* xset_file_dialog(GtkWidget* parent, GtkFileChooserAction action, const cha
     return NULL;
 }
 
-char* xset_color_dialog(GtkWidget* parent, char* title, char* defcolor)
+static char* xset_color_dialog(GtkWidget* parent, char* title, char* defcolor)
 {
 #if (GTK_MAJOR_VERSION == 3)
     GdkRGBA color;
@@ -7865,7 +7868,7 @@ char* xset_color_dialog(GtkWidget* parent, char* title, char* defcolor)
     return scolor;
 }
 
-void xset_builtin_tool_activate(char tool_type, XSet* set, GdkEventButton* event)
+static void xset_builtin_tool_activate(char tool_type, XSet* set, GdkEventButton* event)
 {
     XSet* set2;
     int p;
@@ -7970,7 +7973,7 @@ const char* xset_get_builtin_toolitem_label(unsigned char tool_type)
     return _(builtin_tool_name[tool_type]);
 }
 
-XSet* xset_new_builtin_toolitem(char tool_type)
+static XSet* xset_new_builtin_toolitem(char tool_type)
 {
     if (tool_type < XSET_TOOL_DEVICES || tool_type >= XSET_TOOL_INVALID)
         return NULL;
@@ -7982,7 +7985,7 @@ XSet* xset_new_builtin_toolitem(char tool_type)
     return set;
 }
 
-bool on_tool_icon_button_press(GtkWidget* widget, GdkEventButton* event, XSet* set)
+static bool on_tool_icon_button_press(GtkWidget* widget, GdkEventButton* event, XSet* set)
 {
     int job = -1;
 
@@ -8124,7 +8127,7 @@ bool on_tool_icon_button_press(GtkWidget* widget, GdkEventButton* event, XSet* s
     return TRUE;
 }
 
-bool on_tool_menu_button_press(GtkWidget* widget, GdkEventButton* event, XSet* set)
+static bool on_tool_menu_button_press(GtkWidget* widget, GdkEventButton* event, XSet* set)
 {
     // printf("on_tool_menu_button_press  %s   button = %d\n", set->menu_label,
     //                                                    event->button );
@@ -8189,8 +8192,9 @@ static void set_gtk3_widget_padding(GtkWidget* widget, int left_right, int top_b
 }
 #endif
 
-GtkWidget* xset_add_toolitem(GtkWidget* parent, PtkFileBrowser* file_browser, GtkWidget* toolbar,
-                             int icon_size, XSet* set, bool show_tooltips)
+static GtkWidget* xset_add_toolitem(GtkWidget* parent, PtkFileBrowser* file_browser,
+                                    GtkWidget* toolbar, int icon_size, XSet* set,
+                                    bool show_tooltips)
 {
     GtkWidget* image = NULL;
     GtkWidget* item = NULL;
@@ -8724,7 +8728,7 @@ void xset_set_window_icon(GtkWindow* win)
     }
 }
 
-void xset_defaults()
+static void xset_defaults()
 {
     XSet* set;
 
@@ -10854,7 +10858,7 @@ void xset_defaults()
     }
 }
 
-void def_key(const char* name, int key, int keymod)
+static void def_key(const char* name, int key, int keymod)
 {
     XSet* set = xset_get(name);
 
@@ -10873,7 +10877,7 @@ void def_key(const char* name, int key, int keymod)
     set->keymod = keymod;
 }
 
-void xset_default_keys()
+static void xset_default_keys()
 {
     GList* l;
 

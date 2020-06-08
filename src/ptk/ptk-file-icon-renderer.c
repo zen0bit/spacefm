@@ -503,13 +503,13 @@ static void ptk_file_icon_renderer_render(GtkCellRenderer* cell, GdkWindow* wind
         g_object_unref(colorized);
 }
 
-void ptk_file_icon_renderer_get_size(GtkCellRenderer* cell, GtkWidget* widget,
+static void ptk_file_icon_renderer_get_size(GtkCellRenderer* cell, GtkWidget* widget,
 #if (GTK_MAJOR_VERSION == 3)
-                                     const GdkRectangle* cell_area,
+                                            const GdkRectangle* cell_area,
 #elif (GTK_MAJOR_VERSION == 2)
-                                     GdkRectangle* cell_area,
+                                            GdkRectangle* cell_area,
 #endif
-                                     int* x_offset, int* y_offset, int* width, int* height)
+                                            int* x_offset, int* y_offset, int* width, int* height)
 {
     GTK_CELL_RENDERER_CLASS(parent_class)
         ->get_size(cell, widget, cell_area, x_offset, y_offset, width, height);

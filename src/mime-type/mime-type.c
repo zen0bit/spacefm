@@ -60,6 +60,9 @@ const char xdg_mime_type_directory[] = "inode/directory";
 const char xdg_mime_type_executable[] = "application/x-executable";
 const char xdg_mime_type_plain_text[] = "text/plain";
 
+static void mime_cache_foreach(GFunc func, void* user_data);
+static bool mime_type_is_subclass(const char* type, const char* parent);
+
 static MimeCache** caches = NULL;
 static unsigned int n_caches = 0;
 uint32_t mime_cache_max_extent = 0;
@@ -480,7 +483,7 @@ void mime_type_init()
  * including /usr/share/mime/mime.cache,
  * /usr/local/share/mime/mime.cache,
  * and $HOME/.local/share/mime/mime.cache. */
-void mime_cache_load_all()
+static void mime_cache_load_all()
 {
     const char filename[] = "/mime/mime.cache";
 
@@ -508,7 +511,7 @@ void mime_cache_load_all()
 }
 
 /* free all mime.cache files on the system */
-void mime_cache_free_all()
+static void mime_cache_free_all()
 {
     mime_cache_foreach((GFunc)mime_cache_free, NULL);
     g_slice_free1(n_caches * sizeof(MimeCache*), caches);
@@ -521,7 +524,7 @@ void mime_cache_free_all()
 }
 
 /* Iterate through all mime caches */
-void mime_cache_foreach(GFunc func, void* user_data)
+static void mime_cache_foreach(GFunc func, void* user_data)
 {
     int i;
     for (i = 0; i < n_caches; ++i)
@@ -548,7 +551,7 @@ bool mime_cache_reload(MimeCache* cache)
     return ret;
 }
 
-bool mime_type_is_data_plain_text(const char* data, int len)
+static bool mime_type_is_data_plain_text(const char* data, int len)
 {
     int i;
     if (G_LIKELY(len >= 0 && data))
@@ -635,7 +638,7 @@ bool mime_type_is_executable_file(const char* file_path, const char* mime_type)
 }
 
 /* Check if the specified mime_type is the subclass of the specified parent type */
-bool mime_type_is_subclass(const char* type, const char* parent)
+static bool mime_type_is_subclass(const char* type, const char* parent)
 {
     /* special case, the type specified is identical to the parent type. */
     if (G_UNLIKELY(!strcmp(type, parent)))

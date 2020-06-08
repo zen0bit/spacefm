@@ -30,9 +30,9 @@ static bool on_vfs_file_task_state_cb(VFSFileTask* task, VFSFileTaskState state,
 
 static void query_overwrite(PtkFileTask* ptask);
 
-void ptk_file_task_update(PtkFileTask* ptask);
-bool ptk_file_task_add_main(PtkFileTask* ptask);
-void on_progress_dlg_response(GtkDialog* dlg, int response, PtkFileTask* ptask);
+static void ptk_file_task_update(PtkFileTask* ptask);
+static bool ptk_file_task_add_main(PtkFileTask* ptask);
+static void on_progress_dlg_response(GtkDialog* dlg, int response, PtkFileTask* ptask);
 
 void ptk_file_task_lock(PtkFileTask* ptask)
 {
@@ -44,7 +44,7 @@ void ptk_file_task_unlock(PtkFileTask* ptask)
     g_mutex_unlock(ptask->task->mutex);
 }
 
-bool ptk_file_task_trylock(PtkFileTask* ptask)
+static bool ptk_file_task_trylock(PtkFileTask* ptask)
 {
     return g_mutex_trylock(ptask->task->mutex);
 }
@@ -121,7 +121,7 @@ PtkFileTask* ptk_file_task_new(VFSFileTaskType type, GList* src_files, const cha
     return ptask;
 }
 
-void save_progress_dialog_size(PtkFileTask* ptask)
+static void save_progress_dialog_size(PtkFileTask* ptask)
 {
     // save dialog size  - do this here now because as of GTK 3.8,
     // allocation == 1,1 in destroy event
@@ -214,7 +214,7 @@ void ptk_file_task_set_complete_notify(PtkFileTask* ptask, GFunc callback, void*
     ptask->user_data = user_data;
 }
 
-bool on_progress_timer(PtkFileTask* ptask)
+static bool on_progress_timer(PtkFileTask* ptask)
 {
     // GThread *self = g_thread_self ();
     // printf("PROGRESS_TIMER_THREAD = %#x\n", self );
@@ -300,7 +300,7 @@ bool on_progress_timer(PtkFileTask* ptask)
     return !ptask->complete;
 }
 
-bool ptk_file_task_add_main(PtkFileTask* ptask)
+static bool ptk_file_task_add_main(PtkFileTask* ptask)
 {
     // printf("ptk_file_task_add_main ptask=%#x\n", ptask);
     if (ptask->timeout)
@@ -345,14 +345,14 @@ void ptk_file_task_run(PtkFileTask* ptask)
     // printf("ptk_file_task_run DONE ptask=%#x\n", ptask);
 }
 
-bool ptk_file_task_kill(void* pid)
+static bool ptk_file_task_kill(void* pid)
 {
     // printf("SIGKILL %d\n", GPOINTER_TO_INT( pid ) );
     kill(GPOINTER_TO_INT(pid), SIGKILL);
     return FALSE;
 }
 
-bool ptk_file_task_kill_cpids(char* cpids)
+static bool ptk_file_task_kill_cpids(char* cpids)
 {
     vfs_file_task_kill_cpids(cpids, SIGKILL);
     g_free(cpids);
@@ -416,7 +416,7 @@ bool ptk_file_task_cancel(PtkFileTask* ptask)
     return FALSE;
 }
 
-void set_button_states(PtkFileTask* ptask)
+static void set_button_states(PtkFileTask* ptask)
 {
     const char* icon;
     const char* iconset;
@@ -514,13 +514,13 @@ void ptk_file_task_pause(PtkFileTask* ptask, int state)
     ptask->progress_count = 50; // trigger fast display
 }
 
-bool on_progress_dlg_delete_event(GtkWidget* widget, GdkEvent* event, PtkFileTask* ptask)
+static bool on_progress_dlg_delete_event(GtkWidget* widget, GdkEvent* event, PtkFileTask* ptask)
 {
     save_progress_dialog_size(ptask);
     return !(ptask->complete || ptask->task_view);
 }
 
-void on_progress_dlg_response(GtkDialog* dlg, int response, PtkFileTask* ptask)
+static void on_progress_dlg_response(GtkDialog* dlg, int response, PtkFileTask* ptask)
 {
     save_progress_dialog_size(ptask);
     if (response != GTK_RESPONSE_HELP && ptask->complete && !ptask->complete_notify)
@@ -573,12 +573,12 @@ void on_progress_dlg_response(GtkDialog* dlg, int response, PtkFileTask* ptask)
     }
 }
 
-void on_progress_dlg_destroy(GtkDialog* dlg, PtkFileTask* ptask)
+static void on_progress_dlg_destroy(GtkDialog* dlg, PtkFileTask* ptask)
 {
     ptask->progress_dlg = NULL;
 }
 
-void on_view_popup(GtkTextView* entry, GtkMenu* menu, void* user_data)
+static void on_view_popup(GtkTextView* entry, GtkMenu* menu, void* user_data)
 {
     GtkAccelGroup* accel_group = gtk_accel_group_new();
     xset_context_new();
@@ -593,7 +593,7 @@ void on_view_popup(GtkTextView* entry, GtkMenu* menu, void* user_data)
     g_signal_connect(menu, "key-press-event", G_CALLBACK(xset_menu_keypress), NULL);
 }
 
-void set_progress_icon(PtkFileTask* ptask)
+static void set_progress_icon(PtkFileTask* ptask)
 {
     GdkPixbuf* pixbuf;
     VFSFileTask* task = ptask->task;
@@ -638,7 +638,7 @@ void set_progress_icon(PtkFileTask* ptask)
     gtk_window_set_icon(GTK_WINDOW(ptask->progress_dlg), pixbuf);
 }
 
-void on_overwrite_combo_changed(GtkComboBox* box, PtkFileTask* ptask)
+static void on_overwrite_combo_changed(GtkComboBox* box, PtkFileTask* ptask)
 {
     int overwrite_mode = gtk_combo_box_get_active(box);
     if (overwrite_mode < 0)
@@ -646,7 +646,7 @@ void on_overwrite_combo_changed(GtkComboBox* box, PtkFileTask* ptask)
     vfs_file_task_set_overwrite_mode(ptask->task, overwrite_mode);
 }
 
-void on_error_combo_changed(GtkComboBox* box, PtkFileTask* ptask)
+static void on_error_combo_changed(GtkComboBox* box, PtkFileTask* ptask)
 {
     int error_mode = gtk_combo_box_get_active(box);
     if (error_mode < 0)
@@ -1028,7 +1028,7 @@ void ptk_file_task_progress_open(PtkFileTask* ptask)
     // printf("ptk_file_task_progress_open DONE\n");
 }
 
-void ptk_file_task_progress_update(PtkFileTask* ptask)
+static void ptk_file_task_progress_update(PtkFileTask* ptask)
 {
     char* ufile_path;
     char* window_title;
@@ -1377,7 +1377,7 @@ void ptk_file_task_set_recursive(PtkFileTask* ptask, bool recursive)
     vfs_file_task_set_recursive(ptask->task, recursive);
 }
 
-void ptk_file_task_update(PtkFileTask* ptask)
+static void ptk_file_task_update(PtkFileTask* ptask)
 {
     // printf("ptk_file_task_update ptask=%#x\n", ptask);
     // calculate updated display data
@@ -1697,8 +1697,8 @@ void ptk_file_task_update(PtkFileTask* ptask)
     // printf("ptk_file_task_update DONE ptask=%#x\n", ptask);
 }
 
-bool on_vfs_file_task_state_cb(VFSFileTask* task, VFSFileTaskState state, void* state_data,
-                               void* user_data)
+static bool on_vfs_file_task_state_cb(VFSFileTask* task, VFSFileTaskState state, void* state_data,
+                                      void* user_data)
 {
     PtkFileTask* ptask = (PtkFileTask*)user_data;
     bool ret = TRUE;
@@ -1820,7 +1820,7 @@ static void on_multi_input_changed(GtkWidget* input_buf, GtkWidget* query_input)
     gtk_dialog_set_response_sensitive(GTK_DIALOG(dlg), RESPONSE_OVERWRITEALL, !can_rename);
 }
 
-void query_overwrite_response(GtkDialog* dlg, int response, PtkFileTask* ptask)
+static void query_overwrite_response(GtkDialog* dlg, int response, PtkFileTask* ptask)
 {
     char* file_name;
     char* dir_name;
@@ -1925,7 +1925,7 @@ void query_overwrite_response(GtkDialog* dlg, int response, PtkFileTask* ptask)
     ptask->progress_timer = g_timeout_add(50, (GSourceFunc)on_progress_timer, ptask);
 }
 
-void on_query_button_press(GtkWidget* widget, PtkFileTask* ptask)
+static void on_query_button_press(GtkWidget* widget, PtkFileTask* ptask)
 {
     GtkWidget* dlg = gtk_widget_get_toplevel(widget);
     if (!GTK_IS_DIALOG(dlg))

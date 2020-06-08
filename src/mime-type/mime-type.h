@@ -83,7 +83,7 @@ bool mime_type_is_text_file(const char* file_path, const char* mime_type);
 bool mime_type_is_executable_file(const char* file_path, const char* mime_type);
 
 /* Check if the specified mime_type is the subclass of the specified parent type */
-bool mime_type_is_subclass(const char* type, const char* parent);
+// bool mime_type_is_subclass(const char* type, const char* parent);
 
 /* Get human-readable description and icon name of the mime-type
  * If locale is NULL, current locale will be used.
@@ -95,7 +95,7 @@ char* mime_type_get_desc_icon(const char* type, const char* locale, char** icon_
  * Iterate through all mime caches
  * Can be used to hook file alteration monitor for the cache files to handle reloading.
  */
-void mime_cache_foreach(GFunc func, void* user_data);
+// void mime_cache_foreach(GFunc func, void* user_data);
 
 /*
  * Get mime caches

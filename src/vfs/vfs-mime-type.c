@@ -23,7 +23,7 @@
 #include "vfs-utils.h"
 
 static GHashTable* mime_hash = NULL;
-GRWLock mime_hash_lock;
+static GRWLock mime_hash_lock;
 
 static unsigned int reload_callback_id = 0;
 static GList* reload_cb = NULL;
@@ -491,7 +491,7 @@ void vfs_mime_type_add_action(VFSMimeType* mime_type, const char* desktop_id, ch
         *custom_desktop = g_strdup(desktop_id);
 }
 
-void on_icon_theme_changed(GtkIconTheme* icon_theme, void* user_data)
+static void on_icon_theme_changed(GtkIconTheme* icon_theme, void* user_data)
 {
     /* reload_mime_icons */
     g_rw_lock_reader_lock(&mime_hash_lock);

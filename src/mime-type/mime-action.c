@@ -23,7 +23,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-bool save_to_file(const char* path, const char* data, long len)
+static bool save_to_file(const char* path, const char* data, long len)
 {
     int fd = creat(path, 0644);
     if (fd == -1)
@@ -38,8 +38,8 @@ bool save_to_file(const char* path, const char* data, long len)
     return TRUE;
 }
 
-const char group_desktop[] = "Desktop Entry";
-const char key_mime_type[] = "MimeType";
+static const char group_desktop[] = "Desktop Entry";
+static const char key_mime_type[] = "MimeType";
 
 typedef char* (*DataDirFunc)(const char* dir, const char* mime_type, void* user_data);
 
@@ -309,7 +309,7 @@ char** mime_type_get_actions(const char* type)
  * This API is very time consuming, but unfortunately, due to the damn poor design of
  * Freedesktop.org spec, all the insane checks here are necessary.  Sigh...  :-(
  */
-bool mime_type_has_action(const char* type, const char* desktop_id)
+static bool mime_type_has_action(const char* type, const char* desktop_id)
 {
     char* cmd = NULL;
     char* name = NULL;

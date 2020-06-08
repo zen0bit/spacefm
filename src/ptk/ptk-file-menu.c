@@ -42,8 +42,8 @@
 #include "utils.h"
 #include "gtk2-compat.h"
 
-bool on_app_button_press(GtkWidget* item, GdkEventButton* event, PtkFileMenu* data);
-bool app_menu_keypress(GtkWidget* widget, GdkEventKey* event, PtkFileMenu* data);
+static bool on_app_button_press(GtkWidget* item, GdkEventButton* event, PtkFileMenu* data);
+static bool app_menu_keypress(GtkWidget* widget, GdkEventKey* event, PtkFileMenu* data);
 static void show_app_menu(GtkWidget* menu, GtkWidget* app_item, PtkFileMenu* data,
                           unsigned int button, uint32_t time);
 
@@ -61,27 +61,27 @@ static void on_popup_paste_link_activate(GtkMenuItem* menuitem, PtkFileMenu* dat
 static void on_popup_paste_target_activate(GtkMenuItem* menuitem, PtkFileMenu* data); // MOD added
 static void on_popup_copy_text_activate(GtkMenuItem* menuitem, PtkFileMenu* data);    // MOD added
 static void on_popup_copy_name_activate(GtkMenuItem* menuitem, PtkFileMenu* data);    // MOD added
-void on_popup_copy_parent_activate(GtkMenuItem* menuitem, PtkFileMenu* data);         // MOD added
+static void on_popup_copy_parent_activate(GtkMenuItem* menuitem, PtkFileMenu* data);  // MOD added
 
-void on_popup_paste_as_activate(GtkMenuItem* menuitem, PtkFileMenu* data); // sfm added
+static void on_popup_paste_as_activate(GtkMenuItem* menuitem, PtkFileMenu* data); // sfm added
 
 static void on_popup_delete_activate(GtkMenuItem* menuitem, PtkFileMenu* data);
 static void on_popup_rename_activate(GtkMenuItem* menuitem, PtkFileMenu* data);
 static void on_popup_compress_activate(GtkMenuItem* menuitem, PtkFileMenu* data);
 static void on_popup_extract_here_activate(GtkMenuItem* menuitem, PtkFileMenu* data);
 static void on_popup_extract_to_activate(GtkMenuItem* menuitem, PtkFileMenu* data);
-void on_popup_extract_list_activate(GtkMenuItem* menuitem, PtkFileMenu* data);
+static void on_popup_extract_list_activate(GtkMenuItem* menuitem, PtkFileMenu* data);
 static void on_popup_new_folder_activate(GtkMenuItem* menuitem, PtkFileMenu* data);
 static void on_popup_new_text_file_activate(GtkMenuItem* menuitem, PtkFileMenu* data);
 static void on_popup_new_link_activate(GtkMenuItem* menuitem, PtkFileMenu* data);
 
 static void on_popup_file_properties_activate(GtkMenuItem* menuitem, PtkFileMenu* data);
 
-void on_popup_file_permissions_activate(GtkMenuItem* menuitem, PtkFileMenu* data);
+static void on_popup_file_permissions_activate(GtkMenuItem* menuitem, PtkFileMenu* data);
 
 static void on_popup_open_all(GtkMenuItem* menuitem, PtkFileMenu* data);
 
-void on_popup_canon(GtkMenuItem* menuitem, PtkFileMenu* data);
+static void on_popup_canon(GtkMenuItem* menuitem, PtkFileMenu* data);
 
 void on_popup_list_large(GtkMenuItem* menuitem, PtkFileBrowser* browser)
 {
@@ -147,14 +147,14 @@ void on_popup_list_compact(GtkMenuItem* menuitem, PtkFileBrowser* browser)
     update_views_all_windows(NULL, browser);
 }
 
-void on_popup_show_hidden(GtkMenuItem* menuitem, PtkFileBrowser* browser)
+static void on_popup_show_hidden(GtkMenuItem* menuitem, PtkFileBrowser* browser)
 {
     if (browser)
         ptk_file_browser_show_hidden_files(browser,
                                            xset_get_b_panel(browser->mypanel, "show_hidden"));
 }
 
-void on_copycmd(GtkMenuItem* menuitem, PtkFileMenu* data, XSet* set2)
+static void on_copycmd(GtkMenuItem* menuitem, PtkFileMenu* data, XSet* set2)
 {
     XSet* set;
     if (menuitem)
@@ -167,7 +167,7 @@ void on_copycmd(GtkMenuItem* menuitem, PtkFileMenu* data, XSet* set2)
         ptk_file_browser_copycmd(data->browser, data->sel_files, data->cwd, set->name);
 }
 
-void on_popup_rootcmd_activate(GtkMenuItem* menuitem, PtkFileMenu* data, XSet* set2)
+static void on_popup_rootcmd_activate(GtkMenuItem* menuitem, PtkFileMenu* data, XSet* set2)
 {
     XSet* set;
     if (menuitem)
@@ -178,37 +178,37 @@ void on_popup_rootcmd_activate(GtkMenuItem* menuitem, PtkFileMenu* data, XSet* s
         ptk_file_misc_rootcmd(data->browser, data->sel_files, data->cwd, set->name);
 }
 
-void on_popup_select_pattern(GtkMenuItem* menuitem, PtkFileMenu* data)
+static void on_popup_select_pattern(GtkMenuItem* menuitem, PtkFileMenu* data)
 {
     if (data->browser)
         ptk_file_browser_select_pattern(NULL, data->browser, NULL);
 }
 
-void on_open_in_tab(GtkMenuItem* menuitem, PtkFileMenu* data)
+static void on_open_in_tab(GtkMenuItem* menuitem, PtkFileMenu* data)
 {
     int tab_num = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(menuitem), "tab_num"));
     if (data->browser)
         ptk_file_browser_open_in_tab(data->browser, tab_num, data->file_path);
 }
 
-void on_open_in_panel(GtkMenuItem* menuitem, PtkFileMenu* data)
+static void on_open_in_panel(GtkMenuItem* menuitem, PtkFileMenu* data)
 {
     int panel_num = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(menuitem), "panel_num"));
     if (data->browser)
         main_window_open_in_panel(data->browser, panel_num, data->file_path);
 }
 
-void on_file_edit(GtkMenuItem* menuitem, PtkFileMenu* data)
+static void on_file_edit(GtkMenuItem* menuitem, PtkFileMenu* data)
 {
     xset_edit(data->browser, data->file_path, FALSE, TRUE);
 }
 
-void on_file_root_edit(GtkMenuItem* menuitem, PtkFileMenu* data)
+static void on_file_root_edit(GtkMenuItem* menuitem, PtkFileMenu* data)
 {
     xset_edit(data->browser, data->file_path, TRUE, FALSE);
 }
 
-void on_popup_sort_extra(GtkMenuItem* menuitem, PtkFileBrowser* file_browser, XSet* set2)
+static void on_popup_sort_extra(GtkMenuItem* menuitem, PtkFileBrowser* file_browser, XSet* set2)
 {
     XSet* set;
     if (menuitem)
@@ -249,7 +249,7 @@ void on_popup_sortby(GtkMenuItem* menuitem, PtkFileBrowser* file_browser, int or
     }
 }
 
-void on_popup_detailed_column(GtkMenuItem* menuitem, PtkFileBrowser* file_browser)
+static void on_popup_detailed_column(GtkMenuItem* menuitem, PtkFileBrowser* file_browser)
 {
     if (file_browser->view_mode == PTK_FB_LIST_VIEW)
     {
@@ -273,7 +273,7 @@ void on_popup_detailed_column(GtkMenuItem* menuitem, PtkFileBrowser* file_browse
     }
 }
 
-void on_popup_toggle_view(GtkMenuItem* menuitem, PtkFileBrowser* file_browser)
+static void on_popup_toggle_view(GtkMenuItem* menuitem, PtkFileBrowser* file_browser)
 {
     // get visiblity for correct mode
     FMMainWindow* main_window = (FMMainWindow*)file_browser->main_window;
@@ -294,7 +294,7 @@ void on_popup_toggle_view(GtkMenuItem* menuitem, PtkFileBrowser* file_browser)
     update_views_all_windows(NULL, file_browser);
 }
 
-void on_archive_default(GtkMenuItem* menuitem, XSet* set)
+static void on_archive_default(GtkMenuItem* menuitem, XSet* set)
 {
     const char* arcname[] = {"arc_def_open", "arc_def_ex", "arc_def_exto", "arc_def_list"};
     int i;
@@ -307,18 +307,18 @@ void on_archive_default(GtkMenuItem* menuitem, XSet* set)
     }
 }
 
-void on_archive_show_config(GtkMenuItem* menuitem, PtkFileMenu* data)
+static void on_archive_show_config(GtkMenuItem* menuitem, PtkFileMenu* data)
 {
     ptk_handler_show_config(HANDLER_MODE_ARC, data->browser, NULL);
 }
 
-void on_hide_file(GtkMenuItem* menuitem, PtkFileMenu* data)
+static void on_hide_file(GtkMenuItem* menuitem, PtkFileMenu* data)
 {
     if (data->browser)
         ptk_file_browser_hide_selected(data->browser, data->sel_files, data->cwd);
 }
 
-void on_permission(GtkMenuItem* menuitem, PtkFileMenu* data)
+static void on_permission(GtkMenuItem* menuitem, PtkFileMenu* data)
 {
     if (data->browser)
         ptk_file_browser_on_permission(menuitem, data->browser, data->sel_files, data->cwd);
@@ -1295,7 +1295,7 @@ GtkWidget* ptk_file_menu_new(PtkFileBrowser* browser, const char* file_path, VFS
     return popup;
 }
 
-void on_popup_open_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
+static void on_popup_open_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
 {
     GList* sel_files = data->sel_files;
     if (!sel_files)
@@ -1305,7 +1305,7 @@ void on_popup_open_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
         g_list_free(sel_files);
 }
 
-void on_popup_open_with_another_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
+static void on_popup_open_with_another_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
 {
     VFSMimeType* mime_type;
 
@@ -1340,12 +1340,12 @@ void on_popup_open_with_another_activate(GtkMenuItem* menuitem, PtkFileMenu* dat
     vfs_mime_type_unref(mime_type);
 }
 
-void on_popup_handlers_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
+static void on_popup_handlers_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
 {
     ptk_handler_show_config(HANDLER_MODE_FILE, data->browser, NULL);
 }
 
-void on_popup_open_all(GtkMenuItem* menuitem, PtkFileMenu* data)
+static void on_popup_open_all(GtkMenuItem* menuitem, PtkFileMenu* data)
 {
     if (xset_opener(data->browser, 1))
         return;
@@ -1358,7 +1358,7 @@ void on_popup_open_all(GtkMenuItem* menuitem, PtkFileMenu* data)
         g_list_free(sel_files);
 }
 
-void on_popup_run_app(GtkMenuItem* menuitem, PtkFileMenu* data)
+static void on_popup_run_app(GtkMenuItem* menuitem, PtkFileMenu* data)
 {
     const char* app = NULL;
     char* set_app = NULL;
@@ -1407,7 +1407,7 @@ enum
     APP_JOB_USR
 };
 
-char* get_shared_desktop_file_location(const char* name)
+static char* get_shared_desktop_file_location(const char* name)
 {
     char* ret;
 
@@ -1756,7 +1756,7 @@ void app_job(GtkWidget* item, GtkWidget* app_item)
         vfs_mime_type_unref(mime_type);
 }
 
-bool app_menu_keypress(GtkWidget* menu, GdkEventKey* event, PtkFileMenu* data)
+static bool app_menu_keypress(GtkWidget* menu, GdkEventKey* event, PtkFileMenu* data)
 {
     int job = -1;
     PtkFileMenu* app_data = NULL;
@@ -1864,14 +1864,14 @@ bool app_menu_keypress(GtkWidget* menu, GdkEventKey* event, PtkFileMenu* data)
     return FALSE;
 }
 
-void on_app_menu_hide(GtkWidget* widget, GtkWidget* app_menu)
+static void on_app_menu_hide(GtkWidget* widget, GtkWidget* app_menu)
 {
     gtk_widget_set_sensitive(widget, TRUE);
     gtk_menu_shell_deactivate(GTK_MENU_SHELL(app_menu));
 }
 
-GtkWidget* app_menu_additem(GtkWidget* menu, char* label, char* stock_icon, int job,
-                            GtkWidget* app_item, PtkFileMenu* data)
+static GtkWidget* app_menu_additem(GtkWidget* menu, char* label, char* stock_icon, int job,
+                                   GtkWidget* app_item, PtkFileMenu* data)
 {
     GtkWidget* item;
     if (stock_icon)
@@ -2133,7 +2133,7 @@ static void show_app_menu(GtkWidget* menu, GtkWidget* app_item, PtkFileMenu* dat
     gtk_menu_shell_select_first(GTK_MENU_SHELL(app_menu), TRUE);
 }
 
-bool on_app_button_press(GtkWidget* item, GdkEventButton* event, PtkFileMenu* data)
+static bool on_app_button_press(GtkWidget* item, GdkEventButton* event, PtkFileMenu* data)
 {
     GtkWidget* menu = (GtkWidget*)g_object_get_data(G_OBJECT(item), "menu");
     int keymod = (event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK |
@@ -2196,7 +2196,7 @@ bool on_app_button_press(GtkWidget* item, GdkEventButton* event, PtkFileMenu* da
     return FALSE; // TRUE won't stop activate on button-press (will on release)
 }
 
-void on_popup_open_in_new_tab_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
+static void on_popup_open_in_new_tab_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
 {
     if (data->sel_files)
     {
@@ -2224,7 +2224,7 @@ void on_popup_open_in_new_tab_here(GtkMenuItem* menuitem, PtkFileMenu* data)
         ptk_file_browser_emit_open(data->browser, data->cwd, PTK_OPEN_NEW_TAB);
 }
 
-void on_new_bookmark(GtkMenuItem* menuitem, PtkFileMenu* data)
+static void on_new_bookmark(GtkMenuItem* menuitem, PtkFileMenu* data)
 {
     // if a single dir or file is selected, bookmark it instead of cwd
     if (data->sel_files && !data->sel_files->next)
@@ -2240,19 +2240,19 @@ void on_new_bookmark(GtkMenuItem* menuitem, PtkFileMenu* data)
         ptk_bookmark_view_add_bookmark(NULL, data->browser, NULL);
 }
 
-void on_popup_cut_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
+static void on_popup_cut_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
 {
     if (data->sel_files)
         ptk_clipboard_cut_or_copy_files(data->cwd, data->sel_files, FALSE);
 }
 
-void on_popup_copy_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
+static void on_popup_copy_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
 {
     if (data->sel_files)
         ptk_clipboard_cut_or_copy_files(data->cwd, data->sel_files, TRUE);
 }
 
-void on_popup_paste_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
+static void on_popup_paste_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
 {
     if (data->browser)
     {
@@ -2265,40 +2265,40 @@ void on_popup_paste_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
     }
 }
 
-void on_popup_paste_link_activate(GtkMenuItem* menuitem, PtkFileMenu* data) // MOD added
+static void on_popup_paste_link_activate(GtkMenuItem* menuitem, PtkFileMenu* data) // MOD added
 {
     if (data->browser)
         ptk_file_browser_paste_link(data->browser);
 }
 
-void on_popup_paste_target_activate(GtkMenuItem* menuitem, PtkFileMenu* data) // MOD added
+static void on_popup_paste_target_activate(GtkMenuItem* menuitem, PtkFileMenu* data) // MOD added
 {
     if (data->browser)
         ptk_file_browser_paste_target(data->browser);
 }
 
-void on_popup_copy_text_activate(GtkMenuItem* menuitem, PtkFileMenu* data) // MOD added
+static void on_popup_copy_text_activate(GtkMenuItem* menuitem, PtkFileMenu* data) // MOD added
 {
     ptk_clipboard_copy_as_text(data->cwd, data->sel_files);
 }
 
-void on_popup_copy_name_activate(GtkMenuItem* menuitem, PtkFileMenu* data) // MOD added
+static void on_popup_copy_name_activate(GtkMenuItem* menuitem, PtkFileMenu* data) // MOD added
 {
     ptk_clipboard_copy_name(data->cwd, data->sel_files);
 }
 
-void on_popup_copy_parent_activate(GtkMenuItem* menuitem, PtkFileMenu* data) // MOD added
+static void on_popup_copy_parent_activate(GtkMenuItem* menuitem, PtkFileMenu* data) // MOD added
 {
     if (data->cwd)
         ptk_clipboard_copy_text(data->cwd);
 }
 
-void on_popup_paste_as_activate(GtkMenuItem* menuitem, PtkFileMenu* data) // sfm added
+static void on_popup_paste_as_activate(GtkMenuItem* menuitem, PtkFileMenu* data) // sfm added
 {
     ptk_file_misc_paste_as(data->browser, data->cwd, NULL);
 }
 
-void on_popup_delete_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
+static void on_popup_delete_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
 {
     if (data->sel_files)
     {
@@ -2313,18 +2313,18 @@ void on_popup_delete_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
     }
 }
 
-void on_popup_rename_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
+static void on_popup_rename_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
 {
     if (data->browser)
         ptk_file_browser_rename_selected_files(data->browser, data->sel_files, data->cwd);
 }
 
-void on_popup_compress_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
+static void on_popup_compress_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
 {
     ptk_file_archiver_create(data->browser, data->sel_files, data->cwd);
 }
 
-void on_popup_extract_to_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
+static void on_popup_extract_to_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
 {
     /* If menuitem is set, function was called from GUI so files will contain
      * an archive */
@@ -2336,7 +2336,7 @@ void on_popup_extract_to_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
                               menuitem ? TRUE : FALSE);
 }
 
-void on_popup_extract_here_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
+static void on_popup_extract_here_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
 {
     /* If menuitem is set, function was called from GUI so files will contain
      * an archive */
@@ -2348,7 +2348,7 @@ void on_popup_extract_here_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
                               menuitem ? TRUE : FALSE);
 }
 
-void on_popup_extract_list_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
+static void on_popup_extract_list_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
 {
     /* If menuitem is set, function was called from GUI so files will contain
      * an archive */
@@ -2360,7 +2360,7 @@ void on_popup_extract_list_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
                               menuitem ? TRUE : FALSE);
 }
 
-void on_autoopen_create_cb(void* task, AutoOpenCreate* ao)
+static void on_autoopen_create_cb(void* task, AutoOpenCreate* ao)
 {
     if (!ao)
         return;
@@ -2434,22 +2434,22 @@ static void create_new_file(PtkFileMenu* data, int create_new)
     }
 }
 
-void on_popup_new_folder_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
+static void on_popup_new_folder_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
 {
     create_new_file(data, PTK_RENAME_NEW_DIR);
 }
 
-void on_popup_new_text_file_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
+static void on_popup_new_text_file_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
 {
     create_new_file(data, PTK_RENAME_NEW_FILE);
 }
 
-void on_popup_new_link_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
+static void on_popup_new_link_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
 {
     create_new_file(data, PTK_RENAME_NEW_LINK);
 }
 
-void on_popup_file_properties_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
+static void on_popup_file_properties_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
 {
     GtkWindow* parent_win = NULL;
     if (data->browser)
@@ -2458,7 +2458,7 @@ void on_popup_file_properties_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
     ptk_show_file_properties(parent_win, data->cwd, data->sel_files, 0);
 }
 
-void on_popup_file_permissions_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
+static void on_popup_file_permissions_activate(GtkMenuItem* menuitem, PtkFileMenu* data)
 {
     GtkWindow* parent_win = NULL;
     if (data->browser)
@@ -2467,7 +2467,7 @@ void on_popup_file_permissions_activate(GtkMenuItem* menuitem, PtkFileMenu* data
     ptk_show_file_properties(parent_win, data->cwd, data->sel_files, 1);
 }
 
-void on_popup_canon(GtkMenuItem* menuitem, PtkFileMenu* data)
+static void on_popup_canon(GtkMenuItem* menuitem, PtkFileMenu* data)
 {
     if (!data->browser)
         return;

@@ -64,7 +64,7 @@ enum
 
 // clang-format off
 // xset name prefixes of default handlers
-const char* handler_def_prefix[] =
+static const char* handler_def_prefix[] =
 {
     "hand_arc_+",
     "hand_fs_+",
@@ -73,7 +73,7 @@ const char* handler_def_prefix[] =
 };
 
 // xset name prefixes of custom handlers
-const char* handler_cust_prefix[] =
+static const char* handler_cust_prefix[] =
 {
     "hand_arc_",
     "hand_fs_",
@@ -81,7 +81,7 @@ const char* handler_cust_prefix[] =
     "hand_f_"
 };
 
-const char* handler_conf_xset[] =
+static const char* handler_conf_xset[] =
 {
     "arc_conf2",
     "dev_fs_cnf",
@@ -89,7 +89,7 @@ const char* handler_conf_xset[] =
     "open_hand"
 };
 
-const char* dialog_titles[] =
+static const char* dialog_titles[] =
 {
     N_("Archive Handlers"),
     N_("Device Handlers"),
@@ -97,7 +97,7 @@ const char* dialog_titles[] =
     N_("File Handlers")
 };
 
-const char* dialog_mnemonics[] =
+static const char* dialog_mnemonics[] =
 {
     N_("Archive Hand_lers"),
     N_("Device Hand_lers"),
@@ -105,7 +105,7 @@ const char* dialog_mnemonics[] =
     N_("File Hand_lers")
 };
 
-const char* modes[] =
+static const char* modes[] =
 {
     "archive",
     "device",
@@ -113,14 +113,14 @@ const char* modes[] =
     "file"
 };
 
-const char* cmds_arc[] =
+static const char* cmds_arc[] =
 {
     "compress",
     "extract",
     "list"
 };
 
-const char* cmds_mnt[] =
+static const char* cmds_mnt[] =
 {
     "mount",
     "unmount",
@@ -130,7 +130,7 @@ const char* cmds_mnt[] =
 
 /* don't change this script header or it will break header detection on
  * existing scripts! */
-const char* script_header = "#!/bin/bash\n";
+static const char* script_header = "#!/bin/bash\n";
 
 typedef struct HandlerData
 {
@@ -193,7 +193,7 @@ typedef struct Handler
 
 /* If you add a new handler, add it to (end of ) existing session file handler
  * list so existing users see the new handler. */
-const Handler handlers_arc[] = {
+static const Handler handlers_arc[] = {
     /* In compress commands:
      *   %n: First selected filename/dir to archive
      *   %N: All selected filenames/dirs to archive, or (with %O) a single filename
@@ -397,7 +397,7 @@ const Handler handlers_fs[] = {
      INFO_EXAMPLE,
      FALSE}};
 
-const Handler handlers_net[] = {
+static const Handler handlers_net[] = {
     /* In commands:
      *       %url%     $fm_url
      *       %proto%   $fm_url_proto
@@ -563,7 +563,7 @@ const Handler handlers_net[] = {
      INFO_EXAMPLE,
      FALSE}};
 
-const Handler handlers_file[] = {
+static const Handler handlers_file[] = {
     /* %a custom mount point
      * Plus standard bash variables are accepted.
      * For file handlers, extract_term is used for Run As Task. */
@@ -635,7 +635,7 @@ void ptk_handler_load_text_view(GtkTextView* view, const char* text)
     }
 }
 
-char* ptk_handler_get_text_view(GtkTextView* view)
+static char* ptk_handler_get_text_view(GtkTextView* view)
 {
     if (!view)
         return g_strdup("");
@@ -2433,7 +2433,7 @@ _cleanup:
     return ret;
 }
 
-void on_textview_font_change(GtkMenuItem* item, HandlerData* hnd)
+static void on_textview_font_change(GtkMenuItem* item, HandlerData* hnd)
 {
     char* fontname = xset_get_s("context_dlg");
     PangoFontDescription* font_desc =
@@ -2451,7 +2451,7 @@ void on_textview_font_change(GtkMenuItem* item, HandlerData* hnd)
         pango_font_description_free(font_desc);
 }
 
-void on_textview_popup(GtkTextView* input, GtkMenu* menu, HandlerData* hnd)
+static void on_textview_popup(GtkTextView* input, GtkMenu* menu, HandlerData* hnd)
 {
     // uses same xsets as item-prop.c:on_script_popup()
     GtkAccelGroup* accel_group = gtk_accel_group_new();
@@ -2466,7 +2466,7 @@ void on_textview_popup(GtkTextView* input, GtkMenu* menu, HandlerData* hnd)
     gtk_widget_show_all(GTK_WIDGET(menu));
 }
 
-bool on_activate_link(GtkLabel* label, char* uri, HandlerData* hnd)
+static bool on_activate_link(GtkLabel* label, char* uri, HandlerData* hnd)
 {
     // click apply to save handler
     on_configure_button_press(GTK_BUTTON(hnd->btn_apply), hnd);
@@ -2557,7 +2557,7 @@ static bool on_textview_keypress(GtkWidget* widget, GdkEventKey* event, HandlerD
     return FALSE;
 }
 
-void on_textview_buffer_changed(GtkTextBuffer* buf, HandlerData* hnd)
+static void on_textview_buffer_changed(GtkTextBuffer* buf, HandlerData* hnd)
 {
     if (buf == hnd->buf_handler_compress && !hnd->compress_changed)
         hnd->compress_changed = TRUE;
@@ -2572,8 +2572,8 @@ void on_textview_buffer_changed(GtkTextBuffer* buf, HandlerData* hnd)
     }
 }
 
-void on_entry_text_insert(GtkEntryBuffer* buffer, unsigned int position, char* chars,
-                          unsigned int n_chars, HandlerData* hnd)
+static void on_entry_text_insert(GtkEntryBuffer* buffer, unsigned int position, char* chars,
+                                 unsigned int n_chars, HandlerData* hnd)
 {
     if (!hnd->changed)
     {
@@ -2591,13 +2591,13 @@ void on_entry_text_insert(GtkEntryBuffer* buffer, unsigned int position, char* c
     }
 }
 
-void on_entry_text_delete(GtkEntryBuffer* buffer, unsigned int position, unsigned int n_chars,
-                          HandlerData* hnd)
+static void on_entry_text_delete(GtkEntryBuffer* buffer, unsigned int position,
+                                 unsigned int n_chars, HandlerData* hnd)
 {
     on_entry_text_insert(buffer, position, NULL, n_chars, hnd);
 }
 
-void on_terminal_toggled(GtkToggleButton* togglebutton, HandlerData* hnd)
+static void on_terminal_toggled(GtkToggleButton* togglebutton, HandlerData* hnd)
 {
     if (!hnd->changed)
     {
@@ -2619,7 +2619,7 @@ static void on_icon_choose_button_clicked(GtkWidget* widget, HandlerData* hnd)
     }
 }
 
-void on_option_cb(GtkMenuItem* item, HandlerData* hnd)
+static void on_option_cb(GtkMenuItem* item, HandlerData* hnd)
 {
     if (hnd->changed)
         on_configure_button_press(GTK_BUTTON(hnd->btn_apply), hnd);

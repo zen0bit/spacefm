@@ -113,14 +113,14 @@ void on_load_finish( VFSAsyncTask* task, bool is_cancelled, VFSThumbnailLoader* 
 }
 #endif
 
-void thumbnail_request_free(ThumbnailRequest* req)
+static void thumbnail_request_free(ThumbnailRequest* req)
 {
     vfs_file_info_unref(req->file);
     g_slice_free(ThumbnailRequest, req);
     /* g_debug( "FREE REQUEST!" ); */
 }
 
-bool on_thumbnail_idle(VFSThumbnailLoader* loader)
+static bool on_thumbnail_idle(VFSThumbnailLoader* loader)
 {
     VFSFileInfo* file;
 
@@ -150,7 +150,7 @@ bool on_thumbnail_idle(VFSThumbnailLoader* loader)
     return FALSE;
 }
 
-void* thumbnail_loader_thread(VFSAsyncTask* task, VFSThumbnailLoader* loader)
+static void* thumbnail_loader_thread(VFSAsyncTask* task, VFSThumbnailLoader* loader)
 {
     while (G_LIKELY(!vfs_async_task_is_cancelled(task)))
     {
