@@ -113,6 +113,7 @@ bool vfs_exec_on_screen(GdkScreen* screen, const char* work_dir, char** argv, ch
 #ifdef HAVE_SN
     SnLauncherContext* ctx = NULL;
     SnDisplay* display;
+    int startup_id_index = -1;
 #endif
     bool ret;
     extern char** environ;
@@ -120,7 +121,6 @@ bool vfs_exec_on_screen(GdkScreen* screen, const char* work_dir, char** argv, ch
     int i, n_env = 0;
     char* display_name;
     int display_index = -1;
-    int startup_id_index = -1;
 
     if (!envp)
         envp = environ;
@@ -135,8 +135,10 @@ bool vfs_exec_on_screen(GdkScreen* screen, const char* work_dir, char** argv, ch
             display_index = i;
         else
         {
-            if (0 == strncmp(envp[i], "DESKTOP_STARTUP_ID=", 19))
+#ifdef HAVE_SN
+            if (!strncmp(envp[i], "DESKTOP_STARTUP_ID=", 19))
                 startup_id_index = i;
+#endif
             new_env[i] = g_strdup(envp[i]);
         }
     }

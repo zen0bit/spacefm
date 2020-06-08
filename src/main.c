@@ -1010,6 +1010,9 @@ int main(int argc, char* argv[])
         printf("INOTIFY ");
         printf("FFMPEG ");
         printf("STATVFS ");
+#ifdef HAVE_SN
+        printf("SNOTIFY ");
+#endif
 #ifdef DEPRECATED_HW
         printf("DEPRECATED_HW ");
 #endif
