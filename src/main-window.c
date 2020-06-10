@@ -1900,7 +1900,7 @@ static void fm_main_window_init(FMMainWindow* main_window)
     NOTE: gtk_window_set_icon_name doesn't work under some WMs, such as IceWM.
     gtk_window_set_icon_name( GTK_WINDOW( main_window ),
                               "gnome-fs-directory" ); */
-    if (0 == theme_change_notify)
+    if (theme_change_notify == 0)
     {
         theme_change_notify = g_signal_connect(gtk_icon_theme_get_default(),
                                                "changed",
@@ -2154,7 +2154,7 @@ static void fm_main_window_finalize(GObject* obj)
 
     /* Remove the monitor for changes of the bookmarks */
     //    ptk_bookmarks_remove_callback( ( GFunc ) on_bookmarks_change, obj );
-    if (0 == n_windows)
+    if (n_windows == 0)
     {
         g_signal_handler_disconnect(gtk_icon_theme_get_default(), theme_change_notify);
         theme_change_notify = 0;

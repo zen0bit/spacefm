@@ -169,7 +169,7 @@ static bool match_func(GtkEntryCompletion* completion, const char* key, GtkTreeI
 
     if (G_LIKELY(name))
     {
-        if (*key == 0 || 0 == g_ascii_strncasecmp(name, key, strlen(key)))
+        if (*key == 0 || g_ascii_strncasecmp(name, key, strlen(key)) == 0)
         {
             g_free(name);
             return TRUE;
@@ -214,7 +214,7 @@ static void update_completion(GtkEntry* entry, GtkEntryCompletion* completion)
 
         char* new_dir = get_cwd(entry);
         const char* old_dir = (const char*)g_object_get_data((GObject*)completion, "cwd");
-        if (old_dir && new_dir && 0 == g_ascii_strcasecmp(old_dir, new_dir))
+        if (old_dir && new_dir && g_ascii_strcasecmp(old_dir, new_dir) == 0)
         {
             g_free(new_dir);
             return;

@@ -823,7 +823,7 @@ char* vfs_file_resolve_path(const char* cwd, const char* relative_path)
     g_return_val_if_fail(G_LIKELY(relative_path), NULL);
 
     int len = strlen(relative_path);
-    bool strip_tail = (0 == len || relative_path[len - 1] != '/');
+    bool strip_tail = (len == 0 || relative_path[len - 1] != '/');
 
     if (G_UNLIKELY(*relative_path != '/')) /* relative path */
     {
@@ -846,7 +846,7 @@ char* vfs_file_resolve_path(const char* cwd, const char* relative_path)
         }
     }
 
-    if (relative_path[0] != '/' && (0 == ret->len || ret->str[ret->len - 1] != '/'))
+    if (relative_path[0] != '/' && (ret->len == 0 || ret->str[ret->len - 1] != '/'))
         g_string_append_c(ret, '/');
 
     while (G_LIKELY(*relative_path))

@@ -579,7 +579,7 @@ static void on_dir_tree_view_drag_data_received(GtkWidget* widget, GdkDragContex
                 if (stat(dest_dir, &statbuf) == 0)
                 {
                     dest_dev = statbuf.st_dev;
-                    if (0 == file_browser->drag_source_dev_tree)
+                    if (file_browser->drag_source_dev_tree == 0)
                     {
                         file_browser->drag_source_dev_tree = dest_dev;
                         for (; *puri; ++puri)
@@ -613,8 +613,8 @@ static void on_dir_tree_view_drag_data_received(GtkWidget* widget, GdkDragContex
             if (puri)
             {
                 GList* files = NULL;
-                if (0 == (gdk_drag_context_get_selected_action(drag_context) &
-                          (GDK_ACTION_MOVE | GDK_ACTION_COPY | GDK_ACTION_LINK)))
+                if ((gdk_drag_context_get_selected_action(drag_context) &
+                     (GDK_ACTION_MOVE | GDK_ACTION_COPY | GDK_ACTION_LINK)) == 0)
                 {
                     gdk_drag_status(drag_context, GDK_ACTION_MOVE, time);
                 }

@@ -847,7 +847,7 @@ void ptk_file_list_show_thumbnails(PtkFileList* list, bool is_big, int max_file_
     list->big_thumbnail = is_big;
     /* FIXME: This is buggy!!! Further testing might be needed.
      */
-    if (0 == max_file_size)
+    if (max_file_size == 0)
     {
         if (old_max_thumbnail > 0) /* cancel thumbnails */
         {

@@ -215,7 +215,7 @@ static bool magic_rule_match(const char* buf, const char* rule, const char* data
         }
         else /* direct comparison */
         {
-            if (0 == memcmp(value, data + offset, val_len))
+            if (memcmp(value, data + offset, val_len) == 0)
                 match = TRUE;
         }
 
@@ -257,7 +257,7 @@ const char* mime_cache_lookup_magic(MimeCache* cache, const char* data, int len)
 {
     const char* magic = cache->magics;
 
-    if (G_UNLIKELY(!data || (0 == len) || !magic))
+    if (G_UNLIKELY(!data || (len == 0) || !magic))
         return NULL;
 
     int i;
@@ -301,7 +301,7 @@ static const char* lookup_suffix_nodes(const char* buf, const char* nodes, uint3
                 if (uchar == 0)
                     return NULL;
 
-                if (!name || 0 == name[0])
+                if (!name || name[0] == 0)
                 {
                     uint32_t offset = VAL32(node, 4);
                     return offset ? buf + offset : NULL;
@@ -311,7 +311,7 @@ static const char* lookup_suffix_nodes(const char* buf, const char* nodes, uint3
             }
             else
             {
-                if (!name || 0 == name[0])
+                if (!name || name[0] == 0)
                 {
                     uint32_t offset = VAL32(node, 4);
                     return offset ? buf + offset : NULL;
@@ -389,7 +389,7 @@ const char* mime_cache_lookup_suffix(MimeCache* cache, const char* filename,
     const char* mime_type = NULL;
     const char* ret = NULL;
 
-    if (G_UNLIKELY(!filename || !*filename || 0 == n))
+    if (G_UNLIKELY(!filename || !*filename || n == 0))
         return NULL;
     if (cache->has_reverse_suffix) /* since mime.cache ver: 1.1 */
     {
@@ -524,7 +524,7 @@ const char* mime_cache_lookup_glob(MimeCache* cache, const char* filename, int* 
     {
         const char* glob = cache->buffer + VAL32(entry, 0);
         int _glob_len;
-        if (0 == fnmatch(glob, filename, 0) && (_glob_len = strlen(glob)) > max_glob_len)
+        if (fnmatch(glob, filename, 0) == 0 && (_glob_len = strlen(glob)) > max_glob_len)
         {
             max_glob_len = _glob_len;
             type = (cache->buffer + VAL32(entry, 4));

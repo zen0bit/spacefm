@@ -1157,7 +1157,7 @@ void pcmanfm_ref()
 bool pcmanfm_unref()
 {
     --n_pcmanfm_ref;
-    if (0 == n_pcmanfm_ref && !daemon_mode)
+    if (n_pcmanfm_ref == 0 && !daemon_mode)
         gtk_main_quit();
     return FALSE;
 }

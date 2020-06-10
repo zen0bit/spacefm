@@ -85,7 +85,7 @@ static void on_mime_cache_changed(VFSFileMonitor* fm, VFSFileMonitorEvent event,
         case VFS_FILE_MONITOR_CHANGE:
             mime_cache_reload(cache);
             /* g_debug( "reload cache: %s", file_name ); */
-            if (0 == reload_callback_id)
+            if (reload_callback_id == 0)
                 reload_callback_id = g_idle_add(vfs_mime_type_reload, NULL);
         default:
             break;

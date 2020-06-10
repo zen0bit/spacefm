@@ -172,7 +172,7 @@ static void* thumbnail_loader_thread(VFSAsyncTask* task, VFSThumbnailLoader* loa
         int i;
         for (i = 0; i < 2; ++i)
         {
-            if (0 == req->n_requests[i])
+            if (req->n_requests[i] == 0)
                 continue;
 
             bool load_big = (i == LOAD_BIG_THUMBNAIL);
@@ -197,7 +197,7 @@ static void* thumbnail_loader_thread(VFSAsyncTask* task, VFSThumbnailLoader* loa
         {
             vfs_async_task_lock(task);
             g_queue_push_tail(loader->update_queue, vfs_file_info_ref(req->file));
-            if (0 == loader->idle_handler)
+            if (loader->idle_handler == 0)
             {
                 loader->idle_handler =
                     g_idle_add_full(G_PRIORITY_LOW, (GSourceFunc)on_thumbnail_idle, loader, NULL);
@@ -221,7 +221,7 @@ static void* thumbnail_loader_thread(VFSAsyncTask* task, VFSThumbnailLoader* loa
     }
     else
     {
-        if (0 == loader->idle_handler)
+        if (loader->idle_handler == 0)
         {
             /* g_debug( "ADD IDLE HANDLER BEFORE THREAD ENDING" ); */
             /* FIXME: add2 This source always causes a "Source ID was not
@@ -383,7 +383,7 @@ static GdkPixbuf* _vfs_thumbnail_load(const char* file_path, const char* uri, in
 
     thumbnail_file = g_build_filename(g_get_user_cache_dir(), "thumbnails/normal", file_name, NULL);
 
-    if (G_UNLIKELY(0 == mtime))
+    if (G_UNLIKELY(mtime == 0))
     {
         if (stat(file_path, &statbuf) != -1)
             mtime = statbuf.st_mtime;

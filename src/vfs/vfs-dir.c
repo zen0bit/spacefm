@@ -239,7 +239,7 @@ static void vfs_dir_finalize(GObject* obj)
             g_hash_table_remove(dir_hash, dir->path);
 
             /* There is no VFSDir instance */
-            if (0 == g_hash_table_size(dir_hash))
+            if (g_hash_table_size(dir_hash) == 0)
             {
                 g_hash_table_destroy(dir_hash);
                 dir_hash = NULL;
@@ -335,7 +335,7 @@ void vfs_dir_emit_file_created(VFSDir* dir, const char* file_name, bool force)
     }
 
     dir->created_files = g_slist_append(dir->created_files, g_strdup(file_name));
-    if (0 == change_notify_timeout)
+    if (change_notify_timeout == 0)
     {
         change_notify_timeout =
             g_timeout_add_full(G_PRIORITY_LOW, 200, notify_file_change, NULL, NULL);
@@ -366,7 +366,7 @@ void vfs_dir_emit_file_deleted(VFSDir* dir, const char* file_name, VFSFileInfo* 
         if (!g_slist_find(dir->changed_files, file_found))
         {
             dir->changed_files = g_slist_prepend(dir->changed_files, file_found);
-            if (0 == change_notify_timeout)
+            if (change_notify_timeout == 0)
             {
                 change_notify_timeout =
                     g_timeout_add_full(G_PRIORITY_LOW, 200, notify_file_change, NULL, NULL);
@@ -403,7 +403,7 @@ void vfs_dir_emit_file_changed(VFSDir* dir, const char* file_name, VFSFileInfo* 
             if (force)
             {
                 dir->changed_files = g_slist_prepend(dir->changed_files, file);
-                if (0 == change_notify_timeout)
+                if (change_notify_timeout == 0)
                 {
                     change_notify_timeout =
                         g_timeout_add_full(G_PRIORITY_LOW, 100, notify_file_change, NULL, NULL);
@@ -412,7 +412,7 @@ void vfs_dir_emit_file_changed(VFSDir* dir, const char* file_name, VFSFileInfo* 
             else if (G_LIKELY(update_file_info(dir, file))) // update file info the first time
             {
                 dir->changed_files = g_slist_prepend(dir->changed_files, file);
-                if (0 == change_notify_timeout)
+                if (change_notify_timeout == 0)
                 {
                     change_notify_timeout =
                         g_timeout_add_full(G_PRIORITY_LOW, 500, notify_file_change, NULL, NULL);
@@ -881,7 +881,7 @@ VFSDir* vfs_dir_get_by_path(const char* path)
     if (G_UNLIKELY(!dir_hash))
     {
         dir_hash = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, NULL);
-        if (0 == theme_change_notify)
+        if (theme_change_notify == 0)
             theme_change_notify = g_signal_connect(gtk_icon_theme_get_default(),
                                                    "changed",
                                                    G_CALLBACK(on_theme_changed),
