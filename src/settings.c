@@ -398,13 +398,15 @@ void load_settings(char* config_dir, bool git_settings)
     // MOD extra settings
     xset_defaults();
 
+    char* command;
+
     if (!g_file_test(settings_config_dir, G_FILE_TEST_EXISTS))
     {
         // copy /etc/xdg/spacefm
         char* xdg_path = g_build_filename(SYSCONFDIR, "xdg", "spacefm", NULL);
         if (g_file_test(xdg_path, G_FILE_TEST_IS_DIR))
         {
-            char* command = g_strdup_printf("cp -r %s '%s'", xdg_path, settings_config_dir);
+            command = g_strdup_printf("cp -r %s '%s'", xdg_path, settings_config_dir);
             print_command(command);
             g_spawn_command_line_sync(command, NULL, NULL, NULL, NULL);
             g_free(command);
@@ -419,13 +421,13 @@ void load_settings(char* config_dir, bool git_settings)
     // check if .git exists
     if (git_backed_settings)
     {
-        path = g_build_filename(settings_config_dir, ".git", NULL);
-        if (!G_LIKELY(g_file_test(path, G_FILE_TEST_EXISTS)))
+        if (!G_LIKELY(g_file_test(g_build_filename(settings_config_dir, ".git", NULL),
+                                  G_FILE_TEST_EXISTS)))
         {
-            char* command = g_strdup_printf("%s -c \"cd %s && git init && "
-                                            "git config commit.gpgsign false\"",
-                                            BASHPATH,
-                                            settings_config_dir);
+            command = g_strdup_printf("%s -c \"cd %s && git init && "
+                                      "git config commit.gpgsign false\"",
+                                      BASHPATH,
+                                      settings_config_dir);
             print_command(command);
             g_spawn_command_line_sync(command, NULL, NULL, NULL, NULL);
             g_free(command);
@@ -438,10 +440,10 @@ void load_settings(char* config_dir, bool git_settings)
     {
         if (git_backed_settings)
         {
-            char* command = g_strdup_printf("%s -c \"cd %s && git add session && "
-                                            "git commit -m 'Session File' 1>/dev/null\"",
-                                            BASHPATH,
-                                            settings_config_dir);
+            command = g_strdup_printf("%s -c \"cd %s && git add session && "
+                                      "git commit -m 'Session File' 1>/dev/null\"",
+                                      BASHPATH,
+                                      settings_config_dir);
             print_command(command);
             g_spawn_command_line_sync(command, NULL, NULL, NULL, NULL);
             g_free(command);
@@ -450,7 +452,7 @@ void load_settings(char* config_dir, bool git_settings)
         {
             // copy session to session-old
             char* old = g_build_filename(settings_config_dir, "session-old", NULL);
-            char* command = g_strdup_printf("cp -a  %s %s", path, old);
+            command = g_strdup_printf("cp -a  %s %s", path, old);
             if (g_file_test(old, G_FILE_TEST_EXISTS))
                 unlink(old);
             print_command(command);
@@ -463,9 +465,9 @@ void load_settings(char* config_dir, bool git_settings)
     {
         if (git_backed_settings)
         {
-            char* command = g_strdup_printf("%s -c \"cd %s && git checkout session\"",
-                                            BASHPATH,
-                                            settings_config_dir);
+            command = g_strdup_printf("%s -c \"cd %s && git checkout session\"",
+                                      BASHPATH,
+                                      settings_config_dir);
             print_command(command);
             g_spawn_command_line_sync(command, NULL, NULL, NULL, NULL);
             g_free(command);
