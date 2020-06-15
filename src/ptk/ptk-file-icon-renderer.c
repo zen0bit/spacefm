@@ -343,7 +343,8 @@ static void ptk_file_icon_renderer_render(GtkCellRenderer* cell, GdkWindow* wind
     GdkRectangle draw_rect;
     VFSFileInfo* file;
     int xpad, ypad;
-    bool is_expander, is_expanded;
+    int is_expander;
+    int is_expanded;
 
     GtkCellRendererClass* parent_renderer_class;
 
