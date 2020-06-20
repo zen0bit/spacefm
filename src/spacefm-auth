@@ -30,9 +30,9 @@ if [ ! -f "${fm_source}" ];then
 fi
 
 if [ ${#fm_sum} -eq 64 ];then
-	fm_sha=/usr/bin/sha256sum
+	fm_hash=/usr/bin/xxh128sum
 elif [ ${#fm_sum} -eq 128 ];then
-	fm_sha=/usr/bin/sha512sum
+	fm_hash=/usr/bin/xxh128sum
 else
 	echo "spacefm-auth: error: invalid sum" 1>&2
 	exit 1
@@ -44,8 +44,8 @@ if (( fm_root == 1 ));then
 	chmod go-rwx "$fm_source" || exit 1
 fi
 
-if [ "$($fm_sha "$fm_source")" != "$fm_sum  $fm_source" ];then
-	echo "spacefm-auth: error: $fm_sha mismatch" 1>&2
+if [ "$($fm_hash "$fm_source")" != "$fm_sum  $fm_source" ];then
+	echo "spacefm-auth: error: $fm_hash mismatch" 1>&2
 	exit 1
 fi
 

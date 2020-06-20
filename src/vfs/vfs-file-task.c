@@ -1212,19 +1212,18 @@ _unref_channel:
     return FALSE;
 }
 
-static char* get_sha256sum(char* path)
+static char* get_xxhash(char* path)
 {
-    const char* sha256sum = g_find_program_in_path("/usr/bin/sha256sum");
-    if (!sha256sum)
+    const char* xxhash = g_find_program_in_path("/usr/bin/xxh128sum");
+    if (!xxhash)
     {
-        g_warning(_("Please install /usr/bin/sha256sum so I can improve your security while "
-                    "running root commands\n"));
+        g_warning(_("Missing program xxhash\n"));
         return NULL;
     }
 
     char* stdout;
     char* sum = NULL;
-    char* command = g_strdup_printf("%s %s", sha256sum, path);
+    char* command = g_strdup_printf("%s %s", xxhash, path);
     print_command(command);
     if (g_spawn_command_line_sync(command, &stdout, NULL, NULL, NULL))
     {
@@ -1487,7 +1486,7 @@ static void vfs_file_task_exec(char* src_file, VFSFileTask* task)
 
         // use checksum
         if (geteuid() != 0 && (task->exec_as_user || task->exec_checksum))
-            sum_script = get_sha256sum(task->exec_script);
+            sum_script = get_xxhash(task->exec_script);
     }
 
     task->percent = 50;
