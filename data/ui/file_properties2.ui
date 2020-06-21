@@ -752,7 +752,7 @@
                       <object class="GtkCheckButton" id="recursive">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="label" translatable="yes">Recursive (apply changes to directories and their contents)</property>
+                        <property name="label" translatable="yes">Recursive</property>
                         <property name="draw_indicator">True</property>
                       </object>
                       <packing>
