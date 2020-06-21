@@ -563,7 +563,8 @@ bool vfs_file_info_open_file(VFSFileInfo* fi, const char* file_path, GError** er
             VFSAppDesktop* app = vfs_app_desktop_new(app_name);
             if (!vfs_app_desktop_get_exec(app))
                 app->exec = g_strdup(app_name); /* FIXME: app->exec */
-            GList* files = g_list_prepend(files, (void*)file_path);
+            GList* files = NULL;
+            files = g_list_prepend(files, (void*)file_path);
             /* FIXME: working dir is needed */
             ret = vfs_app_desktop_open_files(gdk_screen_get_default(), NULL, app, files, err);
             g_list_free(files);
