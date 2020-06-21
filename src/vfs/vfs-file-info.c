@@ -197,7 +197,7 @@ const char* vfs_file_info_get_disp_size(VFSFileInfo* fi)
     if (G_UNLIKELY(!fi->disp_size))
     {
         char buf[64];
-        vfs_file_size_to_string(buf, fi->size);
+        vfs_file_size_to_string_format(buf, fi->size, "%.1f %s");
         fi->disp_size = g_strdup(buf);
     }
     return fi->disp_size;
@@ -423,198 +423,56 @@ const char* vfs_file_info_get_disp_perm(VFSFileInfo* fi)
     return fi->disp_perm;
 }
 
-void vfs_file_size_to_string_format(char* buf, uint64_t size, char* format) // MOD added
+void vfs_file_size_to_string_format(char* buf, uint64_t size, char* format)
 { // if format == NULL uses automatic format based on size
-    char* unit;
+    const char* unit;
     float val;
 
-    /*
-       FIXME: Is floating point calculation slower than integer division?
-              Some profiling is needed here.
-    */
-    if (size > ((uint64_t)1) << 30)
+    if (size > ((uint64_t)1) << 40)
     {
-        if (size > ((uint64_t)1) << 40)
-        {
-            /*
-            size /= ( ( ( uint64_t ) 1 << 40 ) / 10 );
-            point = ( unsigned int ) ( size % 10 );
-            size /= 10;
-            */
-            if (app_settings.use_si_prefix)
-            {
-                val = ((float)size) / ((float)1000000000000);
-                unit = _("T");
-            }
-            else
-            {
-                val = ((float)size) / ((uint64_t)1 << 40);
-                unit = _("T"); // MOD was TiB
-            }
-        }
-        else
-        {
-            /*
-            size /= ( ( 1 << 30 ) / 10 );
-            point = ( unsigned int ) ( size % 10 );
-            size /= 10;
-            */
-            if (app_settings.use_si_prefix)
-            {
-                val = ((float)size) / ((float)1000000000);
-                unit = _("G");
-            }
-            else
-            {
-                val = ((float)size) / ((uint64_t)1 << 30);
-                unit = _("G"); // MOD was GiB
-            }
-        }
-    }
-    else if (size > (1 << 20))
-    {
-        /*
-        size /= ( ( 1 << 20 ) / 10 );
-        point = ( unsigned int ) ( size % 10 );
-        size /= 10;
-        */
+        unit = _("T");
         if (app_settings.use_si_prefix)
-        {
+            val = ((float)size) / ((float)1000000000000);
+        else
+            val = ((float)size) / ((uint64_t)1 << 40);
+    }
+    else if (size > ((uint64_t)1) << 30)
+    {
+        unit = _("G");
+        if (app_settings.use_si_prefix)
+            val = ((float)size) / ((float)1000000000);
+        else
+            val = ((float)size) / ((uint64_t)1 << 30);
+    }
+    else if (size > ((uint64_t)1 << 20))
+    {
+        unit = _("M");
+        if (app_settings.use_si_prefix)
             val = ((float)size) / ((float)1000000);
-            unit = _("M");
-        }
         else
-        {
             val = ((float)size) / ((uint64_t)1 << 20);
-            unit = _("M"); // MOD was MiB
-        }
     }
-    else if (size > (1 << 10))
+    else if (size > ((uint64_t)1 << 10))
     {
-        /*
-        size /= ( ( 1 << 10 ) / 10 );
-        point = size % 10;
-        size /= 10;
-        */
+        unit = _("K");
         if (app_settings.use_si_prefix)
-        {
             val = ((float)size) / ((float)1000);
-            unit = _("K"); // MOD was KB
-        }
         else
-        {
             val = ((float)size) / ((uint64_t)1 << 10);
-            unit = _("K"); // MOD was KiB
-        }
     }
     else
     {
-        unit = _("B"); // size > 1 ? _("B") : _("B");
-        sprintf(buf, "%u %s", (unsigned int)size, unit);
-        return;
-    }
-    if (format)
-        sprintf(buf, format, val, unit); // "%.0f%s"
-    else if (val < 10)
-        sprintf(buf, "%.1f %s", val, unit);
-    else
-        sprintf(buf, "%.0f %s", val, unit);
-}
-
-void vfs_file_size_to_string(char* buf, uint64_t size)
-{
-    char* unit;
-    /* unsigned int point; */
-    float val;
-
-    /*
-       FIXME: Is floating point calculation slower than integer division?
-              Some profiling is needed here.
-    */
-    if (size > ((uint64_t)1) << 30)
-    {
-        if (size > ((uint64_t)1) << 40)
-        {
-            /*
-            size /= ( ( ( uint64_t ) 1 << 40 ) / 10 );
-            point = ( unsigned int ) ( size % 10 );
-            size /= 10;
-            */
-            if (app_settings.use_si_prefix)
-            {
-                val = ((float)size) / ((float)1000000000000);
-                unit = _("T");
-            }
-            else
-            {
-                val = ((float)size) / ((uint64_t)1 << 40);
-                unit = _("T"); // MOD was TiB
-            }
-        }
-        else
-        {
-            /*
-            size /= ( ( 1 << 30 ) / 10 );
-            point = ( unsigned int ) ( size % 10 );
-            size /= 10;
-            */
-            if (app_settings.use_si_prefix)
-            {
-                val = ((float)size) / ((float)1000000000);
-                unit = _("G");
-            }
-            else
-            {
-                val = ((float)size) / ((uint64_t)1 << 30);
-                unit = _("G"); // MOD was GiB
-            }
-        }
-    }
-    else if (size > (1 << 20))
-    {
-        /*
-        size /= ( ( 1 << 20 ) / 10 );
-        point = ( unsigned int ) ( size % 10 );
-        size /= 10;
-        */
-        if (app_settings.use_si_prefix)
-        {
-            val = ((float)size) / ((float)1000000);
-            unit = _("M");
-        }
-        else
-        {
-            val = ((float)size) / ((uint64_t)1 << 20);
-            unit = _("M"); // MOD was MiB
-        }
-    }
-    else if (size > (1 << 10))
-    {
-        /*
-        size /= ( ( 1 << 10 ) / 10 );
-        point = size % 10;
-        size /= 10;
-        */
-        if (app_settings.use_si_prefix)
-        {
-            val = ((float)size) / ((float)1000);
-            unit = _("K"); // MOD was KB
-        }
-        else
-        {
-            val = ((float)size) / ((uint64_t)1 << 10);
-            unit = _("K"); // MOD was KiB
-        }
-    }
-    else
-    {
-        // unit = size > 1 ? "Bytes" : "Byte";
         unit = _("B");
         sprintf(buf, "%u %s", (unsigned int)size, unit);
         return;
     }
-    /* sprintf( buf, "%llu.%u %s", size, point, unit ); */
-    sprintf(buf, "%.1f %s", val, unit);
+
+    if (format)
+        sprintf(buf, format, val, unit);
+    else if (val < 10)
+        sprintf(buf, "%.1f %s", val, unit);
+    else
+        sprintf(buf, "%.0f %s", val, unit);
 }
 
 bool vfs_file_info_is_dir(VFSFileInfo* fi)

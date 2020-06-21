@@ -3501,7 +3501,7 @@ static void fm_main_window_update_status_bar(FMMainWindow* main_window,
                                 if (stat(target_path, &results) == 0)
                                 {
                                     char buf[64];
-                                    vfs_file_size_to_string(buf, results.st_size);
+                                    vfs_file_size_to_string_format(buf, results.st_size, "%.1f %s");
                                     char* lsize = g_strdup(buf);
                                     link_info =
                                         g_strdup_printf(_("   Link → %s (%s)"), target, lsize);
@@ -3528,7 +3528,7 @@ static void fm_main_window_update_status_bar(FMMainWindow* main_window,
         if (!link_info)
             link_info = g_strdup("");
 
-        vfs_file_size_to_string(size_str, total_size);
+        vfs_file_size_to_string_format(size_str, total_size, "%.1f %s");
         msg =
             g_strdup_printf("%s%d / %d (%s)%s", free_space, num_sel, num_vis, size_str, link_info);
         // msg = g_strdup_printf( ngettext( _("%s%d sel (%s)%s"),  //MOD

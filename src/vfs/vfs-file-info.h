@@ -112,8 +112,6 @@ GdkPixbuf* vfs_file_info_get_small_thumbnail(VFSFileInfo* fi);
 
 void vfs_file_size_to_string_format(char* buf, uint64_t size, char* format);
 
-void vfs_file_size_to_string(char* buf, uint64_t size);
-
 bool vfs_file_info_is_dir(VFSFileInfo* fi);
 
 bool vfs_file_info_is_symlink(VFSFileInfo* fi);
