@@ -197,9 +197,9 @@ spacefm = build_target(
   ],
 )
 
-install_data('src/spacefm-auth', install_dir : bindir )
+install_data('src/spacefm-auth', install_dir : bindir)
+install_data('etc/spacefm.conf', install_dir : sysconfdir / 'spacefm')
 
-install_subdir('etc', install_dir : sysconfdir )
-install_subdir('data/applications', install_dir : datadir )
+install_subdir('data/applications', install_dir : datadir)
 install_subdir('data/ui', install_dir : datadir / target_name)
-install_subdir('data/icons', install_dir : datadir )
+install_subdir('data/icons', install_dir : datadir)
