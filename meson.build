@@ -1,6 +1,6 @@
 project(
   'spacefm', ['c', 'cpp'],
-  version : '2.0.0-dev',
+  version : '2.0.0',
   license : 'GPL2 LGPL',
   default_options : [
   	  'prefix=/usr',
