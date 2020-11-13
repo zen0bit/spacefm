@@ -17,7 +17,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/un.h>
 
@@ -43,8 +42,6 @@
 
 #include "ptk/ptk-utils.h"
 #include "ptk/ptk-app-chooser.h"
-#include "ptk/ptk-file-properties.h"
-#include "ptk/ptk-file-menu.h"
 #include "ptk/ptk-location-view.h"
 
 #include "find-files.h"
