@@ -897,7 +897,7 @@ char* ptk_handler_save_script(int mode, int cmd, XSet* handler_set, GtkTextView*
     else if (command)
         text = (char*)command;
     else
-        text = "";
+        text = g_strdup("");
 
     // printf("WRITE %s\n", script );
     // write script
@@ -2533,16 +2533,16 @@ static bool on_textview_keypress(GtkWidget* widget, GdkEventKey* event, HandlerD
                 switch (hnd->mode)
                 {
                     case HANDLER_MODE_ARC:
-                        help = "#handlers-arc";
+                        help = g_strdup("#handlers-arc");
                         break;
                     case HANDLER_MODE_FS:
-                        help = "#handlers-dev";
+                        help = g_strdup("#handlers-dev");
                         break;
                     case HANDLER_MODE_NET:
-                        help = "#handlers-pro";
+                        help = g_strdup("#handlers-pro");
                         break;
                     case HANDLER_MODE_FILE:
-                        help = "#handlers-fil";
+                        help = g_strdup("#handlers-fil");
                         break;
                     default:
                         help = NULL;

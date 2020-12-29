@@ -1303,7 +1303,8 @@ static void vfs_file_task_exec(char* src_file, VFSFileTask* task)
             su = get_valid_su();
             if (!su)
             {
-                str = "Please configure a valid Terminal SU command in View|Preferences|Advanced";
+                str = g_strdup(
+                    "Please configure a valid Terminal SU command in View|Preferences|Advanced");
                 g_warning(str, NULL);
                 // do not use xset_msg_dialog if non-main thread
                 // vfs_file_task_exec_error( task, 0, str );

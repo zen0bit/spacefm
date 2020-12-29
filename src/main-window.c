@@ -234,7 +234,7 @@ static void on_plugin_install(GtkMenuItem* item, FMMainWindow* main_window, XSet
         else
         {
             if (!(deffolder = xset_get_s("go_set_default")))
-                deffolder = "/";
+                deffolder = g_strdup("/");
         }
         path = xset_file_dialog(GTK_WIDGET(main_window),
                                 GTK_FILE_CHOOSER_ACTION_OPEN,
@@ -781,7 +781,7 @@ void main_update_fonts(GtkWidget* widget, PtkFileBrowser* file_browser)
         if (set->icon && set->icon[0] != '\0')
             icon_name = set->icon;
         else
-            icon_name = "gtk-yes";
+            icon_name = g_strdup("gtk-yes");
         num_pages = gtk_notebook_get_n_pages(GTK_NOTEBOOK(main_window->panel[p - 1]));
         for (i = 0; i < num_pages; i++)
         {
@@ -960,9 +960,9 @@ static void update_window_icon(GtkWindow* window, GtkIconTheme* theme)
     if (set->icon)
         name = set->icon;
     else if (geteuid() == 0)
-        name = "spacefm-root";
+        name = g_strdup("spacefm-root");
     else
-        name = "spacefm";
+        name = g_strdup("spacefm");
 
     GdkPixbuf* icon = gtk_icon_theme_load_icon(theme, name, 48, 0, &error);
     if (icon)
@@ -1475,7 +1475,7 @@ static void show_panels(GtkMenuItem* item, FMMainWindow* main_window)
                                 if (geteuid() != 0)
                                     folder_path = g_get_home_dir();
                                 else
-                                    folder_path = "/";
+                                    folder_path = g_strdup("/");
                             }
                             fm_main_window_add_new_tab(main_window, folder_path);
                             tab_added = TRUE;
@@ -1513,7 +1513,7 @@ static void show_panels(GtkMenuItem* item, FMMainWindow* main_window)
                         if (geteuid() != 0)
                             folder_path = g_get_home_dir();
                         else
-                            folder_path = "/";
+                            folder_path = g_strdup("/");
                     }
                     fm_main_window_add_new_tab(main_window, folder_path);
                 }
@@ -1950,7 +1950,7 @@ static void fm_main_window_init(FMMainWindow* main_window)
         if (set->icon && set->icon[0] != '\0')
             icon_name = set->icon;
         else
-            icon_name = "gtk-yes";
+            icon_name = g_strdup("gtk-yes");
         main_window->panel_image[i] = xset_get_image(icon_name, GTK_ICON_SIZE_MENU);
         gtk_tool_button_set_icon_widget(GTK_TOOL_BUTTON(main_window->panel_btn[i]),
                                         main_window->panel_image[i]);
@@ -2568,7 +2568,7 @@ void on_close_notebook_page(GtkButton* btn, PtkFileBrowser* file_browser)
             if (geteuid() != 0)
                 path = g_get_home_dir();
             else
-                path = "/";
+                path = g_strdup("/");
         }
         fm_main_window_add_new_tab(main_window, path);
         a_browser = PTK_FILE_BROWSER(gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook), 0));
@@ -3009,13 +3009,13 @@ static void on_main_help_activate(GtkMenuItem* menuitem, FMMainWindow* main_wind
     PtkFileBrowser* browser =
         PTK_FILE_BROWSER(fm_main_window_get_current_file_browser(main_window));
     if (browser && browser->path_bar && gtk_widget_has_focus(GTK_WIDGET(browser->path_bar)))
-        help = "#gui-pathbar";
+        help = g_strdup("#gui-pathbar");
     else if (browser && browser->side_dev && gtk_widget_has_focus(GTK_WIDGET(browser->side_dev)))
-        help = "#devices";
+        help = g_strdup("#devices");
     else if (browser && browser->side_book && gtk_widget_has_focus(GTK_WIDGET(browser->side_book)))
-        help = "#gui-book";
+        help = g_strdup("#gui-book");
     else if (main_window->task_view && gtk_widget_has_focus(GTK_WIDGET(main_window->task_view)))
-        help = "#tasks-man";
+        help = g_strdup("#tasks-man");
     else
         help = NULL;
     xset_show_help(GTK_WIDGET(main_window), NULL, help);
@@ -3051,9 +3051,9 @@ static void on_about_activate(GtkMenuItem* menuitem, void* user_data)
         pcmanfm_ref();
 
 #if (GTK_MAJOR_VERSION == 3)
-        const char* about_dlg_ui = "/about-dlg3.ui";
+        const char* about_dlg_ui = g_strdup("/about-dlg3.ui");
 #elif (GTK_MAJOR_VERSION == 2)
-        const char* about_dlg_ui = "/about-dlg2.ui";
+        const char* about_dlg_ui = g_strdup("/about-dlg2.ui");
 #endif
         builder = _gtk_builder_new_from_file(PACKAGE_UI_DIR, about_dlg_ui, NULL);
         about_dlg = GTK_WIDGET(gtk_builder_get_object(builder, "dlg"));
@@ -3065,9 +3065,9 @@ static void on_about_activate(GtkMenuItem* menuitem, void* user_data)
         if (set->icon)
             name = set->icon;
         else if (geteuid() == 0)
-            name = "spacefm-root";
+            name = g_strdup("spacefm-root");
         else
-            name = "spacefm";
+            name = g_strdup("spacefm");
         gtk_about_dialog_set_logo_icon_name(GTK_ABOUT_DIALOG(about_dlg), name);
 
         g_object_add_weak_pointer(G_OBJECT(about_dlg), (void*)&about_dlg);
@@ -5394,13 +5394,13 @@ static bool on_task_button_press_event(GtkWidget* view, GdkEventButton* event,
             switch (ptask->task->state_pause)
             {
                 case VFS_FILE_TASK_PAUSE:
-                    sname = "task_que";
+                    sname = g_strdup("task_que");
                     break;
                 case VFS_FILE_TASK_QUEUE:
-                    sname = "task_resume";
+                    sname = g_strdup("task_resume");
                     break;
                 default:
-                    sname = "task_pause";
+                    sname = g_strdup("task_pause");
             }
             set = xset_get(sname);
             on_task_stop(NULL, view, set, ptask);
@@ -5461,11 +5461,11 @@ static bool on_task_button_press_event(GtkWidget* view, GdkEventButton* event,
             set = xset_get("task_all");
             set->disable = !is_tasks;
 
-            const char* showout = "";
+            const char* showout = g_strdup("");
             if (ptask && ptask->pop_handler)
             {
                 xset_set_cb("task_showout", show_task_dialog, view);
-                showout = " task_showout";
+                showout = g_strdup(" task_showout");
             }
 
             main_task_prepare_menu(main_window, popup, accel_group);
@@ -6324,31 +6324,31 @@ char main_window_socket_command(char* argv[], char** reply)
             bool use_mode = FALSE;
             if (g_str_has_prefix(argv[i], "devices_"))
             {
-                str = "show_devmon";
+                str = g_strdup("show_devmon");
                 use_mode = TRUE;
             }
             else if (g_str_has_prefix(argv[i], "bookmarks_"))
             {
-                str = "show_book";
+                str = g_strdup("show_book");
                 use_mode = TRUE;
             }
             else if (g_str_has_prefix(argv[i], "dirtree_"))
             {
-                str = "show_dirtree";
+                str = g_strdup("show_dirtree");
                 use_mode = TRUE;
             }
             else if (g_str_has_prefix(argv[i], "toolbar_"))
             {
-                str = "show_toolbox";
+                str = g_strdup("show_toolbox");
                 use_mode = TRUE;
             }
             else if (g_str_has_prefix(argv[i], "sidetoolbar_"))
             {
-                str = "show_sidebar";
+                str = g_strdup("show_sidebar");
                 use_mode = TRUE;
             }
             else if (g_str_has_prefix(argv[i], "hidden_files_"))
-                str = "show_hidden";
+                str = g_strdup("show_hidden");
             else if (g_str_has_prefix(argv[i], "panel"))
             {
                 j = argv[i][5] - 48;
@@ -6479,12 +6479,12 @@ char main_window_socket_command(char* argv[], char** reply)
             }
             else if (!strcmp(argv[i] + 5, "natural"))
             {
-                str = "sortx_natural";
+                str = g_strdup("sortx_natural");
                 xset_set_b(str, get_bool(argv[i + 1]));
             }
             else if (!strcmp(argv[i] + 5, "case"))
             {
-                str = "sortx_case";
+                str = g_strdup("sortx_case");
                 xset_set_b(str, get_bool(argv[i + 1]));
             }
             else if (!strcmp(argv[i] + 5, "hidden_first"))
@@ -6495,11 +6495,11 @@ char main_window_socket_command(char* argv[], char** reply)
             else if (!strcmp(argv[i] + 5, "first"))
             {
                 if (!g_strcmp0(argv[i + 1], "files"))
-                    str = "sortx_files";
+                    str = g_strdup("sortx_files");
                 else if (!g_strcmp0(argv[i + 1], "directories"))
-                    str = "sortx_directories";
+                    str = g_strdup("sortx_directories");
                 else if (!g_strcmp0(argv[i + 1], "mixed"))
-                    str = "sortx_mix";
+                    str = g_strdup("sortx_mix");
                 else
                 {
                     *reply = g_strdup_printf(_("spacefm: invalid %s value\n"), argv[i]);
@@ -6708,15 +6708,15 @@ char main_window_socket_command(char* argv[], char** reply)
         else if (!strcmp(argv[i], "focused_pane"))
         {
             if (file_browser->folder_view && gtk_widget_is_focus(file_browser->folder_view))
-                str = "filelist";
+                str = g_strdup("filelist");
             else if (file_browser->side_dev && gtk_widget_is_focus(file_browser->side_dev))
-                str = "devices";
+                str = g_strdup("devices");
             else if (file_browser->side_book && gtk_widget_is_focus(file_browser->side_book))
-                str = "bookmarks";
+                str = g_strdup("bookmarks");
             else if (file_browser->side_dir && gtk_widget_is_focus(file_browser->side_dir))
-                str = "dirtree";
+                str = g_strdup("dirtree");
             else if (file_browser->path_bar && gtk_widget_is_focus(file_browser->path_bar))
-                str = "pathbar";
+                str = g_strdup("pathbar");
             else
                 str = NULL;
             if (str)
@@ -6743,31 +6743,31 @@ char main_window_socket_command(char* argv[], char** reply)
             bool use_mode = FALSE;
             if (g_str_has_prefix(argv[i], "devices_"))
             {
-                str = "show_devmon";
+                str = g_strdup("show_devmon");
                 use_mode = TRUE;
             }
             else if (g_str_has_prefix(argv[i], "bookmarks_"))
             {
-                str = "show_book";
+                str = g_strdup("show_book");
                 use_mode = TRUE;
             }
             else if (g_str_has_prefix(argv[i], "dirtree_"))
             {
-                str = "show_dirtree";
+                str = g_strdup("show_dirtree");
                 use_mode = TRUE;
             }
             else if (g_str_has_prefix(argv[i], "toolbar_"))
             {
-                str = "show_toolbox";
+                str = g_strdup("show_toolbox");
                 use_mode = TRUE;
             }
             else if (g_str_has_prefix(argv[i], "sidetoolbar_"))
             {
-                str = "show_sidebar";
+                str = g_strdup("show_sidebar");
                 use_mode = TRUE;
             }
             else if (g_str_has_prefix(argv[i], "hidden_files_"))
-                str = "show_hidden";
+                str = g_strdup("show_hidden");
             else if (g_str_has_prefix(argv[i], "panel"))
             {
                 j = argv[i][5] - 48;
@@ -6845,22 +6845,22 @@ char main_window_socket_command(char* argv[], char** reply)
             switch (file_browser->sort_order)
             {
                 case PTK_FB_SORT_BY_NAME:
-                    str = "name";
+                    str = g_strdup("name");
                     break;
                 case PTK_FB_SORT_BY_SIZE:
-                    str = "size";
+                    str = g_strdup("size");
                     break;
                 case PTK_FB_SORT_BY_TYPE:
-                    str = "type";
+                    str = g_strdup("type");
                     break;
                 case PTK_FB_SORT_BY_PERM:
-                    str = "permission";
+                    str = g_strdup("permission");
                     break;
                 case PTK_FB_SORT_BY_OWNER:
-                    str = "owner";
+                    str = g_strdup("owner");
                     break;
                 case PTK_FB_SORT_BY_MTIME:
-                    str = "modified";
+                    str = g_strdup("modified");
                     break;
                 default:
                     return 0;
@@ -6895,13 +6895,13 @@ char main_window_socket_command(char* argv[], char** reply)
                 switch (xset_get_int_panel(file_browser->mypanel, "sort_extra", "y"))
                 {
                     case 0:
-                        str = "mixed";
+                        str = g_strdup("mixed");
                         break;
                     case 1:
-                        str = "directories";
+                        str = g_strdup("directories");
                         break;
                     case 2:
-                        str = "files";
+                        str = g_strdup("files");
                         break;
                     default:
                         return 0; // failsafe for known
@@ -7239,13 +7239,13 @@ char main_window_socket_command(char* argv[], char** reply)
         else if (!strcmp(argv[i + 1], "queue_state"))
         {
             if (ptask->task->state_pause == VFS_FILE_TASK_RUNNING)
-                str = "run";
+                str = g_strdup("run");
             else if (ptask->task->state_pause == VFS_FILE_TASK_PAUSE)
-                str = "pause";
+                str = g_strdup("pause");
             else if (ptask->task->state_pause == VFS_FILE_TASK_QUEUE)
-                str = "queue";
+                str = g_strdup("queue");
             else
-                str = "stop"; // failsafe
+                str = g_strdup("stop"); // failsafe
             *reply = g_strdup_printf("%s\n", str);
             return 0;
         }
@@ -7773,11 +7773,11 @@ static bool run_event(FMMainWindow* main_window, PtkFileBrowser* file_browser, X
             g_free(str);
             const char* change;
             if (state == VFS_VOLUME_ADDED)
-                change = "added";
+                change = g_strdup("added");
             else if (state == VFS_VOLUME_REMOVED)
-                change = "removed";
+                change = g_strdup("removed");
             else
-                change = "changed";
+                change = g_strdup("changed");
             str = cmd;
             cmd = replace_string(str, "%v", change, FALSE);
             g_free(str);
@@ -7797,19 +7797,22 @@ static bool run_event(FMMainWindow* main_window, PtkFileBrowser* file_browser, X
         return FALSE;
 
     // replace vars
-    const char* replace = "ewpt";
+    const char* replace;
+
     if (set == evt_win_click)
     {
-        replace = "ewptfbm";
+        replace = g_strdup("ewptfbm");
         state = (state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK | GDK_SUPER_MASK |
                           GDK_HYPER_MASK | GDK_META_MASK));
     }
     else if (set == evt_win_key)
-        replace = "ewptkm";
+        replace = g_strdup("ewptkm");
     else if (set == evt_pnl_show)
-        replace = "ewptfv";
+        replace = g_strdup("ewptfv");
     else if (set == evt_tab_chdir)
-        replace = "ewptd";
+        replace = g_strdup("ewptd");
+    else
+        replace = g_strdup("ewpt");
 
     char* str;
     char* rep;

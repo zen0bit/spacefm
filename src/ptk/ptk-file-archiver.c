@@ -232,13 +232,13 @@ static char* generate_bash_error_function(bool run_in_terminal, char* parent_quo
     const char* finished_with_errors = NULL;
     if (run_in_terminal)
     {
-        error_pause = "read -p";
-        finished_with_errors = "[ Finished With Errors ]  Press Enter to close: ";
+        error_pause = g_strdup("read -p");
+        finished_with_errors = g_strdup("[ Finished With Errors ]  Press Enter to close: ");
     }
     else
     {
-        error_pause = "echo";
-        finished_with_errors = "[ Finished With Errors ]";
+        error_pause = g_strdup("echo");
+        finished_with_errors = g_strdup("[ Finished With Errors ]");
     }
 
     return g_strdup_printf(""

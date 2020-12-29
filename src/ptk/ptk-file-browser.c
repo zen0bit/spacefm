@@ -667,7 +667,7 @@ static void on_address_bar_activate(GtkWidget* entry, PtkFileBrowser* file_brows
                 if (strcmp(dir_path, ptk_file_browser_get_cwd(file_browser)))
                 {
                     g_free(file_browser->select_path);
-                    file_browser->select_path = strdup(final_path);
+                    file_browser->select_path = g_strdup(final_path);
                     ptk_file_browser_chdir(file_browser, dir_path, PTK_FB_CHDIR_ADD_HISTORY);
                 }
                 else
@@ -2027,7 +2027,7 @@ bool ptk_file_browser_chdir(PtkFileBrowser* file_browser, const char* folder_pat
 
     if (folder_path)
     {
-        path = strdup(folder_path);
+        path = g_strdup(folder_path);
         /* remove redundent '/' */
         if (strcmp(path, "/"))
         {
@@ -2606,7 +2606,7 @@ void ptk_file_browser_canon(PtkFileBrowser* file_browser, const char* path)
         if (dir_path && strcmp(dir_path, cwd))
         {
             g_free(file_browser->select_path);
-            file_browser->select_path = strdup(canon);
+            file_browser->select_path = g_strdup(canon);
             ptk_file_browser_chdir(file_browser, dir_path, PTK_FB_CHDIR_ADD_HISTORY);
         }
         else

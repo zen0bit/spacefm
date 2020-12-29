@@ -145,33 +145,34 @@ VFSFileMonitor* vfs_file_monitor_add(char* path, bool is_dir, VFSFileMonitorCall
             switch (errno)
             {
                 case EACCES:
-                    msg = "EACCES Read access to the given directory is not permitted.";
+                    msg = g_strdup("EACCES Read access to the given directory is not permitted.");
                     break;
                 case EBADF:
-                    msg = "EBADF The given file descriptor is not valid.";
+                    msg = g_strdup("EBADF The given file descriptor is not valid.");
                     break;
                 case EFAULT:
-                    msg = "EFAULT Pathname points outside of the process's "
-                          "accessible address space.";
+                    msg = g_strdup("EFAULT Pathname points outside of the process's accessible "
+                                   "address space.");
                     break;
                 case EINVAL:
-                    msg = "EINVAL The given event mask contains no valid events; or fd is not an "
-                          "inotify file descriptor.";
+                    msg = g_strdup("EINVAL The given event mask contains no valid events; "
+                                   "or fd is not an inotify file descriptor.");
                     break;
                 case ENOENT:
-                    msg = "ENOENT A directory component in pathname does not exist "
-                          "or is a dangling symbolic link.";
+                    msg = g_strdup("ENOENT A directory component in pathname does not exist "
+                                   "or is a dangling symbolic link.");
                     break;
                 case ENOMEM:
-                    msg = "ENOMEM Insufficient kernel memory was available.";
+                    msg = g_strdup("ENOMEM Insufficient kernel memory was available.");
                     break;
                 case ENOSPC:
-                    msg = "ENOSPC The user limit on the total number of inotify watches (cat "
-                          "/proc/sys/fs/inotify/max_user_watches) was reached or the kernel failed "
-                          "to allocate a needed resource.";
+                    msg = g_strdup(
+                        "ENOSPC The user limit on the total number of inotify watches (cat "
+                        "/proc/sys/fs/inotify/max_user_watches) was reached or the kernel failed "
+                        "to allocate a needed resource.");
                     break;
                 default:
-                    msg = "??? Unknown error.";
+                    msg = g_strdup("??? Unknown error.");
                     break;
             }
             g_warning("Failed to add watch on '%s' ('%s'): inotify_add_watch errno %d %s",

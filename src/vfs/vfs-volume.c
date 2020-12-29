@@ -2372,7 +2372,7 @@ int split_network_url(const char* url, netmount_t** netmount)
     int ret;
     char* str;
     char* str2;
-    char* orig_url = strdup(url);
+    char* orig_url = g_strdup(url);
     char* xurl = orig_url;
     netmount_t* nm = g_slice_new0(netmount_t);
     nm->fstype = NULL; // protocol

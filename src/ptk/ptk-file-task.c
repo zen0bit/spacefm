@@ -429,19 +429,19 @@ static void set_button_states(PtkFileTask* ptask)
     if (ptask->task->state_pause == VFS_FILE_TASK_PAUSE)
     {
         label = _("Q_ueue");
-        iconset = "task_que";
+        iconset = g_strdup("task_que");
         icon = GTK_STOCK_ADD;
     }
     else if (ptask->task->state_pause == VFS_FILE_TASK_QUEUE)
     {
         label = _("Res_ume");
-        iconset = "task_resume";
+        iconset = g_strdup("task_resume");
         icon = GTK_STOCK_MEDIA_PLAY;
     }
     else
     {
         label = _("Pa_use");
-        iconset = "task_pause";
+        iconset = strdup("task_pause");
         icon = GTK_STOCK_MEDIA_PAUSE;
     }
     sens = sens && !(ptask->task->type == VFS_FILE_TASK_EXEC && !ptask->task->exec_pid);
@@ -2003,15 +2003,15 @@ static void query_overwrite(PtkFileTask* ptask)
             if (S_ISLNK(src_stat.st_mode))
                 src_link = _("\t<b>( link )</b>");
             else
-                src_link = "";
+                src_link = g_strdup("");
             if (S_ISLNK(dest_stat.st_mode))
                 dest_link = _("\t<b>( link )</b>");
             else
-                dest_link = "";
+                dest_link = g_strdup("");
             if (S_ISLNK(src_stat.st_mode) && !S_ISLNK(dest_stat.st_mode))
                 link_warn = _("\t<b>! overwrite file with link !</b>");
             else
-                link_warn = "";
+                link_warn = g_strdup("");
             if (src_stat.st_size == dest_stat.st_size)
             {
                 src_size = g_strdup(_("<b>( same size )</b>"));

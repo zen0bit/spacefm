@@ -326,9 +326,9 @@ GtkWidget* file_properties_dlg_new(GtkWindow* parent, const char* dir_path, GLis
                                    int page)
 {
 #if (GTK_MAJOR_VERSION == 3)
-    const char* file_properties_ui = "/file_properties3.ui";
+    const char* file_properties_ui = g_strdup("/file_properties3.ui");
 #elif (GTK_MAJOR_VERSION == 2)
-    const char* file_properties_ui = "/file_properties2.ui";
+    const char* file_properties_ui = g_strdup("/file_properties2.ui");
 #endif
     GtkBuilder* builder = _gtk_builder_new_from_file(PACKAGE_UI_DIR, file_properties_ui, NULL);
     GtkWidget* dlg = (GtkWidget*)gtk_builder_get_object(builder, "dlg");
@@ -355,7 +355,7 @@ GtkWidget* file_properties_dlg_new(GtkWindow* parent, const char* dir_path, GLis
 
     char buf[64];
     char buf2[32];
-    const char* time_format = "%Y-%m-%d %H:%M:%S";
+    const char* time_format = g_strdup("%Y-%m-%d %H:%M:%S");
 
     char* disp_path;
     char* file_type;

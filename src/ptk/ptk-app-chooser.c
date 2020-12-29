@@ -180,9 +180,9 @@ static GtkWidget* app_chooser_dialog_new(GtkWindow* parent, VFSMimeType* mime_ty
     dir_default         Show 'Set as default' also for type dir
     */
 #if (GTK_MAJOR_VERSION == 3)
-    const char* appchooserdlg_ui = "/appchooserdlg3.ui";
+    const char* appchooserdlg_ui = g_strdup("/appchooserdlg3.ui");
 #elif (GTK_MAJOR_VERSION == 2)
-    const char* appchooserdlg_ui = "/appchooserdlg2.ui";
+    const char* appchooserdlg_ui = g_strdup("/appchooserdlg2.ui");
 #endif
     GtkBuilder* builder = _gtk_builder_new_from_file(PACKAGE_UI_DIR, appchooserdlg_ui, NULL);
     GtkWidget* dlg = (GtkWidget*)gtk_builder_get_object(builder, "dlg");
@@ -396,7 +396,7 @@ void on_browse_btn_clicked(GtkButton* button, void* user_data)
             GtkNotebook* notebook =
                 GTK_NOTEBOOK((GtkWidget*)gtk_builder_get_object(builder, "notebook"));
             /* FIXME: path shouldn't be hard-coded */
-            const char* app_path = "/usr/share/applications";
+            const char* app_path = g_strdup("/usr/share/applications");
             if (g_str_has_prefix(filename, app_path) && g_str_has_suffix(filename, ".desktop"))
             {
                 char* app_name = g_path_get_basename(filename);

@@ -36,7 +36,7 @@ static bool show_go_dialog(GtkWindow* parent, char* initial_path)
     bool ret = (gtk_dialog_run(GTK_DIALOG(dlg)) == GTK_RESPONSE_OK);
     if (ret)
     {
-        chosen_path = strdup(gtk_entry_get_text(path_entry));
+        chosen_path = g_strdup(gtk_entry_get_text(path_entry));
     }
     gtk_widget_destroy(GTK_WIDGET(dlg));
     return ret;

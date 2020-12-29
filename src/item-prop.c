@@ -2658,16 +2658,16 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
                 switch (gtk_notebook_get_current_page(GTK_NOTEBOOK(ctxt->notebook)))
                 {
                     case 1:
-                        help = "#designmode-props-context";
+                        help = g_strdup("#designmode-props-context");
                         break;
                     case 2:
-                        help = "#designmode-props-command";
+                        help = g_strdup("#designmode-props-command");
                         break;
                     case 3:
-                        help = "#designmode-props-opts";
+                        help = g_strdup("#designmode-props-opts");
                         break;
                     default:
-                        help = "#designmode-props";
+                        help = g_strdup("#designmode-props");
                         break;
                 }
                 xset_show_help(ctxt->dlg, NULL, help);

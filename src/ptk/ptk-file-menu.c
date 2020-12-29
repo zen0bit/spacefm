@@ -1718,7 +1718,7 @@ void app_job(GtkWidget* item, GtkWidget* app_item)
             g_free(path);
             break;
         case APP_JOB_VIEW_OVER:
-            path = "/usr/share/mime/packages/Overrides.xml";
+            path = g_strdup("/usr/share/mime/packages/Overrides.xml");
             xset_edit(data->browser, path, TRUE, FALSE);
             break;
         case APP_JOB_BROWSE_MIME_USR:
@@ -1791,45 +1791,45 @@ static bool app_menu_keypress(GtkWidget* menu, GdkEventKey* event, PtkFileMenu* 
                     switch (job)
                     {
                         case APP_JOB_DEFAULT:
-                            help = "#designmode-mime-set";
+                            help = g_strdup("#designmode-mime-set");
                             break;
                         case APP_JOB_REMOVE:
-                            help = "#designmode-mime-remove";
+                            help = g_strdup("#designmode-mime-remove");
                             break;
                         case APP_JOB_ADD:
-                            help = "#designmode-mime-add";
+                            help = g_strdup("#designmode-mime-add");
                             break;
                         case APP_JOB_EDIT:
-                            help = "#designmode-mime-appdesktop";
+                            help = g_strdup("#designmode-mime-appdesktop");
                             break;
                         case APP_JOB_EDIT_LIST:
-                            help = "#designmode-mime-mimeappslist";
+                            help = g_strdup("#designmode-mime-mimeappslist");
                             break;
                         case APP_JOB_BROWSE:
-                            help = "#designmode-mime-appdir";
+                            help = g_strdup("#designmode-mime-appdir");
                             break;
                         case APP_JOB_EDIT_TYPE:
-                            help = "#designmode-mime-xml";
+                            help = g_strdup("#designmode-mime-xml");
                             break;
                         case APP_JOB_BROWSE_MIME:
-                            help = "#designmode-mime-mimedir";
+                            help = g_strdup("#designmode-mime-mimedir");
                             break;
                         case APP_JOB_USR:
-                            help = "#designmode-mime-usr";
+                            help = g_strdup("#designmode-mime-usr");
                             break;
                         case APP_JOB_BROWSE_SHARED:
                         case APP_JOB_VIEW:
                         case APP_JOB_VIEW_TYPE:
                         case APP_JOB_VIEW_OVER:
                         case APP_JOB_BROWSE_MIME_USR:
-                            help = "#designmode-mime-usr";
+                            help = g_strdup("#designmode-mime-usr");
                             break;
                         default:
                             break;
                     }
                 }
                 if (!help)
-                    help = "#designmode-mime";
+                    help = g_strdup("#designmode-mime");
                 gtk_menu_shell_deactivate(GTK_MENU_SHELL(menu));
                 xset_show_help(data->browser, NULL, help);
                 return TRUE;

@@ -2259,46 +2259,46 @@ GdkPixbuf* xset_custom_get_bookmark_icon(XSet* set, int icon_size)
             // a bookmarked URL - show network icon
             XSet* set2 = xset_get("dev_icon_network");
             if (set2->icon)
-                icon1 = set2->icon;
+                icon1 = g_strdup(set2->icon);
             else
-                icon1 = "gtk-network";
-            icon2 = "user-bookmarks";
-            icon3 = "gnome-fs-directory";
+                icon1 = g_strdup("gtk-network");
+            icon2 = g_strdup("user-bookmarks");
+            icon3 = g_strdup("gnome-fs-directory");
         }
         else if (set->z && (strstr(set->z, ":/") || g_str_has_prefix(set->z, "//")))
         {
             // a bookmarked URL - show custom or network icon
-            icon1 = set->icon;
+            icon1 = g_strdup(set->icon);
             XSet* set2 = xset_get("dev_icon_network");
             if (set2->icon)
-                icon2 = set2->icon;
+                icon2 = g_strdup(set2->icon);
             else
-                icon2 = "gtk-network";
-            icon3 = "user-bookmarks";
+                icon2 = g_strdup("gtk-network");
+            icon3 = g_strdup("user-bookmarks");
         }
         else if (!set->icon && book_icon_set_cached->icon)
         {
-            icon1 = book_icon_set_cached->icon;
-            icon2 = "user-bookmarks";
-            icon3 = "gnome-fs-directory";
+            icon1 = g_strdup(book_icon_set_cached->icon);
+            icon2 = g_strdup("user-bookmarks");
+            icon3 = g_strdup("gnome-fs-directory");
         }
         else if (set->icon && book_icon_set_cached->icon)
         {
-            icon1 = set->icon;
-            icon2 = book_icon_set_cached->icon;
-            icon3 = "user-bookmarks";
+            icon1 = g_strdup(set->icon);
+            icon2 = g_strdup(book_icon_set_cached->icon);
+            icon3 = g_strdup("user-bookmarks");
         }
         else if (set->icon)
         {
-            icon1 = set->icon;
-            icon2 = "user-bookmarks";
-            icon3 = "gnome-fs-directory";
+            icon1 = g_strdup(set->icon);
+            icon2 = g_strdup("user-bookmarks");
+            icon3 = g_strdup("gnome-fs-directory");
         }
         else
         {
-            icon1 = "user-bookmarks";
-            icon2 = "gnome-fs-directory";
-            icon3 = "gtk-directory";
+            icon1 = g_strdup("user-bookmarks");
+            icon2 = g_strdup("gnome-fs-directory");
+            icon3 = g_strdup("gtk-directory");
         }
         if (icon1)
             icon_new = vfs_load_icon(icon_theme, icon1, icon_size);
@@ -3067,7 +3067,7 @@ static void xset_parse_plugin(const char* plug_dir, char* line, int use)
         prefix = handler_prefix[use];
     }
     else
-        prefix = "cstm_";
+        prefix = g_strdup("cstm_");
 
     if (g_str_has_prefix(name, prefix))
     {
@@ -3494,7 +3494,7 @@ void install_plugin_file(void* main_win, GtkWidget* handler_dlg, const char* pat
     char* file_path_q;
     char* own;
     char* rem = g_strdup("");
-    const char* compression = "z";
+    const char* compression = g_strdup("z");
 
     FMMainWindow* main_window = (FMMainWindow*)main_win;
     // task
@@ -3511,7 +3511,7 @@ void install_plugin_file(void* main_win, GtkWidget* handler_dlg, const char* pat
         wget = g_strdup("");
         if (g_str_has_suffix(path, ".tar.xz"))
             // TODO: OmegaPhil reports -J is never required for any compression
-            compression = "J";
+            compression = g_strdup("J");
         file_path_q = bash_quote(path);
     }
     else
@@ -3520,7 +3520,7 @@ void install_plugin_file(void* main_win, GtkWidget* handler_dlg, const char* pat
         if (g_str_has_suffix(path, ".tar.xz"))
         {
             file_path = g_build_filename(plug_dir, "plugin-tmp.tar.xz", NULL);
-            compression = "J";
+            compression = g_strdup("J");
         }
         else
             file_path = g_build_filename(plug_dir, "plugin-tmp.tar.gz", NULL);
@@ -3551,7 +3551,7 @@ void install_plugin_file(void* main_win, GtkWidget* handler_dlg, const char* pat
             break;
     }
 
-    const char* book = "";
+    const char* book = g_strdup("");
     if (insert_set && !strcmp(insert_set->name, "main_book"))
     {
         // import bookmarks to end
@@ -3568,9 +3568,9 @@ void install_plugin_file(void* main_win, GtkWidget* handler_dlg, const char* pat
     {
         // prevent install of exported bookmarks or handler as plugin or design clipboard
         if (job == PLUGIN_JOB_INSTALL)
-            book = " || [ -e main_book ] || [ -d hand_* ]";
+            book = g_strdup(" || [ -e main_book ] || [ -d hand_* ]");
         else
-            book = " || [ -e main_book ]";
+            book = g_strdup(" || [ -e main_book ]");
     }
 
     task->task->exec_command = g_strdup_printf(
@@ -3693,7 +3693,7 @@ void xset_custom_export(GtkWidget* parent, PtkFileBrowser* file_browser, XSet* s
     else
     {
         if (!(deffolder = xset_get_s("go_set_default")))
-            deffolder = "/";
+            deffolder = g_strdup("/");
     }
 
     if (!set->plugin)
@@ -3913,7 +3913,7 @@ static void open_spec(PtkFileBrowser* file_browser, const char* url, bool in_new
                 }
                 else
                 {
-                    file_browser->select_path = strdup(use_url);
+                    file_browser->select_path = g_strdup(use_url);
                     ptk_file_browser_emit_open(file_browser,
                                                dir,
                                                new_tab ? PTK_OPEN_NEW_TAB : PTK_OPEN_DIR);
@@ -3928,7 +3928,7 @@ static void open_spec(PtkFileBrowser* file_browser, const char* url, bool in_new
                         if (file_browser)
                         {
                             // select path in new browser
-                            file_browser->select_path = strdup(use_url);
+                            file_browser->select_path = g_strdup(use_url);
                             // usually this is not ready but try anyway
                             ptk_file_browser_select_file(file_browser, use_url);
                         }
@@ -4077,7 +4077,7 @@ static void xset_custom_activate(GtkWidget* item, XSet* set)
                     else
                     {
                         sel_files = NULL;
-                        cwd = "/";
+                        cwd = g_strdup("/");
                         screen = gdk_screen_get_default();
                     }
                     GList* file_paths = NULL;
@@ -4562,7 +4562,7 @@ static char* xset_get_manual_url()
     else
         locale = langs[0];
     if (!locale || locale[0] == '\0')
-        locale = "en";
+        locale = g_strdup("en");
     char* l = g_strdup(locale);
     char* ll = strchr(l, '_');
     if (ll)
@@ -5390,7 +5390,7 @@ static void xset_design_job(GtkWidget* item, XSet* set)
                 else
                 {
                     if (!(folder = xset_get_s("go_set_default")))
-                        folder = "/";
+                        folder = g_strdup("/");
                 }
                 file = xset_file_dialog(GTK_WIDGET(parent),
                                         GTK_FILE_CHOOSER_ACTION_OPEN,
@@ -5961,146 +5961,146 @@ static bool xset_design_menu_keypress(GtkWidget* widget, GdkEventKey* event, XSe
                 switch (job)
                 {
                     case XSET_JOB_KEY:
-                        help = "#designmode-designmenu-key";
+                        help = g_strdup("#designmode-designmenu-key");
                         break;
                     case XSET_JOB_ICON:
-                        help = "#designmode-designmenu-icon";
+                        help = g_strdup("#designmode-designmenu-icon");
                         break;
                     case XSET_JOB_LABEL:
-                        help = "#designmode-designmenu-name";
+                        help = g_strdup("#designmode-designmenu-name");
                         break;
                     case XSET_JOB_EDIT: // edit script
-                        help = "#designmode-designmenu-edit";
+                        help = g_strdup("#designmode-designmenu-edit");
                         break;
                     case XSET_JOB_PROP_CMD: // edit command line
-                        help = "#designmode-designmenu-cedit";
+                        help = g_strdup("#designmode-designmenu-cedit");
                         break;
                     case XSET_JOB_EDIT_ROOT:
-                        help = "#designmode-designmenu-edit";
+                        help = g_strdup("#designmode-designmenu-edit");
                         break;
                     case XSET_JOB_COPYNAME:
-                        help = "#designmode-command-copy";
+                        help = g_strdup("#designmode-command-copy");
                         break;
                     case XSET_JOB_LINE:
-                        help = "#designmode-command-line";
+                        help = g_strdup("#designmode-command-line");
                         break;
                     case XSET_JOB_SCRIPT:
-                        help = "#designmode-command-script";
+                        help = g_strdup("#designmode-command-script");
                         break;
                     case XSET_JOB_CUSTOM:
-                        help = "#designmode-command-custom";
+                        help = g_strdup("#designmode-command-custom");
                         break;
                     case XSET_JOB_USER:
-                        help = "#designmode-command-user";
+                        help = g_strdup("#designmode-command-user");
                         break;
                     case XSET_JOB_COMMAND:
-                        help = "#designmode-designmenu-new";
+                        help = g_strdup("#designmode-designmenu-new");
                         break;
                     case XSET_JOB_SUBMENU:
-                        help = "#designmode-designmenu-submenu";
+                        help = g_strdup("#designmode-designmenu-submenu");
                         break;
                     case XSET_JOB_SEP:
-                        help = "#designmode-designmenu-separator";
+                        help = g_strdup("#designmode-designmenu-separator");
                         break;
                     case XSET_JOB_IMPORT_FILE:
                     case XSET_JOB_IMPORT_URL:
-                        help = "#designmode-designmenu-import";
+                        help = g_strdup("#designmode-designmenu-import");
                         break;
                     case XSET_JOB_CUT:
-                        help = "#designmode-designmenu-cut";
+                        help = g_strdup("#designmode-designmenu-cut");
                         break;
                     case XSET_JOB_COPY:
-                        help = "#designmode-designmenu-copy";
+                        help = g_strdup("#designmode-designmenu-copy");
                         break;
                     case XSET_JOB_PASTE:
-                        help = "#designmode-designmenu-paste";
+                        help = g_strdup("#designmode-designmenu-paste");
                         break;
                     case XSET_JOB_REMOVE:
-                        help = "#designmode-designmenu-remove";
+                        help = g_strdup("#designmode-designmenu-remove");
                         break;
                     case XSET_JOB_EXPORT:
-                        help = "#designmode-designmenu-export";
+                        help = g_strdup("#designmode-designmenu-export");
                         break;
                     case XSET_JOB_BOOKMARK:
-                        help = "#designmode-designmenu-bookmark";
+                        help = g_strdup("#designmode-designmenu-bookmark");
                         break;
                     case XSET_JOB_APP:
-                        help = "#designmode-designmenu-app";
+                        help = g_strdup("#designmode-designmenu-app");
                         break;
                     case XSET_JOB_NORMAL:
-                        help = "#designmode-style-normal";
+                        help = g_strdup("#designmode-style-normal");
                         break;
                     case XSET_JOB_CHECK:
-                        help = "#designmode-style-checkbox";
+                        help = g_strdup("#designmode-style-checkbox");
                         break;
                     case XSET_JOB_CONFIRM:
-                        help = "#designmode-style-confirm";
+                        help = g_strdup("#designmode-style-confirm");
                         break;
                     case XSET_JOB_DIALOG:
-                        help = "#designmode-style-input";
+                        help = g_strdup("#designmode-style-input");
                         break;
                     case XSET_JOB_MESSAGE:
-                        help = "#designmode-style-message";
+                        help = g_strdup("#designmode-style-message");
                         break;
                     case XSET_JOB_IGNORE_CONTEXT:
-                        help = "#designmode-props-ignorecontext";
+                        help = g_strdup("#designmode-props-ignorecontext");
                         break;
                     case XSET_JOB_HELP:
-                        help = "#designmode-designmenu-help";
+                        help = g_strdup("#designmode-designmenu-help");
                         break;
                     case XSET_JOB_HELP_STYLE:
-                        help = "#designmode-style";
+                        help = g_strdup("#designmode-style");
                         break;
                     case XSET_JOB_HELP_NEW:
-                        help = "#designmode-designmenu-bookmark";
+                        help = g_strdup("#designmode-designmenu-bookmark");
                         break;
                     case XSET_JOB_HELP_ADD:
-                        help = "#designmode-designmenu-add";
+                        help = g_strdup("#designmode-designmenu-add");
                         break;
                     case XSET_JOB_PROP:
-                        help = "#designmode-props";
+                        help = g_strdup("#designmode-props");
                         break;
                     case XSET_JOB_HELP_BROWSE:
-                        help = "#designmode-command-browse";
+                        help = g_strdup("#designmode-command-browse");
                         break;
                     case XSET_JOB_BROWSE_FILES:
-                        help = "#designmode-command-browse-files";
+                        help = g_strdup("#designmode-command-browse-files");
                         break;
                     case XSET_JOB_BROWSE_DATA:
-                        help = "#designmode-command-browse-data";
+                        help = g_strdup("#designmode-command-browse-data");
                         break;
                     case XSET_JOB_BROWSE_PLUGIN:
-                        help = "#designmode-command-browse-plugin";
+                        help = g_strdup("#designmode-command-browse-plugin");
                         break;
                     case XSET_JOB_TERM:
-                        help = "#designmode-command-terminal";
+                        help = g_strdup("#designmode-command-terminal");
                         break;
                     case XSET_JOB_KEEP:
-                        help = "#designmode-command-keep";
+                        help = g_strdup("#designmode-command-keep");
                         break;
                     case XSET_JOB_TASK:
-                        help = "#designmode-command-task";
+                        help = g_strdup("#designmode-command-task");
                         break;
                     case XSET_JOB_POP:
-                        help = "#designmode-command-popup";
+                        help = g_strdup("#designmode-command-popup");
                         break;
                     case XSET_JOB_ERR:
-                        help = "#designmode-command-poperr";
+                        help = g_strdup("#designmode-command-poperr");
                         break;
                     case XSET_JOB_OUT:
-                        help = "#designmode-command-popout";
+                        help = g_strdup("#designmode-command-popout");
                         break;
                     case XSET_JOB_SCROLL:
-                        help = "#designmode-command-scroll";
+                        help = g_strdup("#designmode-command-scroll");
                         break;
                     case XSET_JOB_TOOLTIPS:
-                        help = "#designmode-designmenu-tooltips";
+                        help = g_strdup("#designmode-designmenu-tooltips");
                         break;
                     default:
                         break;
                 }
                 if (!help)
-                    help = "#designmode";
+                    help = g_strdup("#designmode");
                 gtk_menu_shell_deactivate(GTK_MENU_SHELL(widget));
                 xset_show_help(NULL, NULL, help);
                 return TRUE;

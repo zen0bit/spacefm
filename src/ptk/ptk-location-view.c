@@ -2573,9 +2573,9 @@ static void show_devices_menu(GtkTreeView* view, VFSVolume* vol, PtkFileBrowser*
 
     if (vol && vol->device_type == DEVICE_TYPE_NETWORK &&
         (g_str_has_prefix(vol->device_file, "//") || strstr(vol->device_file, ":/")))
-        str = " dev_menu_mark";
+        str = g_strdup(" dev_menu_mark");
     else
-        str = "";
+        str = g_strdup("");
 
     char* menu_elements =
         g_strdup_printf("dev_menu_remove dev_menu_reload dev_menu_unmount dev_menu_sync sep_dm1 "
@@ -3279,16 +3279,16 @@ static void update_bookmark_list_item(GtkListStore* list, GtkTreeIter* it, XSet*
                 icon = global_icon_submenu;
             else if ((set2 = xset_get("book_menu_icon")) && set2->icon)
             {
-                icon1 = set2->icon;
-                icon2 = "gnome-fs-directory";
-                icon3 = "gtk-directory";
+                icon1 = g_strdup(set2->icon);
+                icon2 = g_strdup("gnome-fs-directory");
+                icon3 = g_strdup("gtk-directory");
                 is_submenu = TRUE;
             }
             else
             {
-                icon1 = "gnome-fs-directory";
-                icon2 = "gtk-directory";
-                icon3 = "folder";
+                icon1 = g_strdup("gnome-fs-directory");
+                icon2 = g_strdup("gtk-directory");
+                icon3 = g_strdup("folder");
                 is_submenu = TRUE;
             }
         }
@@ -3330,10 +3330,10 @@ static void update_bookmark_list_item(GtkListStore* list, GtkTreeIter* it, XSet*
                 if (set->menu_style == XSET_MENU_CHECK && icon_name && set->b == XSET_B_TRUE)
                 {
                     icon1 = icon_name;
-                    icon2 = "gtk-execute";
+                    icon2 = g_strdup("gtk-execute");
                 }
                 else
-                    icon1 = "gtk-execute";
+                    icon1 = g_strdup("gtk-execute");
             }
         }
     }

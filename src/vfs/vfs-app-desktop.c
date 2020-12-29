@@ -374,7 +374,7 @@ static void exec_in_terminal(const char* app_name, const char* cwd, const char* 
     // task
     PtkFileTask* task = ptk_file_exec_new(app_name, cwd, NULL, NULL);
 
-    task->task->exec_command = strdup(cmd);
+    task->task->exec_command = g_strdup(cmd);
 
     task->task->exec_terminal = TRUE;
     // task->task->exec_keep_terminal = TRUE;  // for test only
