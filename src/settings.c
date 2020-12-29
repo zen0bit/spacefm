@@ -6845,161 +6845,174 @@ void xset_menu_cb(GtkWidget* item, XSet* set)
         else if (!rset->lock)
             xset_custom_activate(item, rset);
     }
-    else if (rset->menu_style == XSET_MENU_SEP)
+    else
     {
-    }
-    else if (rset->menu_style == XSET_MENU_CHECK)
-    {
-        if (mset->b == XSET_B_TRUE)
-            mset->b = XSET_B_FALSE;
-        else
-            mset->b = XSET_B_TRUE;
-        if (cb_func)
-            (*cb_func)(item, cb_data);
-        else if (!rset->lock)
-            xset_custom_activate(item, rset);
-        if (set->tool == XSET_TOOL_CUSTOM)
-            ptk_file_browser_update_toolbar_widgets(set->browser, set, -1);
-    }
-    else if (rset->menu_style == XSET_MENU_STRING || rset->menu_style == XSET_MENU_CONFIRM)
-    {
-        char* msg;
-        char* help;
-        char* default_str = NULL;
-        if (rset->title && rset->lock)
-            title = g_strdup(rset->title);
-        else
-            title = clean_label(rset->menu_label, FALSE, FALSE);
-        if (rset->lock)
+        switch (rset->menu_style)
         {
-            msg = rset->desc;
-            default_str = rset->z;
-            help = set->line;
-        }
-        else
-        {
-            char* newline = g_strdup_printf("\n");
-            char* tab = g_strdup_printf("\t");
-            char* msg1 = replace_string(rset->desc, "\\n", newline, FALSE);
-            msg = replace_string(msg1, "\\t", tab, FALSE);
-            g_free(msg1);
-            g_free(newline);
-            g_free(tab);
-            help = set->name;
-        }
-        if (rset->menu_style == XSET_MENU_CONFIRM)
-        {
-            if (xset_msg_dialog(parent,
-                                GTK_MESSAGE_QUESTION,
-                                title,
-                                NULL,
-                                GTK_BUTTONS_OK_CANCEL,
-                                msg,
-                                NULL,
-                                help) == GTK_RESPONSE_OK)
+            case XSET_MENU_SEP:
+                break;
+            case XSET_MENU_CHECK:
+                if (mset->b == XSET_B_TRUE)
+                    mset->b = XSET_B_FALSE;
+                else
+                    mset->b = XSET_B_TRUE;
+                if (cb_func)
+                    (*cb_func)(item, cb_data);
+                else if (!rset->lock)
+                    xset_custom_activate(item, rset);
+                if (set->tool == XSET_TOOL_CUSTOM)
+                    ptk_file_browser_update_toolbar_widgets(set->browser, set, -1);
+                break;
+            case XSET_MENU_STRING:
+                // fallthrough
+            case XSET_MENU_CONFIRM:
             {
+                char* msg;
+                char* help;
+                char* default_str = NULL;
+                if (rset->title && rset->lock)
+                    title = g_strdup(rset->title);
+                else
+                    title = clean_label(rset->menu_label, FALSE, FALSE);
+                if (rset->lock)
+                {
+                    msg = rset->desc;
+                    default_str = rset->z;
+                    help = set->line;
+                }
+                else
+                {
+                    char* newline = g_strdup_printf("\n");
+                    char* tab = g_strdup_printf("\t");
+                    char* msg1 = replace_string(rset->desc, "\\n", newline, FALSE);
+                    msg = replace_string(msg1, "\\t", tab, FALSE);
+                    g_free(msg1);
+                    g_free(newline);
+                    g_free(tab);
+                    help = set->name;
+                }
+                if (rset->menu_style == XSET_MENU_CONFIRM)
+                {
+                    if (xset_msg_dialog(parent,
+                                        GTK_MESSAGE_QUESTION,
+                                        title,
+                                        NULL,
+                                        GTK_BUTTONS_OK_CANCEL,
+                                        msg,
+                                        NULL,
+                                        help) == GTK_RESPONSE_OK)
+                    {
+                        if (cb_func)
+                            (*cb_func)(item, cb_data);
+                        else if (!set->lock)
+                            xset_custom_activate(item, rset);
+                    }
+                }
+                else if (xset_text_dialog(parent,
+                                          title,
+                                          NULL,
+                                          TRUE,
+                                          msg,
+                                          NULL,
+                                          mset->s,
+                                          &mset->s,
+                                          default_str,
+                                          FALSE,
+                                          help))
+                {
+                    if (cb_func)
+                        (*cb_func)(item, cb_data);
+                    else if (!set->lock)
+                        xset_custom_activate(item, rset);
+                }
+                if (!rset->lock)
+                    g_free(msg);
+                g_free(title);
+            }
+            break;
+            case XSET_MENU_RADIO:
+                if (mset->b != XSET_B_TRUE)
+                    mset->b = XSET_B_TRUE;
+                if (cb_func)
+                    (*cb_func)(item, cb_data);
+                else if (!rset->lock)
+                    xset_custom_activate(item, rset);
+                break;
+            case XSET_MENU_FONTDLG:
+            {
+                char* fontname;
+                fontname = xset_font_dialog(parent, rset->title, rset->desc, rset->s);
+                if (fontname)
+                {
+                    if (fontname[0] != '\0')
+                    {
+                        xset_set_set(rset, "s", fontname);
+                    }
+                    else
+                    {
+                        if (rset->s)
+                            g_free(rset->s);
+                        rset->s = NULL;
+                    }
+                    g_free(fontname);
+                    if (cb_func)
+                        (*cb_func)(item, cb_data);
+                }
+            }
+            break;
+            case XSET_MENU_FILEDLG:
+                // test purpose only
+                {
+                    char* file;
+                    file = xset_file_dialog(parent,
+                                            GTK_FILE_CHOOSER_ACTION_SAVE,
+                                            rset->title,
+                                            rset->s,
+                                            "foobar.xyz");
+                    // printf("file=%s\n", file );
+                }
+                break;
+            case XSET_MENU_ICON:
+                // Note: xset_text_dialog uses the title passed to know this is an
+                // icon chooser, so it adds a Choose button.  If you change the title,
+                // change xset_text_dialog.
+                if (xset_text_dialog(parent,
+                                     rset->title ? rset->title : _("Set Icon"),
+                                     NULL,
+                                     FALSE,
+                                     rset->desc ? rset->desc : _(icon_desc),
+                                     NULL,
+                                     rset->icon,
+                                     &rset->icon,
+                                     NULL,
+                                     FALSE,
+                                     NULL))
+                {
+                    if (rset->lock)
+                        rset->keep_terminal = XSET_B_TRUE; // trigger save of changed icon
+                    if (cb_func)
+                        (*cb_func)(item, cb_data);
+                }
+                break;
+            case XSET_MENU_COLORDLG:
+            {
+                char* scolor;
+                scolor = xset_color_dialog(parent, rset->title, rset->s);
+                if (rset->s)
+                    g_free(rset->s);
+                rset->s = scolor;
+                if (cb_func)
+                    (*cb_func)(item, cb_data);
+            }
+            break;
+            default:
                 if (cb_func)
                     (*cb_func)(item, cb_data);
                 else if (!set->lock)
                     xset_custom_activate(item, rset);
-            }
-        }
-        else if (xset_text_dialog(parent,
-                                  title,
-                                  NULL,
-                                  TRUE,
-                                  msg,
-                                  NULL,
-                                  mset->s,
-                                  &mset->s,
-                                  default_str,
-                                  FALSE,
-                                  help))
-        {
-            if (cb_func)
-                (*cb_func)(item, cb_data);
-            else if (!set->lock)
-                xset_custom_activate(item, rset);
-        }
-        if (!rset->lock)
-            g_free(msg);
-        g_free(title);
-    }
-    else if (rset->menu_style == XSET_MENU_RADIO)
-    {
-        if (mset->b != XSET_B_TRUE)
-            mset->b = XSET_B_TRUE;
-        if (cb_func)
-            (*cb_func)(item, cb_data);
-        else if (!rset->lock)
-            xset_custom_activate(item, rset);
-    }
-    else if (rset->menu_style == XSET_MENU_FONTDLG)
-    {
-        char* fontname = xset_font_dialog(parent, rset->title, rset->desc, rset->s);
-        if (fontname)
-        {
-            if (fontname[0] != '\0')
-            {
-                xset_set_set(rset, "s", fontname);
-            }
-            else
-            {
-                if (rset->s)
-                    g_free(rset->s);
-                rset->s = NULL;
-            }
-            g_free(fontname);
-            if (cb_func)
-                (*cb_func)(item, cb_data);
+                break;
         }
     }
-    else if (rset->menu_style == XSET_MENU_FILEDLG)
-    {
-        // test purpose only
-        char* file = xset_file_dialog(parent,
-                                      GTK_FILE_CHOOSER_ACTION_SAVE,
-                                      rset->title,
-                                      rset->s,
-                                      "foobar.xyz");
-        // printf("file=%s\n", file );
-    }
-    else if (rset->menu_style == XSET_MENU_ICON)
-    {
-        // Note: xset_text_dialog uses the title passed to know this is an
-        // icon chooser, so it adds a Choose button.  If you change the title,
-        // change xset_text_dialog.
-        if (xset_text_dialog(parent,
-                             rset->title ? rset->title : _("Set Icon"),
-                             NULL,
-                             FALSE,
-                             rset->desc ? rset->desc : _(icon_desc),
-                             NULL,
-                             rset->icon,
-                             &rset->icon,
-                             NULL,
-                             FALSE,
-                             NULL))
-        {
-            if (rset->lock)
-                rset->keep_terminal = XSET_B_TRUE; // trigger save of changed icon
-            if (cb_func)
-                (*cb_func)(item, cb_data);
-        }
-    }
-    else if (rset->menu_style == XSET_MENU_COLORDLG)
-    {
-        char* scolor = xset_color_dialog(parent, rset->title, rset->s);
-        if (rset->s)
-            g_free(rset->s);
-        rset->s = scolor;
-        if (cb_func)
-            (*cb_func)(item, cb_data);
-    }
-    else if (cb_func)
-        (*cb_func)(item, cb_data);
-    else if (!set->lock)
-        xset_custom_activate(item, rset);
 
     if (rset->menu_style)
         xset_autosave(FALSE, FALSE);

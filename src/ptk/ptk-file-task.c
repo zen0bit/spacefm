@@ -426,23 +426,23 @@ static void set_button_states(PtkFileTask* ptask)
     if (!ptask->progress_dlg)
         return;
 
-    if (ptask->task->state_pause == VFS_FILE_TASK_PAUSE)
+    switch (ptask->task->state_pause)
     {
-        label = _("Q_ueue");
-        iconset = g_strdup("task_que");
-        icon = GTK_STOCK_ADD;
-    }
-    else if (ptask->task->state_pause == VFS_FILE_TASK_QUEUE)
-    {
-        label = _("Res_ume");
-        iconset = g_strdup("task_resume");
-        icon = GTK_STOCK_MEDIA_PLAY;
-    }
-    else
-    {
-        label = _("Pa_use");
-        iconset = strdup("task_pause");
-        icon = GTK_STOCK_MEDIA_PAUSE;
+        case VFS_FILE_TASK_PAUSE:
+            label = _("Q_ueue");
+            iconset = g_strdup("task_que");
+            icon = GTK_STOCK_ADD;
+            break;
+        case VFS_FILE_TASK_QUEUE:
+            label = _("Res_ume");
+            iconset = g_strdup("task_resume");
+            icon = GTK_STOCK_MEDIA_PLAY;
+            break;
+        default:
+            label = _("Pa_use");
+            iconset = g_strdup("task_pause");
+            icon = GTK_STOCK_MEDIA_PAUSE;
+            break;
     }
     sens = sens && !(ptask->task->type == VFS_FILE_TASK_EXEC && !ptask->task->exec_pid);
 

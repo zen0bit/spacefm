@@ -3270,72 +3270,75 @@ static void update_bookmark_list_item(GtkListStore* list, GtkTreeIter* it, XSet*
     }
 
     // get icon name
-    if (set->menu_style == XSET_MENU_SUBMENU)
+    switch (set->menu_style)
     {
-        icon1 = icon_name;
-        if (!icon1)
-        {
-            if (global_icon_submenu)
-                icon = global_icon_submenu;
-            else if ((set2 = xset_get("book_menu_icon")) && set2->icon)
-            {
-                icon1 = g_strdup(set2->icon);
-                icon2 = g_strdup("gnome-fs-directory");
-                icon3 = g_strdup("gtk-directory");
-                is_submenu = TRUE;
-            }
-            else
-            {
-                icon1 = g_strdup("gnome-fs-directory");
-                icon2 = g_strdup("gtk-directory");
-                icon3 = g_strdup("folder");
-                is_submenu = TRUE;
-            }
-        }
-    }
-    else if (set->menu_style == XSET_MENU_SEP)
-        is_sep = TRUE;
-    else
-    {
-        if (set->menu_style != XSET_MENU_CHECK)
+        case XSET_MENU_SUBMENU:
             icon1 = icon_name;
-        cmd_type = set->x ? strtol(set->x, NULL, 10) : -1;
-        if (!set->lock && cmd_type == XSET_CMD_BOOKMARK)
-        {
-            // Bookmark
-            if (!(set->menu_label && set->menu_label[0]))
-                menu_label = g_strdup(set->z);
-
-            if (!icon_name && !(set->z && (strstr(set->z, ":/") || g_str_has_prefix(set->z, "//"))))
+            if (!icon1)
             {
-                // is non-network bookmark with no custom icon
-                if (global_icon_bookmark)
-                    icon = global_icon_bookmark;
-                else
-                    icon = global_icon_bookmark = xset_custom_get_bookmark_icon(set, icon_size);
-            }
-            else
-                icon = xset_custom_get_bookmark_icon(set, icon_size);
-        }
-        else if (!set->lock && cmd_type == XSET_CMD_APP)
-        {
-            // Application
-            menu_label = xset_custom_get_app_name_icon(set, &icon, icon_size);
-        }
-        else if (!icon1 && (cmd_type == XSET_CMD_APP || cmd_type == XSET_CMD_LINE ||
-                            cmd_type == XSET_CMD_SCRIPT))
-        {
-            if (set->menu_style != XSET_MENU_CHECK || set->b == XSET_B_TRUE)
-            {
-                if (set->menu_style == XSET_MENU_CHECK && icon_name && set->b == XSET_B_TRUE)
+                if (global_icon_submenu)
+                    icon = global_icon_submenu;
+                else if ((set2 = xset_get("book_menu_icon")) && set2->icon)
                 {
-                    icon1 = icon_name;
-                    icon2 = g_strdup("gtk-execute");
+                    icon1 = g_strdup(set2->icon);
+                    icon2 = g_strdup("gnome-fs-directory");
+                    icon3 = g_strdup("gtk-directory");
+                    is_submenu = TRUE;
                 }
                 else
-                    icon1 = g_strdup("gtk-execute");
+                {
+                    icon1 = g_strdup("gnome-fs-directory");
+                    icon2 = g_strdup("gtk-directory");
+                    icon3 = g_strdup("folder");
+                    is_submenu = TRUE;
+                }
             }
-        }
+            break;
+        case XSET_MENU_SEP:
+            is_sep = TRUE;
+            break;
+        default:
+            if (set->menu_style != XSET_MENU_CHECK)
+                icon1 = icon_name;
+            cmd_type = set->x ? strtol(set->x, NULL, 10) : -1;
+            if (!set->lock && cmd_type == XSET_CMD_BOOKMARK)
+            {
+                // Bookmark
+                if (!(set->menu_label && set->menu_label[0]))
+                    menu_label = g_strdup(set->z);
+
+                if (!icon_name &&
+                    !(set->z && (strstr(set->z, ":/") || g_str_has_prefix(set->z, "//"))))
+                {
+                    // is non-network bookmark with no custom icon
+                    if (global_icon_bookmark)
+                        icon = global_icon_bookmark;
+                    else
+                        icon = global_icon_bookmark = xset_custom_get_bookmark_icon(set, icon_size);
+                }
+                else
+                    icon = xset_custom_get_bookmark_icon(set, icon_size);
+            }
+            else if (!set->lock && cmd_type == XSET_CMD_APP)
+            {
+                // Application
+                menu_label = xset_custom_get_app_name_icon(set, &icon, icon_size);
+            }
+            else if (!icon1 && (cmd_type == XSET_CMD_APP || cmd_type == XSET_CMD_LINE ||
+                                cmd_type == XSET_CMD_SCRIPT))
+            {
+                if (set->menu_style != XSET_MENU_CHECK || set->b == XSET_B_TRUE)
+                {
+                    if (set->menu_style == XSET_MENU_CHECK && icon_name && set->b == XSET_B_TRUE)
+                    {
+                        icon1 = icon_name;
+                        icon2 = g_strdup("gtk-execute");
+                    }
+                    else
+                        icon1 = g_strdup("gtk-execute");
+                }
+            }
+            break;
     }
 
     // add label and xset name
