@@ -6097,10 +6097,9 @@ static bool xset_design_menu_keypress(GtkWidget* widget, GdkEventKey* event, XSe
                         help = g_strdup("#designmode-designmenu-tooltips");
                         break;
                     default:
+                        help = g_strdup("#designmode");
                         break;
                 }
-                if (!help)
-                    help = g_strdup("#designmode");
                 gtk_menu_shell_deactivate(GTK_MENU_SHELL(widget));
                 xset_show_help(NULL, NULL, help);
                 return TRUE;

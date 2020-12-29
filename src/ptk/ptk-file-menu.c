@@ -1825,11 +1825,10 @@ static bool app_menu_keypress(GtkWidget* menu, GdkEventKey* event, PtkFileMenu* 
                             help = g_strdup("#designmode-mime-usr");
                             break;
                         default:
+                            help = g_strdup("#designmode-mime");
                             break;
                     }
                 }
-                if (!help)
-                    help = g_strdup("#designmode-mime");
                 gtk_menu_shell_deactivate(GTK_MENU_SHELL(menu));
                 xset_show_help(data->browser, NULL, help);
                 return TRUE;
