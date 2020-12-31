@@ -111,20 +111,11 @@ typedef enum ExoIconViewFlags
         (1l << 1), /* whether current model provides persistent iterators */
 } ExoIconViewFlags;
 
-#define EXO_ICON_VIEW_SET_FLAG(icon_view, flag)          \
-    G_STMT_START                                         \
-    {                                                    \
-        (EXO_ICON_VIEW(icon_view)->priv->flags |= flag); \
-    }                                                    \
-    G_STMT_END
-#define EXO_ICON_VIEW_UNSET_FLAG(icon_view, flag)           \
-    G_STMT_START                                            \
-    {                                                       \
-        (EXO_ICON_VIEW(icon_view)->priv->flags &= ~(flag)); \
-    }                                                       \
-    G_STMT_END
-#define EXO_ICON_VIEW_FLAG_SET(icon_view, flag) \
-    ((EXO_ICON_VIEW(icon_view)->priv->flags & (flag)) == (flag))
+// clang-format off
+#define EXO_ICON_VIEW_SET_FLAG(icon_view, flag)   G_STMT_START{ (EXO_ICON_VIEW (icon_view)->priv->flags |= flag); }G_STMT_END
+#define EXO_ICON_VIEW_UNSET_FLAG(icon_view, flag) G_STMT_START{ (EXO_ICON_VIEW (icon_view)->priv->flags &= ~(flag)); }G_STMT_END
+#define EXO_ICON_VIEW_FLAG_SET(icon_view, flag)   ((EXO_ICON_VIEW (icon_view)->priv->flags & (flag)) == (flag))
+// clang-format on
 
 typedef struct ExoIconViewItem
 {
@@ -304,15 +295,12 @@ typedef struct ExoIconViewPrivate
     unsigned int flags;
 } ExoIconViewPrivate;
 
-#define EXO_ICON_VIEW_GET_PRIVATE(obj) \
-    (G_TYPE_INSTANCE_GET_PRIVATE((obj), EXO_TYPE_ICON_VIEW, ExoIconViewPrivate))
 #define EXO_ICON_VIEW_CELL_INFO(obj) ((ExoIconViewCellInfo*)(obj))
 #define EXO_ICON_VIEW_CHILD(obj)     ((ExoIconViewChild*)(obj))
 #define EXO_ICON_VIEW_ITEM(obj)      ((ExoIconViewItem*)(obj))
 
 static void exo_icon_view_class_init(ExoIconViewClass* klass);
 static void exo_icon_view_cell_layout_init(GtkCellLayoutIface* iface);
-static void exo_icon_view_init(ExoIconView* icon_view);
 static void exo_icon_view_dispose(GObject* object);
 static void exo_icon_view_finalize(GObject* object);
 static void exo_icon_view_get_property(GObject* object, unsigned int prop_id, GValue* value,
@@ -477,31 +465,7 @@ static bool exo_icon_view_search_scroll_event(GtkWidget* widget, GdkEventScroll*
 static bool exo_icon_view_search_timeout(void* user_data);
 static void exo_icon_view_search_timeout_destroy(void* user_data);
 
-static GObjectClass* exo_icon_view_parent_class;
 static unsigned int icon_view_signals[LAST_SIGNAL];
-
-GType exo_icon_view_get_type(void)
-{
-    static GType type = G_TYPE_INVALID;
-
-    if (G_UNLIKELY(type == G_TYPE_INVALID))
-    {
-        type = _exo_g_type_register_simple(GTK_TYPE_CONTAINER,
-                                           "ExoIconView",
-                                           sizeof(ExoIconViewClass),
-                                           exo_icon_view_class_init,
-                                           sizeof(ExoIconView),
-                                           exo_icon_view_init);
-        _exo_g_type_add_interface_simple(type,
-                                         GTK_TYPE_CELL_LAYOUT,
-                                         (GInterfaceInitFunc)exo_icon_view_cell_layout_init);
-#if (GTK_MAJOR_VERSION == 3)
-        _exo_g_type_add_interface_simple(type, GTK_TYPE_SCROLLABLE, NULL);
-#endif
-    }
-
-    return type;
-}
 
 #if (GTK_MAJOR_VERSION == 3)
 static void exo_icon_view_get_preferred_width(GtkWidget* widget, int* minimal_width,
@@ -525,20 +489,17 @@ static void exo_icon_view_get_preferred_height(GtkWidget* widget, int* minimal_h
 }
 #endif
 
+G_DEFINE_TYPE_WITH_CODE(ExoIconView, exo_icon_view, GTK_TYPE_CONTAINER,
+                        G_IMPLEMENT_INTERFACE(GTK_TYPE_CELL_LAYOUT, exo_icon_view_cell_layout_init)
+                        // G_IMPLEMENT_INTERFACE (GTK_TYPE_SCROLLABLE, NULL)
+                        G_ADD_PRIVATE(ExoIconView))
+
 static void exo_icon_view_class_init(ExoIconViewClass* klass)
 {
     GtkContainerClass* gtkcontainer_class;
     GtkWidgetClass* gtkwidget_class;
     GtkBindingSet* gtkbinding_set;
     GObjectClass* gobject_class;
-
-    /* determine the parent type class */
-    exo_icon_view_parent_class = g_type_class_peek_parent(klass);
-
-    /* add our private data to the type's instances */
-    G_GNUC_BEGIN_IGNORE_DEPRECATIONS /* GObject 2.58 */
-        g_type_class_add_private(klass, sizeof(ExoIconViewPrivate));
-    G_GNUC_END_IGNORE_DEPRECATIONS
 
     gobject_class = G_OBJECT_CLASS(klass);
     gobject_class->dispose = exo_icon_view_dispose;
@@ -1196,7 +1157,7 @@ static void exo_icon_view_cell_layout_init(GtkCellLayoutIface* iface)
 
 static void exo_icon_view_init(ExoIconView* icon_view)
 {
-    icon_view->priv = EXO_ICON_VIEW_GET_PRIVATE(icon_view);
+    icon_view->priv = exo_icon_view_get_instance_private(icon_view);
 
     icon_view->priv->selection_mode = GTK_SELECTION_SINGLE;
     icon_view->priv->pressed_button = -1;

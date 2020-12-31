@@ -27,20 +27,41 @@
 
 #include <gtk/gtk.h>
 
-G_BEGIN_DECLS;
+G_BEGIN_DECLS
 
 typedef struct ExoTreeViewPrivate ExoTreeViewPrivate;
 
-#define EXO_TYPE_TREE_VIEW    (exo_tree_view_get_type())
-#define EXO_TREE_VIEW(obj)    (G_TYPE_CHECK_INSTANCE_CAST((obj), EXO_TYPE_TREE_VIEW, ExoTreeView))
-#define EXO_IS_TREE_VIEW(obj) (G_TYPE_CHECK_INSTANCE_TYPE((obj), EXO_TYPE_TREE_VIEW))
+// clang-format off
+#define EXO_TYPE_TREE_VIEW            (exo_tree_view_get_type ())
+#define EXO_TREE_VIEW(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), EXO_TYPE_TREE_VIEW, ExoTreeView))
+#define EXO_TREE_VIEW_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), EXO_TYPE_TREE_VIEW, ExoTreeViewClass))
+#define EXO_IS_TREE_VIEW(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), EXO_TYPE_TREE_VIEW))
+#define EXO_IS_TREE_VIEW_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), EXO_TYPE_TREE_VIEW))
+#define EXO_TREE_VIEW_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), EXO_TYPE_TREE_VIEW, ExoTreeViewClass))
+// clang-format on
 
 typedef struct ExoTreeViewClass
 {
     /*< private >*/
     GtkTreeViewClass __parent__;
+
+    /*< private >*/
+    void (*reserved1)(void);
+    void (*reserved2)(void);
+    void (*reserved3)(void);
+    void (*reserved4)(void);
+    void (*reserved5)(void);
+    void (*reserved6)(void);
+    void (*reserved7)(void);
+    void (*reserved8)(void);
 } ExoTreeViewClass;
 
+/**
+ * ExoTreeView:
+ *
+ * The #ExoIconView struct contains only private fields and should
+ * not be directly accessed.
+ **/
 typedef struct ExoTreeView
 {
     /*< private >*/
@@ -68,6 +89,6 @@ void exo_tree_view_set_single_click_timeout(ExoTreeView* tree_view,
 GtkTreeViewColumn* exo_tree_view_get_activable_column(ExoTreeView* tree_view);
 void exo_tree_view_set_activable_column(ExoTreeView* tree_view, GtkTreeViewColumn* column);
 
-G_END_DECLS;
+G_END_DECLS
 
 #endif /* !__EXO_TREE_VIEW_H__ */

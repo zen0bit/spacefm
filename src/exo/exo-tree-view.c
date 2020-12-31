@@ -22,23 +22,18 @@
 
 #include <stdbool.h>
 
+#include <glib-object.h>
 #include <glib/gi18n.h>
+
 #include "exo-tree-view.h"
 #include "exo-string.h"
-#include "exo-marshal.h"
-#include "exo-private.h"
 
-#if defined(G_PARAM_STATIC_NAME) && defined(G_PARAM_STATIC_NICK) && defined(G_PARAM_STATIC_BLURB)
-#define EXO_PARAM_READWRITE \
-    (G_PARAM_READWRITE | G_PARAM_STATIC_NAME | G_PARAM_STATIC_NICK | G_PARAM_STATIC_BLURB)
-#else
-#define EXO_PARAM_READWRITE (G_PARAM_READWRITE)
-#endif
+/* shorter macros for the GParamSpecs with static strings */
+#define EXO_PARAM_READABLE  (G_PARAM_READABLE | G_PARAM_STATIC_STRINGS)
+#define EXO_PARAM_WRITABLE  (G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS)
+#define EXO_PARAM_READWRITE (G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS)
 
 #define exo_noop_false gtk_false
-
-#define EXO_TREE_VIEW_GET_PRIVATE(obj) \
-    (G_TYPE_INSTANCE_GET_PRIVATE((obj), EXO_TYPE_TREE_VIEW, ExoTreeViewPrivate))
 
 /* Property identifiers */
 enum
@@ -48,8 +43,6 @@ enum
     PROP_SINGLE_CLICK_TIMEOUT,
 };
 
-static void exo_tree_view_class_init(ExoTreeViewClass* klass);
-static void exo_tree_view_init(ExoTreeView* tree_view);
 static void exo_tree_view_finalize(GObject* object);
 static void exo_tree_view_get_property(GObject* object, unsigned int prop_id, GValue* value,
                                        GParamSpec* pspec);
@@ -88,36 +81,13 @@ typedef struct ExoTreeViewPrivate
     GtkTreeViewColumn* activable_column;
 } ExoTreeViewPrivate;
 
-static GObjectClass* exo_tree_view_parent_class;
-
-GType exo_tree_view_get_type(void)
-{
-    static GType type = G_TYPE_INVALID;
-
-    if (G_UNLIKELY(type == G_TYPE_INVALID))
-    {
-        type = _exo_g_type_register_simple(GTK_TYPE_TREE_VIEW,
-                                           "ExoTreeView",
-                                           sizeof(ExoTreeViewClass),
-                                           exo_tree_view_class_init,
-                                           sizeof(ExoTreeView),
-                                           exo_tree_view_init);
-    }
-
-    return type;
-}
+G_DEFINE_TYPE_WITH_PRIVATE(ExoTreeView, exo_tree_view, GTK_TYPE_TREE_VIEW)
 
 static void exo_tree_view_class_init(ExoTreeViewClass* klass)
 {
     GtkTreeViewClass* gtktree_view_class;
     GtkWidgetClass* gtkwidget_class;
     GObjectClass* gobject_class;
-
-    /* add our private data to the class */
-    g_type_class_add_private(klass, sizeof(ExoTreeViewPrivate));
-
-    /* determine our parent type class */
-    exo_tree_view_parent_class = g_type_class_peek_parent(klass);
 
     gobject_class = G_OBJECT_CLASS(klass);
     gobject_class->finalize = exo_tree_view_finalize;
@@ -176,7 +146,7 @@ static void exo_tree_view_class_init(ExoTreeViewClass* klass)
 static void exo_tree_view_init(ExoTreeView* tree_view)
 {
     /* grab a pointer on the private data */
-    tree_view->priv = EXO_TREE_VIEW_GET_PRIVATE(tree_view);
+    tree_view->priv = exo_tree_view_get_instance_private(tree_view);
     tree_view->priv->single_click_timeout_id = -1;
 }
 

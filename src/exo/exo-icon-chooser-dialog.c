@@ -48,9 +48,6 @@
  * or an image file from the local file system.
  **/
 
-#define EXO_ICON_CHOOSER_DIALOG_GET_PRIVATE(obj) \
-    (G_TYPE_INSTANCE_GET_PRIVATE((obj), EXO_TYPE_ICON_CHOOSER_DIALOG, ExoIconChooserDialogPrivate))
-
 static void exo_icon_chooser_dialog_finalize(GObject* object);
 static void exo_icon_chooser_dialog_style_set(GtkWidget* widget, GtkStyle* previous_style);
 static void exo_icon_chooser_dialog_screen_changed(GtkWidget* widget, GdkScreen* previous_screen);
@@ -64,7 +61,7 @@ static bool
 exo_icon_chooser_dialog_start_interactive_search(ExoIconChooserDialog* icon_chooser_dialog);
 static void exo_icon_chooser_dialog_combo_changed(GtkWidget* combo,
                                                   ExoIconChooserDialog* icon_chooser_dialog);
-static void exo_icon_chooser_dialog_entry_changed(GtkWidget* entry,
+static void exo_icon_chooser_dialog_entry_changed(GtkWidget* combo,
                                                   ExoIconChooserDialog* icon_chooser_dialog);
 #if (GTK_MAJOR_VERSION == 2)
 static void exo_icon_chooser_dialog_entry_clear(GtkEntry* entry, GtkEntryIconPosition icon_pos,
@@ -768,7 +765,8 @@ char* exo_icon_chooser_dialog_get_icon(ExoIconChooserDialog* icon_chooser_dialog
  **/
 bool exo_icon_chooser_dialog_set_icon(ExoIconChooserDialog* icon_chooser_dialog, const char* icon)
 {
-    ExoIconChooserDialogPrivate* priv = EXO_ICON_CHOOSER_DIALOG_GET_PRIVATE(icon_chooser_dialog);
+    ExoIconChooserDialogPrivate* priv =
+        exo_icon_chooser_dialog_get_instance_private(icon_chooser_dialog);
     GtkTreeModel* filter;
     GtkTreeModel* model;
     GtkTreePath* filter_path;
