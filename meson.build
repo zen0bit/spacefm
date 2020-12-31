@@ -80,6 +80,10 @@ pre_args = [
     '-DBASHPATH="/bin/bash"', # TODO - set in meson_options.txt
     '-DSHELL_SETTINGS="set -o pipefail;shopt -s failglob"',
     '-DHAVE_EUIDACCESS', # TODO - autodetect?
+    '-DG_DISABLE_ASSERT',
+    '-DG_DISABLE_CAST_CHECKS',
+    '-DG_DISABLE_CHECKS',
+    '-DG_LOG_DOMAIN="SpaceFM"',
     ]
 
 if get_option('nls')
