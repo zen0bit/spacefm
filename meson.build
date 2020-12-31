@@ -139,7 +139,6 @@ sources = [
   'src/mime-type/mime-cache.c',
   'src/mime-type/mime-type.c',
   'src/exo/exo-binding.c',
-  'src/exo/exo-cell-renderer-ellipsized-text.c',
   'src/exo/exo-cell-renderer-icon.c',
   'src/exo/exo-gdk-pixbuf-extensions.c',
   'src/exo/exo-gtk-extensions.c',
