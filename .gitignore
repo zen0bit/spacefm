@@ -6,6 +6,8 @@ po/stamp-it
 
 ##meson
 build/
+build2/
+build3/
 
 ##test
 conf2.sh
