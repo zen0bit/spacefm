@@ -5794,55 +5794,88 @@ static void xset_design_job(GtkWidget* item, XSet* set)
             break;
         case XSET_JOB_TERM:
             mset = xset_get_plugin_mirror(set);
-            if (mset->in_terminal == XSET_B_TRUE)
-                mset->in_terminal = XSET_B_UNSET;
-            else
+            switch (mset->in_terminal)
             {
-                mset->in_terminal = XSET_B_TRUE;
-                mset->task = XSET_B_FALSE;
+                case XSET_B_TRUE:
+                    mset->in_terminal = XSET_B_UNSET;
+                    break;
+                default:
+                    mset->in_terminal = XSET_B_TRUE;
+                    mset->task = XSET_B_FALSE;
+                    break;
             }
             break;
         case XSET_JOB_KEEP:
             mset = xset_get_plugin_mirror(set);
-            if (mset->keep_terminal == XSET_B_TRUE)
-                mset->keep_terminal = XSET_B_UNSET;
-            else
-                mset->keep_terminal = XSET_B_TRUE;
+            switch (mset->keep_terminal)
+            {
+                case XSET_B_TRUE:
+                    mset->keep_terminal = XSET_B_UNSET;
+                    break;
+                default:
+                    mset->keep_terminal = XSET_B_TRUE;
+                    break;
+            }
             break;
         case XSET_JOB_TASK:
             mset = xset_get_plugin_mirror(set);
-            if (mset->task == XSET_B_TRUE)
-                mset->task = XSET_B_UNSET;
-            else
-                mset->task = XSET_B_TRUE;
+            switch (mset->task)
+            {
+                case XSET_B_TRUE:
+                    mset->task = XSET_B_UNSET;
+                    break;
+                default:
+                    mset->task = XSET_B_TRUE;
+                    break;
+            }
             break;
         case XSET_JOB_POP:
             mset = xset_get_plugin_mirror(set);
-            if (mset->task_pop == XSET_B_TRUE)
-                mset->task_pop = XSET_B_UNSET;
-            else
-                mset->task_pop = XSET_B_TRUE;
+            switch (mset->task_pop)
+            {
+                case XSET_B_TRUE:
+                    mset->task_pop = XSET_B_UNSET;
+                    break;
+                default:
+                    mset->task_pop = XSET_B_TRUE;
+                    break;
+            }
             break;
         case XSET_JOB_ERR:
             mset = xset_get_plugin_mirror(set);
-            if (mset->task_err == XSET_B_TRUE)
-                mset->task_err = XSET_B_UNSET;
-            else
-                mset->task_err = XSET_B_TRUE;
+            switch (mset->task_err)
+            {
+                case XSET_B_TRUE:
+                    mset->task_err = XSET_B_UNSET;
+                    break;
+                default:
+                    mset->task_err = XSET_B_TRUE;
+                    break;
+            }
             break;
         case XSET_JOB_OUT:
             mset = xset_get_plugin_mirror(set);
-            if (mset->task_out == XSET_B_TRUE)
-                mset->task_out = XSET_B_UNSET;
-            else
-                mset->task_out = XSET_B_TRUE;
+            switch (mset->task_out)
+            {
+                case XSET_B_TRUE:
+                    mset->task_out = XSET_B_UNSET;
+                    break;
+                default:
+                    mset->task_out = XSET_B_TRUE;
+                    break;
+            }
             break;
         case XSET_JOB_SCROLL:
             mset = xset_get_plugin_mirror(set);
-            if (mset->scroll_lock == XSET_B_TRUE)
-                mset->scroll_lock = XSET_B_UNSET;
-            else
-                mset->scroll_lock = XSET_B_TRUE;
+            switch (mset->scroll_lock)
+            {
+                case XSET_B_TRUE:
+                    mset->scroll_lock = XSET_B_UNSET;
+                    break;
+                default:
+                    mset->scroll_lock = XSET_B_TRUE;
+                    break;
+            }
             break;
         case XSET_JOB_TOOLTIPS:
             set_next = xset_get_panel(1, "tool_l");
@@ -5950,211 +5983,212 @@ static bool xset_design_menu_keypress(GtkWidget* widget, GdkEventKey* event, XSe
 
     transpose_nonlatin_keypress(event);
 
-    if (keymod == 0)
+    switch (keymod)
     {
-        switch (event->keyval)
-        {
-            case GDK_KEY_F1:
+        case 0:
+            switch (event->keyval)
             {
-                const char* help = NULL;
-                job = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item), "job"));
-                switch (job)
+                case GDK_KEY_F1:
                 {
-                    case XSET_JOB_KEY:
-                        help = g_strdup("#designmode-designmenu-key");
-                        break;
-                    case XSET_JOB_ICON:
-                        help = g_strdup("#designmode-designmenu-icon");
-                        break;
-                    case XSET_JOB_LABEL:
-                        help = g_strdup("#designmode-designmenu-name");
-                        break;
-                    case XSET_JOB_EDIT: // edit script
-                        help = g_strdup("#designmode-designmenu-edit");
-                        break;
-                    case XSET_JOB_PROP_CMD: // edit command line
-                        help = g_strdup("#designmode-designmenu-cedit");
-                        break;
-                    case XSET_JOB_EDIT_ROOT:
-                        help = g_strdup("#designmode-designmenu-edit");
-                        break;
-                    case XSET_JOB_COPYNAME:
-                        help = g_strdup("#designmode-command-copy");
-                        break;
-                    case XSET_JOB_LINE:
-                        help = g_strdup("#designmode-command-line");
-                        break;
-                    case XSET_JOB_SCRIPT:
-                        help = g_strdup("#designmode-command-script");
-                        break;
-                    case XSET_JOB_CUSTOM:
-                        help = g_strdup("#designmode-command-custom");
-                        break;
-                    case XSET_JOB_USER:
-                        help = g_strdup("#designmode-command-user");
-                        break;
-                    case XSET_JOB_COMMAND:
-                        help = g_strdup("#designmode-designmenu-new");
-                        break;
-                    case XSET_JOB_SUBMENU:
-                        help = g_strdup("#designmode-designmenu-submenu");
-                        break;
-                    case XSET_JOB_SEP:
-                        help = g_strdup("#designmode-designmenu-separator");
-                        break;
-                    case XSET_JOB_IMPORT_FILE:
-                    case XSET_JOB_IMPORT_URL:
-                        help = g_strdup("#designmode-designmenu-import");
-                        break;
-                    case XSET_JOB_CUT:
-                        help = g_strdup("#designmode-designmenu-cut");
-                        break;
-                    case XSET_JOB_COPY:
-                        help = g_strdup("#designmode-designmenu-copy");
-                        break;
-                    case XSET_JOB_PASTE:
-                        help = g_strdup("#designmode-designmenu-paste");
-                        break;
-                    case XSET_JOB_REMOVE:
-                        help = g_strdup("#designmode-designmenu-remove");
-                        break;
-                    case XSET_JOB_EXPORT:
-                        help = g_strdup("#designmode-designmenu-export");
-                        break;
-                    case XSET_JOB_BOOKMARK:
-                        help = g_strdup("#designmode-designmenu-bookmark");
-                        break;
-                    case XSET_JOB_APP:
-                        help = g_strdup("#designmode-designmenu-app");
-                        break;
-                    case XSET_JOB_NORMAL:
-                        help = g_strdup("#designmode-style-normal");
-                        break;
-                    case XSET_JOB_CHECK:
-                        help = g_strdup("#designmode-style-checkbox");
-                        break;
-                    case XSET_JOB_CONFIRM:
-                        help = g_strdup("#designmode-style-confirm");
-                        break;
-                    case XSET_JOB_DIALOG:
-                        help = g_strdup("#designmode-style-input");
-                        break;
-                    case XSET_JOB_MESSAGE:
-                        help = g_strdup("#designmode-style-message");
-                        break;
-                    case XSET_JOB_IGNORE_CONTEXT:
-                        help = g_strdup("#designmode-props-ignorecontext");
-                        break;
-                    case XSET_JOB_HELP:
-                        help = g_strdup("#designmode-designmenu-help");
-                        break;
-                    case XSET_JOB_HELP_STYLE:
-                        help = g_strdup("#designmode-style");
-                        break;
-                    case XSET_JOB_HELP_NEW:
-                        help = g_strdup("#designmode-designmenu-bookmark");
-                        break;
-                    case XSET_JOB_HELP_ADD:
-                        help = g_strdup("#designmode-designmenu-add");
-                        break;
-                    case XSET_JOB_PROP:
-                        help = g_strdup("#designmode-props");
-                        break;
-                    case XSET_JOB_HELP_BROWSE:
-                        help = g_strdup("#designmode-command-browse");
-                        break;
-                    case XSET_JOB_BROWSE_FILES:
-                        help = g_strdup("#designmode-command-browse-files");
-                        break;
-                    case XSET_JOB_BROWSE_DATA:
-                        help = g_strdup("#designmode-command-browse-data");
-                        break;
-                    case XSET_JOB_BROWSE_PLUGIN:
-                        help = g_strdup("#designmode-command-browse-plugin");
-                        break;
-                    case XSET_JOB_TERM:
-                        help = g_strdup("#designmode-command-terminal");
-                        break;
-                    case XSET_JOB_KEEP:
-                        help = g_strdup("#designmode-command-keep");
-                        break;
-                    case XSET_JOB_TASK:
-                        help = g_strdup("#designmode-command-task");
-                        break;
-                    case XSET_JOB_POP:
-                        help = g_strdup("#designmode-command-popup");
-                        break;
-                    case XSET_JOB_ERR:
-                        help = g_strdup("#designmode-command-poperr");
-                        break;
-                    case XSET_JOB_OUT:
-                        help = g_strdup("#designmode-command-popout");
-                        break;
-                    case XSET_JOB_SCROLL:
-                        help = g_strdup("#designmode-command-scroll");
-                        break;
-                    case XSET_JOB_TOOLTIPS:
-                        help = g_strdup("#designmode-designmenu-tooltips");
-                        break;
-                    default:
-                        help = g_strdup("#designmode");
-                        break;
+                    const char* help = NULL;
+                    job = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item), "job"));
+                    switch (job)
+                    {
+                        case XSET_JOB_KEY:
+                            help = g_strdup("#designmode-designmenu-key");
+                            break;
+                        case XSET_JOB_ICON:
+                            help = g_strdup("#designmode-designmenu-icon");
+                            break;
+                        case XSET_JOB_LABEL:
+                            help = g_strdup("#designmode-designmenu-name");
+                            break;
+                        case XSET_JOB_EDIT: // edit script
+                            help = g_strdup("#designmode-designmenu-edit");
+                            break;
+                        case XSET_JOB_PROP_CMD: // edit command line
+                            help = g_strdup("#designmode-designmenu-cedit");
+                            break;
+                        case XSET_JOB_EDIT_ROOT:
+                            help = g_strdup("#designmode-designmenu-edit");
+                            break;
+                        case XSET_JOB_COPYNAME:
+                            help = g_strdup("#designmode-command-copy");
+                            break;
+                        case XSET_JOB_LINE:
+                            help = g_strdup("#designmode-command-line");
+                            break;
+                        case XSET_JOB_SCRIPT:
+                            help = g_strdup("#designmode-command-script");
+                            break;
+                        case XSET_JOB_CUSTOM:
+                            help = g_strdup("#designmode-command-custom");
+                            break;
+                        case XSET_JOB_USER:
+                            help = g_strdup("#designmode-command-user");
+                            break;
+                        case XSET_JOB_COMMAND:
+                            help = g_strdup("#designmode-designmenu-new");
+                            break;
+                        case XSET_JOB_SUBMENU:
+                            help = g_strdup("#designmode-designmenu-submenu");
+                            break;
+                        case XSET_JOB_SEP:
+                            help = g_strdup("#designmode-designmenu-separator");
+                            break;
+                        case XSET_JOB_IMPORT_FILE:
+                        case XSET_JOB_IMPORT_URL:
+                            help = g_strdup("#designmode-designmenu-import");
+                            break;
+                        case XSET_JOB_CUT:
+                            help = g_strdup("#designmode-designmenu-cut");
+                            break;
+                        case XSET_JOB_COPY:
+                            help = g_strdup("#designmode-designmenu-copy");
+                            break;
+                        case XSET_JOB_PASTE:
+                            help = g_strdup("#designmode-designmenu-paste");
+                            break;
+                        case XSET_JOB_REMOVE:
+                            help = g_strdup("#designmode-designmenu-remove");
+                            break;
+                        case XSET_JOB_EXPORT:
+                            help = g_strdup("#designmode-designmenu-export");
+                            break;
+                        case XSET_JOB_BOOKMARK:
+                            help = g_strdup("#designmode-designmenu-bookmark");
+                            break;
+                        case XSET_JOB_APP:
+                            help = g_strdup("#designmode-designmenu-app");
+                            break;
+                        case XSET_JOB_NORMAL:
+                            help = g_strdup("#designmode-style-normal");
+                            break;
+                        case XSET_JOB_CHECK:
+                            help = g_strdup("#designmode-style-checkbox");
+                            break;
+                        case XSET_JOB_CONFIRM:
+                            help = g_strdup("#designmode-style-confirm");
+                            break;
+                        case XSET_JOB_DIALOG:
+                            help = g_strdup("#designmode-style-input");
+                            break;
+                        case XSET_JOB_MESSAGE:
+                            help = g_strdup("#designmode-style-message");
+                            break;
+                        case XSET_JOB_IGNORE_CONTEXT:
+                            help = g_strdup("#designmode-props-ignorecontext");
+                            break;
+                        case XSET_JOB_HELP:
+                            help = g_strdup("#designmode-designmenu-help");
+                            break;
+                        case XSET_JOB_HELP_STYLE:
+                            help = g_strdup("#designmode-style");
+                            break;
+                        case XSET_JOB_HELP_NEW:
+                            help = g_strdup("#designmode-designmenu-bookmark");
+                            break;
+                        case XSET_JOB_HELP_ADD:
+                            help = g_strdup("#designmode-designmenu-add");
+                            break;
+                        case XSET_JOB_PROP:
+                            help = g_strdup("#designmode-props");
+                            break;
+                        case XSET_JOB_HELP_BROWSE:
+                            help = g_strdup("#designmode-command-browse");
+                            break;
+                        case XSET_JOB_BROWSE_FILES:
+                            help = g_strdup("#designmode-command-browse-files");
+                            break;
+                        case XSET_JOB_BROWSE_DATA:
+                            help = g_strdup("#designmode-command-browse-data");
+                            break;
+                        case XSET_JOB_BROWSE_PLUGIN:
+                            help = g_strdup("#designmode-command-browse-plugin");
+                            break;
+                        case XSET_JOB_TERM:
+                            help = g_strdup("#designmode-command-terminal");
+                            break;
+                        case XSET_JOB_KEEP:
+                            help = g_strdup("#designmode-command-keep");
+                            break;
+                        case XSET_JOB_TASK:
+                            help = g_strdup("#designmode-command-task");
+                            break;
+                        case XSET_JOB_POP:
+                            help = g_strdup("#designmode-command-popup");
+                            break;
+                        case XSET_JOB_ERR:
+                            help = g_strdup("#designmode-command-poperr");
+                            break;
+                        case XSET_JOB_OUT:
+                            help = g_strdup("#designmode-command-popout");
+                            break;
+                        case XSET_JOB_SCROLL:
+                            help = g_strdup("#designmode-command-scroll");
+                            break;
+                        case XSET_JOB_TOOLTIPS:
+                            help = g_strdup("#designmode-designmenu-tooltips");
+                            break;
+                        default:
+                            help = g_strdup("#designmode");
+                            break;
+                    }
+                    gtk_menu_shell_deactivate(GTK_MENU_SHELL(widget));
+                    xset_show_help(NULL, NULL, help);
+                    return TRUE;
                 }
-                gtk_menu_shell_deactivate(GTK_MENU_SHELL(widget));
-                xset_show_help(NULL, NULL, help);
-                return TRUE;
-
-                break;
+                case GDK_KEY_F3:
+                    job = XSET_JOB_PROP;
+                    break;
+                case GDK_KEY_F4:
+                    if (xset_get_int_set(set, "x") == XSET_CMD_SCRIPT)
+                        job = XSET_JOB_EDIT;
+                    else
+                        job = XSET_JOB_PROP_CMD;
+                    break;
+                case GDK_KEY_Delete:
+                    job = XSET_JOB_REMOVE;
+                    break;
+                case GDK_KEY_Insert:
+                    job = XSET_JOB_COMMAND;
+                    break;
+                default:
+                    break;
             }
-            case GDK_KEY_F3:
-                job = XSET_JOB_PROP;
-                break;
-            case GDK_KEY_F4:
-                if (xset_get_int_set(set, "x") == XSET_CMD_SCRIPT)
-                    job = XSET_JOB_EDIT;
-                else
-                    job = XSET_JOB_PROP_CMD;
-                break;
-            case GDK_KEY_Delete:
-                job = XSET_JOB_REMOVE;
-                break;
-            case GDK_KEY_Insert:
-                job = XSET_JOB_COMMAND;
-                break;
-            default:
-                break;
-        }
-    }
-    else if (keymod == GDK_CONTROL_MASK)
-    {
-        switch (event->keyval)
-        {
-            case GDK_KEY_c:
-                job = XSET_JOB_COPY;
-                break;
-            case GDK_KEY_x:
-                job = XSET_JOB_CUT;
-                break;
-            case GDK_KEY_v:
-                job = XSET_JOB_PASTE;
-                break;
-            case GDK_KEY_e:
-                if (set->lock)
-                {
-                    return FALSE;
-                }
-                else
-                    job = XSET_JOB_EDIT;
-                break;
-            case GDK_KEY_k:
-                job = XSET_JOB_KEY;
-                break;
-            case GDK_KEY_i:
-                job = XSET_JOB_ICON;
-                break;
-            default:
-                break;
-        }
+            break;
+        case GDK_CONTROL_MASK:
+            switch (event->keyval)
+            {
+                case GDK_KEY_c:
+                    job = XSET_JOB_COPY;
+                    break;
+                case GDK_KEY_x:
+                    job = XSET_JOB_CUT;
+                    break;
+                case GDK_KEY_v:
+                    job = XSET_JOB_PASTE;
+                    break;
+                case GDK_KEY_e:
+                    if (set->lock)
+                    {
+                        return FALSE;
+                    }
+                    else
+                        job = XSET_JOB_EDIT;
+                    break;
+                case GDK_KEY_k:
+                    job = XSET_JOB_KEY;
+                    break;
+                case GDK_KEY_i:
+                    job = XSET_JOB_ICON;
+                    break;
+                default:
+                    break;
+            }
+            break;
+        default:
+            break;
     }
     if (job != -1)
     {
@@ -6596,89 +6630,88 @@ static bool xset_design_cb(GtkWidget* item, GdkEventButton* event, XSet* set)
         case 1:
             // fallthrough
         case 3:
-            // left or right click
-            if (keymod == 0)
+            switch (keymod)
             {
-                // no modifier
-                if (event->button == 3)
-                {
-                    // right
-                    xset_design_show_menu(menu, set, NULL, event->button, event->time);
-                    return TRUE;
-                }
-                else if (event->button == 1 && set->tool && !set->lock)
-                {
-                    // activate
-                    if (set->tool == XSET_TOOL_CUSTOM)
-                        xset_menu_cb(NULL, set);
-                    else
-                        xset_builtin_tool_activate(set->tool, set, event);
-                    return TRUE;
-                }
-            }
-            else if (keymod == GDK_CONTROL_MASK)
-            {
-                // ctrl
-                job = XSET_JOB_COPY;
-            }
-            else if (keymod == GDK_MOD1_MASK)
-            {
-                // alt
-                job = XSET_JOB_CUT;
-            }
-            else if (keymod == GDK_SHIFT_MASK)
-            {
-                // shift
-                job = XSET_JOB_PASTE;
-            }
-            else if (keymod == (GDK_CONTROL_MASK | GDK_SHIFT_MASK))
-            {
-                // ctrl + shift
-                job = XSET_JOB_COMMAND;
+                // left or right click
+                case 0:
+                    // no modifier
+                    if (event->button == 3)
+                    {
+                        // right
+                        xset_design_show_menu(menu, set, NULL, event->button, event->time);
+                        return TRUE;
+                    }
+                    else if (event->button == 1 && set->tool && !set->lock)
+                    {
+                        // activate
+                        if (set->tool == XSET_TOOL_CUSTOM)
+                            xset_menu_cb(NULL, set);
+                        else
+                            xset_builtin_tool_activate(set->tool, set, event);
+                        return TRUE;
+                    }
+                    break;
+                case GDK_CONTROL_MASK:
+                    // ctrl
+                    job = XSET_JOB_COPY;
+                    break;
+                case GDK_MOD1_MASK:
+                    // alt
+                    job = XSET_JOB_CUT;
+                    break;
+                case GDK_SHIFT_MASK:
+                    // shift
+                    job = XSET_JOB_PASTE;
+                    break;
+                case (GDK_CONTROL_MASK | GDK_SHIFT_MASK):
+                    // ctrl + shift
+                    job = XSET_JOB_COMMAND;
+                    break;
+                default:
+                    break;
             }
             break;
         case 2:
-            // middle click
-            if (keymod == 0)
+            switch (keymod)
             {
-                // no modifier
-                if (set->lock)
-                {
-                    xset_design_show_menu(menu, set, NULL, event->button, event->time);
-                    return TRUE;
-                }
-                else
-                {
-                    if (xset_get_int_set(set, "x") == XSET_CMD_SCRIPT)
-                        job = XSET_JOB_EDIT;
+                // middle click
+                case 0:
+                    // no modifier
+                    if (set->lock)
+                    {
+                        xset_design_show_menu(menu, set, NULL, event->button, event->time);
+                        return TRUE;
+                    }
                     else
-                        job = XSET_JOB_PROP_CMD;
-                }
-            }
-            else if (keymod == GDK_CONTROL_MASK)
-            {
-                // ctrl
-                job = XSET_JOB_KEY;
-            }
-            else if (keymod == GDK_MOD1_MASK)
-            {
-                // alt
-                job = XSET_JOB_HELP;
-            }
-            else if (keymod == GDK_SHIFT_MASK)
-            {
-                // shift
-                job = XSET_JOB_ICON;
-            }
-            else if (keymod == (GDK_CONTROL_MASK | GDK_SHIFT_MASK))
-            {
-                // ctrl + shift
-                job = XSET_JOB_REMOVE;
-            }
-            else if (keymod == (GDK_CONTROL_MASK | GDK_MOD1_MASK))
-            {
-                // ctrl + alt
-                job = XSET_JOB_PROP;
+                    {
+                        if (xset_get_int_set(set, "x") == XSET_CMD_SCRIPT)
+                            job = XSET_JOB_EDIT;
+                        else
+                            job = XSET_JOB_PROP_CMD;
+                    }
+                    break;
+                case GDK_CONTROL_MASK:
+                    // ctrl
+                    job = XSET_JOB_KEY;
+                    break;
+                case GDK_MOD1_MASK:
+                    // alt
+                    job = XSET_JOB_HELP;
+                    break;
+                case GDK_SHIFT_MASK:
+                    // shift
+                    job = XSET_JOB_ICON;
+                    break;
+                case (GDK_CONTROL_MASK | GDK_SHIFT_MASK):
+                    // ctrl + shift
+                    job = XSET_JOB_REMOVE;
+                    break;
+                case (GDK_CONTROL_MASK | GDK_MOD1_MASK):
+                    // ctrl + alt
+                    job = XSET_JOB_PROP;
+                    break;
+                default:
+                    break;
             }
             break;
         default:
@@ -6720,70 +6753,78 @@ bool xset_menu_keypress(GtkWidget* widget, GdkEventKey* event, void* user_data)
 
     transpose_nonlatin_keypress(event);
 
-    if (keymod == 0)
+    switch (keymod)
     {
-        switch (event->keyval)
-        {
-            case GDK_KEY_F1:
-                job = XSET_JOB_HELP;
-                break;
-            case GDK_KEY_F2:
-                // fallthrough
-            case GDK_KEY_Menu:
-                xset_design_show_menu(widget, set, NULL, 0, event->time);
-                return TRUE;
-            case GDK_KEY_F3:
-                job = XSET_JOB_PROP;
-                break;
-            case GDK_KEY_F4:
-                if (xset_get_int_set(set, "x") == XSET_CMD_SCRIPT)
-                    job = XSET_JOB_EDIT;
-                else
-                    job = XSET_JOB_PROP_CMD;
-                break;
-            case GDK_KEY_Delete:
-                job = XSET_JOB_REMOVE;
-                break;
-            case GDK_KEY_Insert:
-                job = XSET_JOB_COMMAND;
-                break;
-        }
-    }
-    else if (keymod == GDK_CONTROL_MASK)
-    {
-        switch (event->keyval)
-        {
-            case GDK_KEY_c:
-                job = XSET_JOB_COPY;
-                break;
-            case GDK_KEY_x:
-                job = XSET_JOB_CUT;
-                break;
-            case GDK_KEY_v:
-                job = XSET_JOB_PASTE;
-                break;
-            case GDK_KEY_e:
-                if (set->lock)
-                {
+        case 0:
+            switch (event->keyval)
+            {
+                case GDK_KEY_F1:
+                    job = XSET_JOB_HELP;
+                    break;
+                case GDK_KEY_F2:
+                    // fallthrough
+                case GDK_KEY_Menu:
                     xset_design_show_menu(widget, set, NULL, 0, event->time);
                     return TRUE;
-                }
-                else
-                {
+                case GDK_KEY_F3:
+                    job = XSET_JOB_PROP;
+                    break;
+                case GDK_KEY_F4:
                     if (xset_get_int_set(set, "x") == XSET_CMD_SCRIPT)
                         job = XSET_JOB_EDIT;
                     else
                         job = XSET_JOB_PROP_CMD;
-                }
-                break;
-            case GDK_KEY_k:
-                job = XSET_JOB_KEY;
-                break;
-            case GDK_KEY_i:
-                job = XSET_JOB_ICON;
-                break;
-        }
+                    break;
+                case GDK_KEY_Delete:
+                    job = XSET_JOB_REMOVE;
+                    break;
+                case GDK_KEY_Insert:
+                    job = XSET_JOB_COMMAND;
+                    break;
+                default:
+                    break;
+            }
+            break;
+        case GDK_CONTROL_MASK:
+            switch (event->keyval)
+            {
+                case GDK_KEY_c:
+                    job = XSET_JOB_COPY;
+                    break;
+                case GDK_KEY_x:
+                    job = XSET_JOB_CUT;
+                    break;
+                case GDK_KEY_v:
+                    job = XSET_JOB_PASTE;
+                    break;
+                case GDK_KEY_e:
+                    if (set->lock)
+                    {
+                        xset_design_show_menu(widget, set, NULL, 0, event->time);
+                        return TRUE;
+                    }
+                    else
+                    {
+                        if (xset_get_int_set(set, "x") == XSET_CMD_SCRIPT)
+                            job = XSET_JOB_EDIT;
+                        else
+                            job = XSET_JOB_PROP_CMD;
+                    }
+                    break;
+                case GDK_KEY_k:
+                    job = XSET_JOB_KEY;
+                    break;
+                case GDK_KEY_i:
+                    job = XSET_JOB_ICON;
+                    break;
+                default:
+                    break;
+            }
+            break;
+        default:
+            break;
     }
+
     if (job != -1)
     {
         if (xset_job_is_valid(set, job))
@@ -8029,97 +8070,98 @@ static bool on_tool_icon_button_press(GtkWidget* widget, GdkEventButton* event, 
             // fallthrough
         case 3:
             // left or right click
-            if (keymod == 0)
+            switch (keymod)
             {
-                // no modifier
-                if (event->button == 1)
-                {
-                    // left click
-                    if (set->tool == XSET_TOOL_CUSTOM && set->menu_style == XSET_MENU_SUBMENU)
+                case 0:
+                    // no modifier
+                    if (event->button == 1)
                     {
-                        XSet* set_child = xset_is(set->child);
-                        if (set_child)
+                        // left click
+                        if (set->tool == XSET_TOOL_CUSTOM && set->menu_style == XSET_MENU_SUBMENU)
                         {
-                            // activate first item in custom submenu
-                            xset_menu_cb(NULL, set_child);
+                            XSet* set_child = xset_is(set->child);
+                            if (set_child)
+                            {
+                                // activate first item in custom submenu
+                                xset_menu_cb(NULL, set_child);
+                            }
                         }
+                        else if (set->tool == XSET_TOOL_CUSTOM)
+                        {
+                            // activate
+                            xset_menu_cb(NULL, set);
+                        }
+                        else if (set->tool == XSET_TOOL_BACK_MENU)
+                            xset_builtin_tool_activate(XSET_TOOL_BACK, set, event);
+                        else if (set->tool == XSET_TOOL_FWD_MENU)
+                            xset_builtin_tool_activate(XSET_TOOL_FWD, set, event);
+                        else if (set->tool)
+                            xset_builtin_tool_activate(set->tool, set, event);
+                        return TRUE;
                     }
-                    else if (set->tool == XSET_TOOL_CUSTOM)
+                    else // if ( event->button == 3 )
                     {
-                        // activate
-                        xset_menu_cb(NULL, set);
+                        // right-click show design menu for submenu set
+                        xset_design_cb(NULL, event, set);
+                        return TRUE;
                     }
-                    else if (set->tool == XSET_TOOL_BACK_MENU)
-                        xset_builtin_tool_activate(XSET_TOOL_BACK, set, event);
-                    else if (set->tool == XSET_TOOL_FWD_MENU)
-                        xset_builtin_tool_activate(XSET_TOOL_FWD, set, event);
-                    else if (set->tool)
-                        xset_builtin_tool_activate(set->tool, set, event);
-                    return TRUE;
-                }
-                else // if ( event->button == 3 )
-                {
-                    // right-click show design menu for submenu set
-                    xset_design_cb(NULL, event, set);
-                    return TRUE;
-                }
-            }
-            else if (keymod == GDK_CONTROL_MASK)
-            {
-                // ctrl
-                job = XSET_JOB_COPY;
-            }
-            else if (keymod == GDK_MOD1_MASK)
-            {
-                // alt
-                job = XSET_JOB_CUT;
-            }
-            else if (keymod == GDK_SHIFT_MASK)
-            {
-                // shift
-                job = XSET_JOB_PASTE;
-            }
-            else if (keymod == (GDK_CONTROL_MASK | GDK_SHIFT_MASK))
-            {
-                // ctrl + shift
-                job = XSET_JOB_COMMAND;
+                    break;
+                case GDK_CONTROL_MASK:
+                    // ctrl
+                    job = XSET_JOB_COPY;
+                    break;
+                case GDK_MOD1_MASK:
+                    // alt
+                    job = XSET_JOB_CUT;
+                    break;
+                case GDK_SHIFT_MASK:
+                    // shift
+                    job = XSET_JOB_PASTE;
+                    break;
+                case (GDK_CONTROL_MASK | GDK_SHIFT_MASK):
+                    // ctrl + shift
+                    job = XSET_JOB_COMMAND;
+                    break;
+                default:
+                    break;
             }
             break;
         case 2:
             // middle click
-            if (keymod == 0)
+            switch (keymod)
             {
-                // no modifier
-                if (set->tool == XSET_TOOL_CUSTOM && xset_get_int_set(set, "x") == XSET_CMD_SCRIPT)
-                    job = XSET_JOB_EDIT;
-                else
-                    job = XSET_JOB_PROP_CMD;
+                case 0:
+                    // no modifier
+                    if (set->tool == XSET_TOOL_CUSTOM &&
+                        xset_get_int_set(set, "x") == XSET_CMD_SCRIPT)
+                        job = XSET_JOB_EDIT;
+                    else
+                        job = XSET_JOB_PROP_CMD;
+                    break;
+                case GDK_CONTROL_MASK:
+                    // ctrl
+                    job = XSET_JOB_KEY;
+                    break;
+                case GDK_MOD1_MASK:
+                    // alt
+                    job = XSET_JOB_HELP;
+                    break;
+                case GDK_SHIFT_MASK:
+                    // shift
+                    job = XSET_JOB_ICON;
+                    break;
+                case (GDK_CONTROL_MASK | GDK_SHIFT_MASK):
+                    // ctrl + shift
+                    job = XSET_JOB_REMOVE;
+                    break;
+                case (GDK_CONTROL_MASK | GDK_MOD1_MASK):
+                    // ctrl + alt
+                    job = XSET_JOB_PROP;
+                    break;
+                default:
+                    break;
             }
-            else if (keymod == GDK_CONTROL_MASK)
-            {
-                // ctrl
-                job = XSET_JOB_KEY;
-            }
-            else if (keymod == GDK_MOD1_MASK)
-            {
-                // alt
-                job = XSET_JOB_HELP;
-            }
-            else if (keymod == GDK_SHIFT_MASK)
-            {
-                // shift
-                job = XSET_JOB_ICON;
-            }
-            else if (keymod == (GDK_CONTROL_MASK | GDK_SHIFT_MASK))
-            {
-                // ctrl + shift
-                job = XSET_JOB_REMOVE;
-            }
-            else if (keymod == (GDK_CONTROL_MASK | GDK_MOD1_MASK))
-            {
-                // ctrl + alt
-                job = XSET_JOB_PROP;
-            }
+            break;
         default:
             break;
     }
