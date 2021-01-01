@@ -499,8 +499,10 @@ static void exo_icon_view_get_preferred_height(GtkWidget* widget, int* minimal_h
 
 G_DEFINE_TYPE_WITH_CODE(ExoIconView, exo_icon_view, GTK_TYPE_CONTAINER,
                         G_IMPLEMENT_INTERFACE(GTK_TYPE_CELL_LAYOUT, exo_icon_view_cell_layout_init)
-                        // G_IMPLEMENT_INTERFACE (GTK_TYPE_SCROLLABLE, NULL)
-                        G_ADD_PRIVATE(ExoIconView))
+#if (GTK_MAJOR_VERSION == 3)
+                            G_IMPLEMENT_INTERFACE(GTK_TYPE_SCROLLABLE, NULL)
+#endif
+                                G_ADD_PRIVATE(ExoIconView))
 
 static void exo_icon_view_class_init(ExoIconViewClass* klass)
 {
