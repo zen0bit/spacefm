@@ -66,6 +66,7 @@ typedef enum ExoIconChooserContext
     /* not provided by the model (plus separators before them) */
     EXO_ICON_CHOOSER_CONTEXT_ALL = EXO_ICON_CHOOSER_CONTEXT_OTHER + 2,
     EXO_ICON_CHOOSER_CONTEXT_FILE = EXO_ICON_CHOOSER_CONTEXT_OTHER + 4,
+    EXO_ICON_CHOOSER_CONTEXT_NO_ICON = EXO_ICON_CHOOSER_CONTEXT_OTHER + 6,
 } ExoIconChooserContext;
 
 /**

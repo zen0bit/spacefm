@@ -1,20 +1,16 @@
 release
 http://archive.xfce.org/src/xfce/exo/0.12/
 
-
-should probably merge
-7e16cb50d5988d46400543ef699d47846f0a2bb6
-a621d811bc1076ee938fb888e5f1f6e2265429c1
-
 #unsure if needed
 8b7f6824fc50747d9b152ef0aa91bc28da0260e4
-
 
 git
 https://github.com/xfce-mirror/exo
 
+I dont hand merge every commit, mostly just copy paste
+the changed functions and merge them that way
 
-last checked commit for relevent code
-2020-05-31
-d3f3232eb53a052711029d2fafc36e23da971b35
+last commit in repo when checked for relevent code
+2020-12-30
+dacf24cbcefc4b114b006dc62bf6f5aae905641f
 

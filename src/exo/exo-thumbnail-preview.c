@@ -28,6 +28,7 @@
 #include "exo-private.h"
 #include "exo-thumbnail-preview.h"
 #include "exo-string.h"
+#include "exo-utils.h"
 
 #include "../vfs/vfs-thumbnail-loader.h"
 
@@ -50,11 +51,6 @@ typedef struct ExoThumbnailPreviewClass
 {
     GtkFrameClass __parent__;
 } ExoThumbnailPreviewClass;
-
-bool exo_noop_true(void)
-{
-    return TRUE;
-}
 
 G_DEFINE_TYPE(ExoThumbnailPreview, exo_thumbnail_preview, GTK_TYPE_FRAME)
 

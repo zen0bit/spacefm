@@ -149,6 +149,7 @@ sources = [
   'src/exo/exo-private.c',
   'src/exo/exo-thumbnail-preview.c',
   'src/exo/exo-tree-view.c',
+  'src/exo/exo-utils.c',
   'src/ptk/ptk-app-chooser.c',
   'src/ptk/ptk-clipboard.c',
   'src/ptk/ptk-dir-tree.c',

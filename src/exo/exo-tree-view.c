@@ -27,13 +27,12 @@
 
 #include "exo-tree-view.h"
 #include "exo-string.h"
+#include "exo-utils.h"
 
 /* shorter macros for the GParamSpecs with static strings */
 #define EXO_PARAM_READABLE  (G_PARAM_READABLE | G_PARAM_STATIC_STRINGS)
 #define EXO_PARAM_WRITABLE  (G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS)
 #define EXO_PARAM_READWRITE (G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS)
-
-#define exo_noop_false gtk_false
 
 /* Property identifiers */
 enum
@@ -213,10 +212,6 @@ static bool exo_tree_view_button_press_event(GtkWidget* widget, GdkEventButton* 
     ExoTreeView* tree_view = EXO_TREE_VIEW(widget);
     GtkTreePath* path = NULL;
     bool result;
-    GList* selected_paths = NULL;
-    GList* lp;
-    GtkTreeViewColumn* col;
-    bool treat_as_blank = FALSE;
     void* drag_data;
 
     /* by default we won't emit "row-activated" on button-release-events */
@@ -237,21 +232,10 @@ static bool exo_tree_view_button_press_event(GtkWidget* widget, GdkEventButton* 
                                            event->x,
                                            event->y,
                                            &path,
-                                           &col,
+                                           NULL,
                                            NULL,
                                            NULL))
             path = NULL;
-
-        if (tree_view->priv->activable_column && col != tree_view->priv->activable_column)
-        {
-            treat_as_blank = TRUE;
-            if (path)
-            {
-                gtk_tree_path_free(path);
-                path = NULL;
-            }
-            gtk_tree_selection_unselect_all(selection);
-        }
 
         /* we unselect all selected items if the user clicks on an empty
          * area of the tree view and no modifier key is active.
@@ -276,26 +260,6 @@ static bool exo_tree_view_button_press_event(GtkWidget* widget, GdkEventButton* 
              event->button == 1 && (event->state & gtk_accelerator_get_default_mod_mask()) == 0);
     }
 
-    /* unfortunately GtkTreeView will unselect rows except the clicked one,
-     * which makes dragging from a GtkTreeView problematic. That's why we
-     * remember the selected paths here and restore them later.
-     */
-    if (event->type == GDK_BUTTON_PRESS &&
-        (event->state & gtk_accelerator_get_default_mod_mask()) == 0 && path != NULL &&
-        gtk_tree_selection_path_is_selected(selection, path))
-    {
-        /* if no custom select function is set, we simply use exo_noop_false here,
-         * to tell the tree view that it may not alter the selection.
-         */
-        // MOD disabled exo_noop_false due to GTK 2.20 bug
-        // https://bugzilla.gnome.org/show_bug.cgi?id=612802
-        /*      if (G_LIKELY (selection->user_func == NULL))
-        gtk_tree_selection_set_select_function (selection, (GtkTreeSelectionFunc) exo_noop_false,
-      NULL, NULL); else
-*/
-        selected_paths = gtk_tree_selection_get_selected_rows(selection, NULL);
-    }
-
     /* Rubberbanding in GtkTreeView 2.9.0 and above is rather buggy, unfortunately, and
      * doesn't interact properly with GTKs own DnD mechanism. So we need to block all
      * dragging here when pressing the mouse button on a not yet selected row if
@@ -305,13 +269,7 @@ static bool exo_tree_view_button_press_event(GtkWidget* widget, GdkEventButton* 
         gtk_tree_view_get_rubber_banding(GTK_TREE_VIEW(tree_view)) && event->button == 1 &&
         event->type == GDK_BUTTON_PRESS)
     {
-        /* Check if clicked on empty area or on a not yet selected row
-         * path must not be NULL - an item must be selected to start a rubberband
-         * select - this seems to be the case normally for GTK2 and 3 up until
-         * v3.14 where you could now rubberband select from nothing in the
-         * detailed view. If you do this, move the box up to select something
-         * then down to deselect, GTK crashes as soon as 0 items are selected -
-         * https://github.com/IgnorantGuru/spacefm/issues/485 */
+        /* check if clicked on empty area or on a not yet selected row */
         if (G_LIKELY(path == NULL || !gtk_tree_selection_path_is_selected(selection, path)))
         {
             /* need to disable drag and drop because we're rubberbanding now */
@@ -332,47 +290,49 @@ static bool exo_tree_view_button_press_event(GtkWidget* widget, GdkEventButton* 
         }
         else
         {
-            /* Need to disable rubberbanding because we're dragging now, or
-             * nothing has been selected so rubberbanding is not allowed */
+            /* need to disable rubberbanding because we're dragging now */
             gtk_tree_view_set_rubber_banding(GTK_TREE_VIEW(tree_view), FALSE);
 
-            /* Remember to re-enable rubberbanding later */
+            /* remember to re-enable rubberbanding later */
             tree_view->priv->button_release_enables_rubber_banding = TRUE;
         }
+    }
+
+    /* unfortunately GtkTreeView will unselect rows except the clicked one,
+     * which makes dragging from a GtkTreeView problematic.
+     * So we temporary disable selection updates if the path is still selected
+     */
+    if (event->type == GDK_BUTTON_PRESS &&
+        (event->state & gtk_accelerator_get_default_mod_mask()) == 0 && path != NULL &&
+        gtk_tree_selection_path_is_selected(selection, path))
+    {
+        gtk_tree_selection_set_select_function(selection,
+                                               (GtkTreeSelectionFunc)(void (*)(void))exo_noop_false,
+                                               NULL,
+                                               NULL);
     }
 
     /* call the parent's button press handler */
     result = (*GTK_WIDGET_CLASS(exo_tree_view_parent_class)->button_press_event)(widget, event);
 
-    if (treat_as_blank)
-        gtk_tree_selection_unselect_all(selection);
+    /* Note that since we have already "chained up" by calling the parent's button press handler,
+     * we must re-grab the tree selection, since the old one might be corrupted
+     */
+    selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(tree_view));
 
-    /* restore previous selection if the path is still selected */
-    if (event->type == GDK_BUTTON_PRESS &&
-        (event->state & gtk_accelerator_get_default_mod_mask()) == 0 && path != NULL &&
-        gtk_tree_selection_path_is_selected(selection, path))
+    /* Re-enable selection updates */
+    if (G_LIKELY(gtk_tree_selection_get_select_function(selection) ==
+                 (GtkTreeSelectionFunc)(void (*)(void))exo_noop_false))
     {
-        /* check if we have to restore paths */
-        if (G_LIKELY(gtk_tree_selection_get_select_function(selection) !=
-                     (GtkTreeSelectionFunc)(void (*)(void))exo_noop_false))
-        {
-            gtk_tree_selection_set_select_function(selection, NULL, NULL, NULL);
-        }
-        else
-        {
-            /* select all previously selected paths */
-            for (lp = selected_paths; lp != NULL; lp = lp->next)
-                gtk_tree_selection_select_path(selection, lp->data);
-        }
+        gtk_tree_selection_set_select_function(selection,
+                                               (GtkTreeSelectionFunc)(void (*)(void))exo_noop_true,
+                                               NULL,
+                                               NULL);
     }
 
     /* release the path (if any) */
     if (G_LIKELY(path != NULL))
         gtk_tree_path_free(path);
-
-    /* release the selected paths list */
-    g_list_foreach(selected_paths, (GFunc)(void (*)(void))gtk_tree_path_free, NULL);
-    g_list_free(selected_paths);
 
     return result;
 }
@@ -651,13 +611,14 @@ static bool exo_tree_view_single_click_timeout(void* user_data)
     GtkTreeIter iter;
     ExoTreeView* tree_view = EXO_TREE_VIEW(user_data);
     bool hover_path_selected;
-    GList* rows;
-    GList* lp;
+    GtkWidget* toplevel = gtk_widget_get_toplevel(GTK_WIDGET(tree_view));
 
-    /* verify that we are in single-click mode, have focus and a hover path */
-    if (gtk_widget_has_focus(GTK_WIDGET(tree_view)) && tree_view->priv->single_click &&
-        tree_view->priv->hover_path != NULL)
+    /* verify that we are in single-click mode on an active window and have a hover path */
+    if (GTK_IS_WINDOW(toplevel) && gtk_window_is_active(GTK_WINDOW(toplevel)) &&
+        tree_view->priv->single_click && tree_view->priv->hover_path != NULL)
     {
+        gtk_widget_grab_focus(GTK_WIDGET(tree_view));
+
         /* transform the hover_path to a tree iterator */
         model = gtk_tree_view_get_model(GTK_TREE_VIEW(tree_view));
         if (model != NULL && gtk_tree_model_get_iter(model, &iter, tree_view->priv->hover_path))
@@ -714,13 +675,16 @@ static bool exo_tree_view_single_click_timeout(void* user_data)
             }
             else
             {
-                /* remember the previously selected rows as set_cursor() clears the selection */
-                rows = gtk_tree_selection_get_selected_rows(selection, NULL);
-
                 /* check if the hover path is selected (as it will be selected after the
                  * set_cursor() call) */
                 hover_path_selected =
                     gtk_tree_selection_path_is_selected(selection, tree_view->priv->hover_path);
+                /* disable selection updates if the path is still selected */
+                gtk_tree_selection_set_select_function(
+                    selection,
+                    (GtkTreeSelectionFunc)(void (*)(void))exo_noop_false,
+                    NULL,
+                    NULL);
 
                 /* place the cursor on the hover row */
                 gtk_tree_view_set_cursor(GTK_TREE_VIEW(tree_view),
@@ -728,13 +692,12 @@ static bool exo_tree_view_single_click_timeout(void* user_data)
                                          cursor_column,
                                          FALSE);
 
-                /* restore the previous selection */
-                for (lp = rows; lp != NULL; lp = lp->next)
-                {
-                    gtk_tree_selection_select_path(selection, lp->data);
-                    gtk_tree_path_free(lp->data);
-                }
-                g_list_free(rows);
+                /* re-enable selection updates */
+                gtk_tree_selection_set_select_function(
+                    selection,
+                    (GtkTreeSelectionFunc)(void (*)(void))exo_noop_true,
+                    NULL,
+                    NULL);
 
                 /* check what to do */
                 if ((gtk_tree_selection_get_mode(selection) == GTK_SELECTION_MULTIPLE ||
