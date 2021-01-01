@@ -4826,7 +4826,7 @@ static void on_task_columns_changed(GtkWidget* view, void* user_data)
             XSet* set = xset_get(task_names[j]);
             // save column position
             char* pos = g_strdup_printf("%d", i);
-            xset_set_set(set, "x", pos);
+            xset_set_set(set, XSET_SET_SET_X, pos);
             g_free(pos);
             // if the window was opened maximized and stayed maximized, or the
             // window is unmaximized and not fullscreen, save the columns
@@ -4838,7 +4838,7 @@ static void on_task_columns_changed(GtkWidget* view, void* user_data)
                 {
                     // save column width
                     pos = g_strdup_printf("%d", width);
-                    xset_set_set(set, "y", pos);
+                    xset_set_set(set, XSET_SET_SET_Y, pos);
                     g_free(pos);
                 }
             }

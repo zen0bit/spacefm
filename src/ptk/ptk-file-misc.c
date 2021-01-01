@@ -3936,7 +3936,7 @@ void ptk_file_misc_rootcmd(PtkFileBrowser* file_browser, GList* sel_files, char*
                                 NULL);
         if (path && g_file_test(path, G_FILE_TEST_IS_DIR))
         {
-            xset_set_set(set, "desc", path);
+            xset_set_set(set, XSET_SET_SET_DESC, path);
             char* quote_path = bash_quote(path);
 
             if (!strcmp(setname, "root_move2"))

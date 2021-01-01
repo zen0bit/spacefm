@@ -2623,7 +2623,7 @@ static void show_devices_menu(GtkTreeView* view, VFSVolume* vol, PtkFileBrowser*
         "dev_show sep_dm4 dev_menu_auto dev_exec dev_fs_cnf dev_net_cnf dev_mount_options "
         "dev_change sep_dm5 dev_single dev_newtab dev_icon panel%d_font_dev",
         file_browser->mypanel);
-    xset_set_set(set, "desc", menu_elements);
+    xset_set_set(set, XSET_SET_SET_DESC, menu_elements);
     g_free(menu_elements);
 
     menu_elements = g_strdup_printf("sep_dm2 dev_menu_root sep_dm3 dev_prop dev_menu_settings");
@@ -3047,7 +3047,7 @@ void ptk_location_view_dev_menu(GtkWidget* parent, PtkFileBrowser* file_browser,
     char* desc = g_strdup_printf("dev_show sep_dm4 dev_menu_auto dev_exec dev_fs_cnf dev_net_cnf "
                                  "dev_mount_options dev_change%s",
                                  file_browser ? " dev_newtab" : "");
-    xset_set_set(set, "desc", desc);
+    xset_set_set(set, XSET_SET_SET_DESC, desc);
     g_free(desc);
 }
 

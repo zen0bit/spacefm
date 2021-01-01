@@ -77,6 +77,41 @@ extern GList* xsets;
 
 enum
 {
+    XSET_SET_SET_S,
+    XSET_SET_SET_B,
+    XSET_SET_SET_X,
+    XSET_SET_SET_Y,
+    XSET_SET_SET_Z,
+    XSET_SET_SET_KEY,
+    XSET_SET_SET_KEYMOD,
+    XSET_SET_SET_STYLE,
+    XSET_SET_SET_DESC,
+    XSET_SET_SET_TITLE,
+    XSET_SET_SET_LBL,
+    XSET_SET_SET_ICN,
+    XSET_SET_SET_LABEL,
+    XSET_SET_SET_ICON,
+    XSET_SET_SET_SHARED_KEY,
+    XSET_SET_SET_NEXT,
+    XSET_SET_SET_PREV,
+    XSET_SET_SET_PARENT,
+    XSET_SET_SET_CHILD,
+    XSET_SET_SET_CXT,
+    XSET_SET_SET_LINE,
+    XSET_SET_SET_TOOL,
+    XSET_SET_SET_TASK,
+    XSET_SET_SET_TASK_POP,
+    XSET_SET_SET_TASK_ERR,
+    XSET_SET_SET_TASK_OUT,
+    XSET_SET_SET_TERM,
+    XSET_SET_SET_KEEP,
+    XSET_SET_SET_SCROLL,
+    XSET_SET_SET_DISABLE,
+    XSET_SET_SET_OP
+};
+
+enum
+{
     XSET_B_UNSET,
     XSET_B_TRUE,
     XSET_B_FALSE
@@ -318,7 +353,7 @@ char* xset_get_keyname(XSet* set, int key_val, int key_mod);
 void xset_set_key(GtkWidget* parent, XSet* set);
 
 XSet* xset_set(const char* name, const char* var, const char* value);
-XSet* xset_set_set(XSet* set, const char* var, const char* value);
+XSet* xset_set_set(XSet* set, int var, const char* value);
 void xset_custom_delete(XSet* set, bool delete_next);
 // void xset_custom_activate(GtkWidget* item, XSet* set);
 XSet* xset_custom_remove(XSet* set);

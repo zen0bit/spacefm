@@ -381,7 +381,7 @@ void ptk_file_menu_add_panel_view_menu(PtkFileBrowser* browser, GtkWidget* menu,
                                p,
                                p,
                                p);
-        xset_set_set(set, "desc", desc);
+        xset_set_set(set, XSET_SET_SET_DESC, desc);
         g_free(desc);
         set = xset_set_cb("rubberband", main_window_rubberband_all, NULL);
         set->disable = FALSE;
@@ -495,7 +495,7 @@ void ptk_file_menu_add_panel_view_menu(PtkFileBrowser* browser, GtkWidget* menu,
                            p,
                            p,
                            p);
-    xset_set_set(set, "desc", desc);
+    xset_set_set(set, XSET_SET_SET_DESC, desc);
     g_free(desc);
     set = xset_get("view_fonts");
     desc =
@@ -508,7 +508,7 @@ void ptk_file_menu_add_panel_view_menu(PtkFileBrowser* browser, GtkWidget* menu,
                         p,
                         p,
                         p);
-    xset_set_set(set, "desc", desc);
+    xset_set_set(set, XSET_SET_SET_DESC, desc);
     g_free(desc);
     set = xset_get("con_view");
     set->disable = !browser->file_list;
@@ -521,7 +521,7 @@ void ptk_file_menu_add_panel_view_menu(PtkFileBrowser* browser, GtkWidget* menu,
                            p,
                            p,
                            p);
-    xset_set_set(set, "desc", desc);
+    xset_set_set(set, XSET_SET_SET_DESC, desc);
     g_free(desc);
     xset_add_menuitem(browser, menu, accel_group, set);
 }
@@ -1100,7 +1100,7 @@ GtkWidget* ptk_file_menu_new(PtkFileBrowser* browser, const char* file_path, VFS
         set = xset_get("open_new");
         xset_set_set(
             set,
-            "desc",
+            XSET_SET_SET_DESC,
             "new_file new_directory new_link new_archive sep_o1 tab_new tab_new_here new_bookmark");
 
         xset_add_menuitem(browser, popup, accel_group, set);
@@ -1283,7 +1283,7 @@ GtkWidget* ptk_file_menu_new(PtkFileBrowser* browser, const char* file_path, VFS
             desc = g_strdup_printf("prop_info prop_perm prop_root");
         else
             desc = g_strdup_printf("prop_info prop_perm prop_quick prop_root");
-        xset_set_set(set, "desc", desc);
+        xset_set_set(set, XSET_SET_SET_DESC, desc);
         g_free(desc);
         xset_add_menuitem(browser, popup, accel_group, set);
     }
