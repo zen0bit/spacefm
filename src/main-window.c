@@ -687,7 +687,7 @@ void main_window_refresh_all()
             int notebook = main_window->panel[p - 1];
             GtkWidget* num_pages = gtk_notebook_get_n_pages(GTK_NOTEBOOK(notebook));
             int i;
-            for (i = 0; i < num_pages; i++)
+            for (i = 0; i < (int64_t)num_pages; i++)
             {
                 PtkFileBrowser* a_browser =
                     PTK_FILE_BROWSER(gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook), i));
