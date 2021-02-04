@@ -639,7 +639,7 @@ static void* vfs_dir_load_thread(VFSAsyncTask* task, VFSDir* dir)
                     continue;
                 }
                 /* FIXME: Is locking GDK needed here? */
-                /* GDK_THREADS_ENTER(); */
+                /* gdk_threads_enter(); */
                 VFSFileInfo* file = vfs_file_info_new();
                 if (G_LIKELY(vfs_file_info_get(file, full_path, file_name)))
                 {
@@ -656,7 +656,7 @@ static void* vfs_dir_load_thread(VFSAsyncTask* task, VFSDir* dir)
                 {
                     vfs_file_info_unref(file);
                 }
-                /* GDK_THREADS_LEAVE(); */
+                /* gdk_threads_leave(); */
                 g_free(full_path);
             }
             g_dir_close(dir_content);
@@ -786,12 +786,12 @@ static void update_created_files(void* key, void* data, void* user_data)
 
 static bool notify_file_change(void* user_data)
 {
-    // GDK_THREADS_ENTER();  //sfm not needed because in main thread?
+    // gdk_threads_enter();  //sfm not needed because in main thread?
     g_hash_table_foreach(dir_hash, update_changed_files, NULL);
     g_hash_table_foreach(dir_hash, update_created_files, NULL);
     /* remove the timeout */
     change_notify_timeout = 0;
-    // GDK_THREADS_LEAVE();
+    // gdk_threads_leave();
     return FALSE;
 }
 
@@ -809,7 +809,7 @@ static void vfs_dir_monitor_callback(VFSFileMonitor* fm, VFSFileMonitorEvent eve
                                      const char* file_name, void* user_data)
 {
     VFSDir* dir = (VFSDir*)user_data;
-    GDK_THREADS_ENTER();
+    gdk_threads_enter();
 
     switch (event)
     {
@@ -825,7 +825,7 @@ static void vfs_dir_monitor_callback(VFSFileMonitor* fm, VFSFileMonitorEvent eve
         default:
             g_warning("Error: unrecognized file monitor signal!");
     }
-    GDK_THREADS_LEAVE();
+    gdk_threads_leave();
 }
 
 /* called on every VFSDir when icon theme got changed */

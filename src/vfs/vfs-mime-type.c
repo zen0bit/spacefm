@@ -47,7 +47,7 @@ static bool vfs_mime_type_reload(void* user_data)
     GList* l;
     /* FIXME: process mime database reloading properly. */
     /* Remove all items in the hash table */
-    GDK_THREADS_ENTER();
+    gdk_threads_enter();
 
     g_rw_lock_writer_lock(&mime_hash_lock);
     g_hash_table_foreach_remove(mime_hash, (GHRFunc)gtk_true, NULL);
@@ -64,7 +64,7 @@ static bool vfs_mime_type_reload(void* user_data)
         VFSMimeReloadCbEnt* ent = (VFSMimeReloadCbEnt*)l->data;
         ent->cb(ent->user_data);
     }
-    GDK_THREADS_LEAVE();
+    gdk_threads_leave();
     return FALSE;
 }
 

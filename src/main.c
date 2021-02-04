@@ -241,9 +241,9 @@ static bool on_socket_event(GIOChannel* ioc, GIOCondition cond, void* data)
                     g_string_free(args, TRUE);
                     return TRUE;
                 case CMD_PREF:
-                    GDK_THREADS_ENTER();
+                    gdk_threads_enter();
                     fm_edit_preference(NULL, (unsigned char)args->str[1] - 1);
-                    GDK_THREADS_LEAVE();
+                    gdk_threads_leave();
                     g_string_free(args, TRUE);
                     return TRUE;
                 case CMD_FIND_FILES:
@@ -261,7 +261,7 @@ static bool on_socket_event(GIOChannel* ioc, GIOCondition cond, void* data)
                 files = NULL;
             g_string_free(args, TRUE);
 
-            GDK_THREADS_ENTER();
+            gdk_threads_enter();
 
             if (files)
             {
@@ -276,7 +276,7 @@ static bool on_socket_event(GIOChannel* ioc, GIOCondition cond, void* data)
             app_settings.load_saved_tabs = TRUE;
             socket_daemon = FALSE;
 
-            GDK_THREADS_LEAVE();
+            gdk_threads_leave();
         }
     }
 
@@ -928,9 +928,9 @@ int main(int argc, char* argv[])
                 vfs_file_monitor_clean();
                 return ret == -1 ? 0 : ret;
             }
-            GDK_THREADS_ENTER();
+            gdk_threads_enter();
             gtk_main();
-            GDK_THREADS_LEAVE();
+            gdk_threads_leave();
             vfs_file_monitor_clean();
             return 0;
         }
@@ -1066,14 +1066,14 @@ int main(int argc, char* argv[])
     /* handle_parsed_commandline_args needs to be within GDK_THREADS_ENTER or
      * ptk_show_error() in ptk_file_browser_chdir() access err causes hang on
      * GDK_THREADS_ENTER before gtk_main() */
-    GDK_THREADS_ENTER();
+    gdk_threads_enter();
     /* handle the parsed result of command line args */
     run = handle_parsed_commandline_args();
     app_settings.load_saved_tabs = TRUE;
 
     if (run) /* run the main loop */
         gtk_main();
-    GDK_THREADS_LEAVE();
+    gdk_threads_leave();
 
     main_window_event(NULL, NULL, "evt_exit", 0, 0, NULL, 0, 0, 0, FALSE);
 

@@ -129,10 +129,10 @@ static bool on_thumbnail_idle(VFSThumbnailLoader* loader)
 
     while ((file = (VFSFileInfo*)g_queue_pop_head(loader->update_queue)))
     {
-        GDK_THREADS_ENTER();
+        gdk_threads_enter();
         vfs_dir_emit_thumbnail_loaded(loader->dir, file);
         vfs_file_info_unref(file);
-        GDK_THREADS_LEAVE();
+        gdk_threads_leave();
     }
 
     loader->idle_handler = 0;

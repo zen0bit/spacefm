@@ -325,7 +325,7 @@ static void update_file_display(const char* path)
 {
     // for devices like nfs, emit created and flush to avoid a
     // blocking stat call in GUI thread during writes
-    GDK_THREADS_ENTER();
+    gdk_threads_enter();
     char* dir_path = g_path_get_dirname(path);
     VFSDir* vdir = vfs_dir_get_by_path_soft(dir_path);
     g_free(dir_path);
@@ -339,7 +339,7 @@ static void update_file_display(const char* path)
     }
     if (vdir)
         g_object_unref(vdir);
-    GDK_THREADS_LEAVE();
+    gdk_threads_leave();
 }
 
 static bool vfs_file_task_do_copy(VFSFileTask* task, const char* src_file, const char* dest_file)

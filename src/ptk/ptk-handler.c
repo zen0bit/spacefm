@@ -1289,9 +1289,9 @@ void ptk_handler_import(int mode, GtkWidget* handler_dlg, XSet* set)
     {
         msg = g_strdup_printf(_("An error occured copying command files\n\n%s"),
                               stderr ? stderr : "");
-        GDK_THREADS_ENTER(); // due to dialog run causes low level thread lock
+        gdk_threads_enter(); // due to dialog run causes low level thread lock
         xset_msg_dialog(NULL, GTK_MESSAGE_ERROR, _("Copy Command Error"), NULL, 0, msg, NULL, NULL);
-        GDK_THREADS_LEAVE();
+        gdk_threads_leave();
         g_free(msg);
     }
     if (stderr)
@@ -1349,9 +1349,9 @@ void ptk_handler_import(int mode, GtkWidget* handler_dlg, XSet* set)
             _("The selected %s Handler file has been imported to the %s Handlers list."),
             mode_name,
             mode_name);
-        GDK_THREADS_ENTER(); // due to dialog run causes low level thread lock
+        gdk_threads_enter(); // due to dialog run causes low level thread lock
         xset_msg_dialog(NULL, GTK_MESSAGE_INFO, _("Handler Imported"), NULL, 0, msg, NULL, NULL);
-        GDK_THREADS_LEAVE();
+        gdk_threads_leave();
         g_free(msg);
         return;
     }

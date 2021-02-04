@@ -862,9 +862,9 @@ static void on_autoopen_net_cb(VFSFileTask* task, AutoOpen* ao)
         if (GTK_IS_WIDGET(ao->file_browser) &&
             g_file_test(device_file_vol->mount_point, G_FILE_TEST_IS_DIR))
         {
-            GDK_THREADS_ENTER();
+            gdk_threads_enter();
             ptk_file_browser_emit_open(ao->file_browser, device_file_vol->mount_point, ao->job);
-            GDK_THREADS_LEAVE();
+            gdk_threads_leave();
 
             if (ao->job == PTK_OPEN_NEW_TAB && GTK_IS_WIDGET(ao->file_browser))
             {
@@ -1407,9 +1407,9 @@ static bool on_autoopen_cb(VFSFileTask* task, AutoOpen* ao)
             {
                 if (GTK_IS_WIDGET(ao->file_browser))
                 {
-                    GDK_THREADS_ENTER(); // hangs on dvd mount without this - why?
+                    gdk_threads_enter(); // hangs on dvd mount without this - why?
                     ptk_file_browser_emit_open(ao->file_browser, vol->mount_point, ao->job);
-                    GDK_THREADS_LEAVE();
+                    gdk_threads_leave();
                 }
                 else
                     open_in_prog(vol->mount_point);
