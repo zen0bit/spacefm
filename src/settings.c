@@ -3759,7 +3759,7 @@ void xset_custom_export(GtkWidget* parent, PtkFileBrowser* file_browser, XSet* s
         g_mkdir_with_parents(plug_dir, 0700);
 
         // Create plugin file
-        char* path = g_build_filename(plug_dir, "plugin", NULL);
+        char* plugin_path = g_build_filename(plug_dir, "plugin", NULL);
         GString* buf = g_string_sized_new(4096);
 
         g_string_append(buf, "[Plugin]\n");
@@ -3782,8 +3782,8 @@ void xset_custom_export(GtkWidget* parent, PtkFileBrowser* file_browser, XSet* s
                 goto _rmtmp_error;
         }
         g_string_append(buf, "\n");
-        g_file_set_contents(path, buf->str, buf->len, NULL);
-        g_free(path);
+        g_file_set_contents(plugin_path, buf->str, buf->len, NULL);
+        g_free(plugin_path);
         g_string_free(buf, TRUE);
     }
     else
