@@ -3394,10 +3394,10 @@ static void on_file_browser_open_item(PtkFileBrowser* file_browser, const char* 
 static void fm_main_window_update_status_bar(FMMainWindow* main_window,
                                              PtkFileBrowser* file_browser)
 {
-    int num_sel;
-    int num_vis;
-    int num_hid;
-    int num_hidx;
+    unsigned int num_sel;
+    unsigned int num_vis;
+    unsigned int num_hid;
+    unsigned int num_hidx;
     uint64_t total_size;
     char* msg;
     char size_str[64];
