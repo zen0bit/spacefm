@@ -3711,7 +3711,7 @@ int custom_dialog_init(int argc, char* argv[])
         }
         else if (ac == 2 && (!strcmp(argv[ac], "--help") || !strcmp(argv[ac], "help")))
         {
-            printf("For help run, man spacefm-dialog");
+            printf("For help run, man spacefm-dialog\n");
             return -1;
         }
         else if (g_str_has_prefix(argv[ac], "--"))

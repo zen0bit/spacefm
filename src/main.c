@@ -946,7 +946,7 @@ int main(int argc, char* argv[])
 #endif
             if (argv[2] && (!strcmp(argv[2], "help") || !strcmp(argv[2], "--help")))
             {
-                printf("For help run, man spacefm-socket");
+                printf("For help run, man spacefm-socket\n");
                 return 0;
             }
             char* reply = NULL;
