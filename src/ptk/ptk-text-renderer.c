@@ -643,14 +643,6 @@ GtkCellRenderer* ptk_text_renderer_new(void)
     return g_object_new(PTK_TYPE_TEXT_RENDERER, NULL);
 }
 
-static void add_attr(PangoAttrList* attr_list, PangoAttribute* attr)
-{
-    attr->start_index = 0;
-    attr->end_index = G_MAXINT;
-
-    pango_attr_list_insert(attr_list, attr);
-}
-
 static PangoLayout* get_layout(PtkTextRenderer* celltext, GtkWidget* widget, bool will_render,
                                GtkCellRendererState flags)
 {
@@ -662,6 +654,10 @@ static PangoLayout* get_layout(PtkTextRenderer* celltext, GtkWidget* widget, boo
     pango_layout_set_alignment(layout, PANGO_ALIGN_CENTER);
 
     attr_list = pango_attr_list_new();
+
+#if PANGO_VERSION_CHECK(1, 44, 0)
+    pango_attr_list_insert(attr_list, pango_attr_insert_hyphens_new(FALSE));
+#endif
 
     if (will_render)
     {
@@ -677,11 +673,12 @@ static PangoLayout* get_layout(PtkTextRenderer* celltext, GtkWidget* widget, boo
 
             color = celltext->foreground;
 
-            add_attr(attr_list, pango_attr_foreground_new(color.red, color.green, color.blue));
+            pango_attr_list_insert(attr_list,
+                                   pango_attr_foreground_new(color.red, color.green, color.blue));
         }
     }
 
-    add_attr(attr_list, pango_attr_font_desc_new(celltext->font));
+    pango_attr_list_insert(attr_list, pango_attr_font_desc_new(celltext->font));
 
     if (celltext->underline_set)
         uline = celltext->underline_style;
@@ -706,7 +703,7 @@ static PangoLayout* get_layout(PtkTextRenderer* celltext, GtkWidget* widget, boo
     }
 
     if (uline != PANGO_UNDERLINE_NONE)
-        add_attr(attr_list, pango_attr_underline_new(celltext->underline_style));
+        pango_attr_list_insert(attr_list, pango_attr_underline_new(celltext->underline_style));
 
     if (celltext->ellipsize_set)
         pango_layout_set_ellipsize(layout, celltext->ellipsize);
