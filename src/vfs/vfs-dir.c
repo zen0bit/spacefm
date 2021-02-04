@@ -78,9 +78,8 @@ static GList* mime_cb = NULL;
 static unsigned int change_notify_timeout = 0;
 static unsigned int theme_change_notify = 0;
 
-static char* desktop_dir = NULL;
-
 static bool is_desktop_set = FALSE;
+static const char* desktop_dir = NULL;
 
 GType vfs_dir_get_type(void)
 {

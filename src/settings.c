@@ -77,9 +77,9 @@ static GList* keysets = NULL;
 static XSet* set_clipboard = NULL;
 static bool clipboard_is_cut;
 static XSet* set_last;
-static char* settings_config_dir = NULL;
-static char* settings_tmp_dir = NULL;
-static char* settings_user_tmp_dir = NULL;
+static const char* settings_config_dir = NULL;
+static const char* settings_tmp_dir = NULL;
+static const char* settings_user_tmp_dir = NULL;
 static XSetContext* xset_context = NULL;
 static XSet* book_icon_set_cached = NULL;
 
@@ -348,7 +348,7 @@ void load_conf()
         settings_tmp_dir = g_strdup(DEFAULT_TMP_DIR);
 }
 
-void load_settings(char* config_dir, bool git_settings)
+void load_settings(const char* config_dir, bool git_settings)
 {
     FILE* file;
     char* path = NULL;

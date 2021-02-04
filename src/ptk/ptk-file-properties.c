@@ -244,7 +244,7 @@ static void on_combo_change(GtkComboBox* combo, void* user_data)
     GtkTreeIter it;
     if (gtk_combo_box_get_active_iter(combo, &it))
     {
-        const char* action;
+        char* action;
         GtkTreeModel* model = gtk_combo_box_get_model(combo);
         gtk_tree_model_get(model, &it, 2, &action, -1);
         if (!action)
