@@ -1514,43 +1514,43 @@ XSet* xset_set_set(XSet* set, int var, const char* value)
             set->tool = strtol(value, NULL, 10);
             break;
         case XSET_SET_SET_TASK:
-            if (!strcmp(value, "1"))
+            if (strtol(value, NULL, 10) == 1)
                 set->task = XSET_B_TRUE;
             else
                 set->task = XSET_B_UNSET;
             break;
         case XSET_SET_SET_TASK_POP:
-            if (!strcmp(value, "1"))
+            if (strtol(value, NULL, 10) == 1)
                 set->task_pop = XSET_B_TRUE;
             else
                 set->task_pop = XSET_B_UNSET;
             break;
         case XSET_SET_SET_TASK_ERR:
-            if (!strcmp(value, "1"))
+            if (strtol(value, NULL, 10) == 1)
                 set->task_err = XSET_B_TRUE;
             else
                 set->task_err = XSET_B_UNSET;
             break;
         case XSET_SET_SET_TASK_OUT:
-            if (!strcmp(value, "1"))
+            if (strtol(value, NULL, 10) == 1)
                 set->task_out = XSET_B_TRUE;
             else
                 set->task_out = XSET_B_UNSET;
             break;
         case XSET_SET_SET_TERM:
-            if (!strcmp(value, "1"))
+            if (strtol(value, NULL, 10) == 1)
                 set->in_terminal = XSET_B_TRUE;
             else
                 set->in_terminal = XSET_B_UNSET;
             break;
         case XSET_SET_SET_KEEP:
-            if (!strcmp(value, "1"))
+            if (strtol(value, NULL, 10) == 1)
                 set->keep_terminal = XSET_B_TRUE;
             else
                 set->keep_terminal = XSET_B_UNSET;
             break;
         case XSET_SET_SET_SCROLL:
-            if (!strcmp(value, "1"))
+            if (strtol(value, NULL, 10) == 1)
                 set->scroll_lock = XSET_B_TRUE;
             else
                 set->scroll_lock = XSET_B_UNSET;
