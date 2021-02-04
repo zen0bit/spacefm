@@ -784,7 +784,7 @@ static void auto_save_start(bool delay)
     }
 }
 
-static bool on_autosave_timer(void* ptr)
+static bool on_autosave_timer(void* main_window)
 {
     // printf("AUTOSAVE timeout\n" );
     if (xset_autosave_timer)
