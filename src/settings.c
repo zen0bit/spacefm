@@ -7357,8 +7357,8 @@ char* xset_icon_chooser_dialog(GtkWindow* parent, const char* def_icon)
 #elif (GTK_MAJOR_VERSION == 2)
         gdk_cursor_unref(cursor);
 #endif
-        while (gtk_events_pending())
-            gtk_main_iteration();
+        while (g_main_context_pending(NULL))
+            g_main_context_iteration(NULL, TRUE);
     }
 
     // btn_icon_choose clicked - preparing the exo icon chooser dialog
@@ -7815,8 +7815,8 @@ char* xset_file_dialog(GtkWidget* parent, GtkFileChooserAction action, const cha
         gtk_widget_show_all(dlg);
         gtk_window_set_position(GTK_WINDOW(dlg), GTK_WIN_POS_CENTER_ALWAYS);
         gtk_window_resize(GTK_WINDOW(dlg), width, height);
-        while (gtk_events_pending())
-            gtk_main_iteration();
+        while (g_main_context_pending(NULL))
+            g_main_context_iteration(NULL, TRUE);
         gtk_window_set_position(GTK_WINDOW(dlg), GTK_WIN_POS_CENTER);
     }
 

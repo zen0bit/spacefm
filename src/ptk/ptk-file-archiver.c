@@ -602,8 +602,8 @@ void ptk_file_archiver_create(PtkFileBrowser* file_browser, GList* files, const 
         gtk_widget_show_all(dlg);
         gtk_window_set_position(GTK_WINDOW(dlg), GTK_WIN_POS_CENTER_ALWAYS);
         gtk_window_resize(GTK_WINDOW(dlg), width, height);
-        while (gtk_events_pending())
-            gtk_main_iteration();
+        while (g_main_context_pending(NULL))
+            g_main_context_iteration(NULL, TRUE);
         gtk_window_set_position(GTK_WINDOW(dlg), GTK_WIN_POS_CENTER);
     }
 
@@ -1163,8 +1163,8 @@ void ptk_file_archiver_extract(PtkFileBrowser* file_browser, GList* files, const
             gtk_widget_show_all(dlg);
             gtk_window_set_position(GTK_WINDOW(dlg), GTK_WIN_POS_CENTER_ALWAYS);
             gtk_window_resize(GTK_WINDOW(dlg), width, height);
-            while (gtk_events_pending())
-                gtk_main_iteration();
+            while (g_main_context_pending(NULL))
+                g_main_context_iteration(NULL, TRUE);
             gtk_window_set_position(GTK_WINDOW(dlg), GTK_WIN_POS_CENTER);
         }
 
