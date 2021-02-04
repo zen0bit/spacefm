@@ -1395,7 +1395,7 @@ static void show_panels(GtkMenuItem* item, FMMainWindow* main_window)
                 // no config exists for this panel and mode - copy
                 // printf ("no config for %d, %d\n", p, main_window->panel_context[p-1] );
                 XSet* set_old;
-                int mode = main_window->panel_context[p - 1];
+                char mode = main_window->panel_context[p - 1];
                 xset_set_b_panel_mode(p, "show_toolbox", mode, xset_get_b_panel(p, "show_toolbox"));
                 xset_set_b_panel_mode(p, "show_devmon", mode, xset_get_b_panel(p, "show_devmon"));
                 if (xset_is("show_dirtree"))
