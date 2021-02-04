@@ -377,7 +377,7 @@ static void exo_cell_renderer_icon_render(GtkCellRenderer* renderer,
     GtkIconTheme* icon_theme;
     GdkRectangle icon_area;
     GdkRectangle draw_area;
-    const char* filename;
+    const char* filename = NULL;
     GtkIconInfo* icon_info = NULL;
     GdkPixbuf* icon = NULL;
     GdkPixbuf* temp;
