@@ -262,12 +262,12 @@ static void parse_window_state(char* line)
         v = strtol(value, NULL, 10);
         app_settings.width = (v > 0 ? v : 640);
     }
-    if (!strcmp(name, "height"))
+    else if (!strcmp(name, "height"))
     {
         v = strtol(value, NULL, 10);
         app_settings.height = (v > 0 ? v : 480);
     }
-    if (!strcmp(name, "maximized"))
+    else if (!strcmp(name, "maximized"))
     {
         app_settings.maximized = strtol(value, NULL, 10);
     }
