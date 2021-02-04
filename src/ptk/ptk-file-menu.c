@@ -1815,8 +1815,6 @@ static bool app_menu_keypress(GtkWidget* menu, GdkEventKey* event, PtkFileMenu* 
                             help = g_strdup("#designmode-mime-mimedir");
                             break;
                         case APP_JOB_USR:
-                            help = g_strdup("#designmode-mime-usr");
-                            break;
                         case APP_JOB_BROWSE_SHARED:
                         case APP_JOB_VIEW:
                         case APP_JOB_VIEW_TYPE:
