@@ -3688,8 +3688,8 @@ static bool on_main_window_keypress(FMMainWindow* main_window, GdkEventKey* even
     if (event->keyval == 0)
         return FALSE;
 
-    int keymod = (event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK |
-                                  GDK_SUPER_MASK | GDK_HYPER_MASK | GDK_META_MASK));
+    unsigned int keymod = (event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK |
+                                           GDK_SUPER_MASK | GDK_HYPER_MASK | GDK_META_MASK));
 
     if ((event->keyval == GDK_KEY_Home && (keymod == 0 || keymod == GDK_SHIFT_MASK)) ||
         (event->keyval == GDK_KEY_End && (keymod == 0 || keymod == GDK_SHIFT_MASK)) ||

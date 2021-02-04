@@ -2716,8 +2716,8 @@ static bool on_button_press_event(GtkTreeView* view, GdkEventButton* evt, void* 
 
 static bool on_key_press_event(GtkWidget* w, GdkEventKey* event, PtkFileBrowser* file_browser)
 {
-    int keymod = (event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK |
-                                  GDK_SUPER_MASK | GDK_HYPER_MASK | GDK_META_MASK));
+    unsigned int keymod = (event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK |
+                                           GDK_SUPER_MASK | GDK_HYPER_MASK | GDK_META_MASK));
 
     if (event->keyval == GDK_KEY_Menu || (event->keyval == GDK_KEY_F10 && keymod == GDK_SHIFT_MASK))
     {
@@ -2940,8 +2940,8 @@ static bool on_dev_menu_keypress(GtkWidget* menu, GdkEventKey* event, void* user
 static bool on_dev_menu_button_press(GtkWidget* item, GdkEventButton* event, VFSVolume* vol)
 {
     GtkWidget* menu = (GtkWidget*)g_object_get_data(G_OBJECT(item), "menu");
-    int keymod = (event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK |
-                                  GDK_SUPER_MASK | GDK_HYPER_MASK | GDK_META_MASK));
+    unsigned int keymod = (event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK |
+                                           GDK_SUPER_MASK | GDK_HYPER_MASK | GDK_META_MASK));
 
     switch (event->type)
     {
@@ -4238,8 +4238,8 @@ static bool on_bookmark_button_release_event(GtkTreeView* view, GdkEventButton* 
 static bool on_bookmark_key_press_event(GtkWidget* w, GdkEventKey* event,
                                         PtkFileBrowser* file_browser)
 {
-    int keymod = (event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK |
-                                  GDK_SUPER_MASK | GDK_HYPER_MASK | GDK_META_MASK));
+    unsigned int keymod = (event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK |
+                                           GDK_SUPER_MASK | GDK_HYPER_MASK | GDK_META_MASK));
 
     if (event->keyval == GDK_KEY_Menu || (event->keyval == GDK_KEY_F10 && keymod == GDK_SHIFT_MASK))
     {

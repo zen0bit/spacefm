@@ -2504,8 +2504,8 @@ static bool on_activate_link(GtkLabel* label, char* uri, HandlerData* hnd)
 
 static bool on_textview_keypress(GtkWidget* widget, GdkEventKey* event, HandlerData* hnd)
 { // also used on dlg keypress
-    int keymod = (event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK |
-                                  GDK_SUPER_MASK | GDK_HYPER_MASK | GDK_META_MASK));
+    unsigned int keymod = (event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK |
+                                           GDK_SUPER_MASK | GDK_HYPER_MASK | GDK_META_MASK));
     switch (event->keyval)
     {
         case GDK_KEY_Return:

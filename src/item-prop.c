@@ -1566,8 +1566,8 @@ static bool on_target_keypress(GtkWidget* widget, GdkEventKey* event, ContextDat
 
 static bool on_dlg_keypress(GtkWidget* widget, GdkEventKey* event, ContextData* ctxt)
 {
-    int keymod = (event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK |
-                                  GDK_SUPER_MASK | GDK_HYPER_MASK | GDK_META_MASK));
+    unsigned int keymod = (event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK |
+                                           GDK_SUPER_MASK | GDK_HYPER_MASK | GDK_META_MASK));
 
     if (event->keyval == GDK_KEY_F1 && keymod == 0)
     {

@@ -1776,8 +1776,8 @@ static bool app_menu_keypress(GtkWidget* menu, GdkEventKey* event, PtkFileMenu* 
     else
         return FALSE;
 
-    int keymod = (event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK |
-                                  GDK_SUPER_MASK | GDK_HYPER_MASK | GDK_META_MASK));
+    unsigned int keymod = (event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK |
+                                           GDK_SUPER_MASK | GDK_HYPER_MASK | GDK_META_MASK));
 
     if (keymod == 0)
     {
@@ -2133,8 +2133,8 @@ static void show_app_menu(GtkWidget* menu, GtkWidget* app_item, PtkFileMenu* dat
 static bool on_app_button_press(GtkWidget* item, GdkEventButton* event, PtkFileMenu* data)
 {
     GtkWidget* menu = (GtkWidget*)g_object_get_data(G_OBJECT(item), "menu");
-    int keymod = (event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK |
-                                  GDK_SUPER_MASK | GDK_HYPER_MASK | GDK_META_MASK));
+    unsigned int keymod = (event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_MOD1_MASK |
+                                           GDK_SUPER_MASK | GDK_HYPER_MASK | GDK_META_MASK));
 
     switch (event->type)
     {
