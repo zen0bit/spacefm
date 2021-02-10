@@ -321,7 +321,7 @@ const char* vfs_file_info_get_disp_owner(VFSFileInfo* fi)
             user_name = puser->pw_name;
         else
         {
-            sprintf(uid_str_buf, "%d", fi->uid);
+            g_snprintf(uid_str_buf, sizeof(uid_str_buf), "%d", fi->uid);
             user_name = uid_str_buf;
         }
 
@@ -330,7 +330,7 @@ const char* vfs_file_info_get_disp_owner(VFSFileInfo* fi)
             group_name = pgroup->gr_name;
         else
         {
-            sprintf(gid_str_buf, "%d", fi->gid);
+            g_snprintf(gid_str_buf, sizeof(gid_str_buf), "%d", fi->gid);
             group_name = gid_str_buf;
         }
         fi->disp_owner = g_strdup_printf("%s:%s", user_name, group_name);
@@ -430,39 +430,59 @@ void vfs_file_size_to_string_format(char* buf, uint64_t size, char* format)
 
     if (size > ((uint64_t)1) << 40)
     {
-        unit = _("T");
         if (app_settings.use_si_prefix)
+        {
+            unit = "TB";
             val = ((float)size) / ((float)1000000000000);
+        }
         else
+        {
+            unit = "TiB";
             val = ((float)size) / ((uint64_t)1 << 40);
+        }
     }
     else if (size > ((uint64_t)1) << 30)
     {
-        unit = _("G");
         if (app_settings.use_si_prefix)
+        {
+            unit = "GB";
             val = ((float)size) / ((float)1000000000);
+        }
         else
+        {
+            unit = "GiB";
             val = ((float)size) / ((uint64_t)1 << 30);
+        }
     }
     else if (size > ((uint64_t)1 << 20))
     {
-        unit = _("M");
         if (app_settings.use_si_prefix)
+        {
+            unit = "MB";
             val = ((float)size) / ((float)1000000);
+        }
         else
+        {
+            unit = "MiB";
             val = ((float)size) / ((uint64_t)1 << 20);
+        }
     }
     else if (size > ((uint64_t)1 << 10))
     {
-        unit = _("K");
         if (app_settings.use_si_prefix)
+        {
+            unit = "KB";
             val = ((float)size) / ((float)1000);
+        }
         else
+        {
+            unit = "KiB";
             val = ((float)size) / ((uint64_t)1 << 10);
+        }
     }
     else
     {
-        unit = _("B");
+        unit = "B";
         sprintf(buf, "%u %s", (unsigned int)size, unit);
         return;
     }
