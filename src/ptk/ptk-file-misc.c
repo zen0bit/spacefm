@@ -954,8 +954,8 @@ static void on_create_browse_button_press(GtkWidget* widget, MoveSet* mset)
         gtk_widget_show_all(dlg);
         gtk_window_set_position(GTK_WINDOW(dlg), GTK_WIN_POS_CENTER_ALWAYS);
         gtk_window_resize(GTK_WINDOW(dlg), width, height);
-        while (g_main_context_pending(NULL))
-            g_main_context_iteration(NULL, TRUE);
+        while (gtk_events_pending())
+            gtk_main_iteration();
         gtk_window_set_position(GTK_WINDOW(dlg), GTK_WIN_POS_CENTER);
     }
 
@@ -1030,8 +1030,8 @@ static void on_browse_mode_toggled(GtkMenuItem* item, GtkWidget* dlg)
                 // under some circumstances, changing the action changes the size
                 gtk_window_set_position(GTK_WINDOW(dlg), GTK_WIN_POS_CENTER_ALWAYS);
                 gtk_window_resize(GTK_WINDOW(dlg), width, height);
-                while (g_main_context_pending(NULL))
-                    g_main_context_iteration(NULL, TRUE);
+                while (gtk_events_pending())
+                    gtk_main_iteration();
                 gtk_window_set_position(GTK_WINDOW(dlg), GTK_WIN_POS_CENTER);
             }
             return;
@@ -1121,8 +1121,8 @@ static void on_browse_button_press(GtkWidget* widget, MoveSet* mset)
         gtk_widget_show_all(dlg);
         gtk_window_set_position(GTK_WINDOW(dlg), GTK_WIN_POS_CENTER_ALWAYS);
         gtk_window_resize(GTK_WINDOW(dlg), width, height);
-        while (g_main_context_pending(NULL))
-            g_main_context_iteration(NULL, TRUE);
+        while (gtk_events_pending())
+            gtk_main_iteration();
         gtk_window_set_position(GTK_WINDOW(dlg), GTK_WIN_POS_CENTER);
     }
 
