@@ -1489,7 +1489,7 @@ static void run_command(CustomElement* el, GList* argslist, char* xvalue)
         if (icmd == -1)
         {
             // external command
-            char* argv[g_list_length(args) + 1];
+            char* argv[16384];
             int a = 0;
             while (args && strcmp((char*)args->data, "--"))
             {

@@ -3297,7 +3297,7 @@ char* vfs_volume_get_mount_options(VFSVolume* vol, char* options)
     bool trailing = FALSE;
     int j = -1;
     int i;
-    char news[strlen(options) + 1];
+    char news[16384];
     for (i = 0; i < strlen(options); i++)
     {
         if (leading && (options[i] == ' ' || options[i] == ','))
@@ -3332,7 +3332,7 @@ char* vfs_volume_get_mount_options(VFSVolume* vol, char* options)
     // nosuid,sync+vfat,utf+vfat,nosuid-ext4
     char* opts = g_strdup_printf(",%s,", news);
     const char* fstype = vfs_volume_get_fstype(vol);
-    char newo[strlen(opts) + 1];
+    char newo[16384];
     newo[0] = ',';
     newo[1] = '\0';
     char* newoptr = newo + 1;

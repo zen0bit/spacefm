@@ -334,11 +334,11 @@ void vfs_thumbnail_loader_cancel_all_requests(VFSDir* dir, bool is_big)
 static GdkPixbuf* _vfs_thumbnail_load(const char* file_path, const char* uri, int size,
                                       time_t mtime)
 {
-    int md5_len = 32;
-    char file_name[40];
+    const int md5_len = 32;
+    const char file_name[40];
     char* thumbnail_file;
-    char mtime_str[md5_len];
-    const char* thumb_mtime;
+    const char mtime_str[32];
+    char* thumb_mtime;
     int w;
     int h;
     struct stat statbuf;
@@ -379,7 +379,7 @@ static GdkPixbuf* _vfs_thumbnail_load(const char* file_path, const char* uri, in
     g_checksum_update(cs, uri, strlen(uri));
     memcpy(file_name, g_checksum_get_string(cs), md5_len);
     g_checksum_free(cs);
-    strncpy((file_name + md5_len), ".png", sizeof(file_name + md5_len));
+    strncpy((file_name + md5_len), ".png", sizeof(uint16_t));
 
     thumbnail_file = g_build_filename(g_get_user_cache_dir(), "thumbnails/normal", file_name, NULL);
 
