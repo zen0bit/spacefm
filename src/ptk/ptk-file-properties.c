@@ -152,16 +152,16 @@ static void* calc_size(void* user_data)
 static bool on_update_labels(FilePropertiesDialogData* data)
 {
     char buf[64];
-    char buf2[32];
+    char buf2[64];
 
     gdk_threads_enter();
 
     vfs_file_size_to_string_format(buf2, data->total_size, "%.1f %s");
-    sprintf(buf, _("%s ( %lu bytes )"), buf2, (uint64_t)data->total_size);
+    g_snprintf(buf, sizeof(buf), _("%s ( %lu bytes )"), buf2, (uint64_t)data->total_size);
     gtk_label_set_text(data->total_size_label, buf);
 
     vfs_file_size_to_string_format(buf2, data->size_on_disk, "%.1f %s");
-    sprintf(buf, _("%s ( %lu bytes )"), buf2, (uint64_t)data->size_on_disk);
+    g_snprintf(buf, sizeof(buf), _("%s ( %lu bytes )"), buf2, (uint64_t)data->size_on_disk);
     gtk_label_set_text(data->size_on_disk_label, buf);
 
     char* count;
@@ -354,7 +354,7 @@ GtkWidget* file_properties_dlg_new(GtkWindow* parent, const char* dir_path, GLis
     GtkWidget* open_with = (GtkWidget*)gtk_builder_get_object(builder, "open_with");
 
     char buf[64];
-    char buf2[32];
+    char buf2[64];
     const char* time_format = g_strdup("%Y-%m-%d %H:%M:%S");
 
     char* disp_path;
@@ -559,17 +559,19 @@ GtkWidget* file_properties_dlg_new(GtkWindow* parent, const char* dir_path, GLis
                 caculate total file size */
             need_calc_size = FALSE;
 
-            sprintf(buf,
-                    _("%s  ( %lu bytes )"),
-                    vfs_file_info_get_disp_size(file),
-                    (uint64_t)vfs_file_info_get_size(file));
+            g_snprintf(buf,
+                       sizeof(buf),
+                       _("%s  ( %lu bytes )"),
+                       vfs_file_info_get_disp_size(file),
+                       (uint64_t)vfs_file_info_get_size(file));
             gtk_label_set_text(data->total_size_label, buf);
 
             vfs_file_size_to_string_format(buf2, vfs_file_info_get_blocks(file) * 512, "%.1f %s");
-            sprintf(buf,
-                    _("%s  ( %lu bytes )"),
-                    buf2,
-                    (uint64_t)vfs_file_info_get_blocks(file) * 512);
+            g_snprintf(buf,
+                       sizeof(buf),
+                       _("%s  ( %lu bytes )"),
+                       buf2,
+                       (uint64_t)vfs_file_info_get_blocks(file) * 512);
             gtk_label_set_text(data->size_on_disk_label, buf);
 
             gtk_label_set_text(data->count_label, _("1 file"));

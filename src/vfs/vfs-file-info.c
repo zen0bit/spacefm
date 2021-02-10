@@ -483,16 +483,16 @@ void vfs_file_size_to_string_format(char* buf, uint64_t size, char* format)
     else
     {
         unit = "B";
-        sprintf(buf, "%u %s", (unsigned int)size, unit);
+        g_snprintf(buf, 64, "%u %s", (unsigned int)size, unit);
         return;
     }
 
     if (format)
-        sprintf(buf, format, val, unit);
+        g_snprintf(buf, 64, format, val, unit);
     else if (val < 10)
-        sprintf(buf, "%.1f %s", val, unit);
+        g_snprintf(buf, 64, "%.1f %s", val, unit);
     else
-        sprintf(buf, "%.0f %s", val, unit);
+        g_snprintf(buf, 64, "%.0f %s", val, unit);
 }
 
 bool vfs_file_info_is_dir(VFSFileInfo* fi)
