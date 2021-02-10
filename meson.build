@@ -38,6 +38,8 @@ ldflags_opt = []
 cflags_opt = []
 
 cflags_opt += [
+  [ '-Wimplicit-fallthrough' ],
+  [ '-Wvla' ],
   [ '-fomit-frame-pointer' ],
   [ '-fno-common' ],
 ]

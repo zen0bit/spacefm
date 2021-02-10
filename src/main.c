@@ -248,6 +248,7 @@ static bool on_socket_event(GIOChannel* ioc, GIOCondition cond, void* data)
                     return TRUE;
                 case CMD_FIND_FILES:
                     find_files = TRUE;
+                    // fallthrough
                 case CMD_SOCKET_CMD:
                     g_string_free(args, TRUE);
                     return TRUE;

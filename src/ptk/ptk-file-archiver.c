@@ -762,6 +762,7 @@ void ptk_file_archiver_create(PtkFileBrowser* file_browser, GList* files, const 
                 return;
             case GTK_RESPONSE_HELP:
                 xset_show_help(dlg, NULL, "#handlers-arc");
+                // fallthrough
             default:
                 // Destroying dialog
                 gtk_widget_destroy(dlg);
@@ -1193,6 +1194,7 @@ void ptk_file_archiver_extract(PtkFileBrowser* file_browser, GList* files, const
                     return;
                 case GTK_RESPONSE_HELP:
                     xset_show_help(dlg, NULL, "#handlers-arc");
+                    // fallthrough
                 default:
                     // Destroying dialog
                     gtk_widget_destroy(dlg);
