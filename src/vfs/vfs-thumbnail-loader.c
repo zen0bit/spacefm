@@ -30,6 +30,10 @@
 
 #include <libffmpegthumbnailer/videothumbnailerc.h>
 
+#ifdef USE_XXHASH
+#include "xxhash.h"
+#endif
+
 typedef struct VFSThumbnailLoader
 {
     VFSDir* dir;
@@ -334,10 +338,10 @@ void vfs_thumbnail_loader_cancel_all_requests(VFSDir* dir, bool is_big)
 static GdkPixbuf* _vfs_thumbnail_load(const char* file_path, const char* uri, int size,
                                       time_t mtime)
 {
-    const int md5_len = 32;
-    const char file_name[40];
+    char file_name[64];
+    char mtime_str[64];
+
     char* thumbnail_file;
-    const char mtime_str[32];
     char* thumb_mtime;
     int w;
     int h;
@@ -375,13 +379,19 @@ static GdkPixbuf* _vfs_thumbnail_load(const char* file_path, const char* uri, in
         }
     }
 
+#ifdef USE_XXHASH
+    XXH64_hash_t hash = XXH3_64bits(uri, strlen(uri));
+    g_snprintf(file_name, 64, "%lu.png", hash);
+#else
     GChecksum* cs = g_checksum_new(G_CHECKSUM_MD5);
     g_checksum_update(cs, uri, strlen(uri));
-    memcpy(file_name, g_checksum_get_string(cs), md5_len);
+    g_snprintf(file_name, 64, "%s.png", g_checksum_get_string(cs));
     g_checksum_free(cs);
-    strncpy((file_name + md5_len), ".png", sizeof(uint16_t));
+#endif
 
     thumbnail_file = g_build_filename(g_get_user_cache_dir(), "thumbnails/normal", file_name, NULL);
+
+    // printf("%s\n", thumbnail_file);
 
     if (G_UNLIKELY(mtime == 0))
     {

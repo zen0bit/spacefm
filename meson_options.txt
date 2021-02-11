@@ -35,6 +35,12 @@ option(
   value : true,
   description : 'build with mmap support',
 )
+option(
+  'xxhash',
+  type : 'boolean',
+  value : true,
+  description : 'ignore freedesktop standards and use xxhash for thumbnail hasher',
+)
 
 #other
 #TODO bashpath, etc
