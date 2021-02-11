@@ -1496,9 +1496,9 @@ static void ptk_file_task_update(PtkFileTask* ptask)
         // count
         file_count = g_strdup_printf("%d", task->current_item);
         // size
-        vfs_file_size_to_string_format(buf1, task->progress, NULL);
+        vfs_file_size_to_string_format(buf1, task->progress, TRUE);
         if (task->total_size)
-            vfs_file_size_to_string_format(buf2, task->total_size, NULL);
+            vfs_file_size_to_string_format(buf2, task->total_size, TRUE);
         else
             g_snprintf(buf2, sizeof(buf2), "??"); // total_size calculation timed out
         size_tally = g_strdup_printf("%s / %s", buf1, buf2);
@@ -1517,7 +1517,7 @@ static void ptk_file_task_update(PtkFileTask* ptask)
         }
         else
         {
-            vfs_file_size_to_string_format(buf1, cur_speed, NULL);
+            vfs_file_size_to_string_format(buf1, cur_speed, TRUE);
             speed1 = g_strdup_printf("%s/s", buf1);
         }
         // avg speed
@@ -1526,7 +1526,7 @@ static void ptk_file_task_update(PtkFileTask* ptask)
             avg_speed = task->progress / timer_elapsed;
         else
             avg_speed = 0;
-        vfs_file_size_to_string_format(buf2, avg_speed, NULL);
+        vfs_file_size_to_string_format(buf2, avg_speed, TRUE);
         speed2 = g_strdup_printf("%s/s", buf2);
         // remain cur
         off_t remain;
@@ -2019,7 +2019,7 @@ static void query_overwrite(PtkFileTask* ptask)
             }
             else
             {
-                vfs_file_size_to_string_format(buf, src_stat.st_size, "%.1f %s");
+                vfs_file_size_to_string_format(buf, src_stat.st_size, TRUE);
                 src_size = g_strdup_printf(_("%s\t( %lu bytes )"), buf, src_stat.st_size);
                 if (src_stat.st_size > dest_stat.st_size)
                     src_rel_size = _("larger");
@@ -2040,7 +2040,7 @@ static void query_overwrite(PtkFileTask* ptask)
                 else
                     src_rel_time = _("older");
             }
-            vfs_file_size_to_string_format(buf, dest_stat.st_size, "%.1f %s");
+            vfs_file_size_to_string_format(buf, dest_stat.st_size, TRUE);
             dest_size = g_strdup_printf(_("%s\t( %lu bytes )"), buf, dest_stat.st_size);
             strftime(buf, sizeof(buf), app_settings.date_format, localtime(&dest_stat.st_mtime));
             dest_time = g_strdup(buf);

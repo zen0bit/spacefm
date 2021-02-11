@@ -197,7 +197,7 @@ const char* vfs_file_info_get_disp_size(VFSFileInfo* fi)
     if (G_UNLIKELY(!fi->disp_size))
     {
         char buf[64];
-        vfs_file_size_to_string_format(buf, fi->size, "%.1f %s");
+        vfs_file_size_to_string_format(buf, fi->size, TRUE);
         fi->disp_size = g_strdup(buf);
     }
     return fi->disp_size;
@@ -423,8 +423,8 @@ const char* vfs_file_info_get_disp_perm(VFSFileInfo* fi)
     return fi->disp_perm;
 }
 
-void vfs_file_size_to_string_format(char* buf, uint64_t size, char* format)
-{ // if format == NULL uses automatic format based on size
+void vfs_file_size_to_string_format(char* buf, uint64_t size, bool decimal)
+{
     const char* unit;
     float val;
 
@@ -487,9 +487,7 @@ void vfs_file_size_to_string_format(char* buf, uint64_t size, char* format)
         return;
     }
 
-    if (format)
-        g_snprintf(buf, 64, format, val, unit);
-    else if (val < 10)
+    if (decimal)
         g_snprintf(buf, 64, "%.1f %s", val, unit);
     else
         g_snprintf(buf, 64, "%.0f %s", val, unit);

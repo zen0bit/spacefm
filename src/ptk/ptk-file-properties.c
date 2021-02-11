@@ -156,11 +156,11 @@ static bool on_update_labels(FilePropertiesDialogData* data)
 
     gdk_threads_enter();
 
-    vfs_file_size_to_string_format(buf2, data->total_size, "%.1f %s");
+    vfs_file_size_to_string_format(buf2, data->total_size, TRUE);
     g_snprintf(buf, sizeof(buf), _("%s ( %lu bytes )"), buf2, (uint64_t)data->total_size);
     gtk_label_set_text(data->total_size_label, buf);
 
-    vfs_file_size_to_string_format(buf2, data->size_on_disk, "%.1f %s");
+    vfs_file_size_to_string_format(buf2, data->size_on_disk, TRUE);
     g_snprintf(buf, sizeof(buf), _("%s ( %lu bytes )"), buf2, (uint64_t)data->size_on_disk);
     gtk_label_set_text(data->size_on_disk_label, buf);
 
@@ -566,7 +566,7 @@ GtkWidget* file_properties_dlg_new(GtkWindow* parent, const char* dir_path, GLis
                        (uint64_t)vfs_file_info_get_size(file));
             gtk_label_set_text(data->total_size_label, buf);
 
-            vfs_file_size_to_string_format(buf2, vfs_file_info_get_blocks(file) * 512, "%.1f %s");
+            vfs_file_size_to_string_format(buf2, vfs_file_info_get_blocks(file) * 512, TRUE);
             g_snprintf(buf,
                        sizeof(buf),
                        _("%s  ( %lu bytes )"),

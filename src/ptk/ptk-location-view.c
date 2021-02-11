@@ -2186,7 +2186,7 @@ static void on_prop(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2)
     {
         if (vol->is_mountable)
         {
-            vfs_file_size_to_string_format(size_str, vol->size, "%.1f %s");
+            vfs_file_size_to_string_format(size_str, vol->size, TRUE);
             df = g_strdup_printf("echo %s ; echo \"%s      %s  %s  ( not mounted )\" ; echo ; ",
                                  "USAGE",
                                  vol->device_file,

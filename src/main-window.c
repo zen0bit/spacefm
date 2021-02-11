@@ -3424,9 +3424,9 @@ static void fm_main_window_update_status_bar(FMMainWindow* main_window,
     {
         char total_size_str[64];
         // calc free space
-        vfs_file_size_to_string_format(size_str, fs_stat.f_bsize * fs_stat.f_bavail, NULL);
+        vfs_file_size_to_string_format(size_str, fs_stat.f_bsize * fs_stat.f_bavail, TRUE);
         // calc total space
-        vfs_file_size_to_string_format(total_size_str, fs_stat.f_frsize * fs_stat.f_blocks, NULL);
+        vfs_file_size_to_string_format(total_size_str, fs_stat.f_frsize * fs_stat.f_blocks, TRUE);
         g_snprintf(free_space,
                    G_N_ELEMENTS(free_space),
                    _(" %s free / %s   "),
@@ -3501,7 +3501,7 @@ static void fm_main_window_update_status_bar(FMMainWindow* main_window,
                                 if (stat(target_path, &results) == 0)
                                 {
                                     char buf[64];
-                                    vfs_file_size_to_string_format(buf, results.st_size, "%.1f %s");
+                                    vfs_file_size_to_string_format(buf, results.st_size, TRUE);
                                     char* lsize = g_strdup(buf);
                                     link_info =
                                         g_strdup_printf(_("   Link → %s (%s)"), target, lsize);
@@ -3528,7 +3528,7 @@ static void fm_main_window_update_status_bar(FMMainWindow* main_window,
         if (!link_info)
             link_info = g_strdup("");
 
-        vfs_file_size_to_string_format(size_str, total_size, "%.1f %s");
+        vfs_file_size_to_string_format(size_str, total_size, TRUE);
         msg =
             g_strdup_printf("%s%d / %d (%s)%s", free_space, num_sel, num_vis, size_str, link_info);
         // msg = g_strdup_printf( ngettext( _("%s%d sel (%s)%s"),  //MOD

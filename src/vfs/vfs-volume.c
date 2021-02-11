@@ -2063,7 +2063,7 @@ void vfs_volume_set_info(VFSVolume* volume)
 
         if (volume->size > 0)
         {
-            vfs_file_size_to_string_format(size_str, volume->size, "%.0f%s");
+            vfs_file_size_to_string_format(size_str, volume->size, FALSE);
             disp_size = g_strdup_printf("%s", size_str);
         }
         else
@@ -2085,7 +2085,7 @@ void vfs_volume_set_info(VFSVolume* volume)
             disp_label = g_strdup("");
         if (volume->size > 0)
         {
-            vfs_file_size_to_string_format(size_str, volume->size, "%.0f%s");
+            vfs_file_size_to_string_format(size_str, volume->size, FALSE);
             disp_size = g_strdup_printf("%s", size_str);
         }
         else

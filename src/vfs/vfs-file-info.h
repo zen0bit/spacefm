@@ -110,7 +110,7 @@ GdkPixbuf* vfs_file_info_get_small_icon(VFSFileInfo* fi);
 GdkPixbuf* vfs_file_info_get_big_thumbnail(VFSFileInfo* fi);
 GdkPixbuf* vfs_file_info_get_small_thumbnail(VFSFileInfo* fi);
 
-void vfs_file_size_to_string_format(char* buf, uint64_t size, char* format);
+void vfs_file_size_to_string_format(char* buf, uint64_t size, bool decimal);
 
 bool vfs_file_info_is_dir(VFSFileInfo* fi);
 
