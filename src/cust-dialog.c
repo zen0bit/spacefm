@@ -240,6 +240,7 @@ static char* get_column_value(GtkTreeModel* model, GtkTreeIter* iter, int col_in
             break;
         case G_TYPE_STRING:
             gtk_tree_model_get(model, iter, col_index, &str, -1);
+            break;
         default:
             break;
     }
@@ -452,6 +453,7 @@ static void fill_tree_view(CustomElement* el, GList* arglist)
                     renderer = gtk_cell_renderer_progress_new();
                     gtk_tree_view_column_pack_start(col, renderer, TRUE);
                     gtk_tree_view_column_set_attributes(col, renderer, "value", colcount - 1, NULL);
+                    break;
                 default:
                     break;
             }
@@ -2040,7 +2042,7 @@ static void write_source(GtkWidget* dlg, CustomElement* el_pressed, FILE* out, b
                 break;
             case CDLG_BUTTON:
                 button_count++;
-                // fallthrough
+                __attribute__((fallthrough));
             case CDLG_FREE_BUTTON:
             case CDLG_TIMEOUT:
                 if (el == el_pressed)

@@ -6625,7 +6625,6 @@ static bool xset_design_cb(GtkWidget* item, GdkEventButton* event, XSet* set)
     switch (event->button)
     {
         case 1:
-            // fallthrough
         case 3:
             switch (keymod)
             {
@@ -6759,7 +6758,6 @@ bool xset_menu_keypress(GtkWidget* widget, GdkEventKey* event, void* user_data)
                     job = XSET_JOB_HELP;
                     break;
                 case GDK_KEY_F2:
-                    // fallthrough
                 case GDK_KEY_Menu:
                     xset_design_show_menu(widget, set, NULL, 0, event->time);
                     return TRUE;
@@ -6902,7 +6900,6 @@ void xset_menu_cb(GtkWidget* item, XSet* set)
                     ptk_file_browser_update_toolbar_widgets(set->browser, set, -1);
                 break;
             case XSET_MENU_STRING:
-                // fallthrough
             case XSET_MENU_CONFIRM:
             {
                 char* msg;
@@ -8064,7 +8061,6 @@ static bool on_tool_icon_button_press(GtkWidget* widget, GdkEventButton* event, 
     switch (event->button)
     {
         case 1:
-            // fallthrough
         case 3:
             // left or right click
             switch (keymod)

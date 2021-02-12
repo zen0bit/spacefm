@@ -1832,7 +1832,6 @@ static bool app_menu_keypress(GtkWidget* menu, GdkEventKey* event, PtkFileMenu* 
                 return TRUE;
                 break;
             case GDK_KEY_F2:
-                // fallthrough
             case GDK_KEY_Menu:
                 if (desktop_file)
                     show_app_menu(menu, item, data, 0, event->time);
@@ -2164,7 +2163,6 @@ static bool on_app_button_press(GtkWidget* item, GdkEventButton* event, PtkFileM
     switch (event->button)
     {
         case 1:
-            // fallthrough
         case 3:
             // left or right click
             if (keymod == 0)

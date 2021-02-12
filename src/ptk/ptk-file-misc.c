@@ -223,7 +223,6 @@ static bool on_move_keypress(GtkWidget* widget, GdkEventKey* event, MoveSet* mse
         switch (event->keyval)
         {
             case GDK_KEY_Return:
-                // fallthrough
             case GDK_KEY_KP_Enter:
                 if (gtk_widget_get_sensitive(GTK_WIDGET(mset->next)))
                     gtk_dialog_response(GTK_DIALOG(mset->dlg), GTK_RESPONSE_OK);
@@ -248,7 +247,6 @@ static bool on_move_entry_keypress(GtkWidget* widget, GdkEventKey* event, MoveSe
         switch (event->keyval)
         {
             case GDK_KEY_Return:
-                // fallthrough
             case GDK_KEY_KP_Enter:
                 if (gtk_widget_get_sensitive(GTK_WIDGET(mset->next)))
                     gtk_dialog_response(GTK_DIALOG(mset->dlg), GTK_RESPONSE_OK);

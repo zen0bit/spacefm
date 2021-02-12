@@ -5363,7 +5363,6 @@ static bool on_task_button_press_event(GtkWidget* view, GdkEventButton* event,
     switch (event->button)
     {
         case 1:
-            // fallthrough
         case 2:
             // left or middle click
             // get selected task

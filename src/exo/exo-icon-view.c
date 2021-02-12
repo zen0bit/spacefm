@@ -1987,6 +1987,7 @@ static bool exo_icon_view_expose_event(GtkWidget* widget, GdkEventExpose* event)
                                 2,
                                 dest_item->area.height);
 
+                break;
             case EXO_ICON_VIEW_NO_DROP:
                 break;
 

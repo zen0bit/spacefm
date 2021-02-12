@@ -704,12 +704,10 @@ void ptk_file_browser_add_toolbar_widget(void* set_ptr, GtkWidget* widget)
             x = 0;
             break;
         case XSET_TOOL_BACK:
-            // fallthrough
         case XSET_TOOL_BACK_MENU:
             x = 1;
             break;
         case XSET_TOOL_FWD:
-            // fallthrough
         case XSET_TOOL_FWD_MENU:
             x = 2;
             break;
@@ -794,13 +792,11 @@ void ptk_file_browser_update_toolbar_widgets(PtkFileBrowser* file_browser, void*
             b = !cwd || (cwd && strcmp(cwd, "/"));
             break;
         case XSET_TOOL_BACK:
-            // fallthrough
         case XSET_TOOL_BACK_MENU:
             x = 1;
             b = file_browser->curHistory && file_browser->curHistory->prev;
             break;
         case XSET_TOOL_FWD:
-            // fallthrough
         case XSET_TOOL_FWD_MENU:
             x = 2;
             b = file_browser->curHistory && file_browser->curHistory->next;
@@ -2176,7 +2172,6 @@ bool ptk_file_browser_chdir(PtkFileBrowser* file_browser, const char* folder_pat
     switch (file_browser->view_mode)
     {
         case PTK_FB_ICON_VIEW:
-            // fallthrough
         case PTK_FB_COMPACT_VIEW:
             exo_icon_view_set_model(EXO_ICON_VIEW(folder_view), NULL);
             break;
@@ -2347,7 +2342,6 @@ static void on_file_deleted(VFSDir* dir, VFSFileInfo* file, PtkFileBrowser* file
         switch (file_browser->view_mode)
         {
             case PTK_FB_ICON_VIEW:
-                // fallthrough
             case PTK_FB_COMPACT_VIEW:
                 sel_files = folder_view_get_selected_items(file_browser, &model);
                 if (sel_files && sel_files->next)
@@ -2408,7 +2402,6 @@ static void on_file_deleted(VFSDir* dir, VFSFileInfo* file, PtkFileBrowser* file
                         switch (file_browser->view_mode)
                         {
                             case PTK_FB_ICON_VIEW:
-                                // fallthrough
                             case PTK_FB_COMPACT_VIEW:
                                 exo_icon_view_select_path(EXO_ICON_VIEW(file_browser->folder_view),
                                                           tree_path);
@@ -2512,12 +2505,12 @@ static void ptk_file_browser_update_model(PtkFileBrowser* file_browser)
     switch (file_browser->view_mode)
     {
         case PTK_FB_ICON_VIEW:
-            // fallthrough
         case PTK_FB_COMPACT_VIEW:
             exo_icon_view_set_model(EXO_ICON_VIEW(file_browser->folder_view), GTK_TREE_MODEL(list));
             break;
         case PTK_FB_LIST_VIEW:
             gtk_tree_view_set_model(GTK_TREE_VIEW(file_browser->folder_view), GTK_TREE_MODEL(list));
+            break;
         default:
             break;
     }
@@ -2686,7 +2679,6 @@ void ptk_file_browser_select_all(GtkWidget* item, PtkFileBrowser* file_browser)
     switch (file_browser->view_mode)
     {
         case PTK_FB_ICON_VIEW:
-            // fallthrough
         case PTK_FB_COMPACT_VIEW:
             exo_icon_view_select_all(EXO_ICON_VIEW(file_browser->folder_view));
             break;
@@ -2706,7 +2698,6 @@ void ptk_file_browser_unselect_all(GtkWidget* item, PtkFileBrowser* file_browser
     switch (file_browser->view_mode)
     {
         case PTK_FB_ICON_VIEW:
-            // fallthrough
         case PTK_FB_COMPACT_VIEW:
             exo_icon_view_unselect_all(EXO_ICON_VIEW(file_browser->folder_view));
             break;
@@ -2727,7 +2718,6 @@ static bool invert_selection(GtkTreeModel* model, GtkTreePath* path, GtkTreeIter
     switch (file_browser->view_mode)
     {
         case PTK_FB_ICON_VIEW:
-            // fallthrough
         case PTK_FB_COMPACT_VIEW:
             if (exo_icon_view_path_is_selected(EXO_ICON_VIEW(file_browser->folder_view), path))
                 exo_icon_view_unselect_path(EXO_ICON_VIEW(file_browser->folder_view), path);
@@ -2755,7 +2745,6 @@ void ptk_file_browser_invert_selection(GtkWidget* item, PtkFileBrowser* file_bro
     switch (file_browser->view_mode)
     {
         case PTK_FB_ICON_VIEW:
-            // fallthrough
         case PTK_FB_COMPACT_VIEW:
             model = exo_icon_view_get_model(EXO_ICON_VIEW(file_browser->folder_view));
             g_signal_handlers_block_matched(file_browser->folder_view,
@@ -2849,7 +2838,6 @@ void ptk_file_browser_select_pattern(GtkWidget* item, PtkFileBrowser* file_brows
     switch (file_browser->view_mode)
     {
         case PTK_FB_ICON_VIEW:
-            // fallthrough
         case PTK_FB_COMPACT_VIEW:
             model = exo_icon_view_get_model(EXO_ICON_VIEW(file_browser->folder_view));
             g_signal_handlers_block_matched(file_browser->folder_view,
@@ -2903,7 +2891,6 @@ void ptk_file_browser_select_pattern(GtkWidget* item, PtkFileBrowser* file_brows
             switch (file_browser->view_mode)
             {
                 case PTK_FB_ICON_VIEW:
-                    // fallthrough
                 case PTK_FB_COMPACT_VIEW:
                     // select
                     if (exo_icon_view_path_is_selected(EXO_ICON_VIEW(file_browser->folder_view),
@@ -2968,7 +2955,6 @@ void ptk_file_browser_select_pattern(GtkWidget* item, PtkFileBrowser* file_brows
     switch (file_browser->view_mode)
     {
         case PTK_FB_ICON_VIEW:
-            // fallthrough
         case PTK_FB_COMPACT_VIEW:
             g_signal_handlers_unblock_matched(file_browser->folder_view,
                                               G_SIGNAL_MATCH_FUNC,
@@ -3017,7 +3003,6 @@ void ptk_file_browser_select_file_list(PtkFileBrowser* file_browser, char** file
     switch (file_browser->view_mode)
     {
         case PTK_FB_ICON_VIEW:
-            // fallthrough
         case PTK_FB_COMPACT_VIEW:
             model = exo_icon_view_get_model(EXO_ICON_VIEW(file_browser->folder_view));
             g_signal_handlers_block_matched(file_browser->folder_view,
@@ -3079,7 +3064,6 @@ void ptk_file_browser_select_file_list(PtkFileBrowser* file_browser, char** file
             switch (file_browser->view_mode)
             {
                 case PTK_FB_ICON_VIEW:
-                    // fallthrough
                 case PTK_FB_COMPACT_VIEW:
                     // select
                     if (exo_icon_view_path_is_selected(EXO_ICON_VIEW(file_browser->folder_view),
@@ -3144,7 +3128,6 @@ void ptk_file_browser_select_file_list(PtkFileBrowser* file_browser, char** file
     switch (file_browser->view_mode)
     {
         case PTK_FB_ICON_VIEW:
-            // fallthrough
         case PTK_FB_COMPACT_VIEW:
             g_signal_handlers_unblock_matched(file_browser->folder_view,
                                               G_SIGNAL_MATCH_FUNC,
@@ -3210,7 +3193,6 @@ void ptk_file_browser_seek_path(PtkFileBrowser* file_browser, const char* seek_d
     switch (file_browser->view_mode)
     {
         case PTK_FB_ICON_VIEW:
-            // fallthrough
         case PTK_FB_COMPACT_VIEW:
             model = exo_icon_view_get_model(EXO_ICON_VIEW(file_browser->folder_view));
             g_signal_handlers_block_matched(file_browser->folder_view,
@@ -3292,7 +3274,6 @@ void ptk_file_browser_seek_path(PtkFileBrowser* file_browser, const char* seek_d
     switch (file_browser->view_mode)
     {
         case PTK_FB_ICON_VIEW:
-            // fallthrough
         case PTK_FB_COMPACT_VIEW:
             // select
             exo_icon_view_select_path(EXO_ICON_VIEW(file_browser->folder_view), path);
@@ -3328,7 +3309,6 @@ _restore_sig:
     switch (file_browser->view_mode)
     {
         case PTK_FB_ICON_VIEW:
-            // fallthrough
         case PTK_FB_COMPACT_VIEW:
             g_signal_handlers_unblock_matched(file_browser->folder_view,
                                               G_SIGNAL_MATCH_FUNC,
@@ -3526,7 +3506,6 @@ static bool on_folder_view_button_press_event(GtkWidget* widget, GdkEventButton*
         switch (file_browser->view_mode)
         {
             case PTK_FB_ICON_VIEW:
-                // fallthrough
             case PTK_FB_COMPACT_VIEW:
                 tree_path =
                     exo_icon_view_get_path_at_pos(EXO_ICON_VIEW(widget), event->x, event->y);
@@ -3598,7 +3577,6 @@ static bool on_folder_view_button_press_event(GtkWidget* widget, GdkEventButton*
             switch (file_browser->view_mode)
             {
                 case PTK_FB_ICON_VIEW:
-                    // fallthrough
                 case PTK_FB_COMPACT_VIEW:
                     if (tree_path &&
                         !exo_icon_view_path_is_selected(EXO_ICON_VIEW(widget), tree_path))
@@ -3691,7 +3669,6 @@ static bool on_folder_view_button_release_event(GtkWidget* widget, GdkEventButto
     switch (file_browser->view_mode)
     {
         case PTK_FB_ICON_VIEW:
-            // fallthrough
         case PTK_FB_COMPACT_VIEW:
             if (exo_icon_view_is_rubber_banding_active(EXO_ICON_VIEW(widget)))
                 return FALSE;
@@ -4345,7 +4322,6 @@ void ptk_file_browser_refresh(GtkWidget* item, PtkFileBrowser* file_browser)
     switch (file_browser->view_mode)
     {
         case PTK_FB_ICON_VIEW:
-            // fallthrough
         case PTK_FB_COMPACT_VIEW:
             exo_icon_view_get_cursor(EXO_ICON_VIEW(file_browser->folder_view), &tree_path, NULL);
             model = exo_icon_view_get_model(EXO_ICON_VIEW(file_browser->folder_view));
@@ -4438,7 +4414,6 @@ GList* folder_view_get_selected_items(PtkFileBrowser* file_browser, GtkTreeModel
     switch (file_browser->view_mode)
     {
         case PTK_FB_ICON_VIEW:
-            // fallthrough
         case PTK_FB_COMPACT_VIEW:
             *model = exo_icon_view_get_model(EXO_ICON_VIEW(file_browser->folder_view));
             return exo_icon_view_get_selected_items(EXO_ICON_VIEW(file_browser->folder_view));
@@ -4465,7 +4440,6 @@ static char* folder_view_get_drop_dir(PtkFileBrowser* file_browser, int x, int y
     switch (file_browser->view_mode)
     {
         case PTK_FB_ICON_VIEW:
-            // fallthrough
         case PTK_FB_COMPACT_VIEW:
             exo_icon_view_widget_to_icon_coords(EXO_ICON_VIEW(file_browser->folder_view),
                                                 x,
@@ -4765,7 +4739,6 @@ static GtkTreePath* folder_view_get_tree_path_at_pos(PtkFileBrowser* file_browse
     switch (file_browser->view_mode)
     {
         case PTK_FB_ICON_VIEW:
-            // fallthrough
         case PTK_FB_COMPACT_VIEW:
             tree_path =
                 exo_icon_view_get_path_at_pos(EXO_ICON_VIEW(file_browser->folder_view), x, y);
@@ -4862,7 +4835,6 @@ static bool on_folder_view_drag_motion(GtkWidget* widget, GdkDragContext* drag_c
     switch (file_browser->view_mode)
     {
         case PTK_FB_ICON_VIEW:
-            // fallthrough
         case PTK_FB_COMPACT_VIEW:
             // store x and y because exo_icon_view has no get_drag_dest_row
             file_browser->drag_x = x;
@@ -4911,7 +4883,6 @@ static bool on_folder_view_drag_motion(GtkWidget* widget, GdkDragContext* drag_c
     switch (file_browser->view_mode)
     {
         case PTK_FB_ICON_VIEW:
-            // fallthrough
         case PTK_FB_COMPACT_VIEW:
             exo_icon_view_set_drag_dest_item(EXO_ICON_VIEW(widget),
                                              tree_path,
@@ -5018,7 +4989,6 @@ static void on_folder_view_drag_end(GtkWidget* widget, GdkDragContext* drag_cont
     switch (file_browser->view_mode)
     {
         case PTK_FB_ICON_VIEW:
-            // fallthrough
         case PTK_FB_COMPACT_VIEW:
             exo_icon_view_set_drag_dest_item(EXO_ICON_VIEW(widget), NULL, 0);
             break;
@@ -5702,7 +5672,6 @@ void ptk_file_browser_set_single_click(PtkFileBrowser* file_browser, bool single
     switch (file_browser->view_mode)
     {
         case PTK_FB_ICON_VIEW:
-            // fallthrough
         case PTK_FB_COMPACT_VIEW:
             exo_icon_view_set_single_click((ExoIconView*)file_browser->folder_view, single_click);
             break;
@@ -5724,7 +5693,6 @@ void ptk_file_browser_set_single_click_timeout(PtkFileBrowser* file_browser, uns
     switch (file_browser->view_mode)
     {
         case PTK_FB_ICON_VIEW:
-            // fallthrough
         case PTK_FB_COMPACT_VIEW:
             exo_icon_view_set_single_click_timeout((ExoIconView*)file_browser->folder_view,
                                                    timeout);

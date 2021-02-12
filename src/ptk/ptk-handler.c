@@ -2509,7 +2509,6 @@ static bool on_textview_keypress(GtkWidget* widget, GdkEventKey* event, HandlerD
     switch (event->keyval)
     {
         case GDK_KEY_Return:
-            // fallthrough
         case GDK_KEY_KP_Enter:
             if (keymod == GDK_MOD1_MASK)
             {

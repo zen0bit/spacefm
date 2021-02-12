@@ -258,7 +258,6 @@ static bool check_overwrite(VFSFileTask* task, const char* dest_file, bool* dest
                 switch (task->overwrite_mode)
                 {
                     case VFS_FILE_TASK_OVERWRITE:
-                        // fallthrough
                     case VFS_FILE_TASK_OVERWRITE_ALL:
                         *dest_exists = !lstat(dest_file, &dest_stat);
                         if (!g_strcmp0(task->current_file, task->current_dest))
@@ -1888,7 +1887,6 @@ static void* vfs_file_task_thread(VFSFileTask* task)
             switch (task->type)
             {
                 case VFS_FILE_TASK_MOVE:
-                    // fallthrough
                 case VFS_FILE_TASK_COPY:
                     exlimit = 10485760; // 10M
                     break;

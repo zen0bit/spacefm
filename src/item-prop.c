@@ -1105,7 +1105,6 @@ static void on_type_changed(GtkComboBox* box, ContextData* ctxt)
     switch (job)
     {
         case ITEM_TYPE_BOOKMARK:
-            // fallthrough
         case ITEM_TYPE_APP:
             // Bookmark or App
             gtk_widget_show(ctxt->target_vbox);
@@ -2468,7 +2467,6 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
         switch (x)
         {
             case XSET_CMD_LINE:
-                // fallthrough
             case XSET_CMD_SCRIPT:
                 item_type = ITEM_TYPE_COMMAND;
                 break;
