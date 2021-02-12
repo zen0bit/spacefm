@@ -7772,12 +7772,18 @@ static bool run_event(FMMainWindow* main_window, PtkFileBrowser* file_browser, X
             cmd = replace_string(str, "%f", focus, FALSE);
             g_free(str);
             const char* change;
-            if (state == VFS_VOLUME_ADDED)
-                change = g_strdup("added");
-            else if (state == VFS_VOLUME_REMOVED)
-                change = g_strdup("removed");
-            else
-                change = g_strdup("changed");
+            switch (state)
+            {
+                case VFS_VOLUME_ADDED:
+                    change = g_strdup("added");
+                    break;
+                case VFS_VOLUME_REMOVED:
+                    change = g_strdup("removed");
+                    break;
+                default:
+                    change = g_strdup("changed");
+                    break;
+            }
             str = cmd;
             cmd = replace_string(str, "%v", change, FALSE);
             g_free(str);
