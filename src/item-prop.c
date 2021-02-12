@@ -2580,48 +2580,22 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     //    gtk_widget_hide( ctxt->show_tool );
 
     // signals
+    // clang-format off
     g_signal_connect(G_OBJECT(ctxt->opt_terminal), "toggled", G_CALLBACK(on_cmd_opt_toggled), ctxt);
     g_signal_connect(G_OBJECT(ctxt->opt_task), "toggled", G_CALLBACK(on_cmd_opt_toggled), ctxt);
-    g_signal_connect(G_OBJECT(ctxt->cmd_opt_normal),
-                     "toggled",
-                     G_CALLBACK(on_cmd_opt_toggled),
-                     ctxt);
-    g_signal_connect(G_OBJECT(ctxt->cmd_opt_checkbox),
-                     "toggled",
-                     G_CALLBACK(on_cmd_opt_toggled),
-                     ctxt);
-    g_signal_connect(G_OBJECT(ctxt->cmd_opt_confirm),
-                     "toggled",
-                     G_CALLBACK(on_cmd_opt_toggled),
-                     ctxt);
-    g_signal_connect(G_OBJECT(ctxt->cmd_opt_input),
-                     "toggled",
-                     G_CALLBACK(on_cmd_opt_toggled),
-                     ctxt);
+    g_signal_connect(G_OBJECT(ctxt->cmd_opt_normal), "toggled", G_CALLBACK(on_cmd_opt_toggled), ctxt);
+    g_signal_connect(G_OBJECT(ctxt->cmd_opt_checkbox), "toggled", G_CALLBACK(on_cmd_opt_toggled), ctxt);
+    g_signal_connect(G_OBJECT(ctxt->cmd_opt_confirm), "toggled", G_CALLBACK(on_cmd_opt_toggled), ctxt);
+    g_signal_connect(G_OBJECT(ctxt->cmd_opt_input), "toggled", G_CALLBACK(on_cmd_opt_toggled), ctxt);
 
     g_signal_connect(G_OBJECT(ctxt->cmd_opt_line), "toggled", G_CALLBACK(on_script_toggled), ctxt);
-    g_signal_connect(G_OBJECT(ctxt->cmd_opt_script),
-                     "toggled",
-                     G_CALLBACK(on_script_toggled),
-                     ctxt);
+    g_signal_connect(G_OBJECT(ctxt->cmd_opt_script), "toggled", G_CALLBACK(on_script_toggled), ctxt);
 
-    g_signal_connect(G_OBJECT(ctxt->item_target),
-                     "key-press-event",
-                     G_CALLBACK(on_target_keypress),
-                     ctxt);
+    g_signal_connect(G_OBJECT(ctxt->item_target), "key-press-event", G_CALLBACK(on_target_keypress), ctxt);
     g_signal_connect(G_OBJECT(ctxt->item_key), "clicked", G_CALLBACK(on_key_button_clicked), ctxt);
-    g_signal_connect(G_OBJECT(ctxt->icon_choose_btn),
-                     "clicked",
-                     G_CALLBACK(on_icon_choose_button_clicked),
-                     ctxt);
-    g_signal_connect(G_OBJECT(ctxt->item_choose),
-                     "clicked",
-                     G_CALLBACK(on_browse_button_clicked),
-                     ctxt);
-    g_signal_connect(G_OBJECT(ctxt->item_browse),
-                     "clicked",
-                     G_CALLBACK(on_browse_button_clicked),
-                     ctxt);
+    g_signal_connect(G_OBJECT(ctxt->icon_choose_btn), "clicked", G_CALLBACK(on_icon_choose_button_clicked), ctxt);
+    g_signal_connect(G_OBJECT(ctxt->item_choose), "clicked", G_CALLBACK(on_browse_button_clicked), ctxt);
+    g_signal_connect(G_OBJECT(ctxt->item_browse),"clicked", G_CALLBACK(on_browse_button_clicked), ctxt);
     g_signal_connect(G_OBJECT(ctxt->item_name), "activate", G_CALLBACK(on_entry_activate), ctxt);
     g_signal_connect(G_OBJECT(ctxt->item_icon), "activate", G_CALLBACK(on_entry_activate), ctxt);
 
@@ -2631,6 +2605,7 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     g_signal_connect(ctxt->notebook, "switch-page", G_CALLBACK(on_prop_notebook_switch_page), ctxt);
 
     g_signal_connect(G_OBJECT(ctxt->dlg), "key-press-event", G_CALLBACK(on_dlg_keypress), ctxt);
+    // clang-format on
 
     // run
     enable_context(ctxt);
