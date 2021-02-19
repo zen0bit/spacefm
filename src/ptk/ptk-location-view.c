@@ -2608,7 +2608,7 @@ static void show_devices_menu(GtkTreeView* view, VFSVolume* vol, PtkFileBrowser*
     g_signal_connect(popup, "selection-done", G_CALLBACK(gtk_widget_destroy), NULL);
     g_signal_connect(popup, "key-press-event", G_CALLBACK(xset_menu_keypress), NULL);
 
-    gtk_menu_popup(GTK_MENU(popup), NULL, NULL, NULL, NULL, button, time);
+    gtk_menu_popup_at_pointer(GTK_MENU(popup), NULL);
 }
 
 static bool on_button_press_event(GtkTreeView* view, GdkEventButton* evt, void* user_data)
@@ -2818,7 +2818,7 @@ static void show_dev_design_menu(GtkWidget* menu, GtkWidget* dev_item, VFSVolume
 
     // show menu
     gtk_widget_show_all(GTK_WIDGET(popup));
-    gtk_menu_popup(GTK_MENU(popup), GTK_WIDGET(menu), dev_item, NULL, NULL, button, time);
+    gtk_menu_popup_at_pointer(GTK_MENU(popup), NULL);
     gtk_widget_set_sensitive(GTK_WIDGET(menu), FALSE);
     g_signal_connect(menu, "hide", G_CALLBACK(on_dev_menu_hide), popup);
     g_signal_connect(popup, "selection-done", G_CALLBACK(gtk_widget_destroy), NULL);

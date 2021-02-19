@@ -2149,13 +2149,7 @@ void ptk_file_browser_show_history_menu(PtkFileBrowser* file_browser, bool is_ba
     if (has_items)
     {
         gtk_widget_show_all(GTK_WIDGET(menu));
-        gtk_menu_popup(GTK_MENU(menu),
-                       NULL,
-                       NULL,
-                       NULL,
-                       NULL,
-                       event ? event->button : 0,
-                       event ? event->time : 0);
+        gtk_menu_popup_at_pointer(GTK_MENU(menu), NULL);
     }
     else
         gtk_widget_destroy(menu);
@@ -3182,7 +3176,7 @@ static void show_popup_menu(PtkFileBrowser* file_browser, GdkEventButton* event)
     GtkWidget* popup =
         ptk_file_menu_new(file_browser, file_path, file, dir_name ? dir_name : cwd, sel_files);
     if (popup)
-        gtk_menu_popup(GTK_MENU(popup), NULL, NULL, NULL, NULL, button, time);
+        gtk_menu_popup_at_pointer(GTK_MENU(popup), NULL);
     if (file)
         vfs_file_info_unref(file);
 

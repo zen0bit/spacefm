@@ -403,7 +403,7 @@ static bool on_dir_tree_view_button_press(GtkWidget* view, GdkEventButton* evt,
                          * actions are to be taken on the dir itself. */
                         GtkWidget* popup = ptk_file_menu_new(browser, NULL, NULL, dir_path, NULL);
                         if (popup)
-                            gtk_menu_popup(GTK_MENU(popup), NULL, NULL, NULL, NULL, 3, 0);
+                            gtk_menu_popup_at_pointer(GTK_MENU(popup), NULL);
                         gtk_tree_path_free(tree_path);
                         return TRUE;
                     }
@@ -497,7 +497,7 @@ static bool on_dir_tree_view_key_press(GtkWidget* view, GdkEventKey* evt, PtkFil
                  * actions are to be taken on the dir itself. */
                 GtkWidget* popup = ptk_file_menu_new(browser, NULL, NULL, dir_path, NULL);
                 if (popup)
-                    gtk_menu_popup(GTK_MENU(popup), NULL, NULL, NULL, NULL, 3, 0);
+                    gtk_menu_popup_at_pointer(GTK_MENU(popup), NULL);
             }
             break;
         default:

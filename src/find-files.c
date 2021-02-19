@@ -981,7 +981,7 @@ static bool on_view_button_press(GtkTreeView* view, GdkEventButton* evt, FindFil
 
             popup = gtk_ui_manager_get_widget(menu_mgr, "/Popup");
             g_object_unref(action_group);
-            gtk_menu_popup(GTK_MENU(popup), NULL, NULL, NULL, NULL, evt->button, evt->time);
+            gtk_menu_popup_at_pointer(GTK_MENU(popup), NULL);
 
             /* clean up */
             g_signal_connect(popup, "selection-done", G_CALLBACK(gtk_widget_destroy), NULL);

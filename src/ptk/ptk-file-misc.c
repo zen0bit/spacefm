@@ -1521,7 +1521,7 @@ static void on_options_button_press(GtkWidget* btn, MoveSet* mset)
 
     gtk_widget_show_all(GTK_WIDGET(popup));
     g_signal_connect(popup, "selection-done", G_CALLBACK(gtk_widget_destroy), NULL);
-    gtk_menu_popup(GTK_MENU(popup), NULL, NULL, NULL, NULL, 0, gtk_get_current_event_time());
+    gtk_menu_popup_at_pointer(GTK_MENU(popup), NULL);
 }
 
 static bool on_label_focus(GtkWidget* widget, GtkDirectionType direction, MoveSet* mset)

@@ -6233,6 +6233,9 @@ GtkWidget* xset_design_show_menu(GtkWidget* menu, XSet* set, XSet* book_insert, 
      * submenu to not activate with some trackpads (eg two-finger right-click)
      * to open original design menu.  Affected only bookmarks pane and toolbar
      * where menu == NULL.  So pass 0 for button if !menu. */
+
+    // FIXME does not destroy parent popup
+    // gtk_menu_popup_at_pointer(GTK_MENU(design_menu), NULL);
     gtk_menu_popup(GTK_MENU(design_menu),
                    menu ? GTK_WIDGET(menu) : NULL,
                    NULL,
@@ -7643,7 +7646,7 @@ static bool on_tool_menu_button_press(GtkWidget* widget, GdkEventButton* event, 
             GtkAccelGroup* accel_group = gtk_accel_group_new();
             xset_add_menuitem(file_browser, menu, accel_group, set_child);
             gtk_widget_show_all(GTK_WIDGET(menu));
-            gtk_menu_popup(GTK_MENU(menu), NULL, NULL, NULL, NULL, event->button, event->time);
+            gtk_menu_popup_at_pointer(GTK_MENU(menu), NULL);
         }
         else
             xset_builtin_tool_activate(set->tool, set, event);

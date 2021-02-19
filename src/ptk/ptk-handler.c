@@ -2805,7 +2805,7 @@ static void on_options_button_clicked(GtkWidget* btn, HandlerData* hnd)
     // show menu
     gtk_widget_show_all(GTK_WIDGET(popup));
     g_signal_connect(popup, "selection-done", G_CALLBACK(gtk_widget_destroy), NULL);
-    gtk_menu_popup(GTK_MENU(popup), NULL, NULL, NULL, NULL, 0, gtk_get_current_event_time());
+    gtk_menu_popup_at_pointer(GTK_MENU(popup), NULL);
 }
 
 void ptk_handler_show_config(int mode, PtkFileBrowser* file_browser, XSet* def_handler_set)
