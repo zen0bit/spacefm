@@ -995,13 +995,16 @@ int main(int argc, char* argv[])
     // --version
     if (version_opt)
     {
-        printf("spacefm %s\n", PACKAGE_VERSION);
+        printf("%s %s\n", PACKAGE_NAME_FANCY, PACKAGE_VERSION);
         printf("Features: ");
         printf("GTK3 ");
         printf("UDEV ");
         printf("INOTIFY ");
         printf("FFMPEG ");
         printf("STATVFS ");
+#ifdef USE_XXHASH
+        printf("XXHASH ");
+#endif
 #ifdef HAVE_SN
         printf("SNOTIFY ");
 #endif
