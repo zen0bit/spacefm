@@ -42,7 +42,7 @@ void ptk_menu_add_items_from_data(GtkWidget* menu, PtkMenuItemEntry* entries, vo
             const char* signal = "activate";
             if (G_UNLIKELY(PTK_IS_STOCK_ITEM(ent)))
             {
-                menu_item = gtk_image_menu_item_new_from_stock(ent->label, accel_group);
+                menu_item = gtk_menu_item_new_with_mnemonic(ent->label);
             }
             else if (G_LIKELY(ent->stock_icon))
             {
