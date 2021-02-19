@@ -741,7 +741,6 @@ static void on_file_monitor_event(VFSFileMonitor* fm, VFSFileMonitorEvent event,
     PtkDirTreeNode* node = (PtkDirTreeNode*)user_data;
     char* file_path;
     g_return_if_fail(node);
-    gdk_threads_enter();
 
     PtkDirTreeNode* child = find_node(node, file_name);
     switch (event)
@@ -783,5 +782,4 @@ static void on_file_monitor_event(VFSFileMonitor* fm, VFSFileMonitorEvent event,
         default:
             break;
     }
-    gdk_threads_leave();
 }

@@ -136,9 +136,7 @@ static void vfs_async_task_finalize(GObject* object)
 static bool on_idle(void* _task)
 {
     VFSAsyncTask* task = VFS_ASYNC_TASK(_task);
-    // gdk_threads_enter();   // not needed because this runs in main thread
     vfs_async_thread_cleanup(task, FALSE);
-    // gdk_threads_leave();
     return TRUE; /* the idle handler is removed in vfs_async_thread_cleanup. */
 }
 
@@ -199,17 +197,12 @@ void vfs_async_task_real_cancel(VFSAsyncTask* task, bool finalize)
      * to get things right.
      */
 
-    // sfm this deadlocks on quick dir change
-    // gdk_threads_leave();
-
     vfs_async_task_lock(task);
     task->cancel = TRUE;
     vfs_async_task_unlock(task);
 
     vfs_async_thread_cleanup(task, finalize);
     task->cancelled = TRUE;
-
-    // gdk_threads_enter();
 }
 
 void vfs_async_task_cancel(VFSAsyncTask* task)

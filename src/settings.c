@@ -3043,7 +3043,6 @@ static void on_install_plugin_cb(VFSFileTask* task, PluginData* plugin_data)
                 if (plugin_data->job != PLUGIN_JOB_COPY || !plugin_data->set)
                 {
                     // This dialog should never be seen - failsafe
-                    gdk_threads_enter(); // due to dialog run causes low level thread lock
                     xset_msg_dialog(
                         GTK_WIDGET(plugin_data->main_window),
                         GTK_MESSAGE_ERROR,
@@ -3054,7 +3053,6 @@ static void on_install_plugin_cb(VFSFileTask* task, PluginData* plugin_data)
                         "menu (select New|Import from the Design Menu).",
                         NULL,
                         NULL);
-                    gdk_threads_leave();
                 }
                 else
                 {
@@ -3097,7 +3095,6 @@ static void on_install_plugin_cb(VFSFileTask* task, PluginData* plugin_data)
                 if (plugin_data->job == PLUGIN_JOB_INSTALL)
                 {
                     // This dialog should never be seen - failsafe
-                    gdk_threads_enter(); // due to dialog run causes low level thread lock
                     xset_msg_dialog(plugin_data->main_window ? GTK_WIDGET(plugin_data->main_window)
                                                              : NULL,
                                     GTK_MESSAGE_ERROR,
@@ -3108,7 +3105,6 @@ static void on_install_plugin_cb(VFSFileTask* task, PluginData* plugin_data)
                                     "configuration window, or use Plugins|Import.",
                                     NULL,
                                     NULL);
-                    gdk_threads_leave();
                 }
                 else
                     ptk_handler_import(use, plugin_data->handler_dlg, set);
@@ -3163,7 +3159,6 @@ static void on_install_plugin_cb(VFSFileTask* task, PluginData* plugin_data)
                                   "improve your system security."),
                                 label);
                         g_free(label);
-                        gdk_threads_enter(); // due to dialog run causes low level thread lock
                         xset_msg_dialog(GTK_WIDGET(plugin_data->main_window),
                                         0,
                                         "Copy Plugin",
@@ -3171,7 +3166,6 @@ static void on_install_plugin_cb(VFSFileTask* task, PluginData* plugin_data)
                                         msg,
                                         NULL,
                                         NULL);
-                        gdk_threads_leave();
                         g_free(msg);
                     }
                 }

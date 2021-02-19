@@ -1710,9 +1710,7 @@ static bool on_vfs_file_task_state_cb(VFSFileTask* task, VFSFileTaskState state,
             if (xset_get_b("task_q_pause"))
             {
                 // pause all queued
-                gdk_threads_enter();
                 main_task_pause_all_queued(ptask);
-                gdk_threads_leave();
             }
             break;
         default:

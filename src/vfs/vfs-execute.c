@@ -30,11 +30,9 @@
 static bool sn_timeout(void* user_data)
 {
     SnLauncherContext* ctx = (SnLauncherContext*)user_data;
-    gdk_threads_enter();
     /* FIXME: startup notification, is this correct? */
     sn_launcher_context_complete(ctx);
     sn_launcher_context_unref(ctx);
-    gdk_threads_leave();
     return FALSE;
 }
 

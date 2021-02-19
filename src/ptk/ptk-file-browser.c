@@ -2228,9 +2228,7 @@ void ptk_file_browser_show_history_menu(PtkFileBrowser* file_browser, bool is_ba
 
 static bool ptk_file_browser_content_changed(PtkFileBrowser* file_browser)
 {
-    // gdk_threads_enter();  not needed because g_idle_add runs in main loop thread
     g_signal_emit(file_browser, signals[CONTENT_CHANGE_SIGNAL], 0);
-    // gdk_threads_leave();
     return FALSE;
 }
 
@@ -3544,10 +3542,8 @@ static bool on_dir_tree_update_sel(PtkFileBrowser* file_browser)
     {
         if (strcmp(dir_path, ptk_file_browser_get_cwd(file_browser)))
         {
-            gdk_threads_enter(); // needed for gtk_dialog_run in ptk_show_error
             if (ptk_file_browser_chdir(file_browser, dir_path, PTK_FB_CHDIR_ADD_HISTORY))
                 gtk_entry_set_text(GTK_ENTRY(file_browser->path_bar), dir_path);
-            gdk_threads_leave();
         }
         g_free(dir_path);
     }
@@ -4568,8 +4564,6 @@ static GtkTreePath* folder_view_get_tree_path_at_pos(PtkFileBrowser* file_browse
 
 static bool on_folder_view_auto_scroll(GtkScrolledWindow* scroll)
 {
-    // gdk_threads_enter();   //sfm why is this here?
-
     GtkAdjustment* vadj = gtk_scrolled_window_get_vadjustment(scroll);
     double vpos = gtk_adjustment_get_value(vadj);
 
@@ -4591,8 +4585,6 @@ static bool on_folder_view_auto_scroll(GtkScrolledWindow* scroll)
                 vadj,
                 (gtk_adjustment_get_upper(vadj) - gtk_adjustment_get_page_size(vadj)));
     }
-
-    // gdk_threads_leave();
     return TRUE;
 }
 

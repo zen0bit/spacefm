@@ -3481,9 +3481,7 @@ static void vfs_volume_autoexec(VFSVolume* vol)
                         //    ptk_file_browser_emit_open( file_browser, vol->mount_point,
                         //                                        PTK_OPEN_DIR ); //PTK_OPEN_NEW_TAB
                         // fm_main_window_add_new_tab causes hang without GDK_THREADS_ENTER
-                        gdk_threads_enter();
                         fm_main_window_add_new_tab(main_window, vol->mount_point);
-                        gdk_threads_leave();
                         // printf("DONE Auto Open Tab for %s in %s\n", vol->device_file,
                         //                                        vol->mount_point );
                     }

@@ -555,7 +555,6 @@ static void process_found_files(FindFile* data, GQueue* queue, const char* path)
 
     while ((ff = (FoundFile*)g_queue_pop_head(queue)))
     {
-        gdk_threads_enter();
         gtk_list_store_append(data->result_list, &it);
         icon = vfs_file_info_get_small_icon(ff->fi);
         gtk_list_store_set(data->result_list,
@@ -576,7 +575,6 @@ static void process_found_files(FindFile* data, GQueue* queue, const char* path)
                            ff->fi,
                            -1);
         g_object_unref(icon);
-        gdk_threads_leave();
         g_slice_free(FoundFile, ff);
     }
 }
@@ -703,9 +701,7 @@ static void on_stop_search(GtkWidget* btn, FindFile* data)
     if (data->task && !vfs_async_task_is_finished(data->task))
     {
         // see note in vfs-async-task.c: vfs_async_task_real_cancel()
-        gdk_threads_leave();
         vfs_async_task_cancel(data->task);
-        gdk_threads_enter();
     }
 }
 

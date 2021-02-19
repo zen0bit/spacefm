@@ -439,9 +439,7 @@ static void on_dlg_response(GtkDialog* dlg, int id, void* user_data)
             {
                 // printf("spacefm: app-chooser.c -> vfs_async_task_cancel\n");
                 // see note in vfs-async-task.c: vfs_async_task_real_cancel()
-                gdk_threads_leave();
                 vfs_async_task_cancel(task);
-                gdk_threads_enter();
                 /* The GtkListStore will be freed in "finish" handler of task -
                  * on_load_all_app_finish(). */
                 g_object_unref(task);
@@ -591,10 +589,8 @@ static void load_all_apps_in_dir(const char* dir_path, GtkListStore* list, VFSAs
 
             app = vfs_app_desktop_new(path);
 
-            gdk_threads_enter();
-            add_list_item(list,
-                          app); /* There are some operations using GTK+, so lock may be needed. */
-            gdk_threads_leave();
+            /* There are some operations using GTK+, so lock may be needed. */
+            add_list_item(list, app);
 
             vfs_app_desktop_unref(app);
             g_free(path);
@@ -605,9 +601,7 @@ static void load_all_apps_in_dir(const char* dir_path, GtkListStore* list, VFSAs
 
 static void* load_all_known_apps_thread(VFSAsyncTask* task)
 {
-    gdk_threads_enter();
     GtkListStore* list = GTK_LIST_STORE(vfs_async_task_get_data(task));
-    gdk_threads_leave();
 
     char* dir = g_build_filename(g_get_user_data_dir(), "applications", NULL);
     load_all_apps_in_dir(dir, list, task);

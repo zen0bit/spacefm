@@ -154,8 +154,6 @@ static bool on_update_labels(FilePropertiesDialogData* data)
     char buf[64];
     char buf2[64];
 
-    gdk_threads_enter();
-
     vfs_file_size_to_string_format(buf2, data->total_size, TRUE);
     g_snprintf(buf, sizeof(buf), _("%s ( %lu bytes )"), buf2, (uint64_t)data->total_size);
     gtk_label_set_text(data->total_size_label, buf);
@@ -182,8 +180,6 @@ static bool on_update_labels(FilePropertiesDialogData* data)
 
     gtk_label_set_text(data->count_label, count);
     g_free(count);
-
-    gdk_threads_leave();
 
     if (data->done)
         data->update_label_timer = 0;

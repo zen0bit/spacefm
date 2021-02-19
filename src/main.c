@@ -241,9 +241,7 @@ static bool on_socket_event(GIOChannel* ioc, GIOCondition cond, void* data)
                     g_string_free(args, TRUE);
                     return TRUE;
                 case CMD_PREF:
-                    gdk_threads_enter();
                     fm_edit_preference(NULL, (unsigned char)args->str[1] - 1);
-                    gdk_threads_leave();
                     g_string_free(args, TRUE);
                     return TRUE;
                 case CMD_FIND_FILES:
@@ -262,8 +260,6 @@ static bool on_socket_event(GIOChannel* ioc, GIOCondition cond, void* data)
                 files = NULL;
             g_string_free(args, TRUE);
 
-            gdk_threads_enter();
-
             if (files)
             {
                 char** file;
@@ -276,8 +272,6 @@ static bool on_socket_event(GIOChannel* ioc, GIOCondition cond, void* data)
             handle_parsed_commandline_args();
             app_settings.load_saved_tabs = TRUE;
             socket_daemon = FALSE;
-
-            gdk_threads_leave();
         }
     }
 
@@ -486,9 +480,7 @@ static void receive_socket_command(int client, GString* args) // sfm
     else
     {
         // process command and get reply
-        gdk_threads_enter();
         cmd = main_window_socket_command(argv ? argv + 1 : NULL, &reply);
-        gdk_threads_leave();
     }
     g_strfreev(argv);
     g_free(inode_tag);
@@ -911,7 +903,6 @@ int main(int argc, char* argv[])
         // dialog mode?
         if (!strcmp(argv[1], "-g") || !strcmp(argv[1], "--dialog"))
         {
-            gdk_threads_init();
             /* initialize the file alteration monitor */
             if (G_UNLIKELY(!vfs_file_monitor_init()))
             {
@@ -929,9 +920,8 @@ int main(int argc, char* argv[])
                 vfs_file_monitor_clean();
                 return ret == -1 ? 0 : ret;
             }
-            gdk_threads_enter();
             gtk_main();
-            gdk_threads_leave();
+
             vfs_file_monitor_clean();
             return 0;
         }
@@ -1026,7 +1016,6 @@ int main(int argc, char* argv[])
 #ifdef _DEBUG_THREAD
     gdk_threads_set_lock_functions(_debug_gdk_threads_enter, _debug_gdk_threads_leave);
 #endif
-    gdk_threads_init();
 
     /* ensure that there is only one instance of spacefm.
          if there is an existing instance, command line arguments
@@ -1063,17 +1052,12 @@ int main(int argc, char* argv[])
 
     main_window_event(NULL, NULL, "evt_start", 0, 0, NULL, 0, 0, 0, FALSE);
 
-    /* handle_parsed_commandline_args needs to be within GDK_THREADS_ENTER or
-     * ptk_show_error() in ptk_file_browser_chdir() access err causes hang on
-     * GDK_THREADS_ENTER before gtk_main() */
-    gdk_threads_enter();
     /* handle the parsed result of command line args */
     run = handle_parsed_commandline_args();
     app_settings.load_saved_tabs = TRUE;
 
     if (run) /* run the main loop */
         gtk_main();
-    gdk_threads_leave();
 
     main_window_event(NULL, NULL, "evt_exit", 0, 0, NULL, 0, 0, 0, FALSE);
 

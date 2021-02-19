@@ -2987,11 +2987,9 @@ static bool delayed_focus(GtkWidget* widget)
 {
     if (GTK_IS_WIDGET(widget))
     {
-        /// gdk_threads_enter();
         // printf( "delayed_focus %#x\n", widget);
         if (GTK_IS_WIDGET(widget))
             gtk_widget_grab_focus(widget);
-        /// gdk_threads_leave();
     }
     return FALSE;
 }
@@ -3000,14 +2998,12 @@ static bool delayed_focus_file_browser(PtkFileBrowser* file_browser)
 {
     if (GTK_IS_WIDGET(file_browser) && GTK_IS_WIDGET(file_browser->folder_view))
     {
-        /// gdk_threads_enter();
         // printf( "delayed_focus_file_browser fb=%#x\n", file_browser );
         if (GTK_IS_WIDGET(file_browser) && GTK_IS_WIDGET(file_browser->folder_view))
         {
             gtk_widget_grab_focus(file_browser->folder_view);
             set_panel_focus(NULL, file_browser);
         }
-        /// gdk_threads_leave();
     }
     return FALSE;
 }
