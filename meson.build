@@ -122,6 +122,7 @@ lib_libbsd = meson.get_compiler('c').find_library('libbsd', required : true)
 lib_udev = meson.get_compiler('c').find_library('libudev', required : true)
 lib_ffmpeg = meson.get_compiler('c').find_library('libffmpegthumbnailer', required : true)
 
+dep_exo = dependency('exo-2')
 dep_x11 = dependency('x11')
 dep_glib = dependency('glib-2.0')
 dep_gtk = dependency('gtk+-3.0')
@@ -140,18 +141,6 @@ sources = [
   'src/mime-type/mime-action.c',
   'src/mime-type/mime-cache.c',
   'src/mime-type/mime-type.c',
-  'src/exo/exo-binding.c',
-  'src/exo/exo-cell-renderer-icon.c',
-  'src/exo/exo-gdk-pixbuf-extensions.c',
-  'src/exo/exo-gtk-extensions.c',
-  'src/exo/exo-icon-chooser-dialog.c',
-  'src/exo/exo-icon-chooser-model.c',
-  'src/exo/exo-icon-view.c',
-  'src/exo/exo-marshal.c',
-  'src/exo/exo-private.c',
-  'src/exo/exo-thumbnail-preview.c',
-  'src/exo/exo-tree-view.c',
-  'src/exo/exo-utils.c',
   'src/ptk/ptk-app-chooser.c',
   'src/ptk/ptk-clipboard.c',
   'src/ptk/ptk-dir-tree.c',
@@ -194,6 +183,7 @@ spacefm = build_target(
     dep_glib,
     dep_gtk,
     dep_x11,
+    dep_exo,
     lib_math,
     lib_libbsd,
     lib_udev,

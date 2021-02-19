@@ -16,12 +16,12 @@
 #include <glib/gi18n.h>
 #include <gdk/gdkkeysyms.h>
 
+#include <exo/exo.h>
+
 #include "item-prop.h"
 #include "utils.h"
 
 #include "ptk/ptk-app-chooser.h"
-
-#include "exo/exo-tree-view.h"
 
 const char* enter_command_use =
     N_("Enter program or bash command line(s):\n\nUse:\n\t%F\tselected files  or  %f first "

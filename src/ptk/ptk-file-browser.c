@@ -27,10 +27,9 @@
 
 #include <fnmatch.h>
 
-#include "ptk-file-browser.h"
+#include <exo/exo.h>
 
-#include "../exo/exo-icon-view.h"
-#include "../exo/exo-tree-view.h"
+#include "ptk-file-browser.h"
 
 #include "settings.h"
 
@@ -3406,12 +3405,13 @@ static bool on_folder_view_button_release_event(GtkWidget* widget, GdkEventButto
         return ret;
     }
 
+#if 0
     switch (file_browser->view_mode)
     {
         case PTK_FB_ICON_VIEW:
         case PTK_FB_COMPACT_VIEW:
-            if (exo_icon_view_is_rubber_banding_active(EXO_ICON_VIEW(widget)))
-                return FALSE;
+            //if (exo_icon_view_is_rubber_banding_active(EXO_ICON_VIEW(widget)))
+            //    return FALSE;
             /* Conditional on single_click below was removed 1.0.2 708f0988 bc it
              * caused a left-click to not unselect other files.  However, this
              * caused file under cursor to be selected when entering directory by
@@ -3452,6 +3452,8 @@ static bool on_folder_view_button_release_event(GtkWidget* widget, GdkEventButto
         default:
             break;
     }
+#endif
+
     gtk_tree_path_free(tree_path);
     return FALSE;
 }
@@ -3703,9 +3705,6 @@ static GtkWidget* create_folder_view(PtkFileBrowser* file_browser, PtkFBViewMode
             }
 
             exo_icon_view_set_selection_mode((ExoIconView*)folder_view, GTK_SELECTION_MULTIPLE);
-
-            exo_icon_view_set_pixbuf_column((ExoIconView*)folder_view, COL_FILE_BIG_ICON);
-            exo_icon_view_set_text_column((ExoIconView*)folder_view, COL_FILE_NAME);
 
             // search
             exo_icon_view_set_enable_search((ExoIconView*)folder_view, TRUE);
@@ -4022,7 +4021,7 @@ static void init_list_view(PtkFileBrowser* file_browser, GtkTreeView* list_view)
             gtk_tree_view_column_set_sizing(col, GTK_TREE_VIEW_COLUMN_FIXED);
             gtk_tree_view_column_set_min_width(col, 150);
             gtk_tree_view_column_set_reorderable(col, FALSE);
-            exo_tree_view_set_activable_column((ExoTreeView*)list_view, col);
+            // exo_tree_view_set_activable_column((ExoTreeView*)list_view, col);
         }
         else
         {

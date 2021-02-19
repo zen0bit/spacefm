@@ -29,8 +29,10 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <stdlib.h>
+
+#include <exo/exo.h>
+
 #include "ptk/ptk-location-view.h"
-#include "exo/exo-tree-view.h"
 
 #include "ptk/ptk-file-browser.h"
 

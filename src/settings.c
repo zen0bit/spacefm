@@ -26,6 +26,8 @@
 
 #include <gmodule.h>
 
+#include <exo/exo.h>
+
 #include "settings.h"
 #include "main-window.h"
 #include "item-prop.h"
@@ -41,8 +43,6 @@
 #include "ptk/ptk-handler.h"
 #include "ptk/ptk-file-menu.h"
 #include "ptk/ptk-location-view.h"
-
-#include "exo/exo-icon-chooser-dialog.h"
 
 #define CONFIG_VERSION "38" // 1.0.6
 

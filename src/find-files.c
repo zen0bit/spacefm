@@ -33,13 +33,14 @@
 #include <signal.h>
 #include <sys/wait.h>
 
+#include <exo/exo.h>
+
 #include "pcmanfm.h"
 
 #include "vfs/vfs-dir.h"
 #include "vfs/vfs-file-info.h"
 
 #include "vfs/vfs-async-task.h"
-#include "exo/exo-tree-view.h"
 #include "vfs/vfs-volume.h"
 
 #include "main-window.h"

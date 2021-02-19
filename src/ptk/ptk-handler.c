@@ -18,9 +18,9 @@
 #include <errno.h>
 #include <gdk/gdkkeysyms.h>
 
-#include "ptk-handler.h"
+#include <exo/exo.h>
 
-#include "../exo/exo-tree-view.h"
+#include "ptk-handler.h"
 
 #include "utils.h"
 
