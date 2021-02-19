@@ -3,8 +3,9 @@ project(
   version : '3.0.0-dev',
   license : 'GPL2 LGPL',
   default_options : [
-  	  'prefix=/usr',
-  	  'sysconfdir=/etc',
+      'warning_level=1',
+      'prefix=/usr',
+      'sysconfdir=/etc',
   ],
   meson_version : '>= 0.49'
 )
