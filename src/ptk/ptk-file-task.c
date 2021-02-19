@@ -736,10 +736,12 @@ void ptk_file_task_progress_open(PtkFileTask* ptask)
 
     /* Copy/Move/Link: */
     label = GTK_LABEL(gtk_label_new(_(actions[task->type])));
-    gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
+    gtk_widget_set_halign(GTK_MISC(label), GTK_ALIGN_START);
+    gtk_widget_set_valign(GTK_MISC(label), GTK_ALIGN_CENTER);
     gtk_table_attach(table, GTK_WIDGET(label), 0, 1, row, row + 1, GTK_FILL, 0, 0, 0);
     ptask->from = GTK_LABEL(gtk_label_new(ptask->complete ? "" : task->current_file));
-    gtk_misc_set_alignment(GTK_MISC(ptask->from), 0, 0.5);
+    gtk_widget_set_halign(GTK_MISC(ptask->from), GTK_ALIGN_START);
+    gtk_widget_set_valign(GTK_MISC(ptask->from), GTK_ALIGN_CENTER);
     gtk_label_set_ellipsize(ptask->from, PANGO_ELLIPSIZE_MIDDLE);
     gtk_label_set_selectable(ptask->from, TRUE);
     gtk_table_attach(table,
@@ -758,10 +760,12 @@ void ptk_file_task_progress_open(PtkFileTask* ptask)
         // From: <src directory>
         row++;
         label = GTK_LABEL(gtk_label_new(_("From:")));
-        gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
+        gtk_widget_set_halign(GTK_MISC(label), GTK_ALIGN_START);
+        gtk_widget_set_valign(GTK_MISC(label), GTK_ALIGN_CENTER);
         gtk_table_attach(table, GTK_WIDGET(label), 0, 1, row, row + 1, GTK_FILL, 0, 0, 0);
         ptask->src_dir = GTK_LABEL(gtk_label_new(NULL));
-        gtk_misc_set_alignment(GTK_MISC(ptask->src_dir), 0, 0.5);
+        gtk_widget_set_halign(GTK_MISC(ptask->src_dir), GTK_ALIGN_START);
+        gtk_widget_set_valign(GTK_MISC(ptask->src_dir), GTK_ALIGN_CENTER);
         gtk_label_set_ellipsize(ptask->src_dir, PANGO_ELLIPSIZE_MIDDLE);
         gtk_label_set_selectable(ptask->src_dir, TRUE);
         gtk_table_attach(table, GTK_WIDGET(ptask->src_dir), 1, 2, row, row + 1, GTK_FILL, 0, 0, 0);
@@ -771,10 +775,12 @@ void ptk_file_task_progress_open(PtkFileTask* ptask)
             ex. Copy file to..., Move file to...etc. */
             row++;
             label = GTK_LABEL(gtk_label_new(_("To:")));
-            gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
+            gtk_widget_set_halign(GTK_MISC(label), GTK_ALIGN_START);
+            gtk_widget_set_valign(GTK_MISC(label), GTK_ALIGN_CENTER);
             gtk_table_attach(table, GTK_WIDGET(label), 0, 1, row, row + 1, GTK_FILL, 0, 0, 0);
             ptask->to = GTK_LABEL(gtk_label_new(task->dest_dir));
-            gtk_misc_set_alignment(GTK_MISC(ptask->to), 0, 0.5);
+            gtk_widget_set_halign(GTK_MISC(ptask->to), GTK_ALIGN_START);
+            gtk_widget_set_valign(GTK_MISC(ptask->to), GTK_ALIGN_CENTER);
             gtk_label_set_ellipsize(ptask->to, PANGO_ELLIPSIZE_MIDDLE);
             gtk_label_set_selectable(ptask->to, TRUE);
             gtk_table_attach(table, GTK_WIDGET(ptask->to), 1, 2, row, row + 1, GTK_FILL, 0, 0, 0);
@@ -785,10 +791,12 @@ void ptk_file_task_progress_open(PtkFileTask* ptask)
         // Stats
         row++;
         label = GTK_LABEL(gtk_label_new(_("Progress:  ")));
-        gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
+        gtk_widget_set_halign(GTK_MISC(label), GTK_ALIGN_START);
+        gtk_widget_set_valign(GTK_MISC(label), GTK_ALIGN_CENTER);
         gtk_table_attach(table, GTK_WIDGET(label), 0, 1, row, row + 1, GTK_FILL, 0, 0, 0);
         ptask->current = GTK_LABEL(gtk_label_new(""));
-        gtk_misc_set_alignment(GTK_MISC(ptask->current), 0, 0.5);
+        gtk_widget_set_halign(GTK_MISC(ptask->current), GTK_ALIGN_START);
+        gtk_widget_set_valign(GTK_MISC(ptask->current), GTK_ALIGN_CENTER);
         gtk_label_set_ellipsize(ptask->current, PANGO_ELLIPSIZE_MIDDLE);
         gtk_label_set_selectable(ptask->current, TRUE);
         gtk_table_attach(table, GTK_WIDGET(ptask->current), 1, 2, row, row + 1, GTK_FILL, 0, 0, 0);
@@ -802,7 +810,8 @@ void ptk_file_task_progress_open(PtkFileTask* ptask)
     // Status
     row++;
     label = GTK_LABEL(gtk_label_new(_("Status:  ")));
-    gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
+    gtk_widget_set_halign(GTK_MISC(label), GTK_ALIGN_START);
+    gtk_widget_set_valign(GTK_MISC(label), GTK_ALIGN_CENTER);
     gtk_table_attach(table, GTK_WIDGET(label), 0, 1, row, row + 1, GTK_FILL, 0, 0, 0);
     char* status;
     if (task->state_pause == VFS_FILE_TASK_PAUSE)
@@ -812,7 +821,8 @@ void ptk_file_task_progress_open(PtkFileTask* ptask)
     else
         status = _("Running...");
     ptask->errors = GTK_LABEL(gtk_label_new(status));
-    gtk_misc_set_alignment(GTK_MISC(ptask->errors), 0, 0.5);
+    gtk_widget_set_halign(GTK_MISC(ptask->errors), GTK_ALIGN_START);
+    gtk_widget_set_valign(GTK_MISC(ptask->errors), GTK_ALIGN_CENTER);
     gtk_label_set_ellipsize(ptask->errors, PANGO_ELLIPSIZE_MIDDLE);
     gtk_label_set_selectable(ptask->errors, TRUE);
     gtk_table_attach(table,
@@ -2157,18 +2167,21 @@ static void query_overwrite(PtkFileTask* ptask)
     gtk_box_pack_start(GTK_BOX(vbox), gtk_label_new(NULL), FALSE, TRUE, 0);
     GtkWidget* msg = gtk_label_new(NULL);
     gtk_label_set_markup(GTK_LABEL(msg), message);
-    gtk_misc_set_alignment(GTK_MISC(msg), 0, 0);
+    gtk_widget_set_halign(GTK_MISC(msg), GTK_ALIGN_START);
+    gtk_widget_set_valign(GTK_MISC(msg), GTK_ALIGN_START);
     gtk_widget_set_can_focus(msg, FALSE);
     gtk_box_pack_start(GTK_BOX(vbox), msg, FALSE, TRUE, 0);
     gtk_box_pack_start(GTK_BOX(vbox), gtk_label_new(NULL), FALSE, TRUE, 0);
     GtkWidget* from_label = gtk_label_new(NULL);
     gtk_label_set_markup(GTK_LABEL(from_label), from_disp);
-    gtk_misc_set_alignment(GTK_MISC(from_label), 0, 0);
+    gtk_widget_set_halign(GTK_MISC(from_label), GTK_ALIGN_START);
+    gtk_widget_set_valign(GTK_MISC(from_label), GTK_ALIGN_START);
     gtk_widget_set_can_focus(from_label, FALSE);
     gtk_box_pack_start(GTK_BOX(vbox), from_label, FALSE, TRUE, 0);
 
     GtkWidget* from_dir = gtk_label_new(src_dir_disp);
-    gtk_misc_set_alignment(GTK_MISC(from_dir), 0, 0);
+    gtk_widget_set_halign(GTK_MISC(from_dir), GTK_ALIGN_START);
+    gtk_widget_set_valign(GTK_MISC(from_dir), GTK_ALIGN_START);
     gtk_label_set_ellipsize(GTK_LABEL(from_dir), PANGO_ELLIPSIZE_MIDDLE);
     gtk_label_set_selectable(GTK_LABEL(from_dir), TRUE);
     gtk_box_pack_start(GTK_BOX(vbox), from_dir, FALSE, TRUE, 0);
@@ -2177,7 +2190,8 @@ static void query_overwrite(PtkFileTask* ptask)
     {
         GtkWidget* from_size = gtk_label_new(NULL);
         gtk_label_set_markup(GTK_LABEL(from_size), from_size_str);
-        gtk_misc_set_alignment(GTK_MISC(from_size), 0, 1.0);
+        gtk_widget_set_halign(GTK_MISC(from_size), GTK_ALIGN_START);
+        gtk_widget_set_valign(GTK_MISC(from_size), GTK_ALIGN_END);
         gtk_label_set_selectable(GTK_LABEL(from_size), TRUE);
         gtk_box_pack_start(GTK_BOX(vbox), from_size, FALSE, TRUE, 0);
     }
@@ -2187,11 +2201,13 @@ static void query_overwrite(PtkFileTask* ptask)
         gtk_box_pack_start(GTK_BOX(vbox), gtk_label_new(NULL), FALSE, TRUE, 0);
         GtkWidget* to_label = gtk_label_new(NULL);
         gtk_label_set_markup(GTK_LABEL(to_label), _("To directory:"));
-        gtk_misc_set_alignment(GTK_MISC(to_label), 0, 0);
+        gtk_widget_set_halign(GTK_MISC(to_label), GTK_ALIGN_START);
+        gtk_widget_set_valign(GTK_MISC(to_label), GTK_ALIGN_START);
         gtk_box_pack_start(GTK_BOX(vbox), to_label, FALSE, TRUE, 0);
 
         GtkWidget* to_dir = gtk_label_new(dest_dir_disp);
-        gtk_misc_set_alignment(GTK_MISC(to_dir), 0, 0);
+        gtk_widget_set_halign(GTK_MISC(to_dir), GTK_ALIGN_START);
+        gtk_widget_set_valign(GTK_MISC(to_dir), GTK_ALIGN_START);
         gtk_label_set_ellipsize(GTK_LABEL(to_dir), PANGO_ELLIPSIZE_MIDDLE);
         gtk_label_set_selectable(GTK_LABEL(to_dir), TRUE);
         gtk_box_pack_start(GTK_BOX(vbox), to_dir, FALSE, TRUE, 0);
@@ -2200,7 +2216,8 @@ static void query_overwrite(PtkFileTask* ptask)
         {
             GtkWidget* to_size = gtk_label_new(NULL);
             gtk_label_set_markup(GTK_LABEL(to_size), to_size_str);
-            gtk_misc_set_alignment(GTK_MISC(to_size), 0, 1.0);
+            gtk_widget_set_halign(GTK_MISC(to_size), GTK_ALIGN_START);
+            gtk_widget_set_valign(GTK_MISC(to_size), GTK_ALIGN_END);
             gtk_label_set_selectable(GTK_LABEL(to_size), TRUE);
             gtk_box_pack_start(GTK_BOX(vbox), to_size, FALSE, TRUE, 0);
         }
@@ -2210,7 +2227,8 @@ static void query_overwrite(PtkFileTask* ptask)
     GtkWidget* name_label = gtk_label_new(NULL);
     gtk_label_set_markup(GTK_LABEL(name_label),
                          is_dest_dir ? _("<b>Directory Name:</b>") : _("<b>Filename:</b>"));
-    gtk_misc_set_alignment(GTK_MISC(name_label), 0, 0);
+    gtk_widget_set_halign(GTK_MISC(name_label), GTK_ALIGN_START);
+    gtk_widget_set_valign(GTK_MISC(name_label), GTK_ALIGN_START);
     gtk_box_pack_start(GTK_BOX(vbox), name_label, FALSE, TRUE, 0);
 
     // name input

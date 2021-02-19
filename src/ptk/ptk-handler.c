@@ -2942,7 +2942,8 @@ void ptk_handler_show_config(int mode, PtkFileBrowser* file_browser, XSet* def_h
     char* str = g_strdup_printf("<b>%s</b>", _(dialog_mnemonics[mode]));
     gtk_label_set_markup_with_mnemonic(GTK_LABEL(lbl_handlers), str);
     g_free(str);
-    gtk_misc_set_alignment(GTK_MISC(lbl_handlers), 0, 0);
+    gtk_widget_set_halign(GTK_MISC(lbl_handlers), GTK_ALIGN_START);
+    gtk_widget_set_valign(GTK_MISC(lbl_handlers), GTK_ALIGN_START);
 
     // Generating the main manager list
     // Creating model - xset name then handler name
@@ -3059,25 +3060,29 @@ void ptk_handler_show_config(int mode, PtkFileBrowser* file_browser, XSet* def_h
                      G_CALLBACK(on_configure_handler_enabled_check),
                      hnd);
     GtkWidget* lbl_handler_name = gtk_label_new(NULL);
-    gtk_label_set_markup_with_mnemonic(GTK_LABEL(lbl_handler_name), _("_Name:")),
-        gtk_misc_set_alignment(GTK_MISC(lbl_handler_name), 0, 0.8);
+    gtk_label_set_markup_with_mnemonic(GTK_LABEL(lbl_handler_name), _("_Name:"));
+    gtk_widget_set_halign(GTK_MISC(lbl_handler_name), GTK_ALIGN_START);
+    gtk_widget_set_valign(GTK_MISC(lbl_handler_name), GTK_ALIGN_CENTER);
     GtkWidget* lbl_handler_mime = gtk_label_new(NULL);
     gtk_label_set_markup_with_mnemonic(GTK_LABEL(lbl_handler_mime),
                                        mode == HANDLER_MODE_ARC || mode == HANDLER_MODE_FILE
                                            ? _("MIM_E Type:")
                                            : _("Whit_elist:"));
-    gtk_misc_set_alignment(GTK_MISC(lbl_handler_mime), 0, 0.8);
+    gtk_widget_set_halign(GTK_MISC(lbl_handler_mime), GTK_ALIGN_START);
+    gtk_widget_set_valign(GTK_MISC(lbl_handler_mime), GTK_ALIGN_CENTER);
     GtkWidget* lbl_handler_extension = gtk_label_new(NULL);
     gtk_label_set_markup_with_mnemonic(
         GTK_LABEL(lbl_handler_extension),
         mode == HANDLER_MODE_ARC || mode == HANDLER_MODE_FILE ? _("P_athname:") : _("Bl_acklist:"));
-    gtk_misc_set_alignment(GTK_MISC(lbl_handler_extension), 0, 1.0);
+    gtk_widget_set_halign(GTK_MISC(lbl_handler_extension), GTK_ALIGN_START);
+    gtk_widget_set_valign(GTK_MISC(lbl_handler_extension), GTK_ALIGN_END);
     GtkWidget* lbl_handler_icon;
     if (mode == HANDLER_MODE_FILE)
     {
         lbl_handler_icon = gtk_label_new(NULL);
         gtk_label_set_markup_with_mnemonic(GTK_LABEL(lbl_handler_icon), _("_Icon:"));
-        gtk_misc_set_alignment(GTK_MISC(lbl_handler_icon), 0, 1.0);
+        gtk_widget_set_halign(GTK_MISC(lbl_handler_icon), GTK_ALIGN_START);
+        gtk_widget_set_valign(GTK_MISC(lbl_handler_icon), GTK_ALIGN_END);
     }
     else
         lbl_handler_icon = NULL;
@@ -3090,17 +3095,20 @@ void ptk_handler_show_config(int mode, PtkFileBrowser* file_browser, XSet* def_h
     else
         str = _("<b>_Mount:</b>");
     gtk_label_set_markup_with_mnemonic(GTK_LABEL(lbl_handler_compress), str);
-    gtk_misc_set_alignment(GTK_MISC(lbl_handler_compress), 0, 1.0);
+    gtk_widget_set_halign(GTK_MISC(lbl_handler_compress), GTK_ALIGN_START);
+    gtk_widget_set_valign(GTK_MISC(lbl_handler_compress), GTK_ALIGN_END);
     GtkWidget* lbl_handler_extract = gtk_label_new(NULL);
     gtk_label_set_markup_with_mnemonic(GTK_LABEL(lbl_handler_extract),
                                        mode == HANDLER_MODE_ARC ? _("<b>Ex_tract:</b>")
                                                                 : _("<b>Unmoun_t:</b>"));
-    gtk_misc_set_alignment(GTK_MISC(lbl_handler_extract), 0, 1.0);
+    gtk_widget_set_halign(GTK_MISC(lbl_handler_extract), GTK_ALIGN_START);
+    gtk_widget_set_valign(GTK_MISC(lbl_handler_extract), GTK_ALIGN_END);
     GtkWidget* lbl_handler_list = gtk_label_new(NULL);
     gtk_label_set_markup_with_mnemonic(GTK_LABEL(lbl_handler_list),
                                        mode == HANDLER_MODE_ARC ? _("<b>Li_st:</b>")
                                                                 : _("<b>Propertie_s:</b>"));
-    gtk_misc_set_alignment(GTK_MISC(lbl_handler_list), 0, 1.0);
+    gtk_widget_set_halign(GTK_MISC(lbl_handler_list), GTK_ALIGN_START);
+    gtk_widget_set_valign(GTK_MISC(lbl_handler_list), GTK_ALIGN_END);
     hnd->entry_handler_name = gtk_entry_new();
     hnd->entry_handler_mime = gtk_entry_new();
     hnd->entry_handler_extension = gtk_entry_new();

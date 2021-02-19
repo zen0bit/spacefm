@@ -2654,7 +2654,8 @@ static void update_element(CustomElement* el, GtkWidget* box, GSList** radio, in
                     //    gtk_label_set_ellipsize( GTK_LABEL( w ), PANGO_ELLIPSIZE_MIDDLE );
                 }
                 gtk_label_set_line_wrap_mode(GTK_LABEL(w), PANGO_WRAP_WORD_CHAR);
-                gtk_misc_set_alignment(GTK_MISC(w), 0.0, 0.5);
+                gtk_widget_set_halign(GTK_MISC(w), GTK_ALIGN_START);
+                gtk_widget_set_valign(GTK_MISC(w), GTK_ALIGN_CENTER);
                 gtk_label_set_selectable(GTK_LABEL(w), TRUE);
                 set_font(w, font);
                 el->widgets = g_list_append(el->widgets, w);

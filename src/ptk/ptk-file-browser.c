@@ -1211,7 +1211,8 @@ static void ptk_file_browser_init(PtkFileBrowser* file_browser)
     gtk_widget_set_can_focus(GTK_WIDGET(file_browser->status_label), FALSE);
     gtk_widget_set_hexpand(GTK_WIDGET(file_browser->status_label), TRUE);
     gtk_widget_set_halign(GTK_WIDGET(file_browser->status_label), GTK_ALIGN_FILL);
-    gtk_misc_set_alignment(GTK_MISC(file_browser->status_label), 0, 0.5);
+    gtk_widget_set_halign(GTK_MISC(file_browser->status_label), GTK_ALIGN_START);
+    gtk_widget_set_valign(GTK_MISC(file_browser->status_label), GTK_ALIGN_CENTER);
 
     g_signal_connect(G_OBJECT(file_browser->status_label),
                      "button-press-event",

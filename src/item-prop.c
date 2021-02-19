@@ -1621,7 +1621,8 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     int row = 0;
 
     GtkWidget* label = gtk_label_new_with_mnemonic(_("Type:"));
-    gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
+    gtk_widget_set_halign(GTK_MISC(label), GTK_ALIGN_START);
+    gtk_widget_set_valign(GTK_MISC(label), GTK_ALIGN_CENTER);
     gtk_table_attach(table, label, 0, 1, row, row + 1, GTK_FILL, GTK_SHRINK, 0, 0);
     ctxt->item_type = gtk_combo_box_text_new();
     gtk_widget_set_focus_on_click(GTK_COMBO_BOX(ctxt->item_type), FALSE);
@@ -1630,7 +1631,8 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     gtk_table_attach(table, ctxt->item_type, 1, 2, row, row + 1, GTK_FILL, GTK_SHRINK, 0, 0);
 
     label = gtk_label_new_with_mnemonic(_("Name:"));
-    gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
+    gtk_widget_set_halign(GTK_MISC(label), GTK_ALIGN_START);
+    gtk_widget_set_valign(GTK_MISC(label), GTK_ALIGN_CENTER);
     row++;
     gtk_table_attach(table, label, 0, 1, row, row + 1, GTK_FILL, GTK_SHRINK, 0, 0);
     ctxt->item_name = gtk_entry_new();
@@ -1646,7 +1648,8 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
                      0);
 
     label = gtk_label_new_with_mnemonic(_("Key:"));
-    gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
+    gtk_widget_set_halign(GTK_MISC(label), GTK_ALIGN_START);
+    gtk_widget_set_valign(GTK_MISC(label), GTK_ALIGN_CENTER);
     row++;
     gtk_table_attach(table, label, 0, 1, row, row + 1, GTK_FILL, GTK_SHRINK, 0, 0);
     ctxt->item_key = gtk_button_new_with_label(" ");
@@ -1663,7 +1666,8 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
                      0);
 
     label = gtk_label_new_with_mnemonic(_("Icon:"));
-    gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
+    gtk_widget_set_halign(GTK_MISC(label), GTK_ALIGN_START);
+    gtk_widget_set_valign(GTK_MISC(label), GTK_ALIGN_CENTER);
     row++;
     gtk_table_attach(table, label, 0, 1, row, row + 1, GTK_FILL, GTK_SHRINK, 0, 0);
     GtkWidget* hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
@@ -1693,7 +1697,8 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     ctxt->target_vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
 
     ctxt->target_label = gtk_label_new(NULL);
-    gtk_misc_set_alignment(GTK_MISC(ctxt->target_label), 0, 0.5);
+    gtk_widget_set_halign(GTK_MISC(ctxt->target_label), GTK_ALIGN_START);
+    gtk_widget_set_valign(GTK_MISC(ctxt->target_label), GTK_ALIGN_CENTER);
 
     GtkWidget* scroll = gtk_scrolled_window_new(NULL, NULL);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scroll),
@@ -1850,7 +1855,8 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     ctxt->current_value = GTK_LABEL(gtk_label_new(NULL));
     gtk_label_set_ellipsize(ctxt->current_value, PANGO_ELLIPSIZE_MIDDLE);
     gtk_label_set_selectable(ctxt->current_value, TRUE);
-    gtk_misc_set_alignment(GTK_MISC(ctxt->current_value), 0, 0);
+    gtk_widget_set_halign(GTK_MISC(ctxt->current_value), GTK_ALIGN_START);
+    gtk_widget_set_valign(GTK_MISC(ctxt->current_value), GTK_ALIGN_START);
     g_signal_connect(G_OBJECT(ctxt->current_value),
                      "button-press-event",
                      G_CALLBACK(on_current_value_button_press),
@@ -1882,7 +1888,8 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     gtk_box_pack_start(GTK_BOX(ctxt->vbox_context), GTK_WIDGET(ctxt->hbox_match), FALSE, TRUE, 4);
 
     //    GtkLabel* label = gtk_label_new( "Rules:" );
-    //    gtk_misc_set_alignment( label, 0, 1 );
+    //    gtk_widget_set_halign(label, GTK_ALIGN_START);
+    //    gtk_widget_set_valign(label, GTK_ALIGN_END);
     //    gtk_box_pack_start( GTK_BOX( GTK_DIALOG( ctxt->dlg )->vbox ),
     //                        GTK_WIDGET( label ), FALSE, TRUE, 8 );
     gtk_box_pack_start(GTK_BOX(ctxt->vbox_context), GTK_WIDGET(scroll), TRUE, TRUE, 4);
@@ -2054,7 +2061,8 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
 
     // Line
     ctxt->cmd_line_label = gtk_label_new(_(enter_command_use));
-    gtk_misc_set_alignment(GTK_MISC(ctxt->cmd_line_label), 0, 0);
+    gtk_widget_set_halign(GTK_MISC(ctxt->cmd_line_label), GTK_ALIGN_START);
+    gtk_widget_set_valign(GTK_MISC(ctxt->cmd_line_label), GTK_ALIGN_START);
     gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(ctxt->cmd_line_label), FALSE, TRUE, 8);
 
     // Script
@@ -2128,12 +2136,14 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
 
     hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     label = gtk_label_new(_("Run As User:"));
-    gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
+    gtk_widget_set_halign(GTK_MISC(label), GTK_ALIGN_START);
+    gtk_widget_set_valign(GTK_MISC(label), GTK_ALIGN_CENTER);
     gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(label), FALSE, TRUE, 2);
     ctxt->cmd_user = gtk_entry_new();
     gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(ctxt->cmd_user), FALSE, TRUE, 8);
     label = gtk_label_new(_("( leave blank for current user )"));
-    gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
+    gtk_widget_set_halign(GTK_MISC(label), GTK_ALIGN_START);
+    gtk_widget_set_valign(GTK_MISC(label), GTK_ALIGN_CENTER);
     gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(label), FALSE, TRUE, 8);
     gtk_box_pack_start(GTK_BOX(vbox_frame), GTK_WIDGET(hbox), FALSE, TRUE, 4);
 
@@ -2165,7 +2175,8 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     // message box
     ctxt->cmd_vbox_msg = gtk_box_new(GTK_ORIENTATION_VERTICAL, 4);
     label = gtk_label_new(_("Confirmation/Input Message:"));
-    gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+    gtk_widget_set_halign(GTK_MISC(label), GTK_ALIGN_START);
+    gtk_widget_set_valign(GTK_MISC(label), GTK_ALIGN_START);
     gtk_box_pack_start(GTK_BOX(ctxt->cmd_vbox_msg), GTK_WIDGET(label), FALSE, TRUE, 8);
     ctxt->cmd_scroll_msg = gtk_scrolled_window_new(NULL, NULL);
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(ctxt->cmd_scroll_msg),
@@ -2189,7 +2200,8 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     // open directory
     hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     label = gtk_label_new(_("Open In Browser:"));
-    gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
+    gtk_widget_set_halign(GTK_MISC(label), GTK_ALIGN_START);
+    gtk_widget_set_valign(GTK_MISC(label), GTK_ALIGN_CENTER);
     gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(label), FALSE, TRUE, 0);
     ctxt->open_browser = gtk_combo_box_text_new();
     gtk_widget_set_focus_on_click(GTK_COMBO_BOX(ctxt->open_browser), FALSE);

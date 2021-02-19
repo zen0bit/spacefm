@@ -2216,7 +2216,9 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
     g_free(type);
 
     gtk_label_set_selectable(mset->label_mime, TRUE);
-    gtk_misc_set_alignment(GTK_MISC(mset->label_mime), 0, 0);
+    gtk_widget_set_halign(GTK_MISC(mset->label_mime), GTK_ALIGN_START);
+    gtk_widget_set_valign(GTK_MISC(mset->label_mime), GTK_ALIGN_START);
+
     gtk_label_set_selectable(mset->label_type, TRUE);
     g_signal_connect(G_OBJECT(mset->label_type),
                      "button-press-event",
@@ -2229,7 +2231,8 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
     {
         mset->label_target = GTK_LABEL(gtk_label_new(NULL));
         gtk_label_set_markup_with_mnemonic(mset->label_target, _("<b>_Target:</b>"));
-        gtk_misc_set_alignment(GTK_MISC(mset->label_target), 0, 1);
+        gtk_widget_set_halign(GTK_MISC(mset->label_target), GTK_ALIGN_START);
+        gtk_widget_set_valign(GTK_MISC(mset->label_target), GTK_ALIGN_END);
         mset->entry_target = GTK_ENTRY(gtk_entry_new());
         gtk_label_set_mnemonic_widget(mset->label_target, GTK_WIDGET(mset->entry_target));
         g_signal_connect(G_OBJECT(mset->entry_target),
@@ -2277,7 +2280,8 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
     {
         mset->label_template = GTK_LABEL(gtk_label_new(NULL));
         gtk_label_set_markup_with_mnemonic(mset->label_template, _("<b>_Template:</b>"));
-        gtk_misc_set_alignment(GTK_MISC(mset->label_template), 0, 1);
+        gtk_widget_set_halign(GTK_MISC(mset->label_template), GTK_ALIGN_START);
+        gtk_widget_set_valign(GTK_MISC(mset->label_template), GTK_ALIGN_END);
         g_signal_connect(G_OBJECT(mset->entry_target),
                          "mnemonic-activate",
                          G_CALLBACK(on_mnemonic_activate),
@@ -2366,7 +2370,8 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
     // Name
     mset->label_name = GTK_LABEL(gtk_label_new(NULL));
     gtk_label_set_markup_with_mnemonic(mset->label_name, _("<b>_Name:</b>"));
-    gtk_misc_set_alignment(GTK_MISC(mset->label_name), 0, 0);
+    gtk_widget_set_halign(GTK_MISC(mset->label_name), GTK_ALIGN_START);
+    gtk_widget_set_valign(GTK_MISC(mset->label_name), GTK_ALIGN_START);
     mset->scroll_name = gtk_scrolled_window_new(NULL, NULL);
     mset->input_name =
         GTK_WIDGET(multi_input_new(GTK_SCROLLED_WINDOW(mset->scroll_name), NULL, FALSE));
@@ -2393,7 +2398,8 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
     // Ext
     mset->label_ext = GTK_LABEL(gtk_label_new(NULL));
     gtk_label_set_markup_with_mnemonic(mset->label_ext, _("<b>E_xtension:</b>"));
-    gtk_misc_set_alignment(GTK_MISC(mset->label_ext), 0, 1);
+    gtk_widget_set_halign(GTK_MISC(mset->label_ext), GTK_ALIGN_START);
+    gtk_widget_set_valign(GTK_MISC(mset->label_ext), GTK_ALIGN_END);
     mset->entry_ext = GTK_ENTRY(gtk_entry_new());
     gtk_label_set_mnemonic_widget(mset->label_ext, GTK_WIDGET(mset->entry_ext));
     g_signal_connect(G_OBJECT(mset->entry_ext),
@@ -2418,7 +2424,8 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
     // Filename
     mset->label_full_name = GTK_LABEL(gtk_label_new(NULL));
     gtk_label_set_markup_with_mnemonic(mset->label_full_name, _("<b>_Filename:</b>"));
-    gtk_misc_set_alignment(GTK_MISC(mset->label_full_name), 0, 0);
+    gtk_widget_set_halign(GTK_MISC(mset->label_full_name), GTK_ALIGN_START);
+    gtk_widget_set_valign(GTK_MISC(mset->label_full_name), GTK_ALIGN_START);
     mset->scroll_full_name = gtk_scrolled_window_new(NULL, NULL);
     mset->input_full_name =
         GTK_WIDGET(multi_input_new(GTK_SCROLLED_WINDOW(mset->scroll_full_name), NULL, FALSE));
@@ -2445,7 +2452,8 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
     // Parent
     mset->label_path = GTK_LABEL(gtk_label_new(NULL));
     gtk_label_set_markup_with_mnemonic(mset->label_path, _("<b>_Parent:</b>"));
-    gtk_misc_set_alignment(GTK_MISC(mset->label_path), 0, 0);
+    gtk_widget_set_halign(GTK_MISC(mset->label_path), GTK_ALIGN_START);
+    gtk_widget_set_valign(GTK_MISC(mset->label_path), GTK_ALIGN_START);
     mset->scroll_path = gtk_scrolled_window_new(NULL, NULL);
     mset->input_path =
         GTK_WIDGET(multi_input_new(GTK_SCROLLED_WINDOW(mset->scroll_path), NULL, FALSE));
@@ -2472,7 +2480,8 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
     // Path
     mset->label_full_path = GTK_LABEL(gtk_label_new(NULL));
     gtk_label_set_markup_with_mnemonic(mset->label_full_path, _("<b>P_ath:</b>"));
-    gtk_misc_set_alignment(GTK_MISC(mset->label_full_path), 0, 0);
+    gtk_widget_set_halign(GTK_MISC(mset->label_full_path), GTK_ALIGN_START);
+    gtk_widget_set_valign(GTK_MISC(mset->label_full_path), GTK_ALIGN_START);
     mset->scroll_full_path = gtk_scrolled_window_new(NULL, NULL);
     // set initial path
     mset->input_full_path = GTK_WIDGET(
