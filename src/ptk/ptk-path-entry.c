@@ -624,8 +624,6 @@ static void on_populate_popup(GtkEntry* entry, GtkMenu* menu, PtkFileBrowser* fi
     xset_add_menuitem(file_browser, GTK_WIDGET(menu), accel_group, set);
     set = xset_set_cb("path_hand", on_protocol_handlers, file_browser);
     xset_add_menuitem(file_browser, GTK_WIDGET(menu), accel_group, set);
-    set = xset_set_cb_panel(file_browser->mypanel, "font_path", main_update_fonts, file_browser);
-    xset_add_menuitem(file_browser, GTK_WIDGET(menu), accel_group, set);
     set = xset_set_cb("path_help", ptk_path_entry_man, file_browser);
     xset_add_menuitem(file_browser, GTK_WIDGET(menu), accel_group, set);
     gtk_widget_show_all(GTK_WIDGET(menu));
@@ -678,16 +676,6 @@ GtkWidget* ptk_path_entry_new(PtkFileBrowser* file_browser)
     GtkWidget* entry = gtk_entry_new();
     gtk_entry_set_has_frame(GTK_ENTRY(entry), TRUE);
     gtk_widget_set_size_request(entry, 50, -1);
-
-    // set font
-    if (file_browser->mypanel > 0 && file_browser->mypanel < 5 &&
-        xset_get_s_panel(file_browser->mypanel, "font_path"))
-    {
-        PangoFontDescription* font_desc = pango_font_description_from_string(
-            xset_get_s_panel(file_browser->mypanel, "font_path"));
-        gtk_widget_override_font(entry, font_desc);
-        pango_font_description_free(font_desc);
-    }
 
     EntryData* edata = g_slice_new0(EntryData);
     edata->browser = file_browser;

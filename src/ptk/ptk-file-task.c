@@ -583,9 +583,6 @@ static void on_view_popup(GtkTextView* entry, GtkMenu* menu, void* user_data)
     XSet* set = xset_get("sep_v9");
     set->browser = NULL;
     xset_add_menuitem(NULL, GTK_WIDGET(menu), accel_group, set);
-    set = xset_get("task_pop_font");
-    set->browser = NULL;
-    xset_add_menuitem(NULL, GTK_WIDGET(menu), accel_group, set);
     gtk_widget_show_all(GTK_WIDGET(menu));
     g_signal_connect(menu, "key-press-event", G_CALLBACK(xset_menu_keypress), NULL);
 }
@@ -828,13 +825,7 @@ void ptk_file_task_progress_open(PtkFileTask* ptask)
                                    GTK_POLICY_AUTOMATIC);
     gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(ptask->error_view), GTK_WRAP_WORD_CHAR);
     gtk_text_view_set_editable(GTK_TEXT_VIEW(ptask->error_view), FALSE);
-    char* fontname = xset_get_s("task_pop_font");
-    if (fontname)
-    {
-        PangoFontDescription* font_desc = pango_font_description_from_string(fontname);
-        gtk_widget_override_font(ptask->error_view, font_desc);
-        pango_font_description_free(font_desc);
-    }
+
     g_signal_connect(ptask->error_view, "populate-popup", G_CALLBACK(on_view_popup), NULL);
     GtkWidget* align = gtk_alignment_new(1, 1, 1, 1);
     gtk_alignment_set_padding(GTK_ALIGNMENT(align), 0, 0, 5, 5);
@@ -2194,7 +2185,7 @@ static void query_overwrite(PtkFileTask* ptask)
     // name input
     GtkWidget* scroll = gtk_scrolled_window_new(NULL, NULL);
     GtkWidget* query_input =
-        GTK_WIDGET(multi_input_new(GTK_SCROLLED_WINDOW(scroll), base_name_disp, TRUE));
+        GTK_WIDGET(multi_input_new(GTK_SCROLLED_WINDOW(scroll), base_name_disp));
     g_signal_connect(G_OBJECT(query_input),
                      "key-press-event",
                      G_CALLBACK(on_query_input_keypress),

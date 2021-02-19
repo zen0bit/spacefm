@@ -48,16 +48,6 @@ static bool on_progress_timer(CustomElement* el);
 GtkWidget* signal_dialog = NULL;
 bool enable_click_event = FALSE;
 
-static void set_font(GtkWidget* w, const char* font)
-{
-    if (w && font)
-    {
-        PangoFontDescription* font_desc = pango_font_description_from_string(font);
-        gtk_widget_override_font(w, font_desc);
-        pango_font_description_free(font_desc);
-    }
-}
-
 static void dlg_warn(const char* msg, const char* a, const char* b)
 {
     char* str = g_strdup_printf("** spacefm-dialog: %s\n", msg);
@@ -2520,7 +2510,6 @@ static void update_element(CustomElement* el, GtkWidget* box, GSList** radio, in
     GtkTextIter iter;
     int i;
     GList* l;
-    char* font = NULL;
     bool viewer_scroll = FALSE;
     bool chooser_save = FALSE;
     bool chooser_dir = FALSE;
@@ -2538,15 +2527,7 @@ static void update_element(CustomElement* el, GtkWidget* box, GSList** radio, in
     // get element options
     while (args && g_str_has_prefix((char*)args->data, "--"))
     {
-        if (!strcmp((char*)args->data, "--font"))
-        {
-            if (args->next && !g_str_has_prefix((char*)args->next->data, "--"))
-            {
-                args = args->next;
-                font = (char*)args->data;
-            }
-        }
-        else if (!strcmp((char*)args->data, "--compact"))
+        if (!strcmp((char*)args->data, "--compact"))
             compact = TRUE;
         else if (!strcmp((char*)args->data, "--expand"))
             expand = TRUE;
@@ -2651,7 +2632,6 @@ static void update_element(CustomElement* el, GtkWidget* box, GSList** radio, in
                 gtk_widget_set_halign(GTK_MISC(w), GTK_ALIGN_START);
                 gtk_widget_set_valign(GTK_MISC(w), GTK_ALIGN_CENTER);
                 gtk_label_set_selectable(GTK_LABEL(w), TRUE);
-                set_font(w, font);
                 el->widgets = g_list_append(el->widgets, w);
                 gtk_box_pack_start(GTK_BOX(box), GTK_WIDGET(w), expand, TRUE, pad);
                 if (radio)
@@ -2796,8 +2776,7 @@ static void update_element(CustomElement* el, GtkWidget* box, GSList** radio, in
                 {
                     // multi-input
                     GtkWidget* scroll = gtk_scrolled_window_new(NULL, NULL);
-                    w = GTK_WIDGET(multi_input_new(GTK_SCROLLED_WINDOW(scroll), el->val, FALSE));
-                    set_font(w, font);
+                    w = GTK_WIDGET(multi_input_new(GTK_SCROLLED_WINDOW(scroll), el->val));
                     if (selstart >= 0)
                         multi_input_select_region(w, selstart, selend);
                     gtk_box_pack_start(GTK_BOX(box), GTK_WIDGET(scroll), !compact, TRUE, pad);
@@ -2807,7 +2786,6 @@ static void update_element(CustomElement* el, GtkWidget* box, GSList** radio, in
                     // entry
                     w = gtk_entry_new();
                     gtk_entry_set_visibility(GTK_ENTRY(w), el->type != CDLG_PASSWORD);
-                    set_font(w, font);
                     if (el->val)
                     {
                         gtk_entry_set_text(GTK_ENTRY(w), el->val);
@@ -2869,7 +2847,6 @@ static void update_element(CustomElement* el, GtkWidget* box, GSList** radio, in
                 w = gtk_text_view_new();
                 gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(w), GTK_WRAP_WORD_CHAR);
                 gtk_text_view_set_editable(GTK_TEXT_VIEW(w), el->type == CDLG_EDITOR);
-                set_font(w, font);
                 gtk_container_add(GTK_CONTAINER(scroll), w);
                 el->widgets = g_list_append(el->widgets, w);
                 el->widgets = g_list_append(el->widgets, scroll);
@@ -3032,12 +3009,6 @@ static void update_element(CustomElement* el, GtkWidget* box, GSList** radio, in
 
                 gtk_widget_set_focus_on_click(GTK_BUTTON(w), FALSE);
 
-                // set font of label
-                l = gtk_container_get_children(GTK_CONTAINER(w));
-                if (l)
-                    set_font(GTK_WIDGET(l->data), font);
-                g_list_free(l);
-
                 el->widgets = g_list_append(el->widgets, w);
                 gtk_box_pack_start(GTK_BOX(box), GTK_WIDGET(w), expand, TRUE, pad);
                 // default value
@@ -3080,7 +3051,6 @@ static void update_element(CustomElement* el, GtkWidget* box, GSList** radio, in
                 }
                 g_signal_connect(G_OBJECT(w), "changed", G_CALLBACK(on_combo_changed), el);
                 gtk_widget_set_focus_on_click(GTK_COMBO_BOX(w), FALSE);
-                set_font(w, font);
                 gtk_box_pack_start(GTK_BOX(box), w, expand, TRUE, pad);
                 el->widgets = g_list_append(el->widgets, w);
                 if (radio)
@@ -3158,7 +3128,6 @@ static void update_element(CustomElement* el, GtkWidget* box, GSList** radio, in
             {
                 w = gtk_tree_view_new();
                 gtk_tree_view_set_enable_search(GTK_TREE_VIEW(w), TRUE);
-                set_font(w, font);
                 GtkTreeSelection* tree_sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(w));
                 gtk_tree_selection_set_mode(tree_sel,
                                             el->type == CDLG_MLIST ? GTK_SELECTION_MULTIPLE
@@ -3223,7 +3192,6 @@ static void update_element(CustomElement* el, GtkWidget* box, GSList** radio, in
                 w = gtk_progress_bar_new();
                 gtk_progress_bar_set_pulse_step(GTK_PROGRESS_BAR(w), 0.08);
                 gtk_progress_bar_set_show_text(GTK_PROGRESS_BAR(w), TRUE);
-                set_font(w, font);
                 gtk_box_pack_start(GTK_BOX(box), w, expand, TRUE, pad);
                 el->widgets = g_list_append(el->widgets, w);
                 if (!args || (args && (!strcmp((char*)args->data, "pulse") ||

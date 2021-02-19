@@ -1075,7 +1075,6 @@ static bool on_status_bar_button_press(GtkWidget* widget, GdkEventButton* event,
 
 static void on_status_effect_change(GtkMenuItem* item, PtkFileBrowser* file_browser)
 {
-    main_update_fonts(NULL, file_browser);
     set_panel_focus(NULL, file_browser);
 }
 
@@ -1097,15 +1096,13 @@ static void on_status_bar_popup(GtkWidget* widget, GtkWidget* menu, PtkFileBrows
     XSetContext* context = xset_context_new();
     main_context_fill(file_browser, context);
     GtkAccelGroup* accel_group = gtk_accel_group_new();
-    char* desc = g_strdup_printf(
-        "sep_bar1 status_border status_text panel%d_icon_status panel%d_font_status status_middle",
-        file_browser->mypanel,
-        file_browser->mypanel);
+    char* desc =
+        g_strdup_printf("sep_bar1 status_border status_text panel%d_icon_status status_middle",
+                        file_browser->mypanel);
 
     xset_set_cb("status_border", on_status_effect_change, file_browser);
     xset_set_cb("status_text", on_status_effect_change, file_browser);
     xset_set_cb_panel(file_browser->mypanel, "icon_status", on_status_effect_change, file_browser);
-    xset_set_cb_panel(file_browser->mypanel, "font_status", on_status_effect_change, file_browser);
     XSet* set = xset_get("status_name");
     xset_set_cb("status_name", on_status_middle_click_config, set);
     xset_set_ob2(set, NULL, NULL);
@@ -1221,13 +1218,6 @@ static void ptk_file_browser_init(PtkFileBrowser* file_browser)
                      "populate-popup",
                      G_CALLBACK(on_status_bar_popup),
                      file_browser);
-    if (xset_get_s_panel(file_browser->mypanel, "font_status"))
-    {
-        PangoFontDescription* font_desc = pango_font_description_from_string(
-            xset_get_s_panel(file_browser->mypanel, "font_status"));
-        gtk_widget_override_font(GTK_WIDGET(file_browser->status_label), font_desc);
-        pango_font_description_free(font_desc);
-    }
 
     // pack fb vbox
     gtk_box_pack_start(GTK_BOX(file_browser), file_browser->hpane, TRUE, TRUE, 0);
@@ -1746,22 +1736,6 @@ GtkWidget* ptk_file_browser_new(int curpanel, GtkWidget* notebook, GtkWidget* ta
     gtk_image_set_from_icon_name(GTK_IMAGE(file_browser->status_image),
                                  icon_name,
                                  GTK_ICON_SIZE_MENU);
-    // set status bar font
-    char* fontname = xset_get_s_panel(curpanel, "font_status");
-    if (fontname)
-    {
-        font_desc = pango_font_description_from_string(fontname);
-        gtk_widget_override_font(GTK_WIDGET(file_browser->status_label), font_desc);
-        pango_font_description_free(font_desc);
-    }
-
-    // set path bar font (is created before mypanel is set)
-    if (file_browser->path_bar && (fontname = xset_get_s_panel(curpanel, "font_path")))
-    {
-        font_desc = pango_font_description_from_string(fontname);
-        gtk_widget_override_font(GTK_WIDGET(file_browser->path_bar), font_desc);
-        pango_font_description_free(font_desc);
-    }
 
     gtk_widget_show_all(GTK_WIDGET(file_browser));
 
@@ -3966,15 +3940,6 @@ static GtkWidget* create_folder_view(PtkFileBrowser* file_browser, PtkFBViewMode
                      G_CALLBACK(on_folder_view_drag_end),
                      file_browser);
 
-    // set font
-    if (xset_get_s_panel(file_browser->mypanel, "font_file"))
-    {
-        PangoFontDescription* font_desc = pango_font_description_from_string(
-            xset_get_s_panel(file_browser->mypanel, "font_file"));
-        gtk_widget_override_font(folder_view, font_desc);
-        pango_font_description_free(font_desc);
-    }
-
     return folder_view;
 }
 
@@ -5173,15 +5138,6 @@ static GtkWidget* ptk_file_browser_create_dir_tree(PtkFileBrowser* file_browser)
                      G_CALLBACK(on_dir_tree_button_press),
                      file_browser);
 
-    // set font
-    if (xset_get_s_panel(file_browser->mypanel, "font_file"))
-    {
-        PangoFontDescription* font_desc = pango_font_description_from_string(
-            xset_get_s_panel(file_browser->mypanel, "font_file"));
-        gtk_widget_override_font(dir_tree, font_desc);
-        pango_font_description_free(font_desc);
-    }
-
     return dir_tree;
 }
 
@@ -5976,8 +5932,6 @@ void ptk_file_browser_on_action(PtkFileBrowser* browser, char* setname)
                     on_popup_list_large(NULL, browser);
                 }
             }
-            else if (!strcmp(xname, "icon_tab") || g_str_has_prefix(xname, "font_"))
-                main_update_fonts(NULL, browser);
             else if (g_str_has_prefix(xname, "detcol_") // shared key
                      && browser->view_mode == PTK_FB_LIST_VIEW)
             {
@@ -5985,10 +5939,6 @@ void ptk_file_browser_on_action(PtkFileBrowser* browser, char* setname)
                 set2->b = set2->b == XSET_B_TRUE ? XSET_B_UNSET : XSET_B_TRUE;
                 update_views_all_windows(NULL, browser);
             }
-            else if (!strcmp(xname, "icon_status")) // shared key
-                on_status_effect_change(NULL, browser);
-            else if (!strcmp(xname, "font_status")) // shared key
-                on_status_effect_change(NULL, browser);
         }
     }
     else if (g_str_has_prefix(set->name, "status_"))

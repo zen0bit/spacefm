@@ -117,8 +117,6 @@ static void xset_custom_insert_after(XSet* target, XSet* set);
 static XSet* xset_custom_copy(XSet* set, bool copy_next, bool delete_set);
 static XSet* xset_set_set_int(XSet* set, const char* var, const char* value);
 static void xset_free(XSet* set);
-static char* xset_font_dialog(GtkWidget* parent, const char* title, const char* preview,
-                              const char* deffont);
 
 static const char* user_manual_url = "http://ignorantguru.github.io/spacefm/spacefm-manual-en.html";
 static const char* homepage = "http://ignorantguru.github.io/spacefm/"; // also in aboutdlg.ui
@@ -6637,27 +6635,7 @@ void xset_menu_cb(GtkWidget* item, XSet* set)
                     xset_custom_activate(item, rset);
                 break;
             case XSET_MENU_FONTDLG:
-            {
-                char* fontname;
-                fontname = xset_font_dialog(parent, rset->title, rset->desc, rset->s);
-                if (fontname)
-                {
-                    if (fontname[0] != '\0')
-                    {
-                        xset_set_set(rset, XSET_SET_SET_S, fontname);
-                    }
-                    else
-                    {
-                        if (rset->s)
-                            g_free(rset->s);
-                        rset->s = NULL;
-                    }
-                    g_free(fontname);
-                    if (cb_func)
-                        (*cb_func)(item, cb_data);
-                }
-            }
-            break;
+                break;
             case XSET_MENU_FILEDLG:
                 // test purpose only
                 {
@@ -6861,33 +6839,6 @@ static void on_multi_input_insert(GtkTextBuffer* buf)
     g_free(b);
 }
 
-static void on_multi_input_font_change(GtkMenuItem* item, GtkTextView* input)
-{
-    char* fontname = xset_get_s("input_font");
-    if (fontname)
-    {
-        PangoFontDescription* font_desc = pango_font_description_from_string(fontname);
-        gtk_widget_override_font(GTK_WIDGET(input), font_desc);
-        pango_font_description_free(font_desc);
-    }
-    else
-        gtk_widget_override_font(GTK_WIDGET(input), NULL);
-}
-
-static void on_multi_input_popup(GtkTextView* input, GtkMenu* menu, void* user_data)
-{
-    GtkAccelGroup* accel_group = gtk_accel_group_new();
-    XSet* set = xset_get("sep_multi");
-    set->menu_style = XSET_MENU_SEP;
-    set->browser = NULL;
-    xset_add_menuitem(NULL, GTK_WIDGET(menu), accel_group, set);
-    set = xset_set_cb("input_font", on_multi_input_font_change, input);
-    set->browser = NULL;
-    xset_add_menuitem(NULL, GTK_WIDGET(menu), accel_group, set);
-    gtk_widget_show_all(GTK_WIDGET(menu));
-    g_signal_connect(G_OBJECT(menu), "key-press-event", G_CALLBACK(xset_menu_keypress), NULL);
-}
-
 char* multi_input_get_text(GtkWidget* input)
 { // returns a new allocated string or NULL if input is empty
     GtkTextIter iter, siter;
@@ -6926,7 +6877,7 @@ void multi_input_select_region(GtkWidget* input, int start, int end)
     gtk_text_buffer_select_range(buf, &iter, &siter);
 }
 
-GtkTextView* multi_input_new(GtkScrolledWindow* scrolled, const char* text, bool def_font)
+GtkTextView* multi_input_new(GtkScrolledWindow* scrolled, const char* text)
 {
     GtkTextIter iter;
 
@@ -6951,14 +6902,7 @@ GtkTextView* multi_input_new(GtkScrolledWindow* scrolled, const char* text, bool
     gtk_text_view_set_accepts_tab(input, FALSE);
 
     g_signal_connect_after(G_OBJECT(buf), "insert-text", G_CALLBACK(on_multi_input_insert), NULL);
-    if (def_font)
-    {
-        on_multi_input_font_change(NULL, input);
-        g_signal_connect_after(G_OBJECT(input),
-                               "populate-popup",
-                               G_CALLBACK(on_multi_input_popup),
-                               NULL);
-    }
+
     return input;
 }
 
@@ -7083,7 +7027,7 @@ bool xset_text_dialog(GtkWidget* parent, const char* title, bool large, const ch
 
     // input view
     GtkScrolledWindow* scroll_input = GTK_SCROLLED_WINDOW(gtk_scrolled_window_new(NULL, NULL));
-    GtkTextView* input = multi_input_new(scroll_input, defstring, TRUE);
+    GtkTextView* input = multi_input_new(scroll_input, defstring);
     GtkTextBuffer* buf = gtk_text_view_get_buffer(input);
 
     gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dlg))),
@@ -7268,81 +7212,6 @@ bool xset_text_dialog(GtkWidget* parent, const char* title, bool large, const ch
     }
     gtk_widget_destroy(dlg);
     return ret;
-}
-
-static bool on_fontdlg_keypress(GtkWidget* widget, GdkEventKey* event, GtkWidget* dlg)
-{
-    if (event->keyval == GDK_KEY_Return || event->keyval == GDK_KEY_KP_Enter)
-    {
-        gtk_dialog_response(GTK_DIALOG(dlg), GTK_RESPONSE_YES);
-        return TRUE;
-    }
-    return FALSE;
-}
-
-static char* xset_font_dialog(GtkWidget* parent, const char* title, const char* preview,
-                              const char* deffont)
-{
-    char* fontname = NULL;
-
-    GtkWidget* dlg = gtk_font_selection_dialog_new(title);
-    xset_set_window_icon(GTK_WINDOW(dlg));
-    gtk_window_set_role(GTK_WINDOW(dlg), "font_dialog");
-
-    if (deffont)
-        gtk_font_selection_dialog_set_font_name(GTK_FONT_SELECTION_DIALOG(dlg), deffont);
-    if (title)
-        gtk_window_set_title(GTK_WINDOW(dlg), title);
-    if (preview)
-        gtk_font_selection_dialog_set_preview_text(GTK_FONT_SELECTION_DIALOG(dlg), preview);
-
-    int width = xset_get_int("font_dlg", "x");
-    int height = xset_get_int("font_dlg", "y");
-    if (width && height)
-        gtk_window_set_default_size(GTK_WINDOW(dlg), width, height);
-
-    // add default button, rename OK
-    GtkButton* btn = GTK_BUTTON(gtk_button_new_with_label("Yes"));
-    gtk_dialog_add_action_widget(GTK_DIALOG(dlg), GTK_WIDGET(btn), GTK_RESPONSE_YES);
-    gtk_widget_show(GTK_WIDGET(btn));
-    GtkButton* ok =
-        GTK_BUTTON(gtk_font_selection_dialog_get_ok_button(GTK_FONT_SELECTION_DIALOG(dlg)));
-    gtk_button_set_label(ok, _("_Default"));
-    gtk_button_set_label(btn, _("_OK"));
-
-    g_signal_connect(G_OBJECT(dlg), "key-press-event", G_CALLBACK(on_fontdlg_keypress), dlg);
-
-    int response = gtk_dialog_run(GTK_DIALOG(dlg));
-
-    GtkAllocation allocation;
-    gtk_widget_get_allocation(GTK_WIDGET(dlg), &allocation);
-    width = allocation.width;
-    height = allocation.height;
-    if (width && height)
-    {
-        char* str = g_strdup_printf("%d", width);
-        xset_set("font_dlg", "x", str);
-        g_free(str);
-        str = g_strdup_printf("%d", height);
-        xset_set("font_dlg", "y", str);
-        g_free(str);
-    }
-
-    if (response == GTK_RESPONSE_YES)
-    {
-        char* fontname2 = gtk_font_selection_dialog_get_font_name(GTK_FONT_SELECTION_DIALOG(dlg));
-        char* trim_fontname = g_strstrip(fontname2);
-        fontname = g_strdup(trim_fontname);
-        g_free(fontname2);
-    }
-    else if (response == GTK_RESPONSE_OK)
-    {
-        // default font
-        fontname = g_strdup("");
-    }
-
-    gtk_widget_destroy(dlg);
-    return fontname;
 }
 
 char* xset_file_dialog(GtkWidget* parent, GtkFileChooserAction action, const char* title,
@@ -8843,12 +8712,6 @@ static void xset_defaults()
     set->menu_style = XSET_MENU_CHECK;
     set->b = XSET_B_TRUE;
 
-    set = xset_set("move_dlg_font", "lbl", _("_Font"));
-    set->menu_style = XSET_MENU_FONTDLG;
-    xset_set_set(set, XSET_SET_SET_ICN, "gtk-select-font");
-    xset_set_set(set, XSET_SET_SET_TITLE, _("Move Dialog Font"));
-    xset_set_set(set, XSET_SET_SET_DESC, _("/home/user/Example Filename.ext"));
-
     set = xset_set("move_dlg_help", "lbl", _("_Help"));
     xset_set_set(set, XSET_SET_SET_ICN, "gtk-help");
 
@@ -9516,13 +9379,6 @@ static void xset_defaults()
     set->b = XSET_B_TRUE;
     set->line = g_strdup("#tasks-menu-auto");
 
-    set = xset_set("font_task", "lbl", _("_Font"));
-    set->menu_style = XSET_MENU_FONTDLG;
-    xset_set_set(set, XSET_SET_SET_ICN, "gtk-select-font");
-    xset_set_set(set, XSET_SET_SET_TITLE, _("Task Manager Font"));
-    xset_set_set(set, XSET_SET_SET_DESC, _("copying  File  1:15  65.2 M  30.2 M/s"));
-    set->line = g_strdup("#tasks-menu-col");
-
     set = xset_set("task_columns", "lbl", _("_Columns"));
     set->menu_style = XSET_MENU_SUBMENU;
     xset_set_set(
@@ -9530,7 +9386,7 @@ static void xset_defaults()
         XSET_SET_SET_DESC,
         "task_col_count task_col_path task_col_file task_col_to task_col_progress task_col_total "
         "task_col_started task_col_elapsed task_col_curspeed task_col_curest task_col_avgspeed "
-        "task_col_avgest sep_t2 task_col_reorder font_task");
+        "task_col_avgest sep_t2 task_col_reorder");
     set->line = g_strdup("#tasks-menu-col");
 
     set = xset_set("task_popups", "lbl", _("_Popups"));
@@ -9538,7 +9394,7 @@ static void xset_defaults()
     xset_set_set(set,
                  XSET_SET_SET_DESC,
                  "task_pop_all task_pop_top task_pop_above task_pop_stick sep_t6 task_pop_detail "
-                 "task_pop_over task_pop_err task_pop_font");
+                 "task_pop_over task_pop_err");
     set->line = g_strdup("#tasks-menu-popall");
 
     set = xset_set("task_pop_all", "lbl", _("Popup _All Tasks"));
@@ -9575,14 +9431,6 @@ static void xset_defaults()
     set->menu_style = XSET_MENU_CHECK;
     set->b = XSET_B_TRUE;
     set->line = g_strdup("#tasks-menu-poperropt");
-
-    set = xset_set("task_pop_font", "lbl", _("_Font"));
-    set->menu_style = XSET_MENU_FONTDLG;
-    xset_set_set(set, XSET_SET_SET_ICN, "gtk-select-font");
-    xset_set_set(set, XSET_SET_SET_TITLE, _("Task Popup Font (affects new tasks)"));
-    xset_set_set(set, XSET_SET_SET_DESC, _("Example Output 0123456789"));
-    set->s = g_strdup("Monospace 11");
-    set->line = g_strdup("#tasks-menu-popfont");
 
     set = xset_set("task_errors", "lbl", _("Err_ors"));
     set->menu_style = XSET_MENU_SUBMENU;
@@ -9655,12 +9503,6 @@ static void xset_defaults()
     set->menu_style = XSET_MENU_SEP;
 
     xset_set("date_format", "s", "%Y-%m-%d %H:%M");
-
-    set = xset_set("input_font", "lbl", _("_Font"));
-    set->menu_style = XSET_MENU_FONTDLG;
-    xset_set_set(set, XSET_SET_SET_ICN, "gtk-select-font");
-    xset_set_set(set, XSET_SET_SET_TITLE, _("Input Font"));
-    xset_set_set(set, XSET_SET_SET_DESC, _("Example Input 0123456789"));
 
     set = xset_set("con_open", "lbl", _("_Open"));
     set->menu_style = XSET_MENU_SUBMENU;
@@ -10315,52 +10157,9 @@ static void xset_defaults()
         if (p != 1)
             xset_set_set(set, XSET_SET_SET_SHARED_KEY, "panel1_show_hidden");
 
-        set = xset_set_panel(p, "font_file", "lbl", _("_Font"));
-        set->menu_style = XSET_MENU_FONTDLG;
-        xset_set_set(set, XSET_SET_SET_ICN, "gtk-select-font");
-        set->title = g_strdup_printf(_("File List Font (Panel %d)"), p);
-        xset_set_set(set,
-                     XSET_SET_SET_DESC,
-                     _("Example  1.1 M  file  -rwxr--r--  user:group  2011-01-01 01:11"));
-
-        set = xset_set_panel(p, "font_dev", "lbl", _("_Font"));
-        set->menu_style = XSET_MENU_FONTDLG;
-        xset_set_set(set, XSET_SET_SET_ICN, "gtk-select-font");
-        set->title = g_strdup_printf(_("Devices Font (Panel %d)"), p);
-        xset_set_set(set, XSET_SET_SET_DESC, _("sr0 [no media] :EXAMPLE"));
-        set->line = g_strdup("#devices-settings-font");
-
-        set = xset_set_panel(p, "font_book", "lbl", _("_Font"));
-        set->menu_style = XSET_MENU_FONTDLG;
-        xset_set_set(set, XSET_SET_SET_ICN, "gtk-select-font");
-        set->title = g_strdup_printf(_("Bookmarks Font (Panel %d)"), p);
-        xset_set_set(set, XSET_SET_SET_DESC, _("Example Bookmark Name"));
-        set->line = g_strdup("#gui-book-side");
-
-        set = xset_set_panel(p, "font_path", "lbl", _("_Font"));
-        set->menu_style = XSET_MENU_FONTDLG;
-        xset_set_set(set, XSET_SET_SET_ICN, "gtk-select-font");
-        set->title = g_strdup_printf(_("Path Bar Font (Panel %d)"), p);
-        xset_set_set(set, XSET_SET_SET_DESC, _("$ cat /home/user/example"));
-        set->line = g_strdup("#gui-pathbar-font");
-
-        set = xset_set_panel(p, "font_tab", "lbl", _("_Font"));
-        set->menu_style = XSET_MENU_FONTDLG;
-        xset_set_set(set, XSET_SET_SET_ICN, "gtk-select-font");
-        set->title = g_strdup_printf(_("Tab Font (Panel %d)"), p);
-        xset_set_set(set, XSET_SET_SET_DESC, "/usr/bin");
-
         set = xset_set_panel(p, "icon_tab", "lbl", _("_Icon"));
         set->menu_style = XSET_MENU_ICON;
         xset_set_set(set, XSET_SET_SET_ICN, "gtk-directory");
-
-        set = xset_set_panel(p, "font_status", "lbl", _("_Font"));
-        set->menu_style = XSET_MENU_FONTDLG;
-        xset_set_set(set, XSET_SET_SET_ICN, "gtk-select-font");
-        set->title = g_strdup_printf(_("Status Bar Font (Panel %d)"), p);
-        xset_set_set(set, XSET_SET_SET_DESC, _("12 G free / 200 G   52 items"));
-        if (p != 1)
-            xset_set_set(set, XSET_SET_SET_SHARED_KEY, "panel1_font_status");
 
         set = xset_set_panel(p, "icon_status", "lbl", _("_Icon"));
         set->menu_style = XSET_MENU_ICON;

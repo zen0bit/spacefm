@@ -1177,34 +1177,6 @@ static void on_browse_button_press(GtkWidget* widget, MoveSet* mset)
     gtk_widget_destroy(dlg);
 }
 
-static void on_font_change(GtkMenuItem* item, MoveSet* mset)
-{
-    PangoFontDescription* font_desc = NULL;
-
-    if (xset_get_s("move_dlg_font"))
-        font_desc = pango_font_description_from_string(xset_get_s("move_dlg_font"));
-
-    gtk_widget_override_font(GTK_WIDGET(mset->input_name), font_desc);
-    gtk_widget_override_font(GTK_WIDGET(mset->entry_ext), font_desc);
-    gtk_widget_override_font(GTK_WIDGET(mset->input_full_name), font_desc);
-    gtk_widget_override_font(GTK_WIDGET(mset->input_path), font_desc);
-    gtk_widget_override_font(GTK_WIDGET(mset->input_full_path), font_desc);
-    gtk_widget_override_font(GTK_WIDGET(mset->label_mime), font_desc);
-    if (mset->entry_target)
-        gtk_widget_override_font(GTK_WIDGET(mset->entry_target), font_desc);
-    if (mset->create_new)
-    {
-        // doesn't change drop-down font
-        gtk_widget_override_font(GTK_WIDGET(gtk_bin_get_child(GTK_BIN(mset->combo_template))),
-                                 font_desc);
-        gtk_widget_override_font(GTK_WIDGET(gtk_bin_get_child(GTK_BIN(mset->combo_template_dir))),
-                                 font_desc);
-    }
-
-    if (font_desc)
-        pango_font_description_free(font_desc);
-}
-
 static void on_opt_toggled(GtkMenuItem* item, MoveSet* mset)
 {
     const char* action;
@@ -1541,8 +1513,6 @@ static void on_options_button_press(GtkWidget* btn, MoveSet* mset)
     set = xset_get("sep_mopt1");
     xset_add_menuitem(mset->browser, popup, accel_group, set);
     set = xset_get("move_dlg_confirm_create");
-    xset_add_menuitem(mset->browser, popup, accel_group, set);
-    set = xset_set_cb("move_dlg_font", on_font_change, mset);
     xset_add_menuitem(mset->browser, popup, accel_group, set);
     set = xset_get("sep_mopt2");
     xset_add_menuitem(mset->browser, popup, accel_group, set);
@@ -2142,12 +2112,7 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
         mset->open = NULL;
 
     // Window
-    int width = xset_get_int("move_dlg_font", "x");
-    int height = xset_get_int("move_dlg_font", "y");
-    if (width && height)
-        gtk_window_set_default_size(GTK_WINDOW(mset->dlg), width, height);
-    else
-        gtk_widget_set_size_request(GTK_WIDGET(mset->dlg), 600, -1);
+    gtk_widget_set_size_request(GTK_WIDGET(mset->dlg), 800, 500);
     gtk_window_set_resizable(GTK_WINDOW(mset->dlg), TRUE);
     gtk_window_set_type_hint(GTK_WINDOW(mset->dlg), GDK_WINDOW_TYPE_HINT_DIALOG);
     gtk_widget_show_all(mset->dlg);
@@ -2360,8 +2325,7 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
     gtk_widget_set_halign(GTK_MISC(mset->label_name), GTK_ALIGN_START);
     gtk_widget_set_valign(GTK_MISC(mset->label_name), GTK_ALIGN_START);
     mset->scroll_name = gtk_scrolled_window_new(NULL, NULL);
-    mset->input_name =
-        GTK_WIDGET(multi_input_new(GTK_SCROLLED_WINDOW(mset->scroll_name), NULL, FALSE));
+    mset->input_name = GTK_WIDGET(multi_input_new(GTK_SCROLLED_WINDOW(mset->scroll_name), NULL));
     gtk_label_set_mnemonic_widget(mset->label_name, mset->input_name);
     g_signal_connect(G_OBJECT(mset->input_name),
                      "key-press-event",
@@ -2415,7 +2379,7 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
     gtk_widget_set_valign(GTK_MISC(mset->label_full_name), GTK_ALIGN_START);
     mset->scroll_full_name = gtk_scrolled_window_new(NULL, NULL);
     mset->input_full_name =
-        GTK_WIDGET(multi_input_new(GTK_SCROLLED_WINDOW(mset->scroll_full_name), NULL, FALSE));
+        GTK_WIDGET(multi_input_new(GTK_SCROLLED_WINDOW(mset->scroll_full_name), NULL));
     gtk_label_set_mnemonic_widget(mset->label_full_name, mset->input_full_name);
     g_signal_connect(G_OBJECT(mset->input_full_name),
                      "mnemonic-activate",
@@ -2442,8 +2406,7 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
     gtk_widget_set_halign(GTK_MISC(mset->label_path), GTK_ALIGN_START);
     gtk_widget_set_valign(GTK_MISC(mset->label_path), GTK_ALIGN_START);
     mset->scroll_path = gtk_scrolled_window_new(NULL, NULL);
-    mset->input_path =
-        GTK_WIDGET(multi_input_new(GTK_SCROLLED_WINDOW(mset->scroll_path), NULL, FALSE));
+    mset->input_path = GTK_WIDGET(multi_input_new(GTK_SCROLLED_WINDOW(mset->scroll_path), NULL));
     gtk_label_set_mnemonic_widget(mset->label_path, mset->input_path);
     g_signal_connect(G_OBJECT(mset->input_path),
                      "mnemonic-activate",
@@ -2471,8 +2434,8 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
     gtk_widget_set_valign(GTK_MISC(mset->label_full_path), GTK_ALIGN_START);
     mset->scroll_full_path = gtk_scrolled_window_new(NULL, NULL);
     // set initial path
-    mset->input_full_path = GTK_WIDGET(
-        multi_input_new(GTK_SCROLLED_WINDOW(mset->scroll_full_path), mset->new_path, FALSE));
+    mset->input_full_path =
+        GTK_WIDGET(multi_input_new(GTK_SCROLLED_WINDOW(mset->scroll_full_path), mset->new_path));
     gtk_label_set_mnemonic_widget(mset->label_full_path, mset->input_full_path);
     g_signal_connect(G_OBJECT(mset->input_full_path),
                      "mnemonic-activate",
@@ -2635,7 +2598,6 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
     gtk_box_pack_start(GTK_BOX(dlg_vbox), GTK_WIDGET(hbox), FALSE, TRUE, 10);
 
     // show
-    on_font_change(NULL, mset);
     gtk_widget_show_all(mset->dlg);
     on_toggled(NULL, mset);
     if (mset->clip_copy)
@@ -3161,33 +3123,6 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
     // save size
     GtkAllocation allocation;
     gtk_widget_get_allocation(GTK_WIDGET(mset->dlg), &allocation);
-    width = allocation.width;
-    height = allocation.height;
-    if (width && height)
-    {
-        str = g_strdup_printf("%d", width);
-        xset_set("move_dlg_font", "x", str);
-        g_free(str);
-        str = g_strdup_printf("%d", height);
-        xset_set("move_dlg_font", "y", str);
-        g_free(str);
-    }
-
-    // save last_widget - this is no longer used but save anyway
-    int last;
-    if (mset->last_widget == mset->input_name)
-        last = 1;
-    else if (mset->last_widget == GTK_WIDGET(mset->entry_ext))
-        last = 2;
-    else if (mset->last_widget == mset->input_path)
-        last = 3;
-    else if (mset->last_widget == mset->input_full_path)
-        last = 4;
-    else
-        last = 0;
-    str = g_strdup_printf("%d", last);
-    xset_set("move_dlg_font", "z", str);
-    g_free(str);
 
     // destroy
     gtk_widget_destroy(mset->dlg);

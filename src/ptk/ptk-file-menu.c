@@ -485,28 +485,13 @@ void ptk_file_menu_add_panel_view_menu(PtkFileBrowser* browser, GtkWidget* menu,
         set->b = PTK_FILE_LIST(browser->file_list)->sort_hidden_first ? XSET_B_FALSE : XSET_B_TRUE;
     }
 
-    xset_set_cb_panel(p, "font_file", main_update_fonts, browser);
     set = xset_get("view_list_style");
     desc = g_strdup_printf("panel%d_list_detailed panel%d_list_compact panel%d_list_icons sep_v5 "
-                           "view_thumb panel%d_list_large rubberband sep_v6 panel%d_font_file",
-                           p,
+                           "view_thumb panel%d_list_large rubberband",
                            p,
                            p,
                            p,
                            p);
-    xset_set_set(set, XSET_SET_SET_DESC, desc);
-    g_free(desc);
-    set = xset_get("view_fonts");
-    desc =
-        g_strdup_printf("panel%d_font_device panel%d_font_dir panel%d_font_book panel%d_font_files "
-                        "panel%d_font_tabs panel%d_font_status panel%d_font_pathbar",
-                        p,
-                        p,
-                        p,
-                        p,
-                        p,
-                        p,
-                        p);
     xset_set_set(set, XSET_SET_SET_DESC, desc);
     g_free(desc);
     set = xset_get("con_view");

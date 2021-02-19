@@ -2421,27 +2421,12 @@ _cleanup:
     return ret;
 }
 
-static void on_textview_font_change(GtkMenuItem* item, HandlerData* hnd)
-{
-    char* fontname = xset_get_s("context_dlg");
-    PangoFontDescription* font_desc =
-        fontname ? pango_font_description_from_string(fontname) : NULL;
-    gtk_widget_override_font(GTK_WIDGET(hnd->view_handler_compress), font_desc);
-    gtk_widget_override_font(GTK_WIDGET(hnd->view_handler_extract), font_desc);
-    gtk_widget_override_font(GTK_WIDGET(hnd->view_handler_list), font_desc);
-    if (font_desc)
-        pango_font_description_free(font_desc);
-}
-
 static void on_textview_popup(GtkTextView* input, GtkMenu* menu, HandlerData* hnd)
 {
     // uses same xsets as item-prop.c:on_script_popup()
     GtkAccelGroup* accel_group = gtk_accel_group_new();
     XSet* set = xset_get("sep_ctxt");
     set->menu_style = XSET_MENU_SEP;
-    set->browser = NULL;
-    xset_add_menuitem(NULL, GTK_WIDGET(menu), accel_group, set);
-    set = xset_set_cb("context_dlg", on_textview_font_change, hnd);
     set->browser = NULL;
     xset_add_menuitem(NULL, GTK_WIDGET(menu), accel_group, set);
 
@@ -3149,8 +3134,6 @@ void ptk_handler_show_config(int mode, PtkFileBrowser* file_browser, XSet* def_h
                      G_CALLBACK(on_textview_buffer_changed),
                      hnd);
 
-    // set fonts
-    on_textview_font_change(NULL, hnd);
     // set textview popup menu event handlers
     g_signal_connect_after(G_OBJECT(hnd->view_handler_compress),
                            "populate-popup",

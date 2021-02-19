@@ -743,144 +743,6 @@ void main_window_root_bar_all()
     }
 }
 
-void main_update_fonts(GtkWidget* widget, PtkFileBrowser* file_browser)
-{
-    PtkFileBrowser* a_browser;
-    int i;
-    char* fontname;
-    PangoFontDescription* font_desc;
-    GList* l;
-    FMMainWindow* main_window;
-    int num_pages;
-    GtkWidget* tab_label;
-    XSet* set;
-    const char* icon_name;
-
-    int p = file_browser->mypanel;
-    // all windows/panel p/all browsers
-    for (l = all_windows; l; l = l->next)
-    {
-        main_window = (FMMainWindow*)l->data;
-        set = xset_get_panel(p, "icon_status");
-        if (set->icon && set->icon[0] != '\0')
-            icon_name = set->icon;
-        else
-            icon_name = g_strdup("gtk-yes");
-        num_pages = gtk_notebook_get_n_pages(GTK_NOTEBOOK(main_window->panel[p - 1]));
-        for (i = 0; i < num_pages; i++)
-        {
-            a_browser = PTK_FILE_BROWSER(
-                gtk_notebook_get_nth_page(GTK_NOTEBOOK(main_window->panel[p - 1]), i));
-            // file list / tree
-            fontname = xset_get_s_panel(p, "font_file");
-            if (fontname)
-            {
-                font_desc = pango_font_description_from_string(fontname);
-                gtk_widget_override_font(GTK_WIDGET(a_browser->folder_view), font_desc);
-
-                if (a_browser->view_mode != PTK_FB_LIST_VIEW)
-                {
-                    // force rebuild of folder_view for font change in exo_icon_view
-                    gtk_widget_destroy(a_browser->folder_view);
-                    a_browser->folder_view = NULL;
-                    ptk_file_browser_update_views(NULL, a_browser);
-                }
-
-                if (a_browser->side_dir)
-                    gtk_widget_override_font(GTK_WIDGET(a_browser->side_dir), font_desc);
-                pango_font_description_free(font_desc);
-            }
-            else
-            {
-                gtk_widget_override_font(GTK_WIDGET(a_browser->folder_view), NULL);
-                if (a_browser->side_dir)
-                    gtk_widget_override_font(GTK_WIDGET(a_browser->side_dir), NULL);
-            }
-            // devices
-            if (a_browser->side_dev)
-            {
-                fontname = xset_get_s_panel(p, "font_dev");
-                if (fontname)
-                {
-                    gtk_widget_override_font(GTK_WIDGET(a_browser->side_dev), font_desc);
-                    pango_font_description_free(font_desc);
-                }
-                else
-                    gtk_widget_override_font(GTK_WIDGET(a_browser->side_dev), NULL);
-            }
-            // bookmarks
-            if (a_browser->side_book)
-            {
-                fontname = xset_get_s_panel(p, "font_book");
-                if (fontname)
-                {
-                    font_desc = pango_font_description_from_string(fontname);
-                    gtk_widget_override_font(GTK_WIDGET(a_browser->side_book), font_desc);
-                    pango_font_description_free(font_desc);
-                }
-                else
-                    gtk_widget_override_font(GTK_WIDGET(a_browser->side_book), NULL);
-            }
-            // pathbar
-            if (a_browser->path_bar)
-            {
-                fontname = xset_get_s_panel(p, "font_path");
-                if (fontname)
-                {
-                    font_desc = pango_font_description_from_string(fontname);
-                    gtk_widget_override_font(GTK_WIDGET(a_browser->path_bar), font_desc);
-                    pango_font_description_free(font_desc);
-                }
-                else
-                    gtk_widget_override_font(GTK_WIDGET(a_browser->path_bar), NULL);
-            }
-
-            // status bar font and icon
-            if (a_browser->status_label)
-            {
-                fontname = xset_get_s_panel(p, "font_status");
-                if (fontname)
-                {
-                    font_desc = pango_font_description_from_string(fontname);
-                    gtk_widget_override_font(GTK_WIDGET(a_browser->status_label), font_desc);
-                    pango_font_description_free(font_desc);
-                }
-                else
-                    gtk_widget_override_font(GTK_WIDGET(a_browser->status_label), NULL);
-
-                gtk_image_set_from_icon_name(GTK_IMAGE(a_browser->status_image),
-                                             icon_name,
-                                             GTK_ICON_SIZE_MENU);
-            }
-
-            // tabs
-            // need to recreate to change icon
-            tab_label = fm_main_window_create_tab_label(main_window, a_browser);
-            gtk_notebook_set_tab_label(GTK_NOTEBOOK(main_window->panel[p - 1]),
-                                       GTK_WIDGET(a_browser),
-                                       tab_label);
-            // not needed?
-            // fm_main_window_update_tab_label( main_window, a_browser,
-            //                            a_browser->dir->disp_path );
-        }
-        // tasks
-        fontname = xset_get_s("font_task");
-        if (fontname)
-        {
-            font_desc = pango_font_description_from_string(fontname);
-            gtk_widget_override_font(GTK_WIDGET(main_window->task_view), font_desc);
-            pango_font_description_free(font_desc);
-        }
-        else
-            gtk_widget_override_font(GTK_WIDGET(main_window->task_view), NULL);
-
-        // panelbar
-        gtk_image_set_from_icon_name(GTK_IMAGE(main_window->panel_image[p - 1]),
-                                     icon_name,
-                                     GTK_ICON_SIZE_MENU);
-    }
-}
-
 static void update_window_icon(GtkWindow* window, GtkIconTheme* theme)
 {
     const char* name;
@@ -1651,7 +1513,6 @@ static void rebuild_menus(FMMainWindow* main_window)
     // View
     newmenu = gtk_menu_new();
     xset_set_cb("main_prefs", on_preference_activate, main_window);
-    xset_set_cb("font_task", main_update_fonts, file_browser);
     xset_set_cb("main_full", on_fullscreen_activate, main_window);
     xset_set_cb("main_design_mode", main_design_mode, main_window);
     xset_set_cb("main_icon", on_main_icon, NULL);
@@ -2565,13 +2426,6 @@ static bool notebook_clicked(GtkWidget* widget, GdkEventButton* event,
             xset_add_menuitem(file_browser, popup, accel_group, set);
             set = xset_set_cb("tab_new_here", ptk_file_browser_new_tab_here, file_browser);
             xset_add_menuitem(file_browser, popup, accel_group, set);
-            set = xset_get("sep_tab");
-            xset_add_menuitem(file_browser, popup, accel_group, set);
-            set = xset_set_cb_panel(file_browser->mypanel,
-                                    "font_tab",
-                                    main_update_fonts,
-                                    file_browser);
-            xset_add_menuitem(file_browser, popup, accel_group, set);
             gtk_widget_show_all(GTK_WIDGET(popup));
             g_signal_connect(popup, "selection-done", G_CALLBACK(gtk_widget_destroy), NULL);
             g_signal_connect(popup, "key-press-event", G_CALLBACK(xset_menu_keypress), NULL);
@@ -2667,15 +2521,6 @@ GtkWidget* fm_main_window_create_tab_label(FMMainWindow* main_window, PtkFileBro
     }
     else
         tab_text = gtk_label_new("");
-
-    // set font
-    char* fontname = xset_get_s_panel(file_browser->mypanel, "font_tab");
-    if (fontname)
-    {
-        PangoFontDescription* font_desc = pango_font_description_from_string(fontname);
-        gtk_widget_override_font(tab_text, font_desc);
-        pango_font_description_free(font_desc);
-    }
 
     gtk_label_set_ellipsize(GTK_LABEL(tab_text), PANGO_ELLIPSIZE_MIDDLE);
     if (strlen(gtk_label_get_text(GTK_LABEL(tab_text))) < 30)
@@ -3756,8 +3601,6 @@ static bool on_main_window_keypress(FMMainWindow* main_window, GdkEventKey* even
                 else if (g_str_has_prefix(xname, "err_"))
                     on_task_popup_errset(NULL, main_window, set->name);
             }
-            else if (!strcmp(set->name, "font_task"))
-                main_update_fonts(NULL, browser);
             else if (!strcmp(set->name, "rubberband"))
                 main_window_rubberband_all();
             else
@@ -5341,7 +5184,6 @@ static bool on_task_button_press_event(GtkWidget* view, GdkEventButton* event,
 
             main_task_prepare_menu(main_window, popup, accel_group);
 
-            xset_set_cb("font_task", main_update_fonts, file_browser);
             char* menu_elements = g_strdup_printf(
                 "task_stop sep_t3 task_pause task_que task_resume%s task_all sep_t4 "
                 "task_show_manager "
@@ -5878,15 +5720,6 @@ static GtkWidget* main_task_view_new(FMMainWindow* main_window)
                      "button-press-event",
                      G_CALLBACK(on_task_button_press_event),
                      main_window);
-
-    // set font
-    if (xset_get_s("font_task"))
-    {
-        PangoFontDescription* font_desc =
-            pango_font_description_from_string(xset_get_s("font_task"));
-        gtk_widget_override_font(view, font_desc);
-        pango_font_description_free(font_desc);
-    }
 
     return view;
 }

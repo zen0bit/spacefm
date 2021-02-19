@@ -1431,27 +1431,11 @@ static void replace_item_props(ContextData* ctxt)
                gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ctxt->ignore_context)));
 }
 
-static void on_script_font_change(GtkMenuItem* item, GtkTextView* input)
-{
-    char* fontname = xset_get_s("context_dlg");
-    if (fontname)
-    {
-        PangoFontDescription* font_desc = pango_font_description_from_string(fontname);
-        gtk_widget_override_font(GTK_WIDGET(input), font_desc);
-        pango_font_description_free(font_desc);
-    }
-    else
-        gtk_widget_override_font(GTK_WIDGET(input), NULL);
-}
-
 static void on_script_popup(GtkTextView* input, GtkMenu* menu, void* user_data)
 {
     GtkAccelGroup* accel_group = gtk_accel_group_new();
     XSet* set = xset_get("sep_ctxt");
     set->menu_style = XSET_MENU_SEP;
-    set->browser = NULL;
-    xset_add_menuitem(NULL, GTK_WIDGET(menu), accel_group, set);
-    set = xset_set_cb("context_dlg", on_script_font_change, input);
     set->browser = NULL;
     xset_add_menuitem(NULL, GTK_WIDGET(menu), accel_group, set);
 
@@ -1651,7 +1635,7 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
                                    GTK_POLICY_AUTOMATIC,
                                    GTK_POLICY_AUTOMATIC);
     gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scroll), GTK_SHADOW_ETCHED_IN);
-    ctxt->item_target = GTK_WIDGET(multi_input_new(GTK_SCROLLED_WINDOW(scroll), NULL, FALSE));
+    ctxt->item_target = GTK_WIDGET(multi_input_new(GTK_SCROLLED_WINDOW(scroll), NULL));
     gtk_widget_set_size_request(GTK_WIDGET(ctxt->item_target), -1, 100);
     gtk_widget_set_size_request(GTK_WIDGET(scroll), -1, 100);
 
@@ -2007,7 +1991,6 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     gtk_widget_set_size_request(GTK_WIDGET(ctxt->cmd_script), -1, 50);
     gtk_widget_set_size_request(GTK_WIDGET(ctxt->cmd_scroll_script), -1, 50);
     gtk_text_view_set_wrap_mode(GTK_TEXT_VIEW(ctxt->cmd_script), GTK_WRAP_WORD_CHAR);
-    on_script_font_change(NULL, GTK_TEXT_VIEW(ctxt->cmd_script));
     g_signal_connect_after(G_OBJECT(ctxt->cmd_script),
                            "populate-popup",
                            G_CALLBACK(on_script_popup),

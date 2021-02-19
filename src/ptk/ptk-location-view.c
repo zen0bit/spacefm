@@ -435,14 +435,6 @@ GtkWidget* ptk_location_view_new(PtkFileBrowser* file_browser)
     g_signal_connect(view, "button-press-event", G_CALLBACK(on_button_press_event), NULL);
     g_signal_connect(view, "key-press-event", G_CALLBACK(on_key_press_event), file_browser);
 
-    // set font
-    if (xset_get_s_panel(file_browser->mypanel, "font_dev"))
-    {
-        PangoFontDescription* font_desc =
-            pango_font_description_from_string(xset_get_s_panel(file_browser->mypanel, "font_dev"));
-        gtk_widget_override_font(view, font_desc);
-        pango_font_description_free(font_desc);
-    }
     return view;
 }
 
@@ -2574,7 +2566,6 @@ static void show_devices_menu(GtkTreeView* view, VFSVolume* vol, PtkFileBrowser*
     set = xset_get("dev_menu_root");
     // set->disable = !vol;
 
-    xset_set_cb_panel(file_browser->mypanel, "font_dev", main_update_fonts, file_browser);
     xset_set_cb("dev_icon_audiocd", update_volume_icons, NULL);
     xset_set_cb("dev_icon_optical_mounted", update_volume_icons, NULL);
     xset_set_cb("dev_icon_optical_media", update_volume_icons, NULL);
@@ -2604,8 +2595,7 @@ static void show_devices_menu(GtkTreeView* view, VFSVolume* vol, PtkFileBrowser*
     set = xset_get("dev_menu_settings");
     menu_elements = g_strdup_printf(
         "dev_show sep_dm4 dev_menu_auto dev_exec dev_fs_cnf dev_net_cnf dev_mount_options "
-        "dev_change sep_dm5 dev_single dev_newtab dev_icon panel%d_font_dev",
-        file_browser->mypanel);
+        "dev_change sep_dm5 dev_single dev_newtab dev_icon");
     xset_set_set(set, XSET_SET_SET_DESC, menu_elements);
     g_free(menu_elements);
 
@@ -4029,7 +4019,6 @@ static void show_bookmarks_menu(GtkTreeView* view, PtkFileBrowser* file_browser,
     XSetContext* context = xset_context_new();
     main_context_fill(file_browser, context);
 
-    xset_set_cb_panel(file_browser->mypanel, "font_book", main_update_fonts, file_browser);
     xset_set_cb("book_icon", main_window_update_all_bookmark_views, NULL);
     xset_set_cb("book_menu_icon", main_window_update_all_bookmark_views, NULL);
     GtkWidget* popup =
@@ -4040,10 +4029,8 @@ static void show_bookmarks_menu(GtkTreeView* view, PtkFileBrowser* file_browser,
     set = xset_get("book_settings");
     if (set->desc)
         g_free(set->desc);
-    set->desc = g_strdup_printf(
-        "book_single book_newtab panel%d_book_fol book_icon book_menu_icon panel%d_font_book",
-        file_browser->mypanel,
-        file_browser->mypanel);
+    set->desc = g_strdup_printf("book_single book_newtab panel%d_book_fol book_icon book_menu_icon",
+                                file_browser->mypanel);
     GtkAccelGroup* accel_group = gtk_accel_group_new();
     xset_add_menuitem(file_browser, popup, accel_group, set);
     gtk_menu_shell_prepend(GTK_MENU_SHELL(popup), gtk_separator_menu_item_new());
@@ -4250,15 +4237,6 @@ GtkWidget* ptk_bookmark_view_new(PtkFileBrowser* file_browser)
 
     file_browser->bookmark_button_press = FALSE;
     file_browser->book_iter_inserted.stamp = 0;
-
-    // set font
-    if (xset_get_s_panel(file_browser->mypanel, "font_book"))
-    {
-        PangoFontDescription* font_desc = pango_font_description_from_string(
-            xset_get_s_panel(file_browser->mypanel, "font_book"));
-        gtk_widget_override_font(view, font_desc);
-        pango_font_description_free(font_desc);
-    }
 
     // fill list
     if (!file_browser->book_set_name)
