@@ -14,6 +14,7 @@
 
 #include <glib.h>
 #include <glib/gi18n.h>
+#include <gdk/gdk.h>
 #include <gdk/gdkkeysyms.h>
 
 #include "settings.h"
@@ -156,7 +157,9 @@ void transpose_nonlatin_keypress(GdkEventKey* event)
     int level;
     int n;
 
-    if (gdk_keymap_translate_keyboard_state(gdk_keymap_get_default(),
+    GdkDisplay* display = gdk_display_get_default();
+
+    if (gdk_keymap_translate_keyboard_state(gdk_keymap_get_for_display(display),
                                             event->hardware_keycode,
                                             (GdkModifierType)event->state,
                                             event->group,
@@ -164,7 +167,7 @@ void transpose_nonlatin_keypress(GdkEventKey* event)
                                             NULL,
                                             &level,
                                             NULL) &&
-        gdk_keymap_get_entries_for_keycode(gdk_keymap_get_default(),
+        gdk_keymap_get_entries_for_keycode(gdk_keymap_get_for_display(display),
                                            event->hardware_keycode,
                                            &keys,
                                            &keyvals,
