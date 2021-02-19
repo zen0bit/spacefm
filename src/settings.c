@@ -8,10 +8,6 @@
  *
  */
 
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE // euidaccess
-#endif
-
 #include <stdbool.h>
 #include <stdint.h>
 

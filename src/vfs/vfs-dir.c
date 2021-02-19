@@ -9,10 +9,6 @@
  *
  */
 
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE // euidaccess
-#endif
-
 #include <stdbool.h>
 
 #include "vfs-dir.h"
@@ -490,15 +486,7 @@ static char* gethidden(const char* path) // MOD added
 
     // test access first because open() on missing file may cause
     // long delay on nfs
-    int acc;
-#if defined(HAVE_EUIDACCESS)
-    acc = euidaccess(hidden_path, R_OK);
-#elif defined(HAVE_EACCESS)
-    acc = eaccess(hidden_path, R_OK);
-#else
-    acc = 0;
-#endif
-    if (acc != 0)
+    if (faccessat(0, hidden_path, R_OK, AT_EACCESS) != 0)
     {
         g_free(hidden_path);
         return NULL;

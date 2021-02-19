@@ -21,10 +21,6 @@
 
 /* Currently this library is NOT MT-safe */
 
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE // euidaccess
-#endif
-
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -419,7 +415,6 @@ char* mime_type_get_desc_icon(const char* type, const char* locale, char** icon_
 {
     char* desc;
     char file_path[256];
-    int acc;
 
     /*  //sfm 0.7.7+ FIXED:
      * According to specs on freedesktop.org, user_data_dir has
@@ -430,14 +425,7 @@ char* mime_type_get_desc_icon(const char* type, const char* locale, char** icon_
      */
     /* FIXME: This path shouldn't be hard-coded. */
     g_snprintf(file_path, 256, "%s/mime/%s.xml", g_get_user_data_dir(), type);
-#if defined(HAVE_EUIDACCESS)
-    acc = euidaccess(file_path, F_OK);
-#elif defined(HAVE_EACCESS)
-    acc = eaccess(file_path, F_OK);
-#else
-    acc = 0;
-#endif
-    if (acc != -1)
+    if (faccessat(0, file_path, F_OK, AT_EACCESS) != -1)
     {
         desc = _mime_type_get_desc_icon(file_path, locale, TRUE, icon_name);
         if (desc)
@@ -450,14 +438,7 @@ char* mime_type_get_desc_icon(const char* type, const char* locale, char** icon_
     {
         /* FIXME: This path shouldn't be hard-coded. */
         g_snprintf(file_path, 256, "%s/mime/%s.xml", *dir, type);
-#if defined(HAVE_EUIDACCESS)
-        acc = euidaccess(file_path, F_OK);
-#elif defined(HAVE_EACCESS)
-        acc = eaccess(file_path, F_OK);
-#else
-        acc = 0;
-#endif
-        if (acc != -1)
+        if (faccessat(0, file_path, F_OK, AT_EACCESS) != -1)
         {
             desc = _mime_type_get_desc_icon(file_path, locale, FALSE, icon_name);
             if (G_LIKELY(desc))

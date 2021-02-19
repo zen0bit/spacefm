@@ -4,10 +4,6 @@
  *
  */
 
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif
-
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -5423,13 +5419,7 @@ int ptk_file_browser_no_access(const char* cwd, const char* smode)
     else
         mode = W_OK;
 
-    int no_access = 0;
-#if defined(HAVE_EUIDACCESS)
-    no_access = euidaccess(cwd, mode);
-#elif defined(HAVE_EACCESS)
-    no_access = eaccess(cwd, mode);
-#endif
-    return no_access;
+    return faccessat(0, cwd, mode, AT_EACCESS);
 }
 
 void ptk_file_browser_focus(GtkMenuItem* item, PtkFileBrowser* file_browser, int job2)
