@@ -49,6 +49,8 @@
 #define DEFAULT_TMP_DIR "/tmp"
 
 AppSettings app_settings = {0};
+ConfigSettings config_settings = {0};
+
 static const bool show_thumbnail_default = FALSE;
 static const int max_thumb_size_default = 8 << 20;
 static const int big_icon_size_default = 48;
@@ -72,9 +74,10 @@ static GList* keysets = NULL;
 static XSet* set_clipboard = NULL;
 static bool clipboard_is_cut;
 static XSet* set_last;
+
 static const char* settings_config_dir = NULL;
-static const char* settings_tmp_dir = NULL;
 static const char* settings_user_tmp_dir = NULL;
+
 static XSetContext* xset_context = NULL;
 static XSet* book_icon_set_cached = NULL;
 
@@ -92,8 +95,6 @@ XSet* evt_tab_focus = NULL;
 XSet* evt_tab_close = NULL;
 XSet* evt_device = NULL;
 GList* xset_cmd_history = NULL;
-
-char* settings_terminal_su = NULL;
 
 // delayed session saving
 static unsigned int xset_autosave_timer = 0;
@@ -301,7 +302,7 @@ static void parse_conf(const char* etc_path, char* line)
                       DEFAULT_TMP_DIR);
         else
         {
-            settings_tmp_dir = svalue;
+            config_settings.tmp_dir = svalue;
             svalue = NULL;
         }
     }
@@ -311,7 +312,7 @@ static void parse_conf(const char* etc_path, char* line)
             g_warning("%s: %s '%s' %s", etc_path, sname, svalue, _("file not found"));
         else if (!strcmp(sname, "terminal_su"))
         {
-            settings_terminal_su = svalue;
+            config_settings.terminal_su = svalue;
             svalue = NULL;
         }
     }
@@ -321,7 +322,7 @@ static void parse_conf(const char* etc_path, char* line)
 void load_conf()
 {
     // load spacefm.conf
-    settings_terminal_su = NULL;
+    config_settings.terminal_su = NULL;
 
     char* etc_path = g_build_filename(SYSCONFDIR, "spacefm", "spacefm.conf", NULL);
     FILE* file = fopen(etc_path, "r");
@@ -335,8 +336,8 @@ void load_conf()
     g_free(etc_path);
 
     // set tmp dir
-    if (!settings_tmp_dir)
-        settings_tmp_dir = g_strdup(DEFAULT_TMP_DIR);
+    if (!config_settings.tmp_dir)
+        config_settings.tmp_dir = g_strdup(DEFAULT_TMP_DIR);
 }
 
 void load_settings(const char* config_dir, bool git_settings)
@@ -348,7 +349,7 @@ void load_settings(const char* config_dir, bool git_settings)
     xset_cmd_history = NULL;
     app_settings.load_saved_tabs = TRUE;
 
-    settings_tmp_dir = g_get_user_cache_dir();
+    config_settings.tmp_dir = g_get_user_cache_dir();
 
     if (config_dir)
         settings_config_dir = config_dir;
@@ -745,7 +746,7 @@ const char* xset_get_user_tmp_dir()
     if (settings_user_tmp_dir && g_file_test(settings_user_tmp_dir, G_FILE_TEST_EXISTS))
         return settings_user_tmp_dir;
 
-    settings_user_tmp_dir = g_build_filename(settings_tmp_dir, "spacefm", NULL);
+    settings_user_tmp_dir = g_build_filename(config_settings.tmp_dir, "spacefm", NULL);
     g_mkdir_with_parents(settings_user_tmp_dir, 0700);
 
     return settings_user_tmp_dir;

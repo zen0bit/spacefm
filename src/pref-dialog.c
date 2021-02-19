@@ -327,9 +327,9 @@ static void on_response(GtkDialog* dlg, int response, FMPrefDlg* user_data)
 
         // terminal su command
         char* custom_su = NULL;
-        if (settings_terminal_su)
+        if (config_settings.terminal_su)
             // get su from /etc/spacefm/spacefm.conf
-            custom_su = g_find_program_in_path(settings_terminal_su);
+            custom_su = g_find_program_in_path(config_settings.terminal_su);
         int idx = gtk_combo_box_get_active(GTK_COMBO_BOX(data->su_command));
         if (idx > -1)
         {
@@ -628,9 +628,9 @@ bool fm_edit_preference(GtkWindow* parent, int page)
         char* use_su;
         data->su_command = (GtkWidget*)gtk_builder_get_object(builder, "su_command");
         use_su = xset_get_s("su_command");
-        if (settings_terminal_su)
+        if (config_settings.terminal_su)
             // get su from /etc/spacefm/spacefm.conf
-            custom_su = g_find_program_in_path(settings_terminal_su);
+            custom_su = g_find_program_in_path(config_settings.terminal_su);
         if (custom_su)
         {
             GtkListStore* su_list =

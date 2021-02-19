@@ -63,6 +63,18 @@ typedef struct AppSettings
 
 extern AppSettings app_settings;
 
+typedef struct ConfigSettings
+{
+    /* su */
+    char* terminal_su;
+    // char* graphical_su;
+
+    /* tmp dir */
+    char* tmp_dir;
+} ConfigSettings;
+
+extern ConfigSettings config_settings;
+
 void load_conf();
 void load_settings(const char* config_dir, bool git_settings);
 void save_settings(void* main_window_ptr);
@@ -315,9 +327,6 @@ extern XSet* evt_device;
 
 // instance-wide command history
 extern GList* xset_cmd_history;
-
-// These will contain the su settings from /etc/spacefm/spacefm.conf
-extern char* settings_terminal_su;
 
 typedef struct XSetContext
 {
