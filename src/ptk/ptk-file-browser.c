@@ -3738,7 +3738,16 @@ static GtkWidget* create_folder_view(PtkFileBrowser* file_browser, PtkFBViewMode
 
             if (view_mode == PTK_FB_COMPACT_VIEW)
             {
-                g_object_set(G_OBJECT(renderer), "xalign", 0.0, "yalign", 0.5, NULL);
+                g_object_set(G_OBJECT(renderer),
+                             "xalign",
+                             0.0,
+                             "yalign",
+                             0.5,
+                             "font",
+                             config_settings.font_view_compact,
+                             "size-set",
+                             TRUE,
+                             NULL);
             }
             else
             {
@@ -3756,6 +3765,10 @@ static GtkWidget* create_folder_view(PtkFileBrowser* file_browser, PtkFBViewMode
                              0.0,
                              "attributes",
                              attr_list,
+                             "font",
+                             config_settings.font_view_icon,
+                             "size-set",
+                             TRUE,
                              NULL);
             }
             gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(folder_view), renderer, TRUE);

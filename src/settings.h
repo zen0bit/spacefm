@@ -71,6 +71,12 @@ typedef struct ConfigSettings
 
     /* tmp dir */
     char* tmp_dir;
+
+    /* Fonts */
+    char* font_view_icon;
+    char* font_view_compact;
+    char* font_general; // NOOP
+
 } ConfigSettings;
 
 extern ConfigSettings config_settings;

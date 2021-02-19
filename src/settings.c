@@ -316,6 +316,22 @@ static void parse_conf(const char* etc_path, char* line)
             svalue = NULL;
         }
     }
+    if (!strcmp(sname, "font_view_icon"))
+    {
+        config_settings.font_view_icon = svalue;
+        svalue = NULL;
+    }
+    else if (!strcmp(sname, "font_view_compact"))
+    {
+        config_settings.font_view_compact = svalue;
+        svalue = NULL;
+    }
+    else if (!strcmp(sname, "font_general"))
+    {
+        config_settings.font_general = svalue;
+        svalue = NULL;
+    }
+
     g_free(svalue);
 }
 
@@ -338,6 +354,14 @@ void load_conf()
     // set tmp dir
     if (!config_settings.tmp_dir)
         config_settings.tmp_dir = g_strdup(DEFAULT_TMP_DIR);
+
+    // default fonts
+    if (!config_settings.font_view_icon)
+        config_settings.font_view_icon = "Monospace 9";
+    if (!config_settings.font_view_compact)
+        config_settings.font_view_compact = "Monospace 9";
+    if (!config_settings.font_general)
+        config_settings.font_view_compact = "Monospace 9";
 }
 
 void load_settings(const char* config_dir, bool git_settings)
