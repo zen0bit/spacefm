@@ -738,7 +738,6 @@ static bool on_dir_tree_view_drag_motion(GtkWidget* widget, GdkDragContext* drag
                 suggested_action = gdk_drag_context_get_selected_action(drag_context);
             }
         }
-#if (GTK_MAJOR_VERSION == 3)
         /* hack to be able to call the default handler with the correct suggested_action */
         struct _GdkDragContext
         {
@@ -773,9 +772,6 @@ static bool on_dir_tree_view_drag_motion(GtkWidget* widget, GdkDragContext* drag
             unsigned int drop_done : 1; /* Whether gdk_drag_drop_done() was performed */
         };
         ((struct _GdkDragContext*)drag_context)->suggested_action = suggested_action;
-#elif (GTK_MAJOR_VERSION == 2)
-        drag_context->suggested_action = suggested_action; // needed for default handler
-#endif
         gdk_drag_status(drag_context, suggested_action, gtk_get_current_event_time());
     }
     return FALSE;

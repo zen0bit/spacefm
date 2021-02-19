@@ -26,13 +26,6 @@
 
 void _exo_gtk_widget_send_focus_change(GtkWidget* widget, bool in)
 {
-#if (GTK_MAJOR_VERSION == 2)
-    if (in)
-        GTK_WIDGET_SET_FLAGS(widget, GTK_HAS_FOCUS);
-    else
-        GTK_WIDGET_UNSET_FLAGS(widget, GTK_HAS_FOCUS);
-#endif
-
     GdkEvent* fevent;
 
     g_object_ref(G_OBJECT(widget));

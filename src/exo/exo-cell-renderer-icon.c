@@ -67,28 +67,11 @@ static void exo_cell_renderer_icon_get_property(GObject* object, unsigned int pr
 static void exo_cell_renderer_icon_set_property(GObject* object, unsigned int prop_id,
                                                 const GValue* value, GParamSpec* pspec);
 static void exo_cell_renderer_icon_get_size(GtkCellRenderer* renderer, GtkWidget* widget,
-#if (GTK_MAJOR_VERSION == 3)
-                                            const GdkRectangle* cell_area,
-#elif (GTK_MAJOR_VERSION == 2)
-                                            GdkRectangle* cell_area,
-#endif
-                                            int* x_offset, int* y_offset, int* width, int* height);
-static void exo_cell_renderer_icon_render(GtkCellRenderer* renderer,
-#if (GTK_MAJOR_VERSION == 3)
-                                          cairo_t* cr,
-#elif (GTK_MAJOR_VERSION == 2)
-                                          GdkWindow* window,
-#endif
-                                          GtkWidget* widget,
-#if (GTK_MAJOR_VERSION == 3)
+                                            const GdkRectangle* cell_area, int* x_offset,
+                                            int* y_offset, int* width, int* height);
+static void exo_cell_renderer_icon_render(GtkCellRenderer* renderer, cairo_t* cr, GtkWidget* widget,
                                           const GdkRectangle* background_area,
                                           const GdkRectangle* cell_area,
-#elif (GTK_MAJOR_VERSION == 2)
-                                          GdkRectangle* background_area, GdkRectangle* cell_area,
-#endif
-#if (GTK_MAJOR_VERSION == 2)
-                                          GdkRectangle* expose_area,
-#endif
                                           GtkCellRendererState flags);
 
 typedef struct ExoCellRendererIconPrivate
@@ -294,14 +277,8 @@ static void exo_cell_renderer_icon_set_property(GObject* object, unsigned int pr
 }
 
 static void exo_cell_renderer_icon_get_size(GtkCellRenderer* renderer, GtkWidget* widget,
-
-#if (GTK_MAJOR_VERSION == 3)
-                                            const GdkRectangle* cell_area,
-#elif (GTK_MAJOR_VERSION == 2)
-                                            GdkRectangle* cell_area,
-#endif
-
-                                            int* x_offset, int* y_offset, int* width, int* height)
+                                            const GdkRectangle* cell_area, int* x_offset,
+                                            int* y_offset, int* width, int* height)
 {
     const ExoCellRendererIconPrivate* priv =
         exo_cell_renderer_icon_get_instance_private(EXO_CELL_RENDERER_ICON(renderer));
@@ -343,37 +320,13 @@ static void exo_cell_renderer_icon_get_size(GtkCellRenderer* renderer, GtkWidget
         *height = (int)ypad * 2 + priv->size;
 }
 
-static void exo_cell_renderer_icon_render(GtkCellRenderer* renderer,
-
-#if (GTK_MAJOR_VERSION == 3)
-                                          cairo_t* cr,
-#elif (GTK_MAJOR_VERSION == 2)
-                                          GdkWindow* window,
-#endif
-
-                                          GtkWidget* widget,
-
-#if (GTK_MAJOR_VERSION == 3)
+static void exo_cell_renderer_icon_render(GtkCellRenderer* renderer, cairo_t* cr, GtkWidget* widget,
                                           const GdkRectangle* background_area,
-                                          const GdkRectangle* cell_area,
-#elif (GTK_MAJOR_VERSION == 2)
-                                          GdkRectangle* background_area, GdkRectangle* cell_area,
-#endif
-
-#if (GTK_MAJOR_VERSION == 3)
-#elif (GTK_MAJOR_VERSION == 2)
-                                          GdkRectangle* expose_area,
-#endif
-
-                                          GtkCellRendererState flags)
+                                          const GdkRectangle* cell_area, GtkCellRendererState flags)
 {
     const ExoCellRendererIconPrivate* priv =
         exo_cell_renderer_icon_get_instance_private(EXO_CELL_RENDERER_ICON(renderer));
-#if (GTK_MAJOR_VERSION == 3)
     GtkStateFlags state;
-#elif (GTK_MAJOR_VERSION == 2)
-    GtkStateType state;
-#endif
     GtkIconTheme* icon_theme;
     GdkRectangle icon_area;
     GdkRectangle draw_area;
@@ -387,9 +340,7 @@ static void exo_cell_renderer_icon_render(GtkCellRenderer* renderer,
     int icon_size;
     int n;
 
-#if (GTK_MAJOR_VERSION == 3)
     GdkRectangle* expose_area = NULL;
-#endif
 
     /* Verify that we have an icon */
     if (G_UNLIKELY(priv->icon == NULL && priv->gicon == NULL))
@@ -570,26 +521,11 @@ static void exo_cell_renderer_icon_render(GtkCellRenderer* renderer,
         }
 
         /* Render the invalid parts of the icon */
-#if (GTK_MAJOR_VERSION == 3)
         /* In GTK3, no expose_area is set so the intersecting draw_area is never
          * populated. icon_area is already the correct coords to output an icon
          * centred in the destination drawing area, so using that */
         gdk_cairo_set_source_pixbuf(cr, icon, icon_area.x, icon_area.y);
         cairo_paint(cr);
-#elif (GTK_MAJOR_VERSION == 2)
-        gdk_draw_pixbuf(window,
-                        widget->style->black_gc,
-                        icon,
-                        draw_area.x - icon_area.x,
-                        draw_area.y - icon_area.y,
-                        draw_area.x,
-                        draw_area.y,
-                        draw_area.width,
-                        draw_area.height,
-                        GDK_RGB_DITHER_NORMAL,
-                        0,
-                        0);
-#endif
     }
     /* Release the file's icon */
     g_object_unref(G_OBJECT(icon));

@@ -40,7 +40,6 @@
 #include "ptk-file-list.h"
 
 #include "utils.h"
-#include "gtk2-compat.h"
 
 static bool on_app_button_press(GtkWidget* item, GdkEventButton* event, PtkFileMenu* data);
 static bool app_menu_keypress(GtkWidget* widget, GdkEventKey* event, PtkFileMenu* data);
@@ -791,11 +790,7 @@ GtkWidget* ptk_file_menu_new(PtkFileBrowser* browser, const char* file_path, VFS
             for (sl = handlers_slist; sl; sl = sl->next)
             {
                 set = (XSet*)sl->data;
-#if (GTK_MAJOR_VERSION == 3)
                 app_menu_item = gtk_menu_item_new_with_label(set->menu_label);
-#elif (GTK_MAJOR_VERSION == 2)
-                app_menu_item = gtk_image_menu_item_new_with_label(set->menu_label);
-#endif
                 gtk_container_add(GTK_CONTAINER(submenu), app_menu_item);
                 g_signal_connect(G_OBJECT(app_menu_item),
                                  "activate",
@@ -859,17 +854,9 @@ GtkWidget* ptk_file_menu_new(PtkFileBrowser* browser, const char* file_path, VFS
                 desktop_file = vfs_app_desktop_new(*app);
                 app_name = vfs_app_desktop_get_disp_name(desktop_file);
                 if (app_name)
-#if (GTK_MAJOR_VERSION == 3)
                     app_menu_item = gtk_menu_item_new_with_label(app_name);
-#elif (GTK_MAJOR_VERSION == 2)
-                    app_menu_item = gtk_image_menu_item_new_with_label(app_name);
-#endif
                 else
-#if (GTK_MAJOR_VERSION == 3)
                     app_menu_item = gtk_menu_item_new_with_label(*app);
-#elif (GTK_MAJOR_VERSION == 2)
-                    app_menu_item = gtk_image_menu_item_new_with_label(*app);
-#endif
 
                 gtk_container_add(GTK_CONTAINER(submenu), app_menu_item);
                 g_signal_connect(G_OBJECT(app_menu_item),
@@ -1876,11 +1863,7 @@ static GtkWidget* app_menu_additem(GtkWidget* menu, char* label, char* stock_ico
             item = gtk_check_menu_item_new_with_mnemonic(label);
         else
         {
-#if (GTK_MAJOR_VERSION == 3)
             item = gtk_menu_item_new_with_mnemonic(label);
-#elif (GTK_MAJOR_VERSION == 2)
-            item = gtk_image_menu_item_new_with_mnemonic(label);
-#endif
             GtkWidget* image = gtk_image_new_from_stock(stock_icon, GTK_ICON_SIZE_MENU);
             if (image)
                 gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), image);
@@ -2035,11 +2018,7 @@ static void show_app_menu(GtkWidget* menu, GtkWidget* app_item, PtkFileMenu* dat
     gtk_container_add(GTK_CONTAINER(app_menu), gtk_separator_menu_item_new());
 
     // /usr submenu
-#if (GTK_MAJOR_VERSION == 3)
     newitem = gtk_menu_item_new_with_mnemonic("/_usr");
-#elif (GTK_MAJOR_VERSION == 2)
-    newitem = gtk_image_menu_item_new_with_mnemonic("/_usr");
-#endif
     submenu = gtk_menu_new();
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(newitem), submenu);
     gtk_image_menu_item_set_image(

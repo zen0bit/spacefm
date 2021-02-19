@@ -179,11 +179,7 @@ static GtkWidget* app_chooser_dialog_new(GtkWindow* parent, VFSMimeType* mime_ty
     show_default        Show 'Set as default' checkbox
     dir_default         Show 'Set as default' also for type dir
     */
-#if (GTK_MAJOR_VERSION == 3)
     const char* appchooserdlg_ui = g_strdup("/appchooserdlg3.ui");
-#elif (GTK_MAJOR_VERSION == 2)
-    const char* appchooserdlg_ui = g_strdup("/appchooserdlg2.ui");
-#endif
     GtkBuilder* builder = _gtk_builder_new_from_file(PACKAGE_UI_DIR, appchooserdlg_ui, NULL);
     GtkWidget* dlg = (GtkWidget*)gtk_builder_get_object(builder, "dlg");
     GtkWidget* file_type = (GtkWidget*)gtk_builder_get_object(builder, "file_type");
@@ -303,11 +299,7 @@ void on_notebook_switch_page(GtkNotebook* notebook, GtkWidget* page, unsigned in
             gdk_window_set_cursor(
                 gtk_widget_get_window(GTK_WIDGET(gtk_widget_get_toplevel(GTK_WIDGET(view)))),
                 busy);
-#if (GTK_MAJOR_VERSION == 3)
             g_object_unref(busy);
-#elif (GTK_MAJOR_VERSION == 2)
-            gdk_cursor_unref(busy);
-#endif
 
             GtkListStore* list = gtk_list_store_new(N_COLS,
                                                     GDK_TYPE_PIXBUF,

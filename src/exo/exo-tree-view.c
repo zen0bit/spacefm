@@ -497,11 +497,7 @@ static bool exo_tree_view_motion_notify_event(GtkWidget* widget, GdkEventMotion*
                                                         GDK_HAND2);
                     gdk_window_set_cursor(event->window, cursor);
 
-#if (GTK_MAJOR_VERSION == 3)
                     g_object_unref(cursor);
-#elif (GTK_MAJOR_VERSION == 2)
-                    gdk_cursor_unref(cursor);
-#endif
                 }
                 else
                 {

@@ -206,11 +206,7 @@ void exo_icon_view_get_drag_dest_item(ExoIconView* icon_view, GtkTreePath** path
                                       ExoIconViewDropPosition* pos);
 bool exo_icon_view_get_dest_item_at_pos(ExoIconView* icon_view, int drag_x, int drag_y,
                                         GtkTreePath** path, ExoIconViewDropPosition* pos);
-#if (GTK_MAJOR_VERSION == 3)
 cairo_surface_t* exo_icon_view_create_drag_icon(ExoIconView* icon_view,
-#elif (GTK_MAJOR_VERSION == 2)
-GdkPixmap* exo_icon_view_create_drag_icon(ExoIconView* icon_view,
-#endif
                                                 GtkTreePath* path);
 
 /* Interactive search support */

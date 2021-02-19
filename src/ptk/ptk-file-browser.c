@@ -907,11 +907,7 @@ static void rebuild_toolbox(GtkWidget* widget, PtkFileBrowser* file_browser)
                       show_tooltips);
 
     // add pathbar
-#if (GTK_MAJOR_VERSION == 3)
     GtkWidget* hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-#elif (GTK_MAJOR_VERSION == 2)
-    GtkWidget* hbox = gtk_hbox_new(FALSE, 0);
-#endif
     GtkToolItem* toolitem = gtk_tool_item_new();
     gtk_tool_item_set_expand(toolitem, TRUE);
     gtk_toolbar_insert(GTK_TOOLBAR(file_browser->toolbar), toolitem, -1);
@@ -999,11 +995,7 @@ void ptk_file_browser_status_change(PtkFileBrowser* file_browser, bool panel_foc
     if (panel_focus)
     {
         scolor = xset_get_s("status_text");
-#if (GTK_MAJOR_VERSION == 3)
         if (scolor && gdk_rgba_parse(scolor, &color))
-#elif (GTK_MAJOR_VERSION == 2)
-        if (scolor && gdk_color_parse(scolor, &color))
-#endif
             gtk_widget_modify_fg(GTK_WIDGET(file_browser->status_label), GTK_STATE_NORMAL, &color);
         else
             gtk_widget_modify_fg(GTK_WIDGET(file_browser->status_label), GTK_STATE_NORMAL, NULL);
@@ -1015,7 +1007,6 @@ void ptk_file_browser_status_change(PtkFileBrowser* file_browser, bool panel_foc
     if (panel_focus)
     {
         scolor = xset_get_s("status_border");
-#if (GTK_MAJOR_VERSION == 3)
         if (scolor && gdk_rgba_parse(scolor, &color))
             gtk_widget_override_background_color(GTK_WIDGET(file_browser->status_frame),
                                                  GTK_STATE_NORMAL,
@@ -1029,15 +1020,6 @@ void ptk_file_browser_status_change(PtkFileBrowser* file_browser, bool panel_foc
         gtk_widget_override_background_color(GTK_WIDGET(file_browser->status_frame),
                                              GTK_STATE_NORMAL,
                                              NULL);
-#elif (GTK_MAJOR_VERSION == 2)
-        if (scolor && gdk_color_parse(scolor, &color))
-            gtk_widget_modify_bg(GTK_WIDGET(file_browser->status_frame), GTK_STATE_NORMAL, &color);
-        else
-            gtk_widget_modify_bg(GTK_WIDGET(file_browser->status_frame), GTK_STATE_NORMAL, NULL);
-    }
-    else
-        gtk_widget_modify_bg(GTK_WIDGET(file_browser->status_frame), GTK_STATE_NORMAL, NULL);
-#endif
 }
 
 static bool on_status_bar_button_press(GtkWidget* widget, GdkEventButton* event,
@@ -1160,40 +1142,22 @@ static void ptk_file_browser_init(PtkFileBrowser* file_browser)
 
     // toolbox
     file_browser->toolbar = NULL;
-#if (GTK_MAJOR_VERSION == 3)
     file_browser->toolbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-#elif (GTK_MAJOR_VERSION == 2)
-    file_browser->toolbox = gtk_hbox_new(FALSE, 0);
-#endif
     gtk_box_pack_start(GTK_BOX(file_browser), file_browser->toolbox, FALSE, FALSE, 0);
 
     // lists area
-#if (GTK_MAJOR_VERSION == 3)
     file_browser->hpane = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
     file_browser->side_vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-#elif (GTK_MAJOR_VERSION == 2)
-    file_browser->hpane = gtk_hpaned_new();
-    file_browser->side_vbox = gtk_vbox_new(FALSE, 0);
-#endif
     gtk_widget_set_size_request(file_browser->side_vbox, 140, -1);
     file_browser->folder_view_scroll = gtk_scrolled_window_new(NULL, NULL);
     gtk_paned_pack1(GTK_PANED(file_browser->hpane), file_browser->side_vbox, FALSE, FALSE);
     gtk_paned_pack2(GTK_PANED(file_browser->hpane), file_browser->folder_view_scroll, TRUE, TRUE);
 
     // fill side
-#if (GTK_MAJOR_VERSION == 3)
     file_browser->side_toolbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-#elif (GTK_MAJOR_VERSION == 2)
-    file_browser->side_toolbox = gtk_hbox_new(FALSE, 0);
-#endif
     file_browser->side_toolbar = NULL;
-#if (GTK_MAJOR_VERSION == 3)
     file_browser->side_vpane_top = gtk_paned_new(GTK_ORIENTATION_VERTICAL);
     file_browser->side_vpane_bottom = gtk_paned_new(GTK_ORIENTATION_VERTICAL);
-#elif (GTK_MAJOR_VERSION == 2)
-    file_browser->side_vpane_top = gtk_vpaned_new();
-    file_browser->side_vpane_bottom = gtk_vpaned_new();
-#endif
     file_browser->side_dir_scroll = gtk_scrolled_window_new(NULL, NULL);
     file_browser->side_book_scroll = gtk_scrolled_window_new(NULL, NULL);
     file_browser->side_dev_scroll = gtk_scrolled_window_new(NULL, NULL);
@@ -1207,7 +1171,6 @@ static void ptk_file_browser_init(PtkFileBrowser* file_browser)
                        TRUE,
                        TRUE,
                        0);
-#if (GTK_MAJOR_VERSION == 3)
     // see https://github.com/BwackNinja/spacefm/issues/21
     gtk_paned_pack1(GTK_PANED(file_browser->side_vpane_top),
                     file_browser->side_dev_scroll,
@@ -1225,24 +1188,6 @@ static void ptk_file_browser_init(PtkFileBrowser* file_browser)
                     file_browser->side_dir_scroll,
                     TRUE,
                     FALSE);
-#elif (GTK_MAJOR_VERSION == 2)
-    gtk_paned_pack1(GTK_PANED(file_browser->side_vpane_top),
-                    file_browser->side_dev_scroll,
-                    FALSE,
-                    TRUE);
-    gtk_paned_pack2(GTK_PANED(file_browser->side_vpane_top),
-                    file_browser->side_vpane_bottom,
-                    TRUE,
-                    TRUE);
-    gtk_paned_pack1(GTK_PANED(file_browser->side_vpane_bottom),
-                    file_browser->side_book_scroll,
-                    FALSE,
-                    TRUE);
-    gtk_paned_pack2(GTK_PANED(file_browser->side_vpane_bottom),
-                    file_browser->side_dir_scroll,
-                    TRUE,
-                    TRUE);
-#endif
 
     // status bar
     file_browser->status_bar = gtk_statusbar_new();
@@ -1264,11 +1209,10 @@ static void ptk_file_browser_init(PtkFileBrowser* file_browser)
     // required for button event
     gtk_label_set_selectable(file_browser->status_label, TRUE);
     gtk_widget_set_can_focus(GTK_WIDGET(file_browser->status_label), FALSE);
-#if (GTK_MAJOR_VERSION == 3)
     gtk_widget_set_hexpand(GTK_WIDGET(file_browser->status_label), TRUE);
     gtk_widget_set_halign(GTK_WIDGET(file_browser->status_label), GTK_ALIGN_FILL);
     gtk_misc_set_alignment(GTK_MISC(file_browser->status_label), 0, 0.5);
-#endif
+
     g_signal_connect(G_OBJECT(file_browser->status_label),
                      "button-press-event",
                      G_CALLBACK(on_status_bar_button_press),
@@ -1281,11 +1225,7 @@ static void ptk_file_browser_init(PtkFileBrowser* file_browser)
     {
         PangoFontDescription* font_desc = pango_font_description_from_string(
             xset_get_s_panel(file_browser->mypanel, "font_status"));
-#if (GTK_MAJOR_VERSION == 3)
         gtk_widget_override_font(GTK_WIDGET(file_browser->status_label), font_desc);
-#elif (GTK_MAJOR_VERSION == 2)
-        gtk_widget_modify_font(GTK_WIDGET(file_browser->status_label), font_desc);
-#endif
         pango_font_description_free(font_desc);
     }
 
@@ -1811,11 +1751,7 @@ GtkWidget* ptk_file_browser_new(int curpanel, GtkWidget* notebook, GtkWidget* ta
     if (fontname)
     {
         font_desc = pango_font_description_from_string(fontname);
-#if (GTK_MAJOR_VERSION == 3)
         gtk_widget_override_font(GTK_WIDGET(file_browser->status_label), font_desc);
-#elif (GTK_MAJOR_VERSION == 2)
-        gtk_widget_modify_font(GTK_WIDGET(file_browser->status_label), font_desc);
-#endif
         pango_font_description_free(font_desc);
     }
 
@@ -1823,11 +1759,7 @@ GtkWidget* ptk_file_browser_new(int curpanel, GtkWidget* notebook, GtkWidget* ta
     if (file_browser->path_bar && (fontname = xset_get_s_panel(curpanel, "font_path")))
     {
         font_desc = pango_font_description_from_string(fontname);
-#if (GTK_MAJOR_VERSION == 3)
         gtk_widget_override_font(GTK_WIDGET(file_browser->path_bar), font_desc);
-#elif (GTK_MAJOR_VERSION == 2)
-        gtk_widget_modify_font(GTK_WIDGET(file_browser->path_bar), font_desc);
-#endif
         pango_font_description_free(font_desc);
     }
 
@@ -1857,7 +1789,6 @@ static void ptk_file_browser_update_tab_label(PtkFileBrowser* file_browser)
 
     name = g_path_get_basename(ptk_file_browser_get_cwd(file_browser));
     gtk_label_set_text(text, name);
-#if (GTK_MAJOR_VERSION == 3)
     gtk_label_set_ellipsize(text, PANGO_ELLIPSIZE_MIDDLE);
     if (strlen(name) < 30)
     {
@@ -1866,7 +1797,6 @@ static void ptk_file_browser_update_tab_label(PtkFileBrowser* file_browser)
     }
     else
         gtk_label_set_width_chars(text, 30);
-#endif
     g_free(name);
 }
 
@@ -2242,11 +2172,7 @@ static GtkWidget* add_history_menu_item(PtkFileBrowser* file_browser, GtkWidget*
     GtkWidget* folder_image;
     char* disp_name;
     disp_name = g_filename_display_basename((char*)l->data);
-#if (GTK_MAJOR_VERSION == 3)
     menu_item = gtk_menu_item_new_with_label(disp_name);
-#elif (GTK_MAJOR_VERSION == 2)
-    menu_item = gtk_image_menu_item_new_with_label(disp_name);
-#endif
     g_object_set_data(G_OBJECT(menu_item), "path", l);
     folder_image = gtk_image_new_from_icon_name("gnome-fs-directory", GTK_ICON_SIZE_MENU);
     gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item), folder_image);
@@ -2332,112 +2258,6 @@ static void on_file_deleted(VFSDir* dir, VFSFileInfo* file, PtkFileBrowser* file
     }
     else
     {
-#if (GTK_MAJOR_VERSION == 2)
-        /* GTK2 does not select the next row in the list when a row is deleted,
-         * so do so.  GTK3 does this automatically. */
-        GList* sel_files = NULL;
-        GtkTreeModel* model;
-        GtkTreeSelection* tree_sel = NULL;
-
-        switch (file_browser->view_mode)
-        {
-            case PTK_FB_ICON_VIEW:
-            case PTK_FB_COMPACT_VIEW:
-                sel_files = folder_view_get_selected_items(file_browser, &model);
-                if (sel_files && sel_files->next)
-                {
-                    // more than on file selected - do nothing
-                    g_list_foreach(sel_files, (GFunc)gtk_tree_path_free, NULL);
-                    g_list_free(sel_files);
-                    sel_files = NULL;
-                }
-                break;
-            case PTK_FB_LIST_VIEW:
-                tree_sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(file_browser->folder_view));
-                if (gtk_tree_selection_count_selected_rows(tree_sel) == 1)
-                    sel_files = gtk_tree_selection_get_selected_rows(tree_sel, &model);
-                break;
-            default:
-                break;
-        }
-
-        if (sel_files)
-        {
-            VFSFileInfo* file_sel;
-            GtkTreeIter it;
-            GtkTreeIter it2;
-            GtkTreePath* tree_path = NULL;
-            if (gtk_tree_model_get_iter(model, &it, (GtkTreePath*)sel_files->data))
-            {
-                gtk_tree_model_get(model, &it, COL_FILE_INFO, &file_sel, -1);
-                if (file_sel == file)
-                {
-                    // currently selected file is being deleted, select next
-                    if (gtk_tree_model_iter_next(model, &it))
-                        tree_path = gtk_tree_model_get_path(model, &it);
-                    else if (gtk_tree_model_get_iter_first(model, &it2))
-                    {
-                        // file is last in list, select previous
-
-                        GtkTreeIter it_prev;
-                        it_prev.stamp = 0;
-                        do
-                        {
-                            if (it2.user_data == it.user_data && it2.user_data2 == it.user_data2 &&
-                                it2.user_data3 == it.user_data3)
-                            {
-                                // found deleted file
-                                if (it_prev.stamp)
-                                {
-                                    // there was a previous so select
-                                    tree_path = gtk_tree_model_get_path(model, &it_prev);
-                                }
-                                break;
-                            }
-                            it_prev = it2;
-                        } while (gtk_tree_model_iter_next(model, &it2));
-                    }
-                    if (tree_path)
-                    {
-                        switch (file_browser->view_mode)
-                        {
-                            case PTK_FB_ICON_VIEW:
-                            case PTK_FB_COMPACT_VIEW:
-                                exo_icon_view_select_path(EXO_ICON_VIEW(file_browser->folder_view),
-                                                          tree_path);
-                                exo_icon_view_set_cursor(EXO_ICON_VIEW(file_browser->folder_view),
-                                                         tree_path,
-                                                         NULL,
-                                                         FALSE);
-                                exo_icon_view_scroll_to_path(
-                                    EXO_ICON_VIEW(file_browser->folder_view),
-                                    tree_path,
-                                    TRUE,
-                                    .25,
-                                    0);
-                                break;
-                            default:
-                                gtk_tree_selection_select_path(tree_sel, tree_path);
-                                gtk_tree_view_set_cursor(GTK_TREE_VIEW(file_browser->folder_view),
-                                                         tree_path,
-                                                         NULL,
-                                                         FALSE);
-                                gtk_tree_view_scroll_to_cell(
-                                    GTK_TREE_VIEW(file_browser->folder_view),
-                                    tree_path,
-                                    NULL,
-                                    TRUE,
-                                    .25,
-                                    0);
-                        }
-                        gtk_tree_path_free(tree_path);
-                    }
-                }
-            }
-            g_list_foreach(sel_files, (GFunc)gtk_tree_path_free, NULL);
-            g_list_free(sel_files);
-        }
-#endif
         on_folder_content_changed(dir, file, file_browser);
     }
 }
@@ -4161,11 +3981,7 @@ static GtkWidget* create_folder_view(PtkFileBrowser* file_browser, PtkFBViewMode
     {
         PangoFontDescription* font_desc = pango_font_description_from_string(
             xset_get_s_panel(file_browser->mypanel, "font_file"));
-#if (GTK_MAJOR_VERSION == 3)
         gtk_widget_override_font(folder_view, font_desc);
-#elif (GTK_MAJOR_VERSION == 2)
-        gtk_widget_modify_font(folder_view, font_desc);
-#endif
         pango_font_description_free(font_desc);
     }
 
@@ -5382,11 +5198,7 @@ static GtkWidget* ptk_file_browser_create_dir_tree(PtkFileBrowser* file_browser)
     {
         PangoFontDescription* font_desc = pango_font_description_from_string(
             xset_get_s_panel(file_browser->mypanel, "font_file"));
-#if (GTK_MAJOR_VERSION == 3)
         gtk_widget_override_font(dir_tree, font_desc);
-#elif (GTK_MAJOR_VERSION == 2)
-        gtk_widget_modify_font(dir_tree, font_desc);
-#endif
         pango_font_description_free(font_desc);
     }
 

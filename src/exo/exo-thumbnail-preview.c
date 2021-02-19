@@ -71,27 +71,17 @@ static void exo_thumbnail_preview_init(ExoThumbnailPreview* thumbnail_preview)
 
     ebox = gtk_event_box_new();
 
-#if (GTK_MAJOR_VERSION == 3)
     /* TODO: Gtk3 */
-    gtk_widget_override_background_color(ebox,
-                                         GTK_STATE_NORMAL,
-                                         &gtk_widget_get_style(ebox)->base[GTK_STATE_INSENSITIVE]);
-#elif (GTK_MAJOR_VERSION == 2)
     /* IgnorantGuru wants the background of the thumbnail widget to be grey/
      * black depending on the theme, rather than the default white, which is
      * associated with GTK_STATE_NORMAL
      * Note that this event box is what defines the colour, not thumbnail_preview */
-    gtk_widget_modify_bg(ebox,
-                         GTK_STATE_NORMAL,
-                         &gtk_widget_get_style(ebox)->base[GTK_STATE_INSENSITIVE]);
-#endif
+    gtk_widget_override_background_color(ebox,
+                                         GTK_STATE_NORMAL,
+                                         &gtk_widget_get_style(ebox)->base[GTK_STATE_INSENSITIVE]);
     gtk_container_add(GTK_CONTAINER(thumbnail_preview), ebox);
     gtk_widget_show(ebox);
-#if (GTK_MAJOR_VERSION == 3)
     vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-#elif (GTK_MAJOR_VERSION == 2)
-    vbox = gtk_vbox_new(FALSE, 0);
-#endif
     gtk_container_add(GTK_CONTAINER(ebox), vbox);
     gtk_widget_show(vbox);
 
@@ -107,11 +97,7 @@ static void exo_thumbnail_preview_init(ExoThumbnailPreview* thumbnail_preview)
     g_object_set(label, "xalign", 0.0f, "yalign", 0.5f, NULL);
     gtk_container_add(GTK_CONTAINER(button), label);
     gtk_widget_show(label);
-#if (GTK_MAJOR_VERSION == 3)
     box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
-#elif (GTK_MAJOR_VERSION == 2)
-    box = gtk_vbox_new(FALSE, 2);
-#endif
     gtk_container_set_border_width(GTK_CONTAINER(box), 2);
     gtk_box_pack_start(GTK_BOX(vbox), box, FALSE, FALSE, 0);
     gtk_widget_show(box);

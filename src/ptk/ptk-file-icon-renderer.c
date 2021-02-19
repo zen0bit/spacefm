@@ -31,24 +31,13 @@ static void ptk_file_icon_renderer_set_property(GObject* object, unsigned int pa
 static void ptk_file_icon_renderer_finalize(GObject* gobject);
 
 static void ptk_file_icon_renderer_get_size(GtkCellRenderer* cell, GtkWidget* widget,
-#if (GTK_MAJOR_VERSION == 3)
-                                            const GdkRectangle* cell_area,
-#elif (GTK_MAJOR_VERSION == 2)
-                                            GdkRectangle* cell_area,
-#endif
-                                            int* x_offset, int* y_offset, int* width, int* height);
+                                            const GdkRectangle* cell_area, int* x_offset,
+                                            int* y_offset, int* width, int* height);
 
-#if (GTK_MAJOR_VERSION == 3)
 static void ptk_file_icon_renderer_render(GtkCellRenderer* cell, cairo_t* cr, GtkWidget* widget,
                                           const GdkRectangle* background_area,
                                           const GdkRectangle* cell_area,
                                           GtkCellRendererState flags);
-#elif (GTK_MAJOR_VERSION == 2)
-static void ptk_file_icon_renderer_render(GtkCellRenderer* cell, GdkWindow* window,
-                                          GtkWidget* widget, GdkRectangle* background_area,
-                                          GdkRectangle* cell_area, GdkRectangle* expose_area,
-                                          unsigned int flags);
-#endif
 
 enum
 {
@@ -321,16 +310,9 @@ static GdkPixbuf* create_colorized_pixbuf(GdkPixbuf* src, GdkColor* new_color)
  *
  ***************************************************************************/
 
-#if (GTK_MAJOR_VERSION == 3)
 static void ptk_file_icon_renderer_render(GtkCellRenderer* cell, cairo_t* cr, GtkWidget* widget,
                                           const GdkRectangle* background_area,
                                           const GdkRectangle* cell_area, GtkCellRendererState flags)
-#elif (GTK_MAJOR_VERSION == 2)
-static void ptk_file_icon_renderer_render(GtkCellRenderer* cell, GdkWindow* window,
-                                          GtkWidget* widget, GdkRectangle* background_area,
-                                          GdkRectangle* cell_area, GdkRectangle* expose_area,
-                                          unsigned int flags)
-#endif
 {
     GtkCellRendererPixbuf* cellpixbuf = (GtkCellRendererPixbuf*)cell;
 
@@ -364,14 +346,8 @@ static void ptk_file_icon_renderer_render(GtkCellRenderer* cell, GdkWindow* wind
     pix_rect.width -= xpad * 2;
     pix_rect.height -= ypad * 2;
 
-#if (GTK_MAJOR_VERSION == 3)
     if (!gdk_rectangle_intersect(cell_area, &pix_rect, &draw_rect))
         return;
-#elif (GTK_MAJOR_VERSION == 2)
-    if (!gdk_rectangle_intersect(cell_area, &pix_rect, &draw_rect) ||
-        !gdk_rectangle_intersect(expose_area, &draw_rect, &draw_rect))
-        return;
-#endif
 
     g_object_get(G_OBJECT(cellpixbuf), "pixbuf", &pixbuf, NULL);
     g_object_get(G_OBJECT(cellpixbuf), "is-expander", &is_expander, NULL);
@@ -438,11 +414,7 @@ static void ptk_file_icon_renderer_render(GtkCellRenderer* cell, GdkWindow* wind
         }
         else if ((flags & (GTK_CELL_RENDERER_SELECTED /*|GTK_CELL_RENDERER_PRELIT*/)) != 0)
         {
-#if (GTK_MAJOR_VERSION == 3)
             GtkStateFlags state;
-#elif (GTK_MAJOR_VERSION == 2)
-            GtkStateType state;
-#endif
             GdkColor* color = NULL;
 
             if ((flags & GTK_CELL_RENDERER_SELECTED) != 0)
@@ -450,11 +422,7 @@ static void ptk_file_icon_renderer_render(GtkCellRenderer* cell, GdkWindow* wind
                 if (gtk_widget_has_focus(widget))
                     state = GTK_STATE_SELECTED;
                 else
-#if (GTK_MAJOR_VERSION == 3)
                     state = GTK_STATE_SELECTED;
-#elif (GTK_MAJOR_VERSION == 2)
-                    state = GTK_STATE_ACTIVE;
-#endif
                 color = &gtk_widget_get_style(widget)->base[state];
             }
             else
@@ -467,11 +435,7 @@ static void ptk_file_icon_renderer_render(GtkCellRenderer* cell, GdkWindow* wind
             pixbuf = colorized;
         }
     }
-#if (GTK_MAJOR_VERSION == 3)
     cairo_save(cr);
-#elif (GTK_MAJOR_VERSION == 2)
-    cairo_t* cr = gdk_cairo_create(window);
-#endif
     cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
     gdk_cairo_set_source_pixbuf(cr, pixbuf, pix_rect.x, pix_rect.y);
     gdk_cairo_rectangle(cr, &draw_rect);
@@ -491,11 +455,7 @@ static void ptk_file_icon_renderer_render(GtkCellRenderer* cell, GdkWindow* wind
         }
     }
 
-#if (GTK_MAJOR_VERSION == 3)
     cairo_restore(cr);
-#elif (GTK_MAJOR_VERSION == 2)
-    cairo_destroy(cr);
-#endif
 
     if (invisible)
         g_object_unref(invisible);
@@ -505,12 +465,8 @@ static void ptk_file_icon_renderer_render(GtkCellRenderer* cell, GdkWindow* wind
 }
 
 static void ptk_file_icon_renderer_get_size(GtkCellRenderer* cell, GtkWidget* widget,
-#if (GTK_MAJOR_VERSION == 3)
-                                            const GdkRectangle* cell_area,
-#elif (GTK_MAJOR_VERSION == 2)
-                                            GdkRectangle* cell_area,
-#endif
-                                            int* x_offset, int* y_offset, int* width, int* height)
+                                            const GdkRectangle* cell_area, int* x_offset,
+                                            int* y_offset, int* width, int* height)
 {
     GTK_CELL_RENDERER_CLASS(parent_class)
         ->get_size(cell, widget, cell_area, x_offset, y_offset, width, height);

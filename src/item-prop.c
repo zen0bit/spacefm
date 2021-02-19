@@ -925,23 +925,6 @@ static void on_script_toggled(GtkWidget* item, ContextData* ctxt)
         g_free(ctxt->temp_cmd_line);
         ctxt->temp_cmd_line = get_text_view(GTK_TEXT_VIEW(ctxt->cmd_script));
         load_command_script(ctxt, ctxt->set);
-
-#if (GTK_MAJOR_VERSION == 2)
-        // update Open In Browser file count - cosmetic only
-        // should probably rebuild entire list on click to avoid gtk 2.24 dep
-        char* path;
-        if (ctxt->set->plugin)
-            path = g_build_filename(ctxt->set->plug_dir, ctxt->set->plug_name, NULL);
-        else
-            path = g_build_filename(xset_get_config_dir(), "scripts", ctxt->set->name, NULL);
-        char* str = g_strdup_printf("%s  $fm_cmd_dir  %s",
-                                    _("Command Dir"),
-                                    dir_has_files(path) ? "" : _("(no files)"));
-        gtk_combo_box_text_remove(GTK_COMBO_BOX_TEXT(ctxt->open_browser), 0);
-        gtk_combo_box_text_insert_text(GTK_COMBO_BOX_TEXT(ctxt->open_browser), 0, str);
-        g_free(str);
-        g_free(path);
-#endif
     }
     GtkTextBuffer* buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(ctxt->cmd_script));
     GtkTextIter siter;
@@ -1462,19 +1445,11 @@ static void on_script_font_change(GtkMenuItem* item, GtkTextView* input)
     if (fontname)
     {
         PangoFontDescription* font_desc = pango_font_description_from_string(fontname);
-#if (GTK_MAJOR_VERSION == 3)
         gtk_widget_override_font(GTK_WIDGET(input), font_desc);
-#elif (GTK_MAJOR_VERSION == 2)
-        gtk_widget_modify_font(GTK_WIDGET(input), font_desc);
-#endif
         pango_font_description_free(font_desc);
     }
     else
-#if (GTK_MAJOR_VERSION == 3)
         gtk_widget_override_font(GTK_WIDGET(input), NULL);
-#elif (GTK_MAJOR_VERSION == 2)
-        gtk_widget_modify_font(GTK_WIDGET(input), NULL);
-#endif
 }
 
 static void on_script_popup(GtkTextView* input, GtkMenu* menu, void* user_data)
@@ -1611,15 +1586,9 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     else
         gtk_window_set_default_size(GTK_WINDOW(ctxt->dlg), 800, 600);
 
-#if (GTK_MAJOR_VERSION == 3)
     gtk_widget_set_focus_on_click(
         GTK_BUTTON(gtk_dialog_add_button(GTK_DIALOG(ctxt->dlg), GTK_STOCK_HELP, GTK_RESPONSE_HELP)),
         FALSE);
-#elif (GTK_MAJOR_VERSION == 2)
-    gtk_button_set_focus_on_click(
-        GTK_BUTTON(gtk_dialog_add_button(GTK_DIALOG(ctxt->dlg), GTK_STOCK_HELP, GTK_RESPONSE_HELP)),
-        FALSE);
-#endif
 
     gtk_dialog_add_button(GTK_DIALOG(ctxt->dlg), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
     ctxt->btn_ok =
@@ -1638,11 +1607,7 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     // Menu Item Page  =====================================================
     GtkWidget* align = gtk_alignment_new(0, 0, 0.4, 1);
     gtk_alignment_set_padding(GTK_ALIGNMENT(align), 8, 0, 8, 8);
-#if (GTK_MAJOR_VERSION == 3)
     GtkWidget* vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 4);
-#elif (GTK_MAJOR_VERSION == 2)
-    GtkWidget* vbox = gtk_vbox_new(FALSE, 4);
-#endif
     gtk_container_add(GTK_CONTAINER(align), vbox);
     gtk_notebook_append_page(
         GTK_NOTEBOOK(ctxt->notebook),
@@ -1659,11 +1624,7 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
     gtk_table_attach(table, label, 0, 1, row, row + 1, GTK_FILL, GTK_SHRINK, 0, 0);
     ctxt->item_type = gtk_combo_box_text_new();
-#if (GTK_MAJOR_VERSION == 3)
     gtk_widget_set_focus_on_click(GTK_COMBO_BOX(ctxt->item_type), FALSE);
-#elif (GTK_MAJOR_VERSION == 2)
-    gtk_combo_box_set_focus_on_click(GTK_COMBO_BOX(ctxt->item_type), FALSE);
-#endif
     // align = gtk_alignment_new( 0, 0.5, 1, 1 );
     // gtk_container_add ( GTK_CONTAINER ( align ), GTK_WIDGET( ctxt->item_type ) );
     gtk_table_attach(table, ctxt->item_type, 1, 2, row, row + 1, GTK_FILL, GTK_SHRINK, 0, 0);
@@ -1689,7 +1650,6 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     row++;
     gtk_table_attach(table, label, 0, 1, row, row + 1, GTK_FILL, GTK_SHRINK, 0, 0);
     ctxt->item_key = gtk_button_new_with_label(" ");
-#if (GTK_MAJOR_VERSION == 3)
     gtk_widget_set_focus_on_click(GTK_BUTTON(ctxt->item_key), FALSE);
     gtk_table_attach(table,
                      ctxt->item_key,
@@ -1701,42 +1661,19 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
                      GTK_SHRINK,
                      0,
                      0);
-#elif (GTK_MAJOR_VERSION == 2)
-    gtk_button_set_focus_on_click(GTK_BUTTON(ctxt->item_key), FALSE);
-    gtk_table_attach(table,
-                     ctxt->item_key,
-                     1,
-                     2,
-                     row,
-                     row + 1,
-                     GTK_EXPAND | GTK_FILL,
-                     GTK_SHRINK,
-                     0,
-                     0);
-#endif
 
     label = gtk_label_new_with_mnemonic(_("Icon:"));
     gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
     row++;
     gtk_table_attach(table, label, 0, 1, row, row + 1, GTK_FILL, GTK_SHRINK, 0, 0);
-#if (GTK_MAJOR_VERSION == 3)
     GtkWidget* hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-#elif (GTK_MAJOR_VERSION == 2)
-    GtkWidget* hbox = gtk_hbox_new(FALSE, 0);
-#endif
     ctxt->icon_choose_btn = gtk_button_new_with_mnemonic(_("C_hoose"));
     gtk_button_set_image(GTK_BUTTON(ctxt->icon_choose_btn),
                          xset_get_image(GTK_STOCK_OPEN, GTK_ICON_SIZE_BUTTON));
-#if (GTK_MAJOR_VERSION == 3)
     gtk_widget_set_focus_on_click(GTK_BUTTON(ctxt->icon_choose_btn), FALSE);
-#elif (GTK_MAJOR_VERSION == 2)
-    gtk_button_set_focus_on_click(GTK_BUTTON(ctxt->icon_choose_btn), FALSE);
-#endif
 
-#if (GTK_MAJOR_VERSION == 3)
     // keep this
     gtk_button_set_always_show_image(GTK_BUTTON(ctxt->icon_choose_btn), TRUE);
-#endif
     ctxt->item_icon = gtk_entry_new();
     g_signal_connect(G_OBJECT(gtk_entry_get_buffer(GTK_ENTRY(ctxt->item_icon))),
                      "inserted-text",
@@ -1753,11 +1690,7 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(table), FALSE, TRUE, 0);
 
     // Target
-#if (GTK_MAJOR_VERSION == 3)
     ctxt->target_vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-#elif (GTK_MAJOR_VERSION == 2)
-    ctxt->target_vbox = gtk_vbox_new(FALSE, 0);
-#endif
 
     ctxt->target_label = gtk_label_new(NULL);
     gtk_misc_set_alignment(GTK_MISC(ctxt->target_label), 0, 0.5);
@@ -1774,31 +1707,19 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     gtk_box_pack_start(GTK_BOX(ctxt->target_vbox), GTK_WIDGET(ctxt->target_label), FALSE, TRUE, 0);
     gtk_box_pack_start(GTK_BOX(ctxt->target_vbox), GTK_WIDGET(scroll), FALSE, TRUE, 0);
 
-#if (GTK_MAJOR_VERSION == 3)
     hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-#elif (GTK_MAJOR_VERSION == 2)
-    hbox = gtk_hbox_new(FALSE, 0);
-#endif
     gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(gtk_label_new(NULL)), TRUE, TRUE, 0);
     ctxt->item_choose = gtk_button_new_with_mnemonic(_("C_hoose"));
     gtk_button_set_image(GTK_BUTTON(ctxt->item_choose),
                          xset_get_image(GTK_STOCK_OPEN, GTK_ICON_SIZE_BUTTON));
-#if (GTK_MAJOR_VERSION == 3)
     gtk_widget_set_focus_on_click(GTK_BUTTON(ctxt->item_choose), FALSE);
-#elif (GTK_MAJOR_VERSION == 2)
-    gtk_button_set_focus_on_click(GTK_BUTTON(ctxt->item_choose), FALSE);
-#endif
 
     // align = gtk_alignment_new( 1, 0.5, 0.2, 1 );
     // gtk_container_add ( GTK_CONTAINER ( align ), ctxt->item_choose );
     gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(ctxt->item_choose), FALSE, TRUE, 12);
 
     ctxt->item_browse = gtk_button_new_with_mnemonic(_("_Browse"));
-#if (GTK_MAJOR_VERSION == 3)
     gtk_widget_set_focus_on_click(GTK_BUTTON(ctxt->item_choose), FALSE);
-#elif (GTK_MAJOR_VERSION == 2)
-    gtk_button_set_focus_on_click(GTK_BUTTON(ctxt->item_browse), FALSE);
-#endif
 
     // align = gtk_alignment_new( 1, 0.5, 0.2, 1 );
     // gtk_container_add ( GTK_CONTAINER ( align ), ctxt->item_browse );
@@ -1816,11 +1737,7 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     // Context Page  =======================================================
     align = gtk_alignment_new(0, 0, 1, 1);
     gtk_alignment_set_padding(GTK_ALIGNMENT(align), 8, 0, 8, 8);
-#if (GTK_MAJOR_VERSION == 3)
     vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-#elif (GTK_MAJOR_VERSION == 2)
-    vbox = gtk_vbox_new(FALSE, 0);
-#endif
     gtk_container_add(GTK_CONTAINER(align), vbox);
     gtk_notebook_append_page(GTK_NOTEBOOK(ctxt->notebook),
                              align,
@@ -1865,11 +1782,7 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     ctxt->btn_remove = GTK_BUTTON(gtk_button_new_with_mnemonic(_("_Remove")));
     gtk_button_set_image(ctxt->btn_remove,
                          xset_get_image("GTK_STOCK_REMOVE", GTK_ICON_SIZE_BUTTON));
-#if (GTK_MAJOR_VERSION == 3)
     gtk_widget_set_focus_on_click(ctxt->btn_remove, FALSE);
-#elif (GTK_MAJOR_VERSION == 2)
-    gtk_button_set_focus_on_click(ctxt->btn_remove, FALSE);
-#endif
 
     g_signal_connect(G_OBJECT(ctxt->btn_remove),
                      "clicked",
@@ -1878,21 +1791,13 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
 
     ctxt->btn_add = GTK_BUTTON(gtk_button_new_with_mnemonic(_("_Add")));
     gtk_button_set_image(ctxt->btn_add, xset_get_image("GTK_STOCK_ADD", GTK_ICON_SIZE_BUTTON));
-#if (GTK_MAJOR_VERSION == 3)
     gtk_widget_set_focus_on_click(ctxt->btn_add, FALSE);
-#elif (GTK_MAJOR_VERSION == 2)
-    gtk_button_set_focus_on_click(ctxt->btn_add, FALSE);
-#endif
 
     g_signal_connect(G_OBJECT(ctxt->btn_add), "clicked", G_CALLBACK(on_context_button_press), ctxt);
 
     ctxt->btn_apply = GTK_BUTTON(gtk_button_new_with_mnemonic(_("A_pply")));
     gtk_button_set_image(ctxt->btn_apply, xset_get_image("GTK_STOCK_APPLY", GTK_ICON_SIZE_BUTTON));
-#if (GTK_MAJOR_VERSION == 3)
     gtk_widget_set_focus_on_click(ctxt->btn_apply, FALSE);
-#elif (GTK_MAJOR_VERSION == 2)
-    gtk_button_set_focus_on_click(ctxt->btn_apply, FALSE);
-#endif
 
     g_signal_connect(G_OBJECT(ctxt->btn_apply),
                      "clicked",
@@ -1901,43 +1806,25 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
 
     // boxes
     ctxt->box_sub = gtk_combo_box_text_new();
-#if (GTK_MAJOR_VERSION == 3)
     gtk_widget_set_focus_on_click(GTK_COMBO_BOX(ctxt->box_sub), FALSE);
-#elif (GTK_MAJOR_VERSION == 2)
-    gtk_combo_box_set_focus_on_click(GTK_COMBO_BOX(ctxt->box_sub), FALSE);
-#endif
     for (i = 0; i < G_N_ELEMENTS(context_sub); i++)
         gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(ctxt->box_sub), _(context_sub[i]));
     g_signal_connect(G_OBJECT(ctxt->box_sub), "changed", G_CALLBACK(on_context_sub_changed), ctxt);
 
     ctxt->box_comp = gtk_combo_box_text_new();
-#if (GTK_MAJOR_VERSION == 3)
     gtk_widget_set_focus_on_click(GTK_COMBO_BOX(ctxt->box_comp), FALSE);
-#elif (GTK_MAJOR_VERSION == 2)
-    gtk_combo_box_set_focus_on_click(GTK_COMBO_BOX(ctxt->box_comp), FALSE);
-#endif
     for (i = 0; i < G_N_ELEMENTS(context_comp); i++)
         gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(ctxt->box_comp), _(context_comp[i]));
 
     ctxt->box_value = gtk_combo_box_text_new_with_entry();
-#if (GTK_MAJOR_VERSION == 3)
     gtk_widget_set_focus_on_click(GTK_COMBO_BOX(ctxt->box_value), FALSE);
-#elif (GTK_MAJOR_VERSION == 2)
-    gtk_combo_box_set_focus_on_click(GTK_COMBO_BOX(ctxt->box_value), FALSE);
-#endif
 
-#if (GTK_MAJOR_VERSION == 3)
     // see https://github.com/IgnorantGuru/spacefm/issues/43
     // this seems to have no effect
     gtk_combo_box_set_popup_fixed_width(GTK_COMBO_BOX(ctxt->box_value), TRUE);
-#endif
 
     ctxt->box_match = gtk_combo_box_text_new();
-#if (GTK_MAJOR_VERSION == 3)
     gtk_widget_set_focus_on_click(GTK_COMBO_BOX(ctxt->box_match), FALSE);
-#elif (GTK_MAJOR_VERSION == 2)
-    gtk_combo_box_set_focus_on_click(GTK_COMBO_BOX(ctxt->box_match), FALSE);
-#endif
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(ctxt->box_match), _("matches any rule:"));
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(ctxt->box_match), _("matches all rules:"));
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(ctxt->box_match),
@@ -1950,11 +1837,7 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
                      ctxt);
 
     ctxt->box_action = gtk_combo_box_text_new();
-#if (GTK_MAJOR_VERSION == 3)
     gtk_widget_set_focus_on_click(GTK_COMBO_BOX(ctxt->box_action), FALSE);
-#elif (GTK_MAJOR_VERSION == 2)
-    gtk_combo_box_set_focus_on_click(GTK_COMBO_BOX(ctxt->box_action), FALSE);
-#endif
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(ctxt->box_action), _("Show"));
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(ctxt->box_action), _("Enable"));
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(ctxt->box_action), _("Hide"));
@@ -1987,13 +1870,8 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     // PACK
     gtk_container_set_border_width(GTK_CONTAINER(ctxt->dlg), 10);
 
-#if (GTK_MAJOR_VERSION == 3)
     ctxt->vbox_context = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     ctxt->hbox_match = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
-#elif (GTK_MAJOR_VERSION == 2)
-    ctxt->vbox_context = gtk_vbox_new(FALSE, 0);
-    ctxt->hbox_match = gtk_hbox_new(FALSE, 4);
-#endif
     gtk_box_pack_start(GTK_BOX(ctxt->hbox_match), GTK_WIDGET(ctxt->box_action), FALSE, TRUE, 0);
     gtk_box_pack_start(GTK_BOX(ctxt->hbox_match),
                        GTK_WIDGET(gtk_label_new(_("item if context"))),
@@ -2009,53 +1887,29 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     //                        GTK_WIDGET( label ), FALSE, TRUE, 8 );
     gtk_box_pack_start(GTK_BOX(ctxt->vbox_context), GTK_WIDGET(scroll), TRUE, TRUE, 4);
 
-#if (GTK_MAJOR_VERSION == 3)
     GtkWidget* hbox_btns = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
-#elif (GTK_MAJOR_VERSION == 2)
-    GtkWidget* hbox_btns = gtk_hbox_new(FALSE, 4);
-#endif
     gtk_box_pack_start(GTK_BOX(hbox_btns), GTK_WIDGET(ctxt->btn_remove), FALSE, TRUE, 4);
-#if (GTK_MAJOR_VERSION == 3)
     gtk_box_pack_start(GTK_BOX(hbox_btns),
                        GTK_WIDGET(gtk_separator_new(GTK_ORIENTATION_VERTICAL)),
                        FALSE,
                        TRUE,
                        4);
-#elif (GTK_MAJOR_VERSION == 2)
-    gtk_box_pack_start(GTK_BOX(hbox_btns), GTK_WIDGET(gtk_vseparator_new()), FALSE, TRUE, 4);
-#endif
     gtk_box_pack_start(GTK_BOX(hbox_btns), GTK_WIDGET(ctxt->btn_add), FALSE, TRUE, 4);
     gtk_box_pack_start(GTK_BOX(hbox_btns), GTK_WIDGET(ctxt->btn_apply), FALSE, TRUE, 4);
     gtk_box_pack_start(GTK_BOX(hbox_btns), GTK_WIDGET(ctxt->test), TRUE, TRUE, 4);
     gtk_box_pack_start(GTK_BOX(ctxt->vbox_context), GTK_WIDGET(hbox_btns), FALSE, TRUE, 4);
 
     ctxt->frame = GTK_FRAME(gtk_frame_new(_("Edit Rule")));
-#if (GTK_MAJOR_VERSION == 3)
     GtkWidget* vbox_frame = gtk_box_new(GTK_ORIENTATION_VERTICAL, 4);
-#elif (GTK_MAJOR_VERSION == 2)
-    GtkWidget* vbox_frame = gtk_vbox_new(FALSE, 4);
-#endif
     gtk_container_add(GTK_CONTAINER(ctxt->frame), vbox_frame);
-#if (GTK_MAJOR_VERSION == 3)
     GtkWidget* hbox_frame = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
-#elif (GTK_MAJOR_VERSION == 2)
-    GtkWidget* hbox_frame = gtk_hbox_new(FALSE, 4);
-#endif
     gtk_box_pack_start(GTK_BOX(hbox_frame), GTK_WIDGET(ctxt->box_sub), FALSE, TRUE, 8);
     gtk_box_pack_start(GTK_BOX(hbox_frame), GTK_WIDGET(ctxt->box_comp), FALSE, TRUE, 4);
     gtk_box_pack_start(GTK_BOX(vbox_frame), GTK_WIDGET(hbox_frame), FALSE, TRUE, 4);
-#if (GTK_MAJOR_VERSION == 3)
     hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
-#elif (GTK_MAJOR_VERSION == 2)
-    hbox = gtk_hbox_new(FALSE, 4);
-#endif
     gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(ctxt->box_value), TRUE, TRUE, 8);
     gtk_box_pack_start(GTK_BOX(vbox_frame), GTK_WIDGET(hbox), TRUE, TRUE, 4);
-#if (GTK_MAJOR_VERSION == 3)
     hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-#elif (GTK_MAJOR_VERSION == 2)
-    hbox = gtk_hbox_new(FALSE, 0);
-#endif
     gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(gtk_label_new(_("Value:"))), FALSE, TRUE, 8);
     gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(ctxt->current_value), TRUE, TRUE, 2);
     gtk_box_pack_start(GTK_BOX(vbox_frame), GTK_WIDGET(hbox), TRUE, TRUE, 4);
@@ -2063,22 +1917,14 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(ctxt->vbox_context), TRUE, TRUE, 0);
 
     // Opener
-#if (GTK_MAJOR_VERSION == 3)
     ctxt->hbox_opener = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-#elif (GTK_MAJOR_VERSION == 2)
-    ctxt->hbox_opener = gtk_hbox_new(FALSE, 0);
-#endif
     gtk_box_pack_start(GTK_BOX(ctxt->hbox_opener),
                        GTK_WIDGET(gtk_label_new(_("If enabled, use as handler for:"))),
                        FALSE,
                        TRUE,
                        0);
     ctxt->opener = gtk_combo_box_text_new();
-#if (GTK_MAJOR_VERSION == 3)
     gtk_widget_set_focus_on_click(GTK_COMBO_BOX(ctxt->opener), FALSE);
-#elif (GTK_MAJOR_VERSION == 2)
-    gtk_combo_box_set_focus_on_click(GTK_COMBO_BOX(ctxt->opener), FALSE);
-#endif
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(ctxt->opener), _("none"));
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(ctxt->opener), _("files"));
     gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(ctxt->opener), _("devices"));
@@ -2178,21 +2024,13 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     // Command Page  =====================================================
     align = gtk_alignment_new(0, 0, 1, 1);
     gtk_alignment_set_padding(GTK_ALIGNMENT(align), 8, 0, 8, 8);
-#if (GTK_MAJOR_VERSION == 3)
     vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 4);
-#elif (GTK_MAJOR_VERSION == 2)
-    vbox = gtk_vbox_new(FALSE, 4);
-#endif
     gtk_container_add(GTK_CONTAINER(align), vbox);
     gtk_notebook_append_page(GTK_NOTEBOOK(ctxt->notebook),
                              align,
                              gtk_label_new_with_mnemonic(_("Comm_and")));
 
-#if (GTK_MAJOR_VERSION == 3)
     hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
-#elif (GTK_MAJOR_VERSION == 2)
-    hbox = gtk_hbox_new(FALSE, 8);
-#endif
     ctxt->cmd_opt_line = gtk_radio_button_new_with_mnemonic(NULL, _("Command _Line"));
     ctxt->cmd_opt_script =
         gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(ctxt->cmd_opt_line),
@@ -2200,20 +2038,12 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(ctxt->cmd_opt_line), FALSE, TRUE, 0);
     gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(ctxt->cmd_opt_script), FALSE, TRUE, 0);
     ctxt->cmd_edit = gtk_button_new_with_mnemonic(_("Open In _Editor"));
-#if (GTK_MAJOR_VERSION == 3)
     gtk_widget_set_focus_on_click(GTK_BUTTON(ctxt->cmd_edit), FALSE);
-#elif (GTK_MAJOR_VERSION == 2)
-    gtk_button_set_focus_on_click(GTK_BUTTON(ctxt->cmd_edit), FALSE);
-#endif
 
     g_signal_connect(G_OBJECT(ctxt->cmd_edit), "clicked", G_CALLBACK(on_edit_button_press), ctxt);
     gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(ctxt->cmd_edit), FALSE, TRUE, 24);
     ctxt->cmd_edit_root = gtk_button_new_with_mnemonic(_("_Root Editor"));
-#if (GTK_MAJOR_VERSION == 3)
     gtk_widget_set_focus_on_click(GTK_BUTTON(ctxt->cmd_edit_root), FALSE);
-#elif (GTK_MAJOR_VERSION == 2)
-    gtk_button_set_focus_on_click(GTK_BUTTON(ctxt->cmd_edit_root), FALSE);
-#endif
 
     g_signal_connect(G_OBJECT(ctxt->cmd_edit_root),
                      "clicked",
@@ -2250,11 +2080,7 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     // Option Page  =====================================================
     align = gtk_alignment_new(0, 0, 1, 1);
     gtk_alignment_set_padding(GTK_ALIGNMENT(align), 8, 0, 8, 8);
-#if (GTK_MAJOR_VERSION == 3)
     vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 4);
-#elif (GTK_MAJOR_VERSION == 2)
-    vbox = gtk_vbox_new(FALSE, 4);
-#endif
     gtk_container_add(GTK_CONTAINER(align), vbox);
     gtk_notebook_append_page(GTK_NOTEBOOK(ctxt->notebook),
                              align,
@@ -2263,22 +2089,14 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     GtkWidget* frame = gtk_frame_new(_("Run Options"));
     align = gtk_alignment_new(0, 0, 1, 1);
     gtk_alignment_set_padding(GTK_ALIGNMENT(align), 8, 0, 8, 8);
-#if (GTK_MAJOR_VERSION == 3)
     vbox_frame = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
-#elif (GTK_MAJOR_VERSION == 2)
-    vbox_frame = gtk_vbox_new(FALSE, 8);
-#endif
     gtk_container_add(GTK_CONTAINER(align), vbox_frame);
     gtk_container_add(GTK_CONTAINER(frame), align);
     gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(frame), FALSE, TRUE, 8);
 
     ctxt->opt_task = gtk_check_button_new_with_mnemonic(_("Run As Task"));
     gtk_box_pack_start(GTK_BOX(vbox_frame), GTK_WIDGET(ctxt->opt_task), FALSE, TRUE, 0);
-#if (GTK_MAJOR_VERSION == 3)
     ctxt->opt_hbox_task = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
-#elif (GTK_MAJOR_VERSION == 2)
-    ctxt->opt_hbox_task = gtk_hbox_new(FALSE, 8);
-#endif
     ctxt->opt_task_pop = gtk_check_button_new_with_mnemonic(_("Popup Task"));
     ctxt->opt_task_err = gtk_check_button_new_with_mnemonic(_("Popup Error"));
     ctxt->opt_task_out = gtk_check_button_new_with_mnemonic(_("Popup Output"));
@@ -2301,22 +2119,14 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     gtk_box_pack_start(GTK_BOX(ctxt->opt_hbox_task), GTK_WIDGET(ctxt->opt_scroll), FALSE, TRUE, 6);
     gtk_box_pack_start(GTK_BOX(vbox_frame), GTK_WIDGET(ctxt->opt_hbox_task), FALSE, TRUE, 8);
 
-#if (GTK_MAJOR_VERSION == 3)
     hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
-#elif (GTK_MAJOR_VERSION == 2)
-    hbox = gtk_hbox_new(FALSE, 8);
-#endif
     ctxt->opt_terminal = gtk_check_button_new_with_mnemonic(_("Run In Terminal"));
     ctxt->opt_keep_term = gtk_check_button_new_with_mnemonic(_("Keep Terminal Open"));
     gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(ctxt->opt_terminal), FALSE, TRUE, 0);
     gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(ctxt->opt_keep_term), FALSE, TRUE, 6);
     gtk_box_pack_start(GTK_BOX(vbox_frame), GTK_WIDGET(hbox), FALSE, TRUE, 0);
 
-#if (GTK_MAJOR_VERSION == 3)
     hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-#elif (GTK_MAJOR_VERSION == 2)
-    hbox = gtk_hbox_new(FALSE, 0);
-#endif
     label = gtk_label_new(_("Run As User:"));
     gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
     gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(label), FALSE, TRUE, 2);
@@ -2330,20 +2140,12 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     frame = gtk_frame_new(_("Style"));
     align = gtk_alignment_new(0, 0, 1, 1);
     gtk_alignment_set_padding(GTK_ALIGNMENT(align), 8, 0, 8, 8);
-#if (GTK_MAJOR_VERSION == 3)
     vbox_frame = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
-#elif (GTK_MAJOR_VERSION == 2)
-    vbox_frame = gtk_vbox_new(FALSE, 8);
-#endif
     gtk_container_add(GTK_CONTAINER(align), vbox_frame);
     gtk_container_add(GTK_CONTAINER(frame), align);
     gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(frame), TRUE, TRUE, 8);
 
-#if (GTK_MAJOR_VERSION == 3)
     hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
-#elif (GTK_MAJOR_VERSION == 2)
-    hbox = gtk_hbox_new(FALSE, 8);
-#endif
     ctxt->cmd_opt_normal = gtk_radio_button_new_with_mnemonic(NULL, _("Normal"));
     ctxt->cmd_opt_checkbox =
         gtk_radio_button_new_with_mnemonic_from_widget(GTK_RADIO_BUTTON(ctxt->cmd_opt_normal),
@@ -2361,11 +2163,7 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     gtk_box_pack_start(GTK_BOX(vbox_frame), GTK_WIDGET(hbox), FALSE, TRUE, 0);
 
     // message box
-#if (GTK_MAJOR_VERSION == 3)
     ctxt->cmd_vbox_msg = gtk_box_new(GTK_ORIENTATION_VERTICAL, 4);
-#elif (GTK_MAJOR_VERSION == 2)
-    ctxt->cmd_vbox_msg = gtk_vbox_new(FALSE, 4);
-#endif
     label = gtk_label_new(_("Confirmation/Input Message:"));
     gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
     gtk_box_pack_start(GTK_BOX(ctxt->cmd_vbox_msg), GTK_WIDGET(label), FALSE, TRUE, 8);
@@ -2389,20 +2187,12 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     gtk_box_pack_start(GTK_BOX(vbox_frame), GTK_WIDGET(ctxt->cmd_vbox_msg), TRUE, TRUE, 0);
 
     // open directory
-#if (GTK_MAJOR_VERSION == 3)
     hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-#elif (GTK_MAJOR_VERSION == 2)
-    hbox = gtk_hbox_new(FALSE, 0);
-#endif
     label = gtk_label_new(_("Open In Browser:"));
     gtk_misc_set_alignment(GTK_MISC(label), 0, 0.5);
     gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(label), FALSE, TRUE, 0);
     ctxt->open_browser = gtk_combo_box_text_new();
-#if (GTK_MAJOR_VERSION == 3)
     gtk_widget_set_focus_on_click(GTK_COMBO_BOX(ctxt->open_browser), FALSE);
-#elif (GTK_MAJOR_VERSION == 2)
-    gtk_combo_box_set_focus_on_click(GTK_COMBO_BOX(ctxt->open_browser), FALSE);
-#endif
 
     char* path;
     if (rset->plugin)

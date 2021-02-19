@@ -997,11 +997,7 @@ int main(int argc, char* argv[])
     {
         printf("spacefm %s\n", PACKAGE_VERSION);
         printf("Features: ");
-#if (GTK_MAJOR_VERSION == 3)
         printf("GTK3 ");
-#elif (GTK_MAJOR_VERSION == 2)
-        printf("GTK2 ");
-#endif
         printf("UDEV ");
         printf("INOTIFY ");
         printf("FFMPEG ");

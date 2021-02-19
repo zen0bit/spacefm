@@ -48,11 +48,7 @@ void ptk_menu_add_items_from_data(GtkWidget* menu, PtkMenuItemEntry* entries, vo
             {
                 if (G_LIKELY(ent->stock_icon > (char*)2))
                 {
-#if (GTK_MAJOR_VERSION == 3)
                     menu_item = gtk_menu_item_new_with_mnemonic(_(ent->label));
-#elif (GTK_MAJOR_VERSION == 2)
-                    menu_item = gtk_image_menu_item_new_with_mnemonic(_(ent->label));
-#endif
                     GtkWidget* image =
                         gtk_image_new_from_stock(ent->stock_icon, GTK_ICON_SIZE_MENU);
                     gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item), image);
@@ -163,31 +159,19 @@ void transpose_nonlatin_keypress(GdkEventKey* event)
     int level;
     int n;
 
-    if (gdk_keymap_translate_keyboard_state(
-#if (GTK_MAJOR_VERSION == 3)
-            // GTK3 no longer accepts NULL for default keymap
-            gdk_keymap_get_default(),
-#elif (GTK_MAJOR_VERSION == 2)
-            NULL,
-#endif
-            event->hardware_keycode,
-            (GdkModifierType)event->state,
-            event->group,
-            NULL,
-            NULL,
-            &level,
-            NULL) &&
-        gdk_keymap_get_entries_for_keycode(
-#if (GTK_MAJOR_VERSION == 3)
-            // GTK3 no longer accepts NULL for default keymap
-            gdk_keymap_get_default(),
-#elif (GTK_MAJOR_VERSION == 2)
-            NULL,
-#endif
-            event->hardware_keycode,
-            &keys,
-            &keyvals,
-            &n_entries))
+    if (gdk_keymap_translate_keyboard_state(gdk_keymap_get_default(),
+                                            event->hardware_keycode,
+                                            (GdkModifierType)event->state,
+                                            event->group,
+                                            NULL,
+                                            NULL,
+                                            &level,
+                                            NULL) &&
+        gdk_keymap_get_entries_for_keycode(gdk_keymap_get_default(),
+                                           event->hardware_keycode,
+                                           &keys,
+                                           &keyvals,
+                                           &n_entries))
     {
         for (n = 0; n < n_entries; n++)
         {

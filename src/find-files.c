@@ -686,17 +686,9 @@ static void on_start_search(GtkWidget* btn, FindFile* data)
         g_signal_connect(data->task, "finish", G_CALLBACK(on_search_finish), data);
         vfs_async_task_execute(data->task);
 
-#if (GTK_MAJOR_VERSION == 3)
         busy_cursor = gdk_cursor_new_for_display(NULL, GDK_WATCH);
-#elif (GTK_MAJOR_VERSION == 2)
-        busy_cursor = gdk_cursor_new(GDK_WATCH);
-#endif
         gdk_window_set_cursor(gtk_widget_get_window(data->search_result), busy_cursor);
-#if (GTK_MAJOR_VERSION == 3)
         g_object_unref(busy_cursor);
-#elif (GTK_MAJOR_VERSION == 2)
-        gdk_cursor_unref(busy_cursor);
-#endif
     }
     else
     {
@@ -821,22 +813,14 @@ static void on_add_search_folder(GtkWidget* btn, FindFile* data)
     GtkWidget* img;
     const char* dir;
 
-#if (GTK_MAJOR_VERSION == 3)
     item = gtk_menu_item_new_with_label(_("Browse..."));
-#elif (GTK_MAJOR_VERSION == 2)
-    item = gtk_image_menu_item_new_with_label(_("Browse..."));
-#endif
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
     g_signal_connect(item, "activate", G_CALLBACK(on_add_search_browse), data);
 
     item = gtk_separator_menu_item_new();
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
 
-#if (GTK_MAJOR_VERSION == 3)
     item = gtk_menu_item_new_with_label(g_get_home_dir());
-#elif (GTK_MAJOR_VERSION == 2)
-    item = gtk_image_menu_item_new_with_label(g_get_home_dir());
-#endif
     // img = gtk_image_new_from_icon_name( "gnome-fs-directory", GTK_ICON_SIZE_MENU );
     img = xset_get_image("gtk-directory", GTK_ICON_SIZE_MENU);
     gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), img);
@@ -845,11 +829,7 @@ static void on_add_search_folder(GtkWidget* btn, FindFile* data)
 
     if ((dir = vfs_get_desktop_dir()))
     {
-#if (GTK_MAJOR_VERSION == 3)
         item = gtk_menu_item_new_with_label(dir);
-#elif (GTK_MAJOR_VERSION == 2)
-        item = gtk_image_menu_item_new_with_label(dir);
-#endif
         // img = gtk_image_new_from_icon_name( "gnome-fs-desktop", GTK_ICON_SIZE_MENU );
         img = xset_get_image("gtk-directory", GTK_ICON_SIZE_MENU);
         gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), img);
@@ -857,11 +837,7 @@ static void on_add_search_folder(GtkWidget* btn, FindFile* data)
         g_signal_connect(item, "activate", G_CALLBACK(on_add_search_desktop), data);
     }
 
-#if (GTK_MAJOR_VERSION == 3)
     item = gtk_menu_item_new_with_label(_("Local Volumes"));
-#elif (GTK_MAJOR_VERSION == 2)
-    item = gtk_image_menu_item_new_with_label(_("Local Volumes"));
-#endif
     // img = gtk_image_new_from_icon_name( "gnome-dev-harddisk", GTK_ICON_SIZE_MENU );
     img = xset_get_image("gtk-harddisk", GTK_ICON_SIZE_MENU);
     gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), img);
@@ -1057,11 +1033,7 @@ void fm_find_files(const char** search_dirs)
     GtkWidget* remove_directory_btn;
     GtkWidget* img;
 
-#if (GTK_MAJOR_VERSION == 3)
     const char* find_files_ui = "/find-files3.ui";
-#elif (GTK_MAJOR_VERSION == 2)
-    const char* find_files_ui = "/find-files2.ui";
-#endif
     GtkBuilder* builder = _gtk_builder_new_from_file(PACKAGE_UI_DIR, find_files_ui, NULL);
     data->win = (GtkWidget*)gtk_builder_get_object(builder, "win");
     g_object_set_data_full(G_OBJECT(data->win), "find-files", data, (GDestroyNotify)free_data);

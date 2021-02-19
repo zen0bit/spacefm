@@ -1,21 +1,9 @@
 #preprocessor
 option(
-  'gtk2',
-  type : 'boolean',
-  value : true,
-  description : 'build gtk2 gui',
-)
-option(
-  'gtk3',
-  type : 'boolean',
-  value : false,
-  description : 'build gtk3 gui',
-)
-option(
   'nls',
   type : 'boolean',
   value : false,
-  description : 'use native language support',
+  description : 'enable native language support',
 )
 option(
   'sn',

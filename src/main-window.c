@@ -718,7 +718,6 @@ void main_window_root_bar_all()
         for (l = all_windows; l; l = l->next)
         {
             a_window = (FMMainWindow*)l->data;
-#if (GTK_MAJOR_VERSION == 3)
             gtk_widget_override_background_color(GTK_WIDGET(a_window), GTK_STATE_NORMAL, &color);
             gtk_widget_override_background_color(GTK_WIDGET(a_window->menu_bar),
                                                  GTK_STATE_NORMAL,
@@ -726,11 +725,6 @@ void main_window_root_bar_all()
             gtk_widget_override_background_color(GTK_WIDGET(a_window->panelbar),
                                                  GTK_STATE_NORMAL,
                                                  &color);
-#elif (GTK_MAJOR_VERSION == 2)
-            gtk_widget_modify_bg(GTK_WIDGET(a_window), GTK_STATE_NORMAL, &color);
-            gtk_widget_modify_bg(GTK_WIDGET(a_window->menu_bar), GTK_STATE_NORMAL, &color);
-            gtk_widget_modify_bg(GTK_WIDGET(a_window->panelbar), GTK_STATE_NORMAL, &color);
-#endif
             // how to change menu bar text color?
             // gtk_widget_modify_fg( GTK_MENU_ITEM( a_window->file_menu_item ), GTK_STATE_NORMAL,
             // &color_white );
@@ -741,7 +735,6 @@ void main_window_root_bar_all()
         for (l = all_windows; l; l = l->next)
         {
             a_window = (FMMainWindow*)l->data;
-#if (GTK_MAJOR_VERSION == 3)
             gtk_widget_override_background_color(GTK_WIDGET(a_window), GTK_STATE_NORMAL, NULL);
             gtk_widget_override_background_color(GTK_WIDGET(a_window->menu_bar),
                                                  GTK_STATE_NORMAL,
@@ -749,11 +742,6 @@ void main_window_root_bar_all()
             gtk_widget_override_background_color(GTK_WIDGET(a_window->panelbar),
                                                  GTK_STATE_NORMAL,
                                                  NULL);
-#elif (GTK_MAJOR_VERSION == 2)
-            gtk_widget_modify_bg(GTK_WIDGET(a_window), GTK_STATE_NORMAL, NULL);
-            gtk_widget_modify_bg(GTK_WIDGET(a_window->menu_bar), GTK_STATE_NORMAL, NULL);
-            gtk_widget_modify_bg(GTK_WIDGET(a_window->panelbar), GTK_STATE_NORMAL, NULL);
-#endif
             // gtk_widget_modify_fg( a_window->menu_bar, GTK_STATE_NORMAL, NULL );
         }
     }
@@ -792,11 +780,7 @@ void main_update_fonts(GtkWidget* widget, PtkFileBrowser* file_browser)
             if (fontname)
             {
                 font_desc = pango_font_description_from_string(fontname);
-#if (GTK_MAJOR_VERSION == 3)
                 gtk_widget_override_font(GTK_WIDGET(a_browser->folder_view), font_desc);
-#elif (GTK_MAJOR_VERSION == 2)
-                gtk_widget_modify_font(GTK_WIDGET(a_browser->folder_view), font_desc);
-#endif
 
                 if (a_browser->view_mode != PTK_FB_LIST_VIEW)
                 {
@@ -807,24 +791,14 @@ void main_update_fonts(GtkWidget* widget, PtkFileBrowser* file_browser)
                 }
 
                 if (a_browser->side_dir)
-#if (GTK_MAJOR_VERSION == 3)
                     gtk_widget_override_font(GTK_WIDGET(a_browser->side_dir), font_desc);
-#elif (GTK_MAJOR_VERSION == 2)
-                    gtk_widget_modify_font(GTK_WIDGET(a_browser->side_dir), font_desc);
-#endif
                 pango_font_description_free(font_desc);
             }
             else
             {
-#if (GTK_MAJOR_VERSION == 3)
                 gtk_widget_override_font(GTK_WIDGET(a_browser->folder_view), NULL);
                 if (a_browser->side_dir)
                     gtk_widget_override_font(GTK_WIDGET(a_browser->side_dir), NULL);
-#elif (GTK_MAJOR_VERSION == 2)
-                gtk_widget_modify_font(GTK_WIDGET(a_browser->folder_view), NULL);
-                if (a_browser->side_dir)
-                    gtk_widget_modify_font(GTK_WIDGET(a_browser->side_dir), NULL);
-#endif
             }
             // devices
             if (a_browser->side_dev)
@@ -832,19 +806,11 @@ void main_update_fonts(GtkWidget* widget, PtkFileBrowser* file_browser)
                 fontname = xset_get_s_panel(p, "font_dev");
                 if (fontname)
                 {
-#if (GTK_MAJOR_VERSION == 3)
                     gtk_widget_override_font(GTK_WIDGET(a_browser->side_dev), font_desc);
-#elif (GTK_MAJOR_VERSION == 2)
-                    gtk_widget_modify_font(GTK_WIDGET(a_browser->side_dev), font_desc);
-#endif
                     pango_font_description_free(font_desc);
                 }
                 else
-#if (GTK_MAJOR_VERSION == 3)
                     gtk_widget_override_font(GTK_WIDGET(a_browser->side_dev), NULL);
-#elif (GTK_MAJOR_VERSION == 2)
-                    gtk_widget_modify_font(GTK_WIDGET(a_browser->side_dev), NULL);
-#endif
             }
             // bookmarks
             if (a_browser->side_book)
@@ -853,19 +819,11 @@ void main_update_fonts(GtkWidget* widget, PtkFileBrowser* file_browser)
                 if (fontname)
                 {
                     font_desc = pango_font_description_from_string(fontname);
-#if (GTK_MAJOR_VERSION == 3)
                     gtk_widget_override_font(GTK_WIDGET(a_browser->side_book), font_desc);
-#elif (GTK_MAJOR_VERSION == 2)
-                    gtk_widget_modify_font(GTK_WIDGET(a_browser->side_book), font_desc);
-#endif
                     pango_font_description_free(font_desc);
                 }
                 else
-#if (GTK_MAJOR_VERSION == 3)
                     gtk_widget_override_font(GTK_WIDGET(a_browser->side_book), NULL);
-#elif (GTK_MAJOR_VERSION == 2)
-                    gtk_widget_modify_font(GTK_WIDGET(a_browser->side_book), NULL);
-#endif
             }
             // pathbar
             if (a_browser->path_bar)
@@ -874,19 +832,11 @@ void main_update_fonts(GtkWidget* widget, PtkFileBrowser* file_browser)
                 if (fontname)
                 {
                     font_desc = pango_font_description_from_string(fontname);
-#if (GTK_MAJOR_VERSION == 3)
                     gtk_widget_override_font(GTK_WIDGET(a_browser->path_bar), font_desc);
-#elif (GTK_MAJOR_VERSION == 2)
-                    gtk_widget_modify_font(GTK_WIDGET(a_browser->path_bar), font_desc);
-#endif
                     pango_font_description_free(font_desc);
                 }
                 else
-#if (GTK_MAJOR_VERSION == 3)
                     gtk_widget_override_font(GTK_WIDGET(a_browser->path_bar), NULL);
-#elif (GTK_MAJOR_VERSION == 2)
-                    gtk_widget_modify_font(GTK_WIDGET(a_browser->path_bar), NULL);
-#endif
             }
 
             // status bar font and icon
@@ -896,19 +846,11 @@ void main_update_fonts(GtkWidget* widget, PtkFileBrowser* file_browser)
                 if (fontname)
                 {
                     font_desc = pango_font_description_from_string(fontname);
-#if (GTK_MAJOR_VERSION == 3)
                     gtk_widget_override_font(GTK_WIDGET(a_browser->status_label), font_desc);
-#elif (GTK_MAJOR_VERSION == 2)
-                    gtk_widget_modify_font(GTK_WIDGET(a_browser->status_label), font_desc);
-#endif
                     pango_font_description_free(font_desc);
                 }
                 else
-#if (GTK_MAJOR_VERSION == 3)
                     gtk_widget_override_font(GTK_WIDGET(a_browser->status_label), NULL);
-#elif (GTK_MAJOR_VERSION == 2)
-                    gtk_widget_modify_font(GTK_WIDGET(a_browser->status_label), NULL);
-#endif
 
                 gtk_image_set_from_icon_name(GTK_IMAGE(a_browser->status_image),
                                              icon_name,
@@ -930,19 +872,11 @@ void main_update_fonts(GtkWidget* widget, PtkFileBrowser* file_browser)
         if (fontname)
         {
             font_desc = pango_font_description_from_string(fontname);
-#if (GTK_MAJOR_VERSION == 3)
             gtk_widget_override_font(GTK_WIDGET(main_window->task_view), font_desc);
-#elif (GTK_MAJOR_VERSION == 2)
-            gtk_widget_modify_font(GTK_WIDGET(main_window->task_view), font_desc);
-#endif
             pango_font_description_free(font_desc);
         }
         else
-#if (GTK_MAJOR_VERSION == 3)
             gtk_widget_override_font(GTK_WIDGET(main_window->task_view), NULL);
-#elif (GTK_MAJOR_VERSION == 2)
-            gtk_widget_modify_font(GTK_WIDGET(main_window->task_view), NULL);
-#endif
 
         // panelbar
         gtk_image_set_from_icon_name(GTK_IMAGE(main_window->panel_image[p - 1]),
@@ -1909,30 +1843,20 @@ static void fm_main_window_init(FMMainWindow* main_window)
     }
     update_window_icon((GtkWindow*)main_window, gtk_icon_theme_get_default());
 
-#if (GTK_MAJOR_VERSION == 3)
     main_window->main_vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-#elif (GTK_MAJOR_VERSION == 2)
-    main_window->main_vbox = gtk_vbox_new(FALSE, 0);
-#endif
     gtk_container_add(GTK_CONTAINER(main_window), main_window->main_vbox);
 
     // Create menu bar
     main_window->accel_group = gtk_accel_group_new();
     main_window->menu_bar = gtk_menu_bar_new();
-#if (GTK_MAJOR_VERSION == 3)
     GtkWidget* menu_hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-#elif (GTK_MAJOR_VERSION == 2)
-    GtkWidget* menu_hbox = gtk_hbox_new(FALSE, 0);
-#endif
     gtk_box_pack_start(GTK_BOX(menu_hbox), main_window->menu_bar, TRUE, TRUE, 0);
 
     // panelbar
     main_window->panelbar = gtk_toolbar_new();
-#if (GTK_MAJOR_VERSION == 3)
     GtkStyleContext* style_ctx = gtk_widget_get_style_context(main_window->panelbar);
     gtk_style_context_add_class(style_ctx, GTK_STYLE_CLASS_MENUBAR);
     gtk_style_context_remove_class(style_ctx, GTK_STYLE_CLASS_TOOLBAR);
-#endif
     gtk_toolbar_set_show_arrow(GTK_TOOLBAR(main_window->panelbar), FALSE);
     gtk_toolbar_set_style(GTK_TOOLBAR(main_window->panelbar), GTK_TOOLBAR_ICONS);
     gtk_toolbar_set_icon_size(GTK_TOOLBAR(main_window->panelbar), GTK_ICON_SIZE_MENU);
@@ -1997,17 +1921,10 @@ static void fm_main_window_init(FMMainWindow* main_window)
     rebuild_menus(main_window);
 
     /* Create client area */
-#if (GTK_MAJOR_VERSION == 3)
     main_window->task_vpane = gtk_paned_new(GTK_ORIENTATION_VERTICAL);
     main_window->vpane = gtk_paned_new(GTK_ORIENTATION_VERTICAL);
     main_window->hpane_top = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
     main_window->hpane_bottom = gtk_paned_new(GTK_ORIENTATION_HORIZONTAL);
-#elif (GTK_MAJOR_VERSION == 2)
-    main_window->task_vpane = gtk_vpaned_new();
-    main_window->vpane = gtk_vpaned_new();
-    main_window->hpane_top = gtk_hpaned_new();
-    main_window->hpane_bottom = gtk_hpaned_new();
-#endif
 
     for (i = 0; i < 4; i++)
     {
@@ -2732,11 +2649,7 @@ GtkWidget* fm_main_window_create_tab_label(FMMainWindow* main_window, PtkFileBro
     evt_box = GTK_EVENT_BOX(gtk_event_box_new());
     gtk_event_box_set_visible_window(GTK_EVENT_BOX(evt_box), FALSE);
 
-#if (GTK_MAJOR_VERSION == 3)
     tab_label = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
-#elif (GTK_MAJOR_VERSION == 2)
-    tab_label = gtk_hbox_new(FALSE, 0);
-#endif
     XSet* set = xset_get_panel(file_browser->mypanel, "icon_tab");
     if (set->icon)
     {
@@ -2770,16 +2683,11 @@ GtkWidget* fm_main_window_create_tab_label(FMMainWindow* main_window, PtkFileBro
     if (fontname)
     {
         PangoFontDescription* font_desc = pango_font_description_from_string(fontname);
-#if (GTK_MAJOR_VERSION == 3)
         gtk_widget_override_font(tab_text, font_desc);
-#elif (GTK_MAJOR_VERSION == 2)
-        gtk_widget_modify_font(tab_text, font_desc);
-#endif
         pango_font_description_free(font_desc);
     }
 
     gtk_label_set_ellipsize(GTK_LABEL(tab_text), PANGO_ELLIPSIZE_MIDDLE);
-#if (GTK_MAJOR_VERSION == 3)
     if (strlen(gtk_label_get_text(GTK_LABEL(tab_text))) < 30)
     {
         gtk_label_set_ellipsize(GTK_LABEL(tab_text), PANGO_ELLIPSIZE_NONE);
@@ -2787,18 +2695,13 @@ GtkWidget* fm_main_window_create_tab_label(FMMainWindow* main_window, PtkFileBro
     }
     else
         gtk_label_set_width_chars(GTK_LABEL(tab_text), 30);
-#endif
     gtk_label_set_max_width_chars(GTK_LABEL(tab_text), 30);
     gtk_box_pack_start(GTK_BOX(tab_label), tab_text, FALSE, FALSE, 4);
 
     if (!app_settings.hide_close_tab_buttons)
     {
         close_btn = gtk_button_new();
-#if (GTK_MAJOR_VERSION == 3)
         gtk_widget_set_focus_on_click(GTK_BUTTON(close_btn), FALSE);
-#elif (GTK_MAJOR_VERSION == 2)
-        gtk_button_set_focus_on_click(GTK_BUTTON(close_btn), FALSE);
-#endif
         gtk_button_set_relief(GTK_BUTTON(close_btn), GTK_RELIEF_NONE);
         pixbuf = vfs_load_icon(icon_theme, GTK_STOCK_CLOSE, 16);
         if (pixbuf)
@@ -2865,7 +2768,6 @@ void fm_main_window_update_tab_label(FMMainWindow* main_window, PtkFileBrowser* 
 
         name = g_path_get_basename(path);
         gtk_label_set_text(text, name);
-#if (GTK_MAJOR_VERSION == 3)
         gtk_label_set_ellipsize(text, PANGO_ELLIPSIZE_MIDDLE);
         if (strlen(name) < 30)
         {
@@ -2874,7 +2776,6 @@ void fm_main_window_update_tab_label(FMMainWindow* main_window, PtkFileBrowser* 
         }
         else
             gtk_label_set_width_chars(text, 30);
-#endif
         g_free(name);
 
         g_list_free(children); // sfm 0.6.0 enabled
@@ -3050,11 +2951,7 @@ static void on_about_activate(GtkMenuItem* menuitem, void* user_data)
 
         pcmanfm_ref();
 
-#if (GTK_MAJOR_VERSION == 3)
         const char* about_dlg_ui = g_strdup("/about-dlg3.ui");
-#elif (GTK_MAJOR_VERSION == 2)
-        const char* about_dlg_ui = g_strdup("/about-dlg2.ui");
-#endif
         builder = _gtk_builder_new_from_file(PACKAGE_UI_DIR, about_dlg_ui, NULL);
         about_dlg = GTK_WIDGET(gtk_builder_get_object(builder, "dlg"));
         g_object_unref(builder);
@@ -6012,11 +5909,7 @@ static GtkWidget* main_task_view_new(FMMainWindow* main_window)
     {
         PangoFontDescription* font_desc =
             pango_font_description_from_string(xset_get_s("font_task"));
-#if (GTK_MAJOR_VERSION == 3)
         gtk_widget_override_font(view, font_desc);
-#elif (GTK_MAJOR_VERSION == 2)
-        gtk_widget_modify_font(view, font_desc);
-#endif
         pango_font_description_free(font_desc);
     }
 
@@ -6675,16 +6568,10 @@ char main_window_socket_command(char* argv[], char** reply)
         }
         else if (!strcmp(argv[i], "screen_size"))
         {
-#if (GTK_MAJOR_VERSION == 3)
             GdkRectangle workarea = {0};
             gdk_monitor_get_workarea(gdk_display_get_primary_monitor(gdk_display_get_default()),
                                      &workarea);
             *reply = g_strdup_printf("%dx%d\n", workarea.width, workarea.height);
-#elif (GTK_MAJOR_VERSION == 2)
-            width = gdk_screen_get_width(gtk_widget_get_screen((GtkWidget*)main_window));
-            height = gdk_screen_get_height(gtk_widget_get_screen((GtkWidget*)main_window));
-            *reply = g_strdup_printf("%dx%d\n", width, height);
-#endif
         }
         else if (!strcmp(argv[i], "window_vslider_top") ||
                  !strcmp(argv[i], "window_vslider_bottom") || !strcmp(argv[i], "window_hslider") ||

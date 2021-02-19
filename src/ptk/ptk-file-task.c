@@ -829,9 +829,7 @@ void ptk_file_task_progress_open(PtkFileTask* ptask)
     /* Progress: */
     row++;
     ptask->progress_bar = GTK_PROGRESS_BAR(gtk_progress_bar_new());
-#if (GTK_MAJOR_VERSION == 3)
     gtk_progress_bar_set_show_text(GTK_PROGRESS_BAR(ptask->progress_bar), TRUE);
-#endif
     gtk_progress_bar_set_pulse_step(ptask->progress_bar, 0.08);
     gtk_table_attach(table,
                      GTK_WIDGET(ptask->progress_bar),
@@ -860,11 +858,7 @@ void ptk_file_task_progress_open(PtkFileTask* ptask)
     if (fontname)
     {
         PangoFontDescription* font_desc = pango_font_description_from_string(fontname);
-#if (GTK_MAJOR_VERSION == 3)
         gtk_widget_override_font(ptask->error_view, font_desc);
-#elif (GTK_MAJOR_VERSION == 2)
-        gtk_widget_modify_font(ptask->error_view, font_desc);
-#endif
         pango_font_description_free(font_desc);
     }
     g_signal_connect(ptask->error_view, "populate-popup", G_CALLBACK(on_view_popup), NULL);
@@ -887,11 +881,7 @@ void ptk_file_task_progress_open(PtkFileTask* ptask)
         bool overtask = task->type == VFS_FILE_TASK_MOVE || task->type == VFS_FILE_TASK_COPY ||
                         task->type == VFS_FILE_TASK_LINK;
         ptask->overwrite_combo = gtk_combo_box_text_new();
-#if (GTK_MAJOR_VERSION == 3)
         gtk_widget_set_focus_on_click(GTK_COMBO_BOX(ptask->overwrite_combo), FALSE);
-#elif (GTK_MAJOR_VERSION == 2)
-        gtk_combo_box_set_focus_on_click(GTK_COMBO_BOX(ptask->overwrite_combo), FALSE);
-#endif
         gtk_widget_set_sensitive(ptask->overwrite_combo, overtask);
         for (i = 0; i < G_N_ELEMENTS(overwrite_options); i++)
             gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(ptask->overwrite_combo),
@@ -906,11 +896,7 @@ void ptk_file_task_progress_open(PtkFileTask* ptask)
                          ptask);
 
         ptask->error_combo = gtk_combo_box_text_new();
-#if (GTK_MAJOR_VERSION == 3)
         gtk_widget_set_focus_on_click(GTK_COMBO_BOX(ptask->error_combo), FALSE);
-#elif (GTK_MAJOR_VERSION == 2)
-        gtk_combo_box_set_focus_on_click(GTK_COMBO_BOX(ptask->error_combo), FALSE);
-#endif
         for (i = 0; i < G_N_ELEMENTS(error_options); i++)
             gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(ptask->error_combo),
                                            _(error_options[i]));
@@ -921,11 +907,7 @@ void ptk_file_task_progress_open(PtkFileTask* ptask)
                          "changed",
                          G_CALLBACK(on_error_combo_changed),
                          ptask);
-#if (GTK_MAJOR_VERSION == 3)
         GtkWidget* overwrite_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 20);
-#elif (GTK_MAJOR_VERSION == 2)
-        GtkWidget* overwrite_box = gtk_hbox_new(FALSE, 20);
-#endif
         gtk_box_pack_start(GTK_BOX(overwrite_box),
                            GTK_WIDGET(ptask->overwrite_combo),
                            FALSE,
@@ -1167,9 +1149,7 @@ static void ptk_file_task_progress_update(PtkFileTask* ptask)
         }
         else
             gtk_progress_bar_set_fraction(ptask->progress_bar, 0);
-#if (GTK_MAJOR_VERSION == 3)
         gtk_progress_bar_set_show_text(GTK_PROGRESS_BAR(ptask->progress_bar), TRUE);
-#endif
     }
     else if (ptask->complete)
     {
@@ -1179,16 +1159,12 @@ static void ptk_file_task_progress_update(PtkFileTask* ptask)
                 gtk_progress_bar_set_fraction(ptask->progress_bar, 0);
             else
                 gtk_progress_bar_set_fraction(ptask->progress_bar, 1);
-#if (GTK_MAJOR_VERSION == 3)
             gtk_progress_bar_set_show_text(GTK_PROGRESS_BAR(ptask->progress_bar), TRUE);
-#endif
         }
     }
     else if (task->type == VFS_FILE_TASK_EXEC && task->state_pause == VFS_FILE_TASK_RUNNING)
     {
-#if (GTK_MAJOR_VERSION == 3)
         gtk_progress_bar_set_show_text(GTK_PROGRESS_BAR(ptask->progress_bar), FALSE);
-#endif
         gtk_progress_bar_pulse(ptask->progress_bar);
     }
 
@@ -2145,11 +2121,7 @@ static void query_overwrite(PtkFileTask* ptask)
 
     GtkWidget* align = gtk_alignment_new(1, 0, 1, 1);
     gtk_alignment_set_padding(GTK_ALIGNMENT(align), 0, 14, 7, 7);
-#if (GTK_MAJOR_VERSION == 3)
     GtkWidget* vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-#elif (GTK_MAJOR_VERSION == 2)
-    GtkWidget* vbox = gtk_vbox_new(FALSE, 0);
-#endif
     gtk_container_add(GTK_CONTAINER(align), vbox);
     gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dlg))), align, TRUE, TRUE, 0);
 
@@ -2276,11 +2248,7 @@ static void query_overwrite(PtkFileTask* ptask)
                      "clicked",
                      G_CALLBACK(on_query_button_press),
                      ptask);
-#if (GTK_MAJOR_VERSION == 3)
     GtkWidget* hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 30);
-#elif (GTK_MAJOR_VERSION == 2)
-    GtkWidget* hbox = gtk_hbox_new(FALSE, 30);
-#endif
     gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(rename_button), FALSE, TRUE, 0);
     gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(auto_button), FALSE, TRUE, 0);
     gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(auto_all_button), FALSE, TRUE, 0);

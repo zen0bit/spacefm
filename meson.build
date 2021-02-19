@@ -104,14 +104,6 @@ if get_option('mmap')
   pre_args += '-DHAVE_MMAP'
 endif
 
-if get_option('gtk3')
-  dep_gtk = dependency('gtk+-3.0')
-elif get_option('gtk2')
-  dep_gtk = dependency('gtk+-2.0')
-else
-  error('unknown gtk version')
-endif
-
 if get_option('xxhash')
   pre_args += '-DUSE_XXHASH'
   lib_xxhash = meson.get_compiler('c').find_library('xxhash', required : false)
@@ -132,6 +124,7 @@ lib_ffmpeg = meson.get_compiler('c').find_library('libffmpegthumbnailer', requir
 
 dep_x11 = dependency('x11')
 dep_glib = dependency('glib-2.0')
+dep_gtk = dependency('gtk+-3.0')
 
 
 sources = [
