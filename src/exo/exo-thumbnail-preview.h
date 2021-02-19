@@ -24,19 +24,17 @@
 
 G_BEGIN_DECLS
 
-typedef struct ExoThumbnailPreview
-{
-    GtkFrame __parent__;
-    GtkWidget* image;
-    GtkWidget* name_label;
-    GtkWidget* size_label;
-} ExoThumbnailPreview;
+typedef struct _ExoThumbnailPreviewClass ExoThumbnailPreviewClass;
+typedef struct _ExoThumbnailPreview ExoThumbnailPreview;
 
-#define EXO_TYPE_THUMBNAIL_PREVIEW (exo_thumbnail_preview_get_type())
-#define EXO_THUMBNAIL_PREVIEW(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST((obj), EXO_TYPE_THUMBNAIL_PREVIEW, ExoThumbnailPreview))
-#define EXO_IS_THUMBNAIL_PREVIEW(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE((obj), EXO_TYPE_THUMBNAIL_PREVIEW))
+// clang-format off
+#define EXO_TYPE_THUMBNAIL_PREVIEW            (exo_thumbnail_preview_get_type ())
+#define EXO_THUMBNAIL_PREVIEW(obj)            (G_TYPE_CHECK_INSTANCE_CAST ((obj), EXO_TYPE_THUMBNAIL_PREVIEW, ExoThumbnailPreview))
+#define EXO_THUMBNAIL_PREVIEW_CLASS(klass)    (G_TYPE_CHECK_CLASS_CAST ((klass), EXO_TYPE_THUMBNAIL_PREVIEW, ExoThumbnailPreviewClass))
+#define EXO_IS_THUMBNAIL_PREVIEW(obj)         (G_TYPE_CHECK_INSTANCE_TYPE ((obj), EXO_TYPE_THUMBNAIL_PREVIEW))
+#define EXO_IS_THUMBNAIL_PREVIEW_CLASS(klass) (G_TYPE_CHECK_CLASS_TYPE ((klass), EXO_TYPE_THUMBNAIL_PREVIEW))
+#define EXO_THUMBNAIL_PREVIEW_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), EXO_TYPE_THUMBNAIL_PREVIEW, ExoThumbnailPreviewClass))
+// clang-format on
 
 G_GNUC_INTERNAL GType exo_thumbnail_preview_get_type(void) G_GNUC_CONST;
 

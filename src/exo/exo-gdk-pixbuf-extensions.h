@@ -28,14 +28,28 @@
 
 G_BEGIN_DECLS
 
-GdkPixbuf* exo_gdk_pixbuf_scale_down(GdkPixbuf* source, bool preserve_aspect_ratio, int dest_width,
-                                     int dest_height) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
-
 GdkPixbuf* exo_gdk_pixbuf_colorize(const GdkPixbuf* source,
                                    const GdkColor* color) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
+GdkPixbuf* exo_gdk_pixbuf_frame(const GdkPixbuf* source, const GdkPixbuf* frame, int left_offset,
+                                int top_offset, int right_offset,
+                                int bottom_offset) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+
+GdkPixbuf* exo_gdk_pixbuf_lucent(const GdkPixbuf* source,
+                                 unsigned int percent) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+
 GdkPixbuf*
 exo_gdk_pixbuf_spotlight(const GdkPixbuf* source) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
+
+GdkPixbuf* exo_gdk_pixbuf_scale_down(GdkPixbuf* source, bool preserve_aspect_ratio, int dest_width,
+                                     int dest_height) G_GNUC_WARN_UNUSED_RESULT;
+
+GdkPixbuf* exo_gdk_pixbuf_scale_ratio(GdkPixbuf* source, int dest_size) G_GNUC_WARN_UNUSED_RESULT;
+
+GdkPixbuf*
+exo_gdk_pixbuf_new_from_file_at_max_size(const char* filename, int max_width, int max_height,
+                                         bool preserve_aspect_ratio,
+                                         GError** error) G_GNUC_MALLOC G_GNUC_WARN_UNUSED_RESULT;
 
 G_END_DECLS
 

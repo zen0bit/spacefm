@@ -26,19 +26,17 @@
 
 G_BEGIN_DECLS
 
-typedef struct ExoIconChooserModel
-{
-    GObject __parent__;
-    GtkIconTheme* icon_theme;
-    GList* items;
-    int stamp;
-} ExoIconChooserModel;
+typedef struct _ExoIconChooserModelClass ExoIconChooserModelClass;
+typedef struct _ExoIconChooserModel ExoIconChooserModel;
 
-#define EXO_TYPE_ICON_CHOOSER_MODEL (exo_icon_chooser_model_get_type())
-#define EXO_ICON_CHOOSER_MODEL(obj) \
-    (G_TYPE_CHECK_INSTANCE_CAST((obj), EXO_TYPE_ICON_CHOOSER_MODEL, ExoIconChooserModel))
-#define EXO_IS_ICON_CHOOSER_MODEL(obj) \
-    (G_TYPE_CHECK_INSTANCE_TYPE((obj), EXO_TYPE_ICON_CHOOSER_MODEL))
+// clang-format off
+#define EXO_TYPE_ICON_CHOOSER_MODEL             (exo_icon_chooser_model_get_type ())
+#define EXO_ICON_CHOOSER_MODEL(obj)             (G_TYPE_CHECK_INSTANCE_CAST ((obj), EXO_TYPE_ICON_CHOOSER_MODEL, ExoIconChooserModel))
+#define EXO_ICON_CHOOSER_MODEL_CLASS(klass)     (G_TYPE_CHECK_CLASS_CAST ((klass), EXO_TYPE_ICON_CHOOSER_MODEL, ExoIconChooserModelClass))
+#define EXO_IS_ICON_CHOOSER_MODEL(obj)          (G_TYPE_CHECK_INSTANCE_TYPE ((obj), EXO_TYPE_ICON_CHOOSER_MODEL))
+#define EXO_IS_ICON_CHOOSER_MODEL_CLASS(klass)  (G_TYPE_CHECK_CLASS_TYPE ((klass), EXO_TYPE_ICON_CHOOSER_MODEL))
+#define EXO_ICON_CHOOSER_MODEL_GET_CLASS(obj)   (G_TYPE_INSTANCE_GET_CLASS ((obj), EXO_TYPE_ICON_CHOOSER_MODEL, ExoIconChooserModelClass))
+// clang-format on
 
 /**
  * ExoIconChooserContexts:
@@ -46,7 +44,7 @@ typedef struct ExoIconChooserModel
  * The list of default contexts for the icon themes
  * according to the Icon Naming Spec, Version 0.7.
  **/
-typedef enum ExoIconChooserContext
+typedef enum
 {
     /* the contexts provided by the model */
     EXO_ICON_CHOOSER_CONTEXT_ACTIONS,
@@ -56,10 +54,10 @@ typedef enum ExoIconChooserContext
     EXO_ICON_CHOOSER_CONTEXT_DEVICES,
     EXO_ICON_CHOOSER_CONTEXT_EMBLEMS,
     EXO_ICON_CHOOSER_CONTEXT_EMOTES,
-    EXO_ICON_CHOOSER_CONTEXT_INTERNATIONAL,
     EXO_ICON_CHOOSER_CONTEXT_MIME_TYPES,
     EXO_ICON_CHOOSER_CONTEXT_PLACES,
     EXO_ICON_CHOOSER_CONTEXT_STATUS,
+    EXO_ICON_CHOOSER_CONTEXT_STOCK,
     EXO_ICON_CHOOSER_CONTEXT_OTHER,
     EXO_ICON_CHOOSER_N_CONTEXTS,
 
@@ -77,7 +75,7 @@ typedef enum ExoIconChooserContext
  *
  * The columns provided by the #ExoIconChooserModel.
  **/
-typedef enum ExoIconChooserModelColumn
+typedef enum
 {
     EXO_ICON_CHOOSER_MODEL_COLUMN_CONTEXT,
     EXO_ICON_CHOOSER_MODEL_COLUMN_ICON_NAME,

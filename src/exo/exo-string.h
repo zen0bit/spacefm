@@ -44,19 +44,6 @@ G_BEGIN_DECLS
  **/
 #define exo_str_is_empty(string) ((string) == NULL || *(string) == '\0')
 
-/**
- * I_:
- * @string : A static string.
- *
- * Shortcut for g_intern_static_string() to return a
- * canonical representation for @string.
- *
- * Returns: a canonical representation for the string.
- *
- * Since : 0.3.1.1
- **/
-#define I_(string) (g_intern_static_string((string)))
-
-G_END_DECLS;
+G_END_DECLS
 
 #endif /* !__EXO_STRING_H__ */

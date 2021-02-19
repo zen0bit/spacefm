@@ -22,7 +22,8 @@
 
 #include "exo-icon-chooser-model.h"
 #include "exo-private.h"
-#include "exo-string.h"
+
+typedef struct _ExoIconChooserModelItem ExoIconChooserModelItem;
 
 static void exo_icon_chooser_model_tree_model_init(GtkTreeModelIface* iface);
 static void exo_icon_chooser_model_finalize(GObject* object);
@@ -45,15 +46,24 @@ static bool exo_icon_chooser_model_iter_parent(GtkTreeModel* tree_model, GtkTree
                                                GtkTreeIter* child);
 static void exo_icon_chooser_model_icon_theme_changed(GtkIconTheme* icon_theme,
                                                       ExoIconChooserModel* model);
+static int exo_icon_chooser_model_item_compare(gconstpointer data_a, gconstpointer data_b);
 static void exo_icon_chooser_model_item_to_list(void* key, void* value, void* data);
 static void exo_icon_chooser_model_item_free(void* data);
 
-typedef struct ExoIconChooserModelClass
+struct _ExoIconChooserModelClass
 {
     GObjectClass __parent__;
-} ExoIconChooserModelClass;
+};
 
-typedef struct ExoIconChooserModelItem
+struct _ExoIconChooserModel
+{
+    GObject __parent__;
+    GtkIconTheme* icon_theme;
+    GList* items;
+    int stamp;
+};
+
+struct _ExoIconChooserModelItem
 {
     char* icon_name;
     ExoIconChooserContext context;
@@ -63,20 +73,20 @@ typedef struct ExoIconChooserModelItem
 
     /* icon names of symlinks to this item */
     GPtrArray* other_names;
-} ExoIconChooserModelItem;
+};
 
-static const char CONTEXT_NAMES[][14] = {
-    "Actions",       /* EXO_ICON_CHOOSER_CONTEXT_ACTIONS */
-    "Animations",    /* EXO_ICON_CHOOSER_CONTEXT_ANIMATIONS */
-    "Applications",  /* EXO_ICON_CHOOSER_CONTEXT_APPLICATIONS */
-    "Categories",    /* EXO_ICON_CHOOSER_CONTEXT_CATEGORIES */
-    "Devices",       /* EXO_ICON_CHOOSER_CONTEXT_DEVICES */
-    "Emblems",       /* EXO_ICON_CHOOSER_CONTEXT_EMBLEMS */
-    "Emotes",        /* EXO_ICON_CHOOSER_CONTEXT_EMOTES */
-    "International", /* EXO_ICON_CHOOSER_CONTEXT_INTERNATIONAL */
-    "MimeTypes",     /* EXO_ICON_CHOOSER_CONTEXT_MIME_TYPES */
-    "Places",        /* EXO_ICON_CHOOSER_CONTEXT_PLACES */
-    "Status",        /* EXO_ICON_CHOOSER_CONTEXT_STATUS */
+static const char CONTEXT_NAMES[][13] = {
+    "Actions",      /* EXO_ICON_CHOOSER_CONTEXT_ACTIONS */
+    "Animations",   /* EXO_ICON_CHOOSER_CONTEXT_ANIMATIONS */
+    "Applications", /* EXO_ICON_CHOOSER_CONTEXT_APPLICATIONS */
+    "Categories",   /* EXO_ICON_CHOOSER_CONTEXT_CATEGORIES */
+    "Devices",      /* EXO_ICON_CHOOSER_CONTEXT_DEVICES */
+    "Emblems",      /* EXO_ICON_CHOOSER_CONTEXT_EMBLEMS */
+    "Emotes",       /* EXO_ICON_CHOOSER_CONTEXT_EMOTES */
+    "MimeTypes",    /* EXO_ICON_CHOOSER_CONTEXT_MIME_TYPES */
+    "Places",       /* EXO_ICON_CHOOSER_CONTEXT_PLACES */
+    "Status",       /* EXO_ICON_CHOOSER_CONTEXT_STATUS */
+    "Stock",        /* EXO_ICON_CHOOSER_CONTEXT_STOCK */
 };
 
 G_DEFINE_TYPE_WITH_CODE(ExoIconChooserModel, exo_icon_chooser_model, G_TYPE_OBJECT,
@@ -153,10 +163,10 @@ static GType exo_icon_chooser_model_get_column_type(GtkTreeModel* tree_model, in
 
         case EXO_ICON_CHOOSER_MODEL_COLUMN_ICON_NAME:
             return G_TYPE_STRING;
-        default:
-            _exo_assert_not_reached();
-            return G_TYPE_INVALID;
     }
+
+    _exo_assert_not_reached();
+    return G_TYPE_INVALID;
 }
 
 static bool exo_icon_chooser_model_get_iter(GtkTreeModel* tree_model, GtkTreeIter* iter,
@@ -200,10 +210,9 @@ static void exo_icon_chooser_model_get_value(GtkTreeModel* tree_model, GtkTreeIt
                                              int column, GValue* value)
 {
     ExoIconChooserModelItem* item;
-    ExoIconChooserModel* model = EXO_ICON_CHOOSER_MODEL(tree_model);
 
-    _exo_return_if_fail(EXO_IS_ICON_CHOOSER_MODEL(model));
-    _exo_return_if_fail(iter->stamp == model->stamp);
+    _exo_return_if_fail(EXO_IS_ICON_CHOOSER_MODEL(tree_model));
+    _exo_return_if_fail(iter->stamp == EXO_ICON_CHOOSER_MODEL(tree_model)->stamp);
 
     /* determine the item for the list position */
     item = ((GList*)iter->user_data)->data;
@@ -296,8 +305,7 @@ static bool exo_icon_chooser_model_merge_symlinks(void* key, void* value, void* 
     ExoIconChooserModelItem* item;
     char* target;
     const char* filename;
-    char* p;
-    char* name;
+    char *p, *name;
     bool merged = FALSE;
 
     /* get the location the symlink points to */
@@ -349,14 +357,20 @@ static bool exo_icon_chooser_model_merge_symlinks(void* key, void* value, void* 
     return merged;
 }
 
+static bool icon_name_is_symbolic(const char* icon_name)
+{
+    return g_str_has_suffix(icon_name, "-symbolic") ||
+           g_str_has_suffix(icon_name, "-symbolic-ltr") ||
+           g_str_has_suffix(icon_name, "-symbolic-rtl") || g_str_has_suffix(icon_name, ".symbolic");
+}
+
 static void exo_icon_chooser_model_icon_theme_changed(GtkIconTheme* icon_theme,
                                                       ExoIconChooserModel* model)
 {
     ExoIconChooserModelItem* item;
     GHashTable* items;
     GHashTable* symlink_items;
-    GList* icons;
-    GList* lp;
+    GList *icons, *lp;
     const char* filename;
     ExoIconChooserContext context;
     GtkTreePath* path;
@@ -388,6 +402,12 @@ static void exo_icon_chooser_model_icon_theme_changed(GtkIconTheme* icon_theme,
     icons = gtk_icon_theme_list_icons(icon_theme, NULL);
     for (lp = icons; lp != NULL; lp = lp->next)
     {
+        /* Skip symbolic icons since they lead to double processing */
+        if (icon_name_is_symbolic(lp->data))
+        {
+            continue;
+        }
+
         item = g_slice_new0(ExoIconChooserModelItem);
         item->icon_name = lp->data;
         item->context = EXO_ICON_CHOOSER_CONTEXT_OTHER;
@@ -405,7 +425,7 @@ static void exo_icon_chooser_model_icon_theme_changed(GtkIconTheme* icon_theme,
                 continue;
             }
 
-            gtk_icon_info_free(icon_info);
+            g_object_unref(icon_info);
         }
 
         /* real file or no info, store it in the hash table */
@@ -419,6 +439,12 @@ static void exo_icon_chooser_model_icon_theme_changed(GtkIconTheme* icon_theme,
         icons = gtk_icon_theme_list_icons(icon_theme, CONTEXT_NAMES[context]);
         for (lp = icons; lp != NULL; lp = lp->next)
         {
+            /* Skip symbolic icons since they lead to double processing */
+            if (icon_name_is_symbolic(lp->data))
+            {
+                continue;
+            }
+
             /* lookup the item in one of the hash tables */
             item = g_hash_table_lookup(items, lp->data);
             if (item == NULL)
@@ -441,6 +467,7 @@ static void exo_icon_chooser_model_icon_theme_changed(GtkIconTheme* icon_theme,
     icons = NULL;
     g_hash_table_foreach(items, exo_icon_chooser_model_item_to_list, &icons);
     g_hash_table_destroy(items);
+    icons = g_list_sort(icons, exo_icon_chooser_model_item_compare);
 
     /* insert the items into the model */
     iter.stamp = model->stamp;
@@ -461,7 +488,7 @@ static void exo_icon_chooser_model_icon_theme_changed(GtkIconTheme* icon_theme,
     gtk_tree_path_free(path);
 }
 
-static int exo_icon_chooser_model_item_compare(const void* data_a, const void* data_b)
+static int exo_icon_chooser_model_item_compare(gconstpointer data_a, gconstpointer data_b)
 {
     const ExoIconChooserModelItem* item_a = data_a;
     const ExoIconChooserModelItem* item_b = data_b;
@@ -476,7 +503,7 @@ static void exo_icon_chooser_model_item_to_list(void* key, void* value, void* da
     GList** list = data;
     ExoIconChooserModelItem* item = value;
 
-    *list = g_list_insert_sorted(*list, item, exo_icon_chooser_model_item_compare);
+    *list = g_list_insert(*list, item, 0);
 }
 
 static void exo_icon_chooser_model_item_free(void* data)
@@ -487,7 +514,7 @@ static void exo_icon_chooser_model_item_free(void* data)
         g_ptr_array_free(item->other_names, TRUE);
 
     if (G_LIKELY(item->icon_info != NULL))
-        gtk_icon_info_free(item->icon_info);
+        g_object_unref(item->icon_info);
 
     g_free(item->icon_name);
     g_slice_free(ExoIconChooserModelItem, item);
@@ -537,7 +564,7 @@ ExoIconChooserModel* _exo_icon_chooser_model_get_for_icon_theme(GtkIconTheme* ic
     _exo_return_val_if_fail(GTK_IS_ICON_THEME(icon_theme), NULL);
 
     /* check if the icon theme is already associated with a model */
-    model = g_object_get_data(G_OBJECT(icon_theme), I_("exo-icon-chooser-default-model"));
+    model = g_object_get_data(G_OBJECT(icon_theme), "exo-icon-chooser-default-model");
     if (G_LIKELY(model == NULL))
     {
         /* allocate a new model for the icon theme */
@@ -594,7 +621,7 @@ bool _exo_icon_chooser_model_get_iter_for_icon_name(ExoIconChooserModel* model, 
 
         /* compare this item's icon name */
         item = (ExoIconChooserModelItem*)lp->data;
-        if (!strcmp(icon_name, item->icon_name))
+        if (strcmp(icon_name, item->icon_name) == 0)
             found = TRUE;
 
         /* look in the alternative names */
@@ -603,7 +630,7 @@ bool _exo_icon_chooser_model_get_iter_for_icon_name(ExoIconChooserModel* model, 
             for (i = 0; !found && i < item->other_names->len; ++i)
             {
                 other_name = g_ptr_array_index(item->other_names, i);
-                if (!strcmp(icon_name, other_name))
+                if (strcmp(icon_name, other_name) == 0)
                     found = TRUE;
             }
         }

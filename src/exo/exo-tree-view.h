@@ -29,7 +29,9 @@
 
 G_BEGIN_DECLS
 
-typedef struct ExoTreeViewPrivate ExoTreeViewPrivate;
+typedef struct _ExoTreeViewPrivate ExoTreeViewPrivate;
+typedef struct _ExoTreeViewClass ExoTreeViewClass;
+typedef struct _ExoTreeView ExoTreeView;
 
 // clang-format off
 #define EXO_TYPE_TREE_VIEW            (exo_tree_view_get_type ())
@@ -40,7 +42,7 @@ typedef struct ExoTreeViewPrivate ExoTreeViewPrivate;
 #define EXO_TREE_VIEW_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), EXO_TYPE_TREE_VIEW, ExoTreeViewClass))
 // clang-format on
 
-typedef struct ExoTreeViewClass
+struct _ExoTreeViewClass
 {
     /*< private >*/
     GtkTreeViewClass __parent__;
@@ -54,7 +56,7 @@ typedef struct ExoTreeViewClass
     void (*reserved6)(void);
     void (*reserved7)(void);
     void (*reserved8)(void);
-} ExoTreeViewClass;
+};
 
 /**
  * ExoTreeView:
@@ -62,14 +64,14 @@ typedef struct ExoTreeViewClass
  * The #ExoIconView struct contains only private fields and should
  * not be directly accessed.
  **/
-typedef struct ExoTreeView
+struct _ExoTreeView
 {
     /*< private >*/
     GtkTreeView __parent__;
 
     /*< private >*/
     ExoTreeViewPrivate* priv;
-} ExoTreeView;
+};
 
 GType exo_tree_view_get_type(void) G_GNUC_CONST;
 

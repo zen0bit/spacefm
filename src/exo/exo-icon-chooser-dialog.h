@@ -26,7 +26,9 @@
 
 G_BEGIN_DECLS
 
-typedef struct ExoIconChooserDialogPrivate ExoIconChooserDialogPrivate;
+typedef struct _ExoIconChooserDialogPrivate ExoIconChooserDialogPrivate;
+typedef struct _ExoIconChooserDialogClass ExoIconChooserDialogClass;
+typedef struct _ExoIconChooserDialog ExoIconChooserDialog;
 
 // clang-format off
 #define EXO_TYPE_ICON_CHOOSER_DIALOG            (exo_icon_chooser_dialog_get_type ())
@@ -37,7 +39,7 @@ typedef struct ExoIconChooserDialogPrivate ExoIconChooserDialogPrivate;
 #define EXO_ICON_CHOOSER_DIALOG_GET_CLASS(obj)  (G_TYPE_INSTANCE_GET_CLASS ((obj), EXO_TYPE_ICON_CHOOSER_DIALOG, ExoIconChooserDialogClass))
 // clang-format on
 
-typedef struct ExoIconChooserDialogClass
+struct _ExoIconChooserDialogClass
 {
     /*< private >*/
     GtkDialogClass __parent__;
@@ -49,13 +51,20 @@ typedef struct ExoIconChooserDialogClass
     void (*reserved4)(void);
     void (*reserved5)(void);
     void (*reserved6)(void);
-} ExoIconChooserDialogClass;
+};
 
-typedef struct ExoIconChooserDialog
+/**
+ * ExoIconChooserDialog:
+ *
+ * The #ExoIconChooserDialog class provides an easy to use dialog to ask
+ * the user to select either a named icon from the selected icon theme,
+ * or an image file from the local file system.
+ **/
+struct _ExoIconChooserDialog
 {
     /*< private >*/
     GtkDialog __parent__;
-} ExoIconChooserDialog;
+};
 
 GType exo_icon_chooser_dialog_get_type(void) G_GNUC_CONST;
 

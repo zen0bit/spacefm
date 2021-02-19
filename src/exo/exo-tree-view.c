@@ -26,13 +26,24 @@
 #include <glib/gi18n.h>
 
 #include "exo-tree-view.h"
-#include "exo-string.h"
 #include "exo-utils.h"
 
-/* shorter macros for the GParamSpecs with static strings */
 #define EXO_PARAM_READABLE  (G_PARAM_READABLE | G_PARAM_STATIC_STRINGS)
 #define EXO_PARAM_WRITABLE  (G_PARAM_WRITABLE | G_PARAM_STATIC_STRINGS)
 #define EXO_PARAM_READWRITE (G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS)
+
+/**
+ * SECTION: exo-tree-view
+ * @title: ExoTreeView
+ * @short_description: An improved version of #GtkTreeView
+ * @include: exo/exo.h
+ *
+ * The #ExoTreeView class derives from #GtkTreeView and extends it with
+ * the ability to activate rows using single button clicks instead of
+ * the default double button clicks. It also works around a few shortcomings
+ * of #GtkTreeView, i.e. #ExoTreeView allows the user to drag around multiple
+ * selected rows.
+ **/
 
 /* Property identifiers */
 enum
@@ -56,7 +67,7 @@ static bool exo_tree_view_move_cursor(GtkTreeView* view, GtkMovementStep step, i
 static bool exo_tree_view_single_click_timeout(void* user_data);
 static void exo_tree_view_single_click_timeout_destroy(void* user_data);
 
-typedef struct ExoTreeViewPrivate
+struct _ExoTreeViewPrivate
 {
     /* whether the next button-release-event should emit "row-activate" */
     unsigned int button_release_activates : 1;
@@ -76,9 +87,8 @@ typedef struct ExoTreeViewPrivate
     /* the path below the pointer or NULL */
     GtkTreePath* hover_path;
 
-    /* the column which is the only activable */
     GtkTreeViewColumn* activable_column;
-} ExoTreeViewPrivate;
+};
 
 G_DEFINE_TYPE_WITH_PRIVATE(ExoTreeView, exo_tree_view, GTK_TYPE_TREE_VIEW)
 
@@ -134,8 +144,8 @@ static void exo_tree_view_class_init(ExoTreeViewClass* klass)
         PROP_SINGLE_CLICK_TIMEOUT,
         g_param_spec_uint("single-click-timeout",
                           "Single Click Timeout",
-                          "The amount of time after which the item under the mouse cursor "
-                          "will be selected automatically in single click mode",
+                          "The amount of time after which the item under the mouse cursor will "
+                          "be selected automatically in single click mode",
                           0,
                           G_MAXUINT,
                           0,
@@ -273,7 +283,7 @@ static bool exo_tree_view_button_press_event(GtkWidget* widget, GdkEventButton* 
         if (G_LIKELY(path == NULL || !gtk_tree_selection_path_is_selected(selection, path)))
         {
             /* need to disable drag and drop because we're rubberbanding now */
-            drag_data = g_object_get_data(G_OBJECT(tree_view), I_("gtk-site-data"));
+            drag_data = g_object_get_data(G_OBJECT(tree_view), "gtk-site-data");
             if (G_LIKELY(drag_data != NULL))
             {
                 g_signal_handlers_block_matched(G_OBJECT(tree_view),
@@ -407,7 +417,7 @@ static bool exo_tree_view_button_release_event(GtkWidget* widget, GdkEventButton
     /* check if we need to re-enable drag and drop */
     if (G_LIKELY(tree_view->priv->button_release_unblocks_dnd))
     {
-        drag_data = g_object_get_data(G_OBJECT(tree_view), I_("gtk-site-data"));
+        drag_data = g_object_get_data(G_OBJECT(tree_view), "gtk-site-data");
         if (G_LIKELY(drag_data != NULL))
         {
             g_signal_handlers_unblock_matched(G_OBJECT(tree_view),
@@ -496,7 +506,6 @@ static bool exo_tree_view_motion_notify_event(GtkWidget* widget, GdkEventMotion*
                     cursor = gdk_cursor_new_for_display(gdk_window_get_display(event->window),
                                                         GDK_HAND2);
                     gdk_window_set_cursor(event->window, cursor);
-
                     g_object_unref(cursor);
                 }
                 else
@@ -518,11 +527,11 @@ static bool exo_tree_view_motion_notify_event(GtkWidget* widget, GdkEventMotion*
 
                     /* schedule a new single-click timeout */
                     tree_view->priv->single_click_timeout_id =
-                        g_timeout_add_full(G_PRIORITY_LOW,
-                                           tree_view->priv->single_click_timeout,
-                                           exo_tree_view_single_click_timeout,
-                                           tree_view,
-                                           exo_tree_view_single_click_timeout_destroy);
+                        gdk_threads_add_timeout_full(G_PRIORITY_LOW,
+                                                     tree_view->priv->single_click_timeout,
+                                                     exo_tree_view_single_click_timeout,
+                                                     tree_view,
+                                                     exo_tree_view_single_click_timeout_destroy);
                 }
             }
             else
@@ -625,7 +634,7 @@ static bool exo_tree_view_single_click_timeout(void* user_data)
             /* be sure the row is fully visible */
             gtk_tree_view_scroll_to_cell(GTK_TREE_VIEW(tree_view),
                                          tree_view->priv->hover_path,
-                                         0, // sfm was cursor_column - caused horizontal scroll
+                                         cursor_column,
                                          FALSE,
                                          0.0f,
                                          0.0f);
@@ -736,7 +745,7 @@ static void exo_tree_view_single_click_timeout_destroy(void* user_data)
  *
  * Allocates a new #ExoTreeView instance.
  *
- * Return value: the newly allocated #ExoTreeView.
+ * Returns: the newly allocated #ExoTreeView.
  *
  * Since: 0.3.1.3
  **/
@@ -751,7 +760,7 @@ GtkWidget* exo_tree_view_new(void)
  *
  * Returns %TRUE if @tree_view is in single-click mode, else %FALSE.
  *
- * Return value: whether @tree_view is in single-click mode.
+ * Returns: whether @tree_view is in single-click mode.
  *
  * Since: 0.3.1.3
  **/
@@ -791,7 +800,7 @@ void exo_tree_view_set_single_click(ExoTreeView* tree_view, bool single_click)
  * in single click mode. A value of %0 means that the behavior
  * is disabled and the user must alter the selection manually.
  *
- * Return value: the single click autoselect timeout or %0 if
+ * Returns: the single click autoselect timeout or %0 if
  *               the behavior is disabled.
  *
  * Since: 0.3.1.5
@@ -852,6 +861,4 @@ void exo_tree_view_set_activable_column(ExoTreeView* tree_view, GtkTreeViewColum
     tree_view->priv->activable_column = column;
 }
 
-/*
 #define __EXO_TREE_VIEW_C__
-*/

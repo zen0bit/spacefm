@@ -29,26 +29,44 @@
 
 G_BEGIN_DECLS;
 
-#define _exo_assert_not_reached()          g_assert_not_reached()
-#define _exo_return_if_fail(expr)          g_return_if_fail(expr)
-#define _exo_return_val_if_fail(expr, val) g_return_val_if_fail(expr, (val))
+/* support macros for debugging */
+// clang-format off
+#ifndef NDEBUG
+#define _exo_assert(expr)                  g_assert (expr)
+#define _exo_assert_not_reached()          g_assert_not_reached ()
+#define _exo_return_if_fail(expr)          g_return_if_fail (expr)
+#define _exo_return_val_if_fail(expr, val) g_return_val_if_fail (expr, (val))
+#else
+#define _exo_assert(expr)                  G_STMT_START{ (void)0; }G_STMT_END
+#define _exo_assert_not_reached()          G_STMT_START{ (void)0; }G_STMT_END
+#define _exo_return_if_fail(expr)          G_STMT_START{ (void)0; }G_STMT_END
+#define _exo_return_val_if_fail(expr, val) G_STMT_START{ (void)0; }G_STMT_END
+#endif
 
-/* support macros for the slice allocator */
-#define _exo_slice_free(type, ptr) \
-    G_STMT_START                   \
-    {                              \
-        g_slice_free(type, (ptr)); \
-    }                              \
-    G_STMT_END
+/* avoid trivial g_value_get_*() function calls */
+#ifdef NDEBUG
+#define g_value_get_boolean(v)  (((const GValue *) (v))->data[0].v_int)
+#define g_value_get_char(v)     (((const GValue *) (v))->data[0].v_int)
+#define g_value_get_uchar(v)    (((const GValue *) (v))->data[0].v_uint)
+#define g_value_get_int(v)      (((const GValue *) (v))->data[0].v_int)
+#define g_value_get_uint(v)     (((const GValue *) (v))->data[0].v_uint)
+#define g_value_get_long(v)     (((const GValue *) (v))->data[0].v_long)
+#define g_value_get_ulong(v)    (((const GValue *) (v))->data[0].v_ulong)
+#define g_value_get_int64(v)    (((const GValue *) (v))->data[0].v_int64)
+#define g_value_get_uint64(v)   (((const GValue *) (v))->data[0].v_uint64)
+#define g_value_get_enum(v)     (((const GValue *) (v))->data[0].v_long)
+#define g_value_get_flags(v)    (((const GValue *) (v))->data[0].v_ulong)
+#define g_value_get_float(v)    (((const GValue *) (v))->data[0].v_float)
+#define g_value_get_double(v)   (((const GValue *) (v))->data[0].v_double)
+#define g_value_get_string(v)   (((const GValue *) (v))->data[0].v_pointer)
+#define g_value_get_param(v)    (((const GValue *) (v))->data[0].v_pointer)
+#define g_value_get_boxed(v)    (((const GValue *) (v))->data[0].v_pointer)
+#define g_value_get_pointer(v)  (((const GValue *) (v))->data[0].v_pointer)
+#define g_value_get_object(v)   (((const GValue *) (v))->data[0].v_pointer)
+#endif
+// clang-format on
 
-void _exo_gtk_widget_send_focus_change(GtkWidget* widget, bool in) G_GNUC_INTERNAL;
-
-GType _exo_g_type_register_simple(GType type_parent, const char* type_name_static,
-                                  unsigned int class_size, void* class_init,
-                                  unsigned int instance_size, void* instance_init) G_GNUC_INTERNAL;
-
-void _exo_g_type_add_interface_simple(GType instance_type, GType interface_type,
-                                      GInterfaceInitFunc interface_init_func) G_GNUC_INTERNAL;
+G_GNUC_INTERNAL void _exo_gtk_widget_send_focus_change(GtkWidget* widget, bool in);
 
 G_END_DECLS;
 

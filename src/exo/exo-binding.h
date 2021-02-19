@@ -29,8 +29,8 @@
 
 G_BEGIN_DECLS
 
-typedef struct ExoBinding ExoBinding;
-typedef struct ExoMutualBinding ExoMutualBinding;
+typedef struct _ExoBinding ExoBinding;
+typedef struct _ExoMutualBinding ExoMutualBinding;
 
 /**
  * ExoBindingTransform:
@@ -50,11 +50,11 @@ typedef bool (*ExoBindingTransform)(const GValue* src_value, GValue* dst_value, 
 
 ExoBinding* exo_binding_new(GObject* src_object, const char* src_property, GObject* dst_object,
                             const char* dst_property);
-
 ExoBinding* exo_binding_new_full(GObject* src_object, const char* src_property, GObject* dst_object,
                                  const char* dst_property, ExoBindingTransform transform,
                                  GDestroyNotify destroy_notify, void* user_data);
-
+ExoMutualBinding* exo_mutual_binding_new(GObject* object1, const char* property1, GObject* object2,
+                                         const char* property2);
 ExoMutualBinding* exo_mutual_binding_new_full(GObject* object1, const char* property1,
                                               GObject* object2, const char* property2,
                                               ExoBindingTransform transform,

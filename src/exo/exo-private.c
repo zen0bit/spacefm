@@ -22,7 +22,6 @@
 #include <stdbool.h>
 
 #include "exo-private.h"
-#include "exo-string.h"
 
 void _exo_gtk_widget_send_focus_change(GtkWidget* widget, bool in)
 {
@@ -39,64 +38,4 @@ void _exo_gtk_widget_send_focus_change(GtkWidget* widget, bool in)
 
     g_object_unref(G_OBJECT(widget));
     gdk_event_free(fevent);
-}
-
-/**
- * _exo_g_type_register_simple:
- * @type_parent      : the parent #GType.
- * @type_name_static : the name of the new #GType, must reside in static
- *                     storage and remain unchanged during the lifetime
- *                     of the process.
- * @class_size       : the size of the class structure in bytes.
- * @class_init       : the class init function or %NULL.
- * @instance_size    : the size of the instance structure in bytes.
- * @instance_init    : the constructor function or %NULL.
- *
- * Simple wrapper for g_type_register_static(), which takes the most
- * important aspects of the type as parameters to avoid relocations
- * when using static constant #GTypeInfo<!---->s.
- *
- * Return value: the newly registered #GType.
- **/
-GType _exo_g_type_register_simple(GType type_parent, const char* type_name_static,
-                                  unsigned int class_size, void* class_init,
-                                  unsigned int instance_size, void* instance_init)
-{
-    /* generate the type info (on the stack) */
-    GTypeInfo info = {
-        class_size,
-        NULL,
-        NULL,
-        class_init,
-        NULL,
-        NULL,
-        instance_size,
-        0,
-        instance_init,
-        NULL,
-    };
-
-    /* register the static type */
-    return g_type_register_static(type_parent, I_(type_name_static), &info, 0);
-}
-
-/**
- * _exo_g_type_add_interface_simple:
- * @instance_type       : the #GType which should implement the @interface_type.
- * @interface_type      : the #GType of the interface.
- * @interface_init_func : initialization function for the interface.
- *
- * Simple wrapper for g_type_add_interface_static(), which helps to avoid unnecessary
- * relocations for the #GInterfaceInfo<!---->s.
- **/
-void _exo_g_type_add_interface_simple(GType instance_type, GType interface_type,
-                                      GInterfaceInitFunc interface_init_func)
-{
-    GInterfaceInfo info = {
-        interface_init_func,
-        NULL,
-        NULL,
-    };
-
-    g_type_add_interface_static(instance_type, interface_type, &info);
 }

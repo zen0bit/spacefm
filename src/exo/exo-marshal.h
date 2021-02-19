@@ -11,12 +11,6 @@
 
 G_BEGIN_DECLS
 
-/* VOID:OBJECT,OBJECT (exo-marshal.list:2) */
-extern void _exo_marshal_VOID__OBJECT_OBJECT(GClosure* closure, GValue* return_value,
-                                             unsigned int n_param_values,
-                                             const GValue* param_values, void* invocation_hint,
-                                             void* marshal_data);
-
 /* BOOLEAN:VOID (exo-marshal.list:5) */
 extern void _exo_marshal_BOOLEAN__VOID(GClosure* closure, GValue* return_value,
                                        unsigned int n_param_values, const GValue* param_values,

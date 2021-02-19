@@ -17,13 +17,95 @@
  * MA 02110-1301 USA
  */
 
-/* implement exo-utils's inline functions */
-#define G_IMPLEMENT_INLINES 1
-
 #include <stdbool.h>
 
 #include <glib.h>
-#include <gtk/gtk.h>
+
+/* implement exo-utils's inline functions */
+#define G_IMPLEMENT_INLINES 1
+
+/**
+ * SECTION: exo-utils
+ * @title: Miscellaneous Utility Functions
+ * @short_description: Various utility functions
+ * @include: exo/exo.h
+ * @see_also: <ulink type="http"
+ *url="http://library.gnome.org/devel/glib/stable/glib-Atomic-Operations.html"> GLib Atomic
+ *Operations</ulink>
+ *
+ * This module contains various utility functions that extend the basic
+ * utility functions provided by the <ulink type="http"
+ * url="http://library.gnome.org/devel/glib/stable/">GLib</ulink> library.
+ **/
+
+/**
+ * exo_noop:
+ *
+ * This function has no effect. It does nothing but
+ * returning instantly. It is mostly useful in
+ * situations that require a function to be called,
+ * but that function does not need to do anything
+ * useful.
+ *
+ * Since: 0.3.1
+ **/
+void exo_noop(void)
+{
+}
+
+/**
+ * exo_noop_one:
+ *
+ * This function has no effect but simply returns
+ * the integer value %1. It is mostly useful in
+ * situations where you just need a function that
+ * returns %1, but don't want to perform any other
+ * actions.
+ *
+ * Returns: the integer value %1.
+ *
+ * Since: 0.3.1
+ **/
+int exo_noop_one(void)
+{
+    return 1;
+}
+
+/**
+ * exo_noop_zero:
+ *
+ * This function has no effect but simply returns
+ * the integer value %0. It is mostly useful in
+ * situations where you just need a function that
+ * returns %0, but don't want to perform any other
+ * actions.
+ *
+ * Returns: the integer value %0.
+ *
+ * Since: 0.3.1
+ **/
+int exo_noop_zero(void)
+{
+    return 0;
+}
+
+/**
+ * exo_noop_null:
+ *
+ * This function has no effect but simply returns
+ * a %NULL pointer. It is mostly useful in
+ * situations where you just need a function that
+ * returns %NULL, but don't want to perform any
+ * other actions.
+ *
+ * Returns: a %NULL pointer.
+ *
+ * Since: 0.3.1
+ **/
+void* exo_noop_null(void)
+{
+    return NULL;
+}
 
 /**
  * exo_noop_true:
@@ -60,3 +142,5 @@ bool exo_noop_false(void)
 {
     return FALSE;
 }
+
+#define __EXO_UTILS_C__

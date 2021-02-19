@@ -26,7 +26,16 @@
 
 G_BEGIN_DECLS
 
+void exo_gtk_object_destroy_later(GtkWidget* object);
+
 void exo_gtk_file_chooser_add_thumbnail_preview(GtkFileChooser* chooser);
+
+void exo_gtk_url_about_dialog_hook(GtkAboutDialog* about_dialog, const char* address,
+                                   void* user_data);
+
+GtkWidget* exo_gtk_dialog_get_action_area(GtkDialog* dialog);
+
+void exo_gtk_dialog_add_secondary_button(GtkDialog* dialog, GtkWidget* button);
 
 G_END_DECLS
 
