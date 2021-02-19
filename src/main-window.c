@@ -478,7 +478,7 @@ static void import_all_plugins(FMMainWindow* main_window)
                     !g_file_test(bookmarks_dir, G_FILE_TEST_EXISTS))
                 {
                     char* plug_dir = g_build_filename((char*)l->data, name, NULL);
-                    if (!xset_import_plugin(plug_dir, -1))
+                    if (!xset_import_plugin(plug_dir, NULL))
                         printf("Invalid Plugin Ignored: %s/\n", plug_dir);
                     g_free(plug_dir);
                 }
