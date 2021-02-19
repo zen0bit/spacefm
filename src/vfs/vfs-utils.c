@@ -50,7 +50,7 @@ GdkPixbuf* vfs_load_icon(GtkIconTheme* theme, const char* icon_name, int size)
         icon = gtk_icon_info_get_builtin_pixbuf(inf);
         g_object_ref(icon);
     }
-    gtk_icon_info_free(inf);
+    g_object_unref(inf);
 
     return icon;
 }
