@@ -189,7 +189,7 @@ static void on_open_files(GtkAction* action, FindFile* data)
     bool open_files = TRUE;
 
     if (action)
-        open_files = (!strcmp(gtk_action_get_name(action), "OpenAction"));
+        open_files = (!strcmp(g_action_get_name(action), "OpenAction"));
 
     sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(data->result_view));
     rows = gtk_tree_selection_get_selected_rows(sel, &model);
