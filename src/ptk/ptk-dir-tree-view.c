@@ -13,7 +13,6 @@
 #include <stdbool.h>
 
 #include "ptk-dir-tree-view.h"
-#include "ptk-file-icon-renderer.h"
 
 #include <glib.h>
 #include <gdk/gdkkeysyms.h>
@@ -121,7 +120,7 @@ GtkWidget* ptk_dir_tree_view_new(PtkFileBrowser* browser, bool show_hidden)
 
     col = gtk_tree_view_column_new();
 
-    renderer = (GtkCellRenderer*)ptk_file_icon_renderer_new();
+    renderer = gtk_cell_renderer_pixbuf_new();
     gtk_tree_view_column_pack_start(col, renderer, FALSE);
     gtk_tree_view_column_set_attributes(col,
                                         renderer,

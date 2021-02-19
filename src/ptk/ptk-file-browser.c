@@ -38,7 +38,6 @@
 
 #include "settings.h"
 
-#include "ptk-file-icon-renderer.h"
 #include "ptk-utils.h"
 #include "ptk-file-task.h"
 #include "ptk-file-misc.h"
@@ -3799,8 +3798,7 @@ static GtkWidget* create_folder_view(PtkFileBrowser* file_browser, PtkFBViewMode
 
             gtk_cell_layout_clear(GTK_CELL_LAYOUT(folder_view));
 
-            /* renderer = gtk_cell_renderer_pixbuf_new (); */
-            file_browser->icon_render = renderer = ptk_file_icon_renderer_new();
+            file_browser->icon_render = renderer = gtk_cell_renderer_pixbuf_new();
 
             /* add the icon renderer */
             g_object_set(G_OBJECT(renderer), "follow_state", TRUE, NULL);
@@ -3810,10 +3808,7 @@ static GtkWidget* create_folder_view(PtkFileBrowser* file_browser, PtkFBViewMode
                                           "pixbuf",
                                           file_browser->large_icons ? COL_FILE_BIG_ICON
                                                                     : COL_FILE_SMALL_ICON);
-            gtk_cell_layout_add_attribute(GTK_CELL_LAYOUT(folder_view),
-                                          renderer,
-                                          "info",
-                                          COL_FILE_INFO);
+
             /* add the name renderer */
             renderer = ptk_text_renderer_new();
 
@@ -4080,7 +4075,7 @@ static void init_list_view(PtkFileBrowser* file_browser, GtkTreeView* list_view)
             g_signal_connect( renderer, "editing-started",
                               G_CALLBACK( on_filename_editing_started ), NULL );
             */
-            file_browser->icon_render = pix_renderer = ptk_file_icon_renderer_new();
+            file_browser->icon_render = pix_renderer = gtk_cell_renderer_pixbuf_new();
 
             gtk_tree_view_column_pack_start(col, pix_renderer, FALSE);
             gtk_tree_view_column_set_attributes(col,
@@ -4088,8 +4083,6 @@ static void init_list_view(PtkFileBrowser* file_browser, GtkTreeView* list_view)
                                                 "pixbuf",
                                                 file_browser->large_icons ? COL_FILE_BIG_ICON
                                                                           : COL_FILE_SMALL_ICON,
-                                                "info",
-                                                COL_FILE_INFO,
                                                 NULL);
 
             gtk_tree_view_column_set_expand(col, TRUE);
