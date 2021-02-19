@@ -108,11 +108,9 @@ typedef void (*SettingsParseFunc)(char* line);
 static void xset_free_all();
 static void xset_default_keys();
 static char* xset_color_dialog(GtkWidget* parent, char* title, char* defcolor);
-static GtkWidget* xset_design_additem(GtkWidget* menu, const char* label, const char* stock_icon,
-                                      int job, XSet* set);
+static GtkWidget* xset_design_additem(GtkWidget* menu, const char* label, int job, XSet* set);
 static bool xset_design_cb(GtkWidget* item, GdkEventButton* event, XSet* set);
 static bool on_autosave_timer(void* main_window);
-static const char* icon_stock_to_id(const char* name);
 static void xset_builtin_tool_activate(char tool_type, XSet* set, GdkEventButton* event);
 static XSet* xset_new_builtin_toolitem(char tool_type);
 static void xset_custom_insert_after(XSet* target, XSet* set);
@@ -178,8 +176,8 @@ static const char* builtin_tool_icon[] = { // must match XSET_TOOL_ enum
     "gtk-add",
     "gtk-add",
     "gtk-apply",
-    GTK_STOCK_SELECT_COLOR,
-    GTK_STOCK_ZOOM_IN};
+    NULL,
+    "zoom-in"};
 
 static const char* builtin_tool_shared_key[] = { // must match XSET_TOOL_ enum
     NULL,
@@ -1481,19 +1479,6 @@ XSet* xset_set_set(XSet* set, int var, const char* value)
             // pre-0.9.0 icon or >= 0.9.0 custom item icon
             // only save if custom or not default icon
             // also check that stock name doesn't match
-            if (!set->lock || (g_strcmp0(set->icon, value) &&
-                               (!icon_stock_to_id(value) || !icon_stock_to_id(set->icon) ||
-                                g_strcmp0(icon_stock_to_id(value), icon_stock_to_id(set->icon)))))
-            {
-                if (set->icon)
-                    g_free(set->icon);
-                set->icon = g_strdup(value);
-                if (set->lock)
-                {
-                    // indicate that icon is not default and should be saved
-                    set->keep_terminal = XSET_B_TRUE;
-                }
-            }
             break;
         case XSET_SET_SET_SHARED_KEY:
             if (set->shared_key)
@@ -1906,199 +1891,6 @@ XSetContext* xset_context_new()
     return xset_context;
 }
 
-static const char* icon_stock_to_id(const char* name)
-{
-    if (!name)
-        return NULL;
-    else if (!strncmp(name, "gtk-", 4))
-        return name;
-    else if (!strncmp(name, "GTK_STOCK_", 10))
-    {
-        const char* icontail = name + 10;
-        const char* stockid;
-        if (!strcmp(icontail, "ABOUT"))
-            stockid = GTK_STOCK_ABOUT;
-        else if (!strcmp(icontail, "ADD"))
-            stockid = GTK_STOCK_ADD;
-        else if (!strcmp(icontail, "APPLY"))
-            stockid = GTK_STOCK_APPLY;
-        else if (!strcmp(icontail, "BOLD"))
-            stockid = GTK_STOCK_BOLD;
-        else if (!strcmp(icontail, "CANCEL"))
-            stockid = GTK_STOCK_CANCEL;
-        else if (!strcmp(icontail, "CDROM"))
-            stockid = GTK_STOCK_CDROM;
-        else if (!strcmp(icontail, "CLEAR"))
-            stockid = GTK_STOCK_CLEAR;
-        else if (!strcmp(icontail, "CLOSE"))
-            stockid = GTK_STOCK_CLOSE;
-        else if (!strcmp(icontail, "CONVERT"))
-            stockid = GTK_STOCK_CONVERT;
-        else if (!strcmp(icontail, "CONNECT"))
-            stockid = GTK_STOCK_CONNECT;
-        else if (!strcmp(icontail, "COPY"))
-            stockid = GTK_STOCK_COPY;
-        else if (!strcmp(icontail, "CUT"))
-            stockid = GTK_STOCK_CUT;
-        else if (!strcmp(icontail, "DELETE"))
-            stockid = GTK_STOCK_DELETE;
-        else if (!strcmp(icontail, "DIALOG_ERROR"))
-            stockid = GTK_STOCK_DIALOG_ERROR;
-        else if (!strcmp(icontail, "DIALOG_INFO"))
-            stockid = GTK_STOCK_DIALOG_INFO;
-        else if (!strcmp(icontail, "DIALOG_QUESTION"))
-            stockid = GTK_STOCK_DIALOG_QUESTION;
-        else if (!strcmp(icontail, "DIALOG_WARNING"))
-            stockid = GTK_STOCK_DIALOG_WARNING;
-        else if (!strcmp(icontail, "DIRECTORY"))
-            stockid = GTK_STOCK_DIRECTORY;
-        else if (!strcmp(icontail, "DISCARD"))
-            stockid = GTK_STOCK_DISCARD;
-        else if (!strcmp(icontail, "DISCONNECT"))
-            stockid = GTK_STOCK_DISCONNECT;
-        else if (!strcmp(icontail, "DND"))
-            stockid = GTK_STOCK_DND;
-        else if (!strcmp(icontail, "DND_MULTIPLE"))
-            stockid = GTK_STOCK_DND_MULTIPLE;
-        else if (!strcmp(icontail, "EDIT"))
-            stockid = GTK_STOCK_EDIT;
-        else if (!strcmp(icontail, "EXECUTE"))
-            stockid = GTK_STOCK_EXECUTE;
-        else if (!strcmp(icontail, "FILE"))
-            stockid = GTK_STOCK_FILE;
-        else if (!strcmp(icontail, "FIND"))
-            stockid = GTK_STOCK_FIND;
-        else if (!strcmp(icontail, "FIND_AND_REPLACE"))
-            stockid = GTK_STOCK_FIND_AND_REPLACE;
-        else if (!strcmp(icontail, "FLOPPY"))
-            stockid = GTK_STOCK_FLOPPY;
-        else if (!strcmp(icontail, "FULLSCREEN"))
-            stockid = GTK_STOCK_FULLSCREEN;
-        else if (!strcmp(icontail, "GOTO_BOTTOM"))
-            stockid = GTK_STOCK_GOTO_BOTTOM;
-        else if (!strcmp(icontail, "GOTO_FIRST"))
-            stockid = GTK_STOCK_GOTO_FIRST;
-        else if (!strcmp(icontail, "GOTO_LAST"))
-            stockid = GTK_STOCK_GOTO_LAST;
-        else if (!strcmp(icontail, "GOTO_TOP"))
-            stockid = GTK_STOCK_GOTO_TOP;
-        else if (!strcmp(icontail, "GO_BACK"))
-            stockid = GTK_STOCK_GO_BACK;
-        else if (!strcmp(icontail, "GO_DOWN"))
-            stockid = GTK_STOCK_GO_DOWN;
-        else if (!strcmp(icontail, "GO_FORWARD"))
-            stockid = GTK_STOCK_GO_FORWARD;
-        else if (!strcmp(icontail, "GO_UP"))
-            stockid = GTK_STOCK_GO_UP;
-        else if (!strcmp(icontail, "HARDDISK"))
-            stockid = GTK_STOCK_HARDDISK;
-        else if (!strcmp(icontail, "HELP"))
-            stockid = GTK_STOCK_HELP;
-        else if (!strcmp(icontail, "HOME"))
-            stockid = GTK_STOCK_HOME;
-        else if (!strcmp(icontail, "INDENT"))
-            stockid = GTK_STOCK_INDENT;
-        else if (!strcmp(icontail, "INDEX"))
-            stockid = GTK_STOCK_INDEX;
-        else if (!strcmp(icontail, "INFO"))
-            stockid = GTK_STOCK_INFO;
-        else if (!strcmp(icontail, "ITALIC"))
-            stockid = GTK_STOCK_ITALIC;
-        else if (!strcmp(icontail, "JUMP_TO"))
-            stockid = GTK_STOCK_JUMP_TO;
-        else if (!strcmp(icontail, "MEDIA_FORWARD"))
-            stockid = GTK_STOCK_MEDIA_FORWARD;
-        else if (!strcmp(icontail, "MEDIA_NEXT"))
-            stockid = GTK_STOCK_MEDIA_NEXT;
-        else if (!strcmp(icontail, "MEDIA_PAUSE"))
-            stockid = GTK_STOCK_MEDIA_PAUSE;
-        else if (!strcmp(icontail, "MEDIA_PLAY"))
-            stockid = GTK_STOCK_MEDIA_PLAY;
-        else if (!strcmp(icontail, "MEDIA_PREVIOUS"))
-            stockid = GTK_STOCK_MEDIA_PREVIOUS;
-        else if (!strcmp(icontail, "MEDIA_RECORD"))
-            stockid = GTK_STOCK_MEDIA_RECORD;
-        else if (!strcmp(icontail, "MEDIA_REWIND"))
-            stockid = GTK_STOCK_MEDIA_REWIND;
-        else if (!strcmp(icontail, "MEDIA_STOP"))
-            stockid = GTK_STOCK_MEDIA_STOP;
-        else if (!strcmp(icontail, "NETWORK"))
-            stockid = GTK_STOCK_NETWORK;
-        else if (!strcmp(icontail, "NEW"))
-            stockid = GTK_STOCK_NEW;
-        else if (!strcmp(icontail, "NO"))
-            stockid = GTK_STOCK_NO;
-        else if (!strcmp(icontail, "OK"))
-            stockid = GTK_STOCK_OK;
-        else if (!strcmp(icontail, "OPEN"))
-            stockid = GTK_STOCK_OPEN;
-        else if (!strcmp(icontail, "PAGE_SETUP"))
-            stockid = GTK_STOCK_PAGE_SETUP;
-        else if (!strcmp(icontail, "PASTE"))
-            stockid = GTK_STOCK_PASTE;
-        else if (!strcmp(icontail, "PREFERENCES"))
-            stockid = GTK_STOCK_PREFERENCES;
-        else if (!strcmp(icontail, "PRINT"))
-            stockid = GTK_STOCK_PRINT;
-        else if (!strcmp(icontail, "PROPERTIES"))
-            stockid = GTK_STOCK_PROPERTIES;
-        else if (!strcmp(icontail, "QUIT"))
-            stockid = GTK_STOCK_QUIT;
-        else if (!strcmp(icontail, "REDO"))
-            stockid = GTK_STOCK_REDO;
-        else if (!strcmp(icontail, "REFRESH"))
-            stockid = GTK_STOCK_REFRESH;
-        else if (!strcmp(icontail, "REMOVE"))
-            stockid = GTK_STOCK_REMOVE;
-        else if (!strcmp(icontail, "REVERT_TO_SAVED"))
-            stockid = GTK_STOCK_REVERT_TO_SAVED;
-        else if (!strcmp(icontail, "SAVE"))
-            stockid = GTK_STOCK_SAVE;
-        else if (!strcmp(icontail, "SAVE_AS"))
-            stockid = GTK_STOCK_SAVE_AS;
-        else if (!strcmp(icontail, "SELECT_ALL"))
-            stockid = GTK_STOCK_SELECT_ALL;
-        else if (!strcmp(icontail, "SELECT_COLOR"))
-            stockid = GTK_STOCK_SELECT_COLOR;
-        else if (!strcmp(icontail, "SELECT_FONT"))
-            stockid = GTK_STOCK_SELECT_FONT;
-        else if (!strcmp(icontail, "SORT_ASCENDING"))
-            stockid = GTK_STOCK_SORT_ASCENDING;
-        else if (!strcmp(icontail, "SORT_DESCENDING"))
-            stockid = GTK_STOCK_SORT_DESCENDING;
-        else if (!strcmp(icontail, "SPELL_CHECK"))
-            stockid = GTK_STOCK_SPELL_CHECK;
-        else if (!strcmp(icontail, "STOP"))
-            stockid = GTK_STOCK_STOP;
-        else if (!strcmp(icontail, "STRIKETHROUGH"))
-            stockid = GTK_STOCK_STRIKETHROUGH;
-        else if (!strcmp(icontail, "UNDELETE"))
-            stockid = GTK_STOCK_UNDELETE;
-        else if (!strcmp(icontail, "UNDERLINE"))
-            stockid = GTK_STOCK_UNDERLINE;
-        else if (!strcmp(icontail, "UNDO"))
-            stockid = GTK_STOCK_UNDO;
-        else if (!strcmp(icontail, "UNINDENT"))
-            stockid = GTK_STOCK_UNINDENT;
-        else if (!strcmp(icontail, "YES"))
-            stockid = GTK_STOCK_YES;
-        else if (!strcmp(icontail, "ZOOM_100"))
-            stockid = GTK_STOCK_ZOOM_100;
-        else if (!strcmp(icontail, "ZOOM_FIT"))
-            stockid = GTK_STOCK_ZOOM_FIT;
-        else if (!strcmp(icontail, "ZOOM_IN"))
-            stockid = GTK_STOCK_ZOOM_IN;
-        else if (!strcmp(icontail, "ZOOM_OUT"))
-            stockid = GTK_STOCK_ZOOM_OUT;
-        else if (!strcmp(icontail, "DIALOG_AUTHENTICATION"))
-            stockid = GTK_STOCK_DIALOG_AUTHENTICATION;
-        else
-            stockid = NULL;
-        return stockid;
-    }
-    return NULL;
-}
-
 GtkWidget* xset_get_image(const char* icon, int icon_size)
 {
     /*
@@ -2109,37 +1901,14 @@ GtkWidget* xset_get_image(const char* icon, int icon_size)
         GTK_ICON_SIZE_DND,
         GTK_ICON_SIZE_DIALOG
     */
-    GtkWidget* image = NULL;
-    const char* stockid;
 
     if (!(icon && icon[0]))
         return NULL;
+
     if (!icon_size)
         icon_size = GTK_ICON_SIZE_MENU;
 
-    if ((stockid = icon_stock_to_id(icon)))
-        image = gtk_image_new_from_stock(stockid, icon_size);
-    else if (icon[0] == '/')
-    {
-        // icon is full path to image file
-        // get real icon size from gtk icon size
-        int icon_w;
-        int icon_h;
-        gtk_icon_size_lookup(icon_size, &icon_w, &icon_h);
-        int real_icon_size = icon_w > icon_h ? icon_w : icon_h;
-        GtkIconTheme* icon_theme = gtk_icon_theme_get_default();
-        GdkPixbuf* pixbuf = vfs_load_icon(icon_theme, icon, real_icon_size);
-        if (pixbuf)
-        {
-            image = gtk_image_new_from_pixbuf(pixbuf);
-            g_object_unref(pixbuf);
-        }
-        else
-            image = gtk_image_new_from_file(icon);
-    }
-    else
-        image = gtk_image_new_from_icon_name(icon, icon_size);
-    return image;
+    return gtk_image_new_from_icon_name(icon, icon_size);
 }
 
 void xset_add_menu(PtkFileBrowser* file_browser, GtkWidget* menu, GtkAccelGroup* accel_group,
@@ -2185,9 +1954,7 @@ static GtkWidget* xset_new_menuitem(const char* label, const char* icon)
     if (!(icon && icon[0]))
         return item;
     GtkWidget* image = xset_get_image(icon, GTK_ICON_SIZE_MENU);
-    if (!image)
-        return item;
-    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), image);
+
     return item;
 }
 
@@ -2459,9 +2226,6 @@ GtkWidget* xset_add_menuitem(PtkFileBrowser* file_browser, GtkWidget* menu,
 
             if (app_icon)
             {
-                GtkWidget* app_img = gtk_image_new_from_pixbuf(app_icon);
-                if (app_img)
-                    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), app_img);
                 g_object_unref(app_icon);
             }
         }
@@ -2628,7 +2392,6 @@ static char* xset_custom_get_help(GtkWidget* parent, XSet* set)
             xset_msg_dialog(parent,
                             0,
                             _("Help Not Available"),
-                            NULL,
                             0,
                             _("This plugin does not include a README file."),
                             NULL,
@@ -2639,7 +2402,6 @@ static char* xset_custom_get_help(GtkWidget* parent, XSet* set)
         else if (xset_msg_dialog(parent,
                                  GTK_MESSAGE_QUESTION,
                                  _("Create README"),
-                                 NULL,
                                  GTK_BUTTONS_YES_NO,
                                  _("No README file exists for this command.\n\n"
                                    "Create a default README file for you to fill in?"),
@@ -2677,7 +2439,6 @@ static char* xset_custom_get_help(GtkWidget* parent, XSet* set)
     xset_msg_dialog(parent,
                     0,
                     _("Creation Failed"),
-                    NULL,
                     0,
                     _("An error occured creating a README file for this command."),
                     NULL,
@@ -2759,14 +2520,7 @@ static void xset_custom_copy_files(XSet* src, XSet* dest)
         {
             msg = g_strdup_printf(_("An error occured copying command files\n\n%s"),
                                   stderr ? stderr : "");
-            xset_msg_dialog(NULL,
-                            GTK_MESSAGE_ERROR,
-                            _("Copy Command Error"),
-                            NULL,
-                            0,
-                            msg,
-                            NULL,
-                            NULL);
+            xset_msg_dialog(NULL, GTK_MESSAGE_ERROR, _("Copy Command Error"), 0, msg, NULL, NULL);
             g_free(msg);
         }
         if (stderr)
@@ -2798,14 +2552,7 @@ static void xset_custom_copy_files(XSet* src, XSet* dest)
         {
             msg = g_strdup_printf(_("An error occured copying command data files\n\n%s"),
                                   stderr ? stderr : "");
-            xset_msg_dialog(NULL,
-                            GTK_MESSAGE_ERROR,
-                            _("Copy Command Error"),
-                            NULL,
-                            0,
-                            msg,
-                            NULL,
-                            NULL);
+            xset_msg_dialog(NULL, GTK_MESSAGE_ERROR, _("Copy Command Error"), 0, msg, NULL, NULL);
             g_free(msg);
         }
         if (stderr)
@@ -3283,7 +3030,6 @@ static void on_install_plugin_cb(VFSFileTask* task, PluginData* plugin_data)
                 xset_msg_dialog(GTK_WIDGET(plugin_data->main_window),
                                 GTK_MESSAGE_ERROR,
                                 _("Invalid Plugin"),
-                                NULL,
                                 0,
                                 msg,
                                 NULL,
@@ -3302,7 +3048,6 @@ static void on_install_plugin_cb(VFSFileTask* task, PluginData* plugin_data)
                         GTK_WIDGET(plugin_data->main_window),
                         GTK_MESSAGE_ERROR,
                         "Bookmarks",
-                        NULL,
                         0,
                         "This plugin file contains exported bookmarks which cannot be installed or "
                         "imported to the design clipboard.\n\nYou can import these directly into a "
@@ -3357,7 +3102,6 @@ static void on_install_plugin_cb(VFSFileTask* task, PluginData* plugin_data)
                                                              : NULL,
                                     GTK_MESSAGE_ERROR,
                                     "Handler Plugin",
-                                    NULL,
                                     0,
                                     "This file contains a handler plugin which cannot be installed "
                                     "as a plugin.\n\nYou can import handlers from a handler "
@@ -3423,7 +3167,6 @@ static void on_install_plugin_cb(VFSFileTask* task, PluginData* plugin_data)
                         xset_msg_dialog(GTK_WIDGET(plugin_data->main_window),
                                         0,
                                         "Copy Plugin",
-                                        NULL,
                                         0,
                                         msg,
                                         NULL,
@@ -3459,7 +3202,6 @@ static void xset_remove_plugin(GtkWidget* parent, PtkFileBrowser* file_browser, 
         if (xset_msg_dialog(parent,
                             GTK_MESSAGE_WARNING,
                             _("Uninstall Plugin"),
-                            NULL,
                             GTK_BUTTONS_YES_NO,
                             msg,
                             NULL,
@@ -3849,7 +3591,6 @@ _export_error:
     xset_msg_dialog(parent,
                     GTK_MESSAGE_ERROR,
                     _("Export Error"),
-                    NULL,
                     0,
                     _("Unable to create temporary files"),
                     NULL,
@@ -3955,7 +3696,6 @@ static void open_spec(PtkFileBrowser* file_browser, const char* url, bool in_new
         xset_msg_dialog(file_browser ? GTK_WIDGET(file_browser) : NULL,
                         GTK_MESSAGE_ERROR,
                         _("Invalid Bookmark Target"),
-                        NULL,
                         0,
                         msg,
                         NULL,
@@ -4005,7 +3745,6 @@ static void xset_custom_activate(GtkWidget* item, XSet* set)
         {
             if (!xset_text_dialog(parent,
                                   _("Change Item Name"),
-                                  NULL,
                                   FALSE,
                                   _(enter_menu_name_new),
                                   NULL,
@@ -4528,7 +4267,6 @@ void xset_open_url(GtkWidget* parent, const char* url)
         XSet* set = xset_get("main_help_browser");
         if (!xset_text_dialog(parent,
                               set->title,
-                              NULL,
                               TRUE,
                               set->desc,
                               NULL,
@@ -4656,7 +4394,6 @@ void xset_show_help(GtkWidget* parent, XSet* set, const char* anchor)
                     dlgparent,
                     GTK_MESSAGE_QUESTION,
                     _("User's Manual Not Found"),
-                    NULL,
                     GTK_BUTTONS_YES_NO,
                     _("Read the user's manual online?\n\nThe local copy of the SpaceFM user's "
                       "manual was not found.  Click Yes to read it online, or click No and then "
@@ -4714,7 +4451,6 @@ void xset_show_help(GtkWidget* parent, XSet* set, const char* anchor)
         xset_msg_dialog(dlgparent,
                         0,
                         _("Manual Opened ?"),
-                        NULL,
                         0,
                         _("The SpaceFM user's manual should have opened in your browser.  If it "
                           "didn't open, or if you would like to use a different browser, set your "
@@ -4946,16 +4682,12 @@ void xset_set_key(GtkWidget* parent, XSet* set)
                                                         NULL);
     xset_set_window_icon(GTK_WINDOW(dlg));
 
-    GtkWidget* btn_cancel = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
+    GtkWidget* btn_cancel = gtk_button_new_with_label("Cancel");
     gtk_button_set_label(GTK_BUTTON(btn_cancel), _("Cancel"));
-    gtk_button_set_image(GTK_BUTTON(btn_cancel),
-                         xset_get_image("GTK_STOCK_CANCEL", GTK_ICON_SIZE_BUTTON));
     gtk_dialog_add_action_widget(GTK_DIALOG(dlg), btn_cancel, GTK_RESPONSE_CANCEL);
 
-    GtkWidget* btn_unset = gtk_button_new_from_stock(GTK_STOCK_NO);
+    GtkWidget* btn_unset = gtk_button_new_with_label("NO");
     gtk_button_set_label(GTK_BUTTON(btn_unset), _("Unset"));
-    gtk_button_set_image(GTK_BUTTON(btn_unset),
-                         xset_get_image("GTK_STOCK_REMOVE", GTK_ICON_SIZE_BUTTON));
     gtk_dialog_add_action_widget(GTK_DIALOG(dlg), btn_unset, GTK_RESPONSE_NO);
 
     if (set->shared_key)
@@ -4965,9 +4697,8 @@ void xset_set_key(GtkWidget* parent, XSet* set)
     if (keyset->key <= 0)
         gtk_widget_set_sensitive(btn_unset, FALSE);
 
-    GtkWidget* btn = gtk_button_new_from_stock(GTK_STOCK_APPLY);
+    GtkWidget* btn = gtk_button_new_with_label("Apply");
     gtk_button_set_label(GTK_BUTTON(btn), _("Set"));
-    gtk_button_set_image(GTK_BUTTON(btn), xset_get_image("GTK_STOCK_YES", GTK_ICON_SIZE_BUTTON));
     gtk_dialog_add_action_widget(GTK_DIALOG(dlg), btn, GTK_RESPONSE_OK);
     gtk_widget_set_sensitive(btn, FALSE);
 
@@ -5057,7 +4788,6 @@ static void xset_design_job(GtkWidget* item, XSet* set)
             // change xset_text_dialog.
             xset_text_dialog(parent,
                              _("Set Icon"),
-                             NULL,
                              FALSE,
                              _(icon_desc),
                              NULL,
@@ -5122,7 +4852,6 @@ static void xset_design_job(GtkWidget* item, XSet* set)
         case XSET_JOB_LINE:
             if (xset_text_dialog(parent,
                                  _("Edit Command Line"),
-                                 NULL,
                                  TRUE,
                                  _(enter_command_line),
                                  NULL,
@@ -5170,7 +4899,6 @@ static void xset_design_job(GtkWidget* item, XSet* set)
                 xset_text_dialog(
                     parent,
                     _("Run As User"),
-                    NULL,
                     FALSE,
                     _("Run this command as username:\n\n( Leave blank for current user )"),
                     NULL,
@@ -5197,7 +4925,6 @@ static void xset_design_job(GtkWidget* item, XSet* set)
                 if (xset_msg_dialog(parent,
                                     0,
                                     _("New Context Command"),
-                                    NULL,
                                     GTK_BUTTONS_OK_CANCEL,
                                     msg,
                                     NULL,
@@ -5214,7 +4941,6 @@ static void xset_design_job(GtkWidget* item, XSet* set)
                     name = g_strdup_printf(_("New _Command"));
                     if (!xset_text_dialog(parent,
                                           _("Set Item Name"),
-                                          NULL,
                                           FALSE,
                                           _(enter_menu_name_new),
                                           NULL,
@@ -5321,7 +5047,6 @@ static void xset_design_job(GtkWidget* item, XSet* set)
                 if (xset_msg_dialog(parent,
                                     0,
                                     "New Context Submenu",
-                                    NULL,
                                     GTK_BUTTONS_OK_CANCEL,
                                     msg,
                                     NULL,
@@ -5336,7 +5061,6 @@ static void xset_design_job(GtkWidget* item, XSet* set)
             if (!xset_text_dialog(
                     parent,
                     _("Set Submenu Name"),
-                    NULL,
                     FALSE,
                     _("Enter submenu name:\n\nPrecede a character with an underscore (_) "
                       "to underline that character as a shortcut key if desired."),
@@ -5419,7 +5143,6 @@ static void xset_design_job(GtkWidget* item, XSet* set)
                 if (!xset_text_dialog(
                         GTK_WIDGET(parent),
                         _("Enter Plugin URL"),
-                        NULL,
                         FALSE,
                         _("Enter SpaceFM Plugin URL:\n\n(wget will be used to download "
                           "the plugin file)"),
@@ -5439,7 +5162,6 @@ static void xset_design_job(GtkWidget* item, XSet* set)
                 xset_msg_dialog(GTK_WIDGET(parent),
                                 GTK_MESSAGE_ERROR,
                                 _("Error Creating Temp Directory"),
-                                NULL,
                                 0,
                                 _("Unable to create temporary directory"),
                                 NULL,
@@ -5480,7 +5202,6 @@ static void xset_design_job(GtkWidget* item, XSet* set)
             if (xset_msg_dialog(parent,
                                 GTK_MESSAGE_QUESTION,
                                 _("Import GTK Bookmarks"),
-                                NULL,
                                 GTK_BUTTONS_OK_CANCEL,
                                 msg,
                                 NULL,
@@ -5673,7 +5394,6 @@ static void xset_design_job(GtkWidget* item, XSet* set)
                 set->desc = g_strdup(_("Are you sure?"));
             if (xset_text_dialog(parent,
                                  _("Dialog Message"),
-                                 NULL,
                                  TRUE,
                                  _("Enter the message to be displayed in this "
                                    "dialog:\n\nUse:\n\t\\n\tnewline\n\t\\t\ttab"),
@@ -5688,7 +5408,6 @@ static void xset_design_job(GtkWidget* item, XSet* set)
         case XSET_JOB_DIALOG:
             if (xset_text_dialog(parent,
                                  _("Dialog Message"),
-                                 NULL,
                                  TRUE,
                                  _("Enter the message to be displayed in this "
                                    "dialog:\n\nUse:\n\t\\n\tnewline\n\t\\t\ttab"),
@@ -5703,7 +5422,6 @@ static void xset_design_job(GtkWidget* item, XSet* set)
         case XSET_JOB_MESSAGE:
             xset_text_dialog(parent,
                              _("Dialog Message"),
-                             NULL,
                              TRUE,
                              _("Enter the message to be displayed in this "
                                "dialog:\n\nUse:\n\t\\n\tnewline\n\t\\t\ttab"),
@@ -6225,24 +5943,10 @@ static void set_check_menu_item_block(GtkWidget* item)
     g_signal_handlers_unblock_matched(item, G_SIGNAL_MATCH_FUNC, 0, 0, NULL, xset_design_job, NULL);
 }
 
-static GtkWidget* xset_design_additem(GtkWidget* menu, const char* label, const char* stock_icon,
-                                      int job, XSet* set)
+static GtkWidget* xset_design_additem(GtkWidget* menu, const char* label, int job, XSet* set)
 {
     GtkWidget* item;
-    if (stock_icon)
-    {
-        if (!strcmp(stock_icon, "@check"))
-            item = gtk_check_menu_item_new_with_mnemonic(label);
-        else
-        {
-            item = gtk_menu_item_new_with_mnemonic(label);
-            GtkWidget* image = gtk_image_new_from_stock(stock_icon, GTK_ICON_SIZE_MENU);
-            if (image)
-                gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), image);
-        }
-    }
-    else
-        item = gtk_menu_item_new_with_mnemonic(label);
+    item = gtk_menu_item_new_with_mnemonic(label);
 
     g_object_set_data(G_OBJECT(item), "job", GINT_TO_POINTER(job));
     gtk_container_add(GTK_CONTAINER(menu), item);
@@ -6308,7 +6012,7 @@ GtkWidget* xset_design_show_menu(GtkWidget* menu, XSet* set, XSet* book_insert, 
     GtkAccelGroup* accel_group = gtk_accel_group_new();
 
     // Cut
-    newitem = xset_design_additem(design_menu, _("Cu_t"), GTK_STOCK_CUT, XSET_JOB_CUT, set);
+    newitem = xset_design_additem(design_menu, _("Cu_t"), XSET_JOB_CUT, set);
     gtk_widget_set_sensitive(newitem, !set->lock && !set->plugin);
     if (show_keys)
         gtk_widget_add_accelerator(newitem,
@@ -6319,7 +6023,7 @@ GtkWidget* xset_design_show_menu(GtkWidget* menu, XSet* set, XSet* book_insert, 
                                    GTK_ACCEL_VISIBLE);
 
     // Copy
-    newitem = xset_design_additem(design_menu, _("_Copy"), GTK_STOCK_COPY, XSET_JOB_COPY, set);
+    newitem = xset_design_additem(design_menu, _("_Copy"), XSET_JOB_COPY, set);
     gtk_widget_set_sensitive(newitem, !set->lock);
     if (show_keys)
         gtk_widget_add_accelerator(newitem,
@@ -6330,8 +6034,7 @@ GtkWidget* xset_design_show_menu(GtkWidget* menu, XSet* set, XSet* book_insert, 
                                    GTK_ACCEL_VISIBLE);
 
     // Paste
-    newitem =
-        xset_design_additem(design_menu, _("_Paste"), GTK_STOCK_PASTE, XSET_JOB_PASTE, insert_set);
+    newitem = xset_design_additem(design_menu, _("_Paste"), XSET_JOB_PASTE, insert_set);
     gtk_widget_set_sensitive(newitem, !no_paste);
     if (show_keys)
         gtk_widget_add_accelerator(newitem,
@@ -6344,7 +6047,6 @@ GtkWidget* xset_design_show_menu(GtkWidget* menu, XSet* set, XSet* book_insert, 
     // Remove
     newitem = xset_design_additem(design_menu,
                                   _("_Remove"),
-                                  GTK_STOCK_REMOVE,
                                   is_bookmark ? XSET_JOB_REMOVE_BOOK : XSET_JOB_REMOVE,
                                   set);
     gtk_widget_set_sensitive(newitem, !set->lock && !no_remove);
@@ -6357,7 +6059,7 @@ GtkWidget* xset_design_show_menu(GtkWidget* menu, XSet* set, XSet* book_insert, 
                                    GTK_ACCEL_VISIBLE);
 
     // Export
-    newitem = xset_design_additem(design_menu, _("E_xport"), GTK_STOCK_SAVE, XSET_JOB_EXPORT, set);
+    newitem = xset_design_additem(design_menu, _("E_xport"), XSET_JOB_EXPORT, set);
     gtk_widget_set_sensitive(
         newitem,
         (!set->lock && set->menu_style < XSET_MENU_SEP && set->tool <= XSET_TOOL_CUSTOM) ||
@@ -6367,21 +6069,19 @@ GtkWidget* xset_design_show_menu(GtkWidget* menu, XSet* set, XSet* book_insert, 
     newitem = gtk_menu_item_new_with_mnemonic(_("_New"));
     submenu = gtk_menu_new();
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(newitem), submenu);
-    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(newitem),
-                                  gtk_image_new_from_stock(GTK_STOCK_ADD, GTK_ICON_SIZE_MENU));
     gtk_container_add(GTK_CONTAINER(design_menu), newitem);
     gtk_widget_set_sensitive(newitem, !set->plugin);
     g_object_set_data(G_OBJECT(newitem), "job", GINT_TO_POINTER(XSET_JOB_HELP_NEW));
     g_signal_connect(submenu, "key_press_event", G_CALLBACK(xset_design_menu_keypress), set);
 
     // New > Bookmark
-    newitem = xset_design_additem(submenu, _("_Bookmark"), NULL, XSET_JOB_BOOKMARK, insert_set);
+    newitem = xset_design_additem(submenu, _("_Bookmark"), XSET_JOB_BOOKMARK, insert_set);
 
     // New > Application
-    newitem = xset_design_additem(submenu, _("_Application"), NULL, XSET_JOB_APP, insert_set);
+    newitem = xset_design_additem(submenu, _("_Application"), XSET_JOB_APP, insert_set);
 
     // New > Command
-    newitem = xset_design_additem(submenu, _("_Command"), NULL, XSET_JOB_COMMAND, insert_set);
+    newitem = xset_design_additem(submenu, _("_Command"), XSET_JOB_COMMAND, insert_set);
     if (show_keys)
         gtk_widget_add_accelerator(newitem,
                                    "activate",
@@ -6393,19 +6093,16 @@ GtkWidget* xset_design_show_menu(GtkWidget* menu, XSet* set, XSet* book_insert, 
     // New > Submenu
     newitem = xset_design_additem(submenu,
                                   _("Sub_menu"),
-                                  NULL,
                                   is_bookmark ? XSET_JOB_SUBMENU_BOOK : XSET_JOB_SUBMENU,
                                   insert_set);
 
     // New > Separator
-    newitem = xset_design_additem(submenu, _("S_eparator"), NULL, XSET_JOB_SEP, insert_set);
+    newitem = xset_design_additem(submenu, _("S_eparator"), XSET_JOB_SEP, insert_set);
 
     // New > Import >
     newitem = gtk_menu_item_new_with_mnemonic(_("_Import"));
     submenu2 = gtk_menu_new();
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(newitem), submenu2);
-    // gtk_image_menu_item_set_image( GTK_IMAGE_MENU_ITEM( newitem ),
-    //       gtk_image_new_from_stock( GTK_STOCK_ADD, GTK_ICON_SIZE_MENU ) );
     gtk_container_add(GTK_CONTAINER(submenu), newitem);
     gtk_widget_set_sensitive(newitem, !insert_set->plugin);
     g_object_set_data(G_OBJECT(newitem), "job", GINT_TO_POINTER(XSET_JOB_IMPORT_FILE));
@@ -6414,11 +6111,10 @@ GtkWidget* xset_design_show_menu(GtkWidget* menu, XSet* set, XSet* book_insert, 
                      G_CALLBACK(xset_design_menu_keypress),
                      insert_set);
 
-    newitem = xset_design_additem(submenu2, _("_File"), NULL, XSET_JOB_IMPORT_FILE, insert_set);
-    newitem = xset_design_additem(submenu2, _("_URL"), NULL, XSET_JOB_IMPORT_URL, insert_set);
+    newitem = xset_design_additem(submenu2, _("_File"), XSET_JOB_IMPORT_FILE, insert_set);
+    newitem = xset_design_additem(submenu2, _("_URL"), XSET_JOB_IMPORT_URL, insert_set);
     if (is_bookmark)
-        newitem =
-            xset_design_additem(submenu2, _("_GTK Bookmarks"), NULL, XSET_JOB_IMPORT_GTK, set);
+        newitem = xset_design_additem(submenu2, _("_GTK Bookmarks"), XSET_JOB_IMPORT_GTK, set);
 
     if (insert_set->tool)
     {
@@ -6426,8 +6122,6 @@ GtkWidget* xset_design_show_menu(GtkWidget* menu, XSet* set, XSet* book_insert, 
         newitem = gtk_menu_item_new_with_mnemonic(_("_Add"));
         submenu = gtk_menu_new();
         gtk_menu_item_set_submenu(GTK_MENU_ITEM(newitem), submenu);
-        gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(newitem),
-                                      gtk_image_new_from_stock(GTK_STOCK_ADD, GTK_ICON_SIZE_MENU));
         gtk_container_add(GTK_CONTAINER(design_menu), newitem);
         g_object_set_data(G_OBJECT(newitem), "job", GINT_TO_POINTER(XSET_JOB_HELP_ADD));
         g_signal_connect(submenu, "key_press_event", G_CALLBACK(xset_design_menu_keypress), set);
@@ -6436,7 +6130,6 @@ GtkWidget* xset_design_show_menu(GtkWidget* menu, XSet* set, XSet* book_insert, 
         {
             newitem = xset_design_additem(submenu,
                                           _(builtin_tool_name[i]),
-                                          builtin_tool_icon[i],
                                           XSET_JOB_ADD_TOOL,
                                           insert_set);
             g_object_set_data(G_OBJECT(newitem), "tool_type", GINT_TO_POINTER(i));
@@ -6449,7 +6142,6 @@ GtkWidget* xset_design_show_menu(GtkWidget* menu, XSet* set, XSet* book_insert, 
     // Help
     newitem = xset_design_additem(design_menu,
                                   _("_Help"),
-                                  GTK_STOCK_HELP,
                                   is_bookmark ? XSET_JOB_HELP_BOOK : XSET_JOB_HELP,
                                   set);
     gtk_widget_set_sensitive(newitem, !set->lock || (set->lock && set->line));
@@ -6464,18 +6156,13 @@ GtkWidget* xset_design_show_menu(GtkWidget* menu, XSet* set, XSet* book_insert, 
     // Tooltips (toolbar)
     if (set->tool)
     {
-        newitem =
-            xset_design_additem(design_menu, _("T_ooltips"), "@check", XSET_JOB_TOOLTIPS, set);
+        newitem = xset_design_additem(design_menu, _("T_ooltips"), XSET_JOB_TOOLTIPS, set);
         if (!xset_get_b_panel(1, "tool_l"))
             set_check_menu_item_block(newitem);
     }
 
     // Key
-    newitem = xset_design_additem(design_menu,
-                                  _("_Key Shortcut"),
-                                  GTK_STOCK_PROPERTIES,
-                                  XSET_JOB_KEY,
-                                  set);
+    newitem = xset_design_additem(design_menu, _("_Key Shortcut"), XSET_JOB_KEY, set);
     gtk_widget_set_sensitive(newitem, (set->menu_style < XSET_MENU_SUBMENU));
     if (show_keys)
         gtk_widget_add_accelerator(newitem,
@@ -6496,11 +6183,8 @@ GtkWidget* xset_design_show_menu(GtkWidget* menu, XSet* set, XSet* book_insert, 
                 if (geteuid() != 0 && have_rw_access(script))
                 {
                     // edit as user
-                    newitem = xset_design_additem(design_menu,
-                                                  _("_Edit Script"),
-                                                  GTK_STOCK_EDIT,
-                                                  XSET_JOB_EDIT,
-                                                  set);
+                    newitem =
+                        xset_design_additem(design_menu, _("_Edit Script"), XSET_JOB_EDIT, set);
                     if (show_keys)
                         gtk_widget_add_accelerator(newitem,
                                                    "activate",
@@ -6514,7 +6198,6 @@ GtkWidget* xset_design_show_menu(GtkWidget* menu, XSet* set, XSet* book_insert, 
                     // edit as root
                     newitem = xset_design_additem(design_menu,
                                                   _("E_dit As Root"),
-                                                  GTK_STOCK_DIALOG_WARNING,
                                                   XSET_JOB_EDIT_ROOT,
                                                   set);
                     if (geteuid() == 0 && show_keys)
@@ -6531,11 +6214,7 @@ GtkWidget* xset_design_show_menu(GtkWidget* menu, XSet* set, XSet* book_insert, 
         else if (xset_get_int_set(set, "x") == XSET_CMD_LINE)
         {
             // edit command line
-            newitem = xset_design_additem(design_menu,
-                                          _("_Edit Command"),
-                                          GTK_STOCK_EDIT,
-                                          XSET_JOB_PROP_CMD,
-                                          set);
+            newitem = xset_design_additem(design_menu, _("_Edit Command"), XSET_JOB_PROP_CMD, set);
             if (show_keys)
                 gtk_widget_add_accelerator(newitem,
                                            "activate",
@@ -6547,11 +6226,7 @@ GtkWidget* xset_design_show_menu(GtkWidget* menu, XSet* set, XSet* book_insert, 
     }
 
     // Properties
-    newitem = xset_design_additem(design_menu,
-                                  _("_Properties"),
-                                  GTK_STOCK_PROPERTIES,
-                                  XSET_JOB_PROP,
-                                  set);
+    newitem = xset_design_additem(design_menu, _("_Properties"), XSET_JOB_PROP, set);
     if (show_keys)
         gtk_widget_add_accelerator(newitem,
                                    "activate",
@@ -6927,7 +6602,6 @@ void xset_menu_cb(GtkWidget* item, XSet* set)
                     if (xset_msg_dialog(parent,
                                         GTK_MESSAGE_QUESTION,
                                         title,
-                                        NULL,
                                         GTK_BUTTONS_OK_CANCEL,
                                         msg,
                                         NULL,
@@ -6941,7 +6615,6 @@ void xset_menu_cb(GtkWidget* item, XSet* set)
                 }
                 else if (xset_text_dialog(parent,
                                           title,
-                                          NULL,
                                           TRUE,
                                           msg,
                                           NULL,
@@ -7009,7 +6682,6 @@ void xset_menu_cb(GtkWidget* item, XSet* set)
                 // change xset_text_dialog.
                 if (xset_text_dialog(parent,
                                      rset->title ? rset->title : _("Set Icon"),
-                                     NULL,
                                      FALSE,
                                      rset->desc ? rset->desc : _(icon_desc),
                                      NULL,
@@ -7049,8 +6721,8 @@ void xset_menu_cb(GtkWidget* item, XSet* set)
         xset_autosave(FALSE, FALSE);
 }
 
-int xset_msg_dialog(GtkWidget* parent, int action, const char* title, GtkWidget* image, int buttons,
-                    const char* msg1, const char* msg2, const char* help)
+int xset_msg_dialog(GtkWidget* parent, int action, const char* title, int buttons, const char* msg1,
+                    const char* msg2, const char* help)
 {
     /* action=
     GTK_MESSAGE_INFO,
@@ -7080,8 +6752,6 @@ int xset_msg_dialog(GtkWidget* parent, int action, const char* title, GtkWidget*
 
     if (msg2)
         gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dlg), msg2, NULL);
-    if (image)
-        gtk_message_dialog_set_image(GTK_MESSAGE_DIALOG(dlg), image);
     if (title)
         gtk_window_set_title(GTK_WINDOW(dlg), title);
 
@@ -7089,8 +6759,6 @@ int xset_msg_dialog(GtkWidget* parent, int action, const char* title, GtkWidget*
     {
         GtkWidget* btn_help = gtk_button_new_with_mnemonic(_("_Help"));
         gtk_dialog_add_action_widget(GTK_DIALOG(dlg), btn_help, GTK_RESPONSE_HELP);
-        gtk_button_set_image(GTK_BUTTON(btn_help),
-                             xset_get_image("GTK_STOCK_HELP", GTK_ICON_SIZE_BUTTON));
         gtk_widget_set_focus_on_click(GTK_BUTTON(btn_help), FALSE);
         gtk_widget_set_can_focus(btn_help, FALSE);
     }
@@ -7310,18 +6978,6 @@ static bool on_input_keypress(GtkWidget* widget, GdkEventKey* event, GtkWidget* 
     return FALSE;
 }
 
-static void on_icon_buffer_changed(GtkTextBuffer* buf, GtkWidget* button)
-{
-    GtkTextIter iter, siter;
-    gtk_text_buffer_get_start_iter(buf, &siter);
-    gtk_text_buffer_get_end_iter(buf, &iter);
-    char* icon = gtk_text_buffer_get_text(buf, &siter, &iter, FALSE);
-    gtk_button_set_image(
-        GTK_BUTTON(button),
-        xset_get_image(icon && icon[0] ? icon : GTK_STOCK_OPEN, GTK_ICON_SIZE_BUTTON));
-    g_free(icon);
-}
-
 char* xset_icon_chooser_dialog(GtkWindow* parent, const char* def_icon)
 {
     GtkAllocation allocation;
@@ -7341,9 +6997,9 @@ char* xset_icon_chooser_dialog(GtkWindow* parent, const char* def_icon)
     // btn_icon_choose clicked - preparing the exo icon chooser dialog
     GtkWidget* icon_chooser = exo_icon_chooser_dialog_new(_("Choose Icon"),
                                                           GTK_WINDOW(parent),
-                                                          GTK_STOCK_CANCEL,
+                                                          "Cancel",
                                                           GTK_RESPONSE_CANCEL,
-                                                          GTK_STOCK_OK,
+                                                          "OK",
                                                           GTK_RESPONSE_ACCEPT,
                                                           NULL);
     // Set icon chooser dialog size
@@ -7383,9 +7039,9 @@ char* xset_icon_chooser_dialog(GtkWindow* parent, const char* def_icon)
     return icon;
 }
 
-bool xset_text_dialog(GtkWidget* parent, const char* title, GtkWidget* image, bool large,
-                      const char* msg1, const char* msg2, const char* defstring, char** answer,
-                      const char* defreset, bool edit_care, const char* help)
+bool xset_text_dialog(GtkWidget* parent, const char* title, bool large, const char* msg1,
+                      const char* msg2, const char* defstring, char** answer, const char* defreset,
+                      bool edit_care, const char* help)
 {
     GtkTextIter iter;
     GtkTextIter siter;
@@ -7430,8 +7086,6 @@ bool xset_text_dialog(GtkWidget* parent, const char* title, GtkWidget* image, bo
 
     if (msg2)
         gtk_message_dialog_format_secondary_text(GTK_MESSAGE_DIALOG(dlg), msg2, NULL);
-    if (image)
-        gtk_message_dialog_set_image(GTK_MESSAGE_DIALOG(dlg), image);
 
     // input view
     GtkScrolledWindow* scroll_input = GTK_SCROLLED_WINDOW(gtk_scrolled_window_new(NULL, NULL));
@@ -7455,8 +7109,6 @@ bool xset_text_dialog(GtkWidget* parent, const char* title, GtkWidget* image, bo
     {
         btn_help = gtk_button_new_with_mnemonic(_("_Help"));
         gtk_dialog_add_action_widget(GTK_DIALOG(dlg), btn_help, GTK_RESPONSE_HELP);
-        gtk_button_set_image(GTK_BUTTON(btn_help),
-                             xset_get_image("GTK_STOCK_HELP", GTK_ICON_SIZE_BUTTON));
         gtk_widget_set_focus_on_click(GTK_BUTTON(btn_help), FALSE);
     }
 
@@ -7464,8 +7116,6 @@ bool xset_text_dialog(GtkWidget* parent, const char* title, GtkWidget* image, bo
     {
         btn_edit = gtk_toggle_button_new_with_mnemonic(_("_Edit"));
         gtk_dialog_add_action_widget(GTK_DIALOG(dlg), btn_edit, GTK_RESPONSE_YES);
-        gtk_button_set_image(GTK_BUTTON(btn_edit),
-                             xset_get_image("GTK_STOCK_DIALOG_WARNING", GTK_ICON_SIZE_BUTTON));
         gtk_widget_set_focus_on_click(GTK_BUTTON(btn_edit), FALSE);
         gtk_text_view_set_editable(input, FALSE);
     }
@@ -7477,31 +7127,20 @@ bool xset_text_dialog(GtkWidget* parent, const char* title, GtkWidget* image, bo
     {
         btn_icon_choose = gtk_button_new_with_mnemonic(_("C_hoose"));
         gtk_dialog_add_action_widget(GTK_DIALOG(dlg), btn_icon_choose, GTK_RESPONSE_ACCEPT);
-        gtk_button_set_image(GTK_BUTTON(btn_icon_choose),
-                             xset_get_image(defstring && defstring[0] ? defstring : GTK_STOCK_OPEN,
-                                            GTK_ICON_SIZE_BUTTON));
         gtk_widget_set_focus_on_click(GTK_BUTTON(btn_icon_choose), FALSE);
-        g_signal_connect(G_OBJECT(buf),
-                         "changed",
-                         G_CALLBACK(on_icon_buffer_changed),
-                         btn_icon_choose);
-
-        gtk_button_set_always_show_image(GTK_BUTTON(btn_icon_choose), TRUE);
     }
 
     if (defreset)
     {
         btn_default = gtk_button_new_with_mnemonic(_("_Default"));
         gtk_dialog_add_action_widget(GTK_DIALOG(dlg), btn_default, GTK_RESPONSE_NO);
-        gtk_button_set_image(GTK_BUTTON(btn_default),
-                             xset_get_image("GTK_STOCK_REVERT_TO_SAVED", GTK_ICON_SIZE_BUTTON));
         gtk_widget_set_focus_on_click(GTK_BUTTON(btn_default), FALSE);
     }
 
-    GtkWidget* btn_cancel = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
+    GtkWidget* btn_cancel = gtk_button_new_with_label("Cancel");
     gtk_dialog_add_action_widget(GTK_DIALOG(dlg), btn_cancel, GTK_RESPONSE_CANCEL);
 
-    GtkWidget* btn_ok = gtk_button_new_from_stock(GTK_STOCK_OK);
+    GtkWidget* btn_ok = gtk_button_new_with_label("OK");
     gtk_dialog_add_action_widget(GTK_DIALOG(dlg), btn_ok, GTK_RESPONSE_OK);
 
     // show
@@ -7651,7 +7290,6 @@ static char* xset_font_dialog(GtkWidget* parent, const char* title, const char* 
                               const char* deffont)
 {
     char* fontname = NULL;
-    GtkWidget* image;
 
     GtkWidget* dlg = gtk_font_selection_dialog_new(title);
     xset_set_window_icon(GTK_WINDOW(dlg));
@@ -7670,17 +7308,13 @@ static char* xset_font_dialog(GtkWidget* parent, const char* title, const char* 
         gtk_window_set_default_size(GTK_WINDOW(dlg), width, height);
 
     // add default button, rename OK
-    GtkButton* btn = GTK_BUTTON(gtk_button_new_from_stock(GTK_STOCK_YES));
+    GtkButton* btn = GTK_BUTTON(gtk_button_new_with_label("Yes"));
     gtk_dialog_add_action_widget(GTK_DIALOG(dlg), GTK_WIDGET(btn), GTK_RESPONSE_YES);
     gtk_widget_show(GTK_WIDGET(btn));
     GtkButton* ok =
         GTK_BUTTON(gtk_font_selection_dialog_get_ok_button(GTK_FONT_SELECTION_DIALOG(dlg)));
     gtk_button_set_label(ok, _("_Default"));
-    image = xset_get_image("GTK_STOCK_YES", GTK_ICON_SIZE_BUTTON);
-    gtk_button_set_image(ok, image);
     gtk_button_set_label(btn, _("_OK"));
-    image = xset_get_image("GTK_STOCK_OK", GTK_ICON_SIZE_BUTTON);
-    gtk_button_set_image(btn, image);
 
     g_signal_connect(G_OBJECT(dlg), "key-press-event", G_CALLBACK(on_fontdlg_keypress), dlg);
 
@@ -7730,9 +7364,9 @@ char* xset_file_dialog(GtkWidget* parent, GtkFileChooserAction action, const cha
     GtkWidget* dlg = gtk_file_chooser_dialog_new(title,
                                                  dlgparent ? GTK_WINDOW(dlgparent) : NULL,
                                                  action,
-                                                 GTK_STOCK_CANCEL,
+                                                 "Cancel",
                                                  GTK_RESPONSE_CANCEL,
-                                                 GTK_STOCK_OK,
+                                                 "OK",
                                                  GTK_RESPONSE_OK,
                                                  NULL);
     // gtk_file_chooser_set_action( GTK_FILE_CHOOSER(dlg), GTK_FILE_CHOOSER_ACTION_SAVE );
@@ -7816,8 +7450,6 @@ static char* xset_color_dialog(GtkWidget* parent, char* title, char* defcolor)
     g_object_get(G_OBJECT(dlg), "help-button", &help_button, NULL);
 
     gtk_button_set_label(GTK_BUTTON(help_button), _("_Unset"));
-    gtk_button_set_image(GTK_BUTTON(help_button),
-                         xset_get_image("GTK_STOCK_REMOVE", GTK_ICON_SIZE_BUTTON));
 
     xset_set_window_icon(GTK_WINDOW(dlg));
     gtk_window_set_role(GTK_WINDOW(dlg), "color_dialog");
@@ -9236,12 +8868,12 @@ static void xset_defaults()
 
     set = xset_set("status_border", "lbl", _("Highlight _Bar"));
     xset_set_set(set, XSET_SET_SET_TITLE, _("Status Bar Highlight Color"));
-    xset_set_set(set, XSET_SET_SET_ICN, "GTK_STOCK_SELECT_COLOR");
+    xset_set_set(set, XSET_SET_SET_ICN, "Color");
     set->menu_style = XSET_MENU_COLORDLG;
 
     set = xset_set("status_text", "lbl", _("Highlight _Text"));
     xset_set_set(set, XSET_SET_SET_TITLE, _("Status Bar Text Highlight Color"));
-    xset_set_set(set, XSET_SET_SET_ICN, "GTK_STOCK_SELECT_COLOR");
+    xset_set_set(set, XSET_SET_SET_ICN, "Color");
     set->menu_style = XSET_MENU_COLORDLG;
 
     set = xset_set("status_middle", "lbl", _("_Middle Click"));
@@ -10513,7 +10145,7 @@ static void xset_defaults()
     xset_set_set(set, XSET_SET_SET_ICN, "gtk-dialog-info");
 
     set = xset_set("prop_perm", "lbl", _("_Permissions"));
-    xset_set_set(set, XSET_SET_SET_ICN, "GTK_STOCK_DIALOG_AUTHENTICATION");
+    xset_set_set(set, XSET_SET_SET_ICN, "dialog-password");
 
     set = xset_set("prop_quick", "lbl", _("_Quick"));
     set->menu_style = XSET_MENU_SUBMENU;

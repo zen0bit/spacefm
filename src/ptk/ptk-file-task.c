@@ -431,17 +431,17 @@ static void set_button_states(PtkFileTask* ptask)
         case VFS_FILE_TASK_PAUSE:
             label = _("Q_ueue");
             iconset = g_strdup("task_que");
-            icon = GTK_STOCK_ADD;
+            icon = "list-add";
             break;
         case VFS_FILE_TASK_QUEUE:
             label = _("Res_ume");
             iconset = g_strdup("task_resume");
-            icon = GTK_STOCK_MEDIA_PLAY;
+            icon = "media-playback-start";
             break;
         default:
             label = _("Pa_use");
             iconset = g_strdup("task_pause");
-            icon = GTK_STOCK_MEDIA_PAUSE;
+            icon = "media-playback-pause";
             break;
     }
     sens = sens && !(ptask->task->type == VFS_FILE_TASK_EXEC && !ptask->task->exec_pid);
@@ -451,10 +451,7 @@ static void set_button_states(PtkFileTask* ptask)
         icon = set->icon;
 
     gtk_widget_set_sensitive(ptask->progress_btn_pause, sens);
-    gtk_button_set_image(GTK_BUTTON(ptask->progress_btn_pause),
-                         xset_get_image(icon, GTK_ICON_SIZE_BUTTON));
     gtk_button_set_label(GTK_BUTTON(ptask->progress_btn_pause), label);
-
     gtk_widget_set_sensitive(ptask->progress_btn_close, ptask->complete || !!ptask->task_view);
 }
 
@@ -600,7 +597,7 @@ static void set_progress_icon(PtkFileTask* ptask)
 
     if (task->state_pause != VFS_FILE_TASK_RUNNING)
         pixbuf = gtk_icon_theme_load_icon(gtk_icon_theme_get_default(),
-                                          GTK_STOCK_MEDIA_PAUSE,
+                                          "media-playback-pause",
                                           16,
                                           GTK_ICON_LOOKUP_USE_BUILTIN,
                                           NULL);
@@ -694,33 +691,30 @@ void ptk_file_task_progress_open(PtkFileTask* ptask)
     // Buttons
     // Pause
     XSet* set = xset_get("task_pause");
-    const char* pause_icon = set->icon;
-    if (!pause_icon)
-        pause_icon = GTK_STOCK_MEDIA_PAUSE;
+
     ptask->progress_btn_pause = gtk_button_new_with_mnemonic(_("Pa_use"));
-    gtk_button_set_image(GTK_BUTTON(ptask->progress_btn_pause),
-                         xset_get_image(pause_icon, GTK_ICON_SIZE_BUTTON));
+
     gtk_dialog_add_action_widget(GTK_DIALOG(ptask->progress_dlg),
                                  ptask->progress_btn_pause,
                                  GTK_RESPONSE_NO);
-    gtk_button_set_focus_on_click(GTK_BUTTON(ptask->progress_btn_pause), FALSE);
+    gtk_widget_set_focus_on_click(GTK_BUTTON(ptask->progress_btn_pause), FALSE);
     // Stop
-    ptask->progress_btn_stop = gtk_button_new_from_stock(GTK_STOCK_STOP);
+    ptask->progress_btn_stop = gtk_button_new_with_label("Stop");
     gtk_dialog_add_action_widget(GTK_DIALOG(ptask->progress_dlg),
                                  ptask->progress_btn_stop,
                                  GTK_RESPONSE_CANCEL);
-    gtk_button_set_focus_on_click(GTK_BUTTON(ptask->progress_btn_stop), FALSE);
+    gtk_widget_set_focus_on_click(GTK_BUTTON(ptask->progress_btn_stop), FALSE);
     // Close
-    ptask->progress_btn_close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
+    ptask->progress_btn_close = gtk_button_new_with_label("Close");
     gtk_dialog_add_action_widget(GTK_DIALOG(ptask->progress_dlg),
                                  ptask->progress_btn_close,
                                  GTK_RESPONSE_OK);
     gtk_widget_set_sensitive(ptask->progress_btn_close, !!ptask->task_view);
 
     // Help
-    GtkWidget* help_btn = gtk_button_new_from_stock(GTK_STOCK_HELP);
+    GtkWidget* help_btn = gtk_button_new_with_label("Help");
     gtk_dialog_add_action_widget(GTK_DIALOG(ptask->progress_dlg), help_btn, GTK_RESPONSE_HELP);
-    gtk_button_set_focus_on_click(GTK_BUTTON(help_btn), FALSE);
+    gtk_widget_set_focus_on_click(GTK_BUTTON(help_btn), FALSE);
 
     set_button_states(ptask);
 
@@ -2124,15 +2118,11 @@ static void query_overwrite(PtkFileTask* ptask)
                            RESPONSE_SKIP,
                            _("S_kip All"),
                            RESPONSE_SKIPALL,
-                           GTK_STOCK_CANCEL,
+                           _("Cancel"),
                            GTK_RESPONSE_CANCEL,
                            NULL);
 
     XSet* set = xset_get("task_pause");
-    const char* pause_icon = set->icon;
-    if (!pause_icon)
-        pause_icon = GTK_STOCK_MEDIA_PAUSE;
-    gtk_button_set_image(GTK_BUTTON(btn_pause), xset_get_image(pause_icon, GTK_ICON_SIZE_BUTTON));
     gtk_widget_set_sensitive(btn_pause, !!ptask->task_view);
 
     // labels

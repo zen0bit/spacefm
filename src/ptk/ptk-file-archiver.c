@@ -212,7 +212,6 @@ static void on_format_changed(GtkComboBox* combo, void* user_data)
             xset_msg_dialog(GTK_WIDGET(dlg),
                             GTK_MESSAGE_ERROR,
                             _("Error Loading Handler"),
-                            NULL,
                             0,
                             err_msg,
                             NULL,
@@ -343,21 +342,18 @@ void ptk_file_archiver_create(PtkFileBrowser* file_browser, GList* files, const 
      * 'Configure' button has custom text but a stock image */
     GtkButton* btn_configure =
         GTK_BUTTON(gtk_dialog_add_button(GTK_DIALOG(dlg), _("Conf_igure"), GTK_RESPONSE_NONE));
-    GtkWidget* btn_configure_image = xset_get_image("GTK_STOCK_PREFERENCES", GTK_ICON_SIZE_BUTTON);
-    gtk_button_set_image(GTK_BUTTON(btn_configure), GTK_WIDGET(btn_configure_image));
     g_object_set_data(G_OBJECT(dlg), "btn_configure", GTK_BUTTON(btn_configure));
-    g_object_set_data(
-        G_OBJECT(dlg),
-        "btn_cancel",
-        gtk_dialog_add_button(GTK_DIALOG(dlg), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL));
+    g_object_set_data(G_OBJECT(dlg),
+                      "btn_cancel",
+                      gtk_dialog_add_button(GTK_DIALOG(dlg), _("Cancel"), GTK_RESPONSE_CANCEL));
     g_object_set_data(G_OBJECT(dlg),
                       "btn_ok",
-                      gtk_dialog_add_button(GTK_DIALOG(dlg), GTK_STOCK_OK, GTK_RESPONSE_OK));
+                      gtk_dialog_add_button(GTK_DIALOG(dlg), _("OK"), GTK_RESPONSE_OK));
 
     /* Adding the help button but preventing it from taking the focus on
      * click */
     gtk_widget_set_focus_on_click(
-        GTK_BUTTON(gtk_dialog_add_button(GTK_DIALOG(dlg), GTK_STOCK_HELP, GTK_RESPONSE_HELP)),
+        GTK_BUTTON(gtk_dialog_add_button(GTK_DIALOG(dlg), _("Help"), GTK_RESPONSE_HELP)),
         FALSE);
 
     GtkFileFilter* filter = gtk_file_filter_new();
@@ -400,7 +396,6 @@ void ptk_file_archiver_create(PtkFileBrowser* file_browser, GList* files, const 
         xset_msg_dialog(GTK_WIDGET(dlg),
                         GTK_MESSAGE_ERROR,
                         _("Archive Handlers - Create Archive"),
-                        NULL,
                         GTK_BUTTONS_OK,
                         _("No archive handlers "
                           "configured. You must add a handler before "
@@ -522,7 +517,6 @@ void ptk_file_archiver_create(PtkFileBrowser* file_browser, GList* files, const 
                 xset_msg_dialog(GTK_WIDGET(dlg),
                                 GTK_MESSAGE_ERROR,
                                 _("Error Loading Handler"),
-                                NULL,
                                 0,
                                 err_msg,
                                 NULL,
@@ -646,7 +640,6 @@ void ptk_file_archiver_create(PtkFileBrowser* file_browser, GList* files, const 
                         GTK_WIDGET(dlg),
                         GTK_MESSAGE_ERROR,
                         _("Create Archive"),
-                        NULL,
                         0,
                         _("The archive creation command is empty.  Please enter a command."),
                         NULL,
@@ -720,7 +713,6 @@ void ptk_file_archiver_create(PtkFileBrowser* file_browser, GList* files, const 
                         xset_msg_dialog(GTK_WIDGET(dlg),
                                         GTK_MESSAGE_ERROR,
                                         _("Error Saving Handler"),
-                                        NULL,
                                         0,
                                         err_msg,
                                         NULL,
@@ -1087,23 +1079,19 @@ void ptk_file_archiver_extract(PtkFileBrowser* file_browser, GList* files, const
          * 'Configure' button has custom text but a stock image */
         GtkButton* btn_configure =
             GTK_BUTTON(gtk_dialog_add_button(GTK_DIALOG(dlg), _("Conf_igure"), GTK_RESPONSE_NONE));
-        GtkWidget* btn_configure_image =
-            xset_get_image("GTK_STOCK_PREFERENCES", GTK_ICON_SIZE_BUTTON);
-        gtk_button_set_image(GTK_BUTTON(btn_configure), GTK_WIDGET(btn_configure_image));
         g_object_set_data(G_OBJECT(dlg), "btn_configure", GTK_BUTTON(btn_configure));
-        g_object_set_data(
-            G_OBJECT(dlg),
-            "btn_cancel",
-            gtk_dialog_add_button(GTK_DIALOG(dlg), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL));
+        g_object_set_data(G_OBJECT(dlg),
+                          "btn_cancel",
+                          gtk_dialog_add_button(GTK_DIALOG(dlg), _("Cancel"), GTK_RESPONSE_CANCEL));
         g_object_set_data(G_OBJECT(dlg),
                           "btn_ok",
-                          gtk_dialog_add_button(GTK_DIALOG(dlg), GTK_STOCK_OK, GTK_RESPONSE_OK));
+                          gtk_dialog_add_button(GTK_DIALOG(dlg), _("OK"), GTK_RESPONSE_OK));
 
         /* Adding the help button but preventing it from taking the focus on
          * click */
 
         gtk_widget_set_focus_on_click(
-            GTK_BUTTON(gtk_dialog_add_button(GTK_DIALOG(dlg), GTK_STOCK_HELP, GTK_RESPONSE_HELP)),
+            GTK_BUTTON(gtk_dialog_add_button(GTK_DIALOG(dlg), _("Help"), GTK_RESPONSE_HELP)),
             FALSE);
 
         GtkWidget* hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10);

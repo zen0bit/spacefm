@@ -1290,7 +1290,7 @@ void ptk_handler_import(int mode, GtkWidget* handler_dlg, XSet* set)
         msg = g_strdup_printf(_("An error occured copying command files\n\n%s"),
                               stderr ? stderr : "");
         gdk_threads_enter(); // due to dialog run causes low level thread lock
-        xset_msg_dialog(NULL, GTK_MESSAGE_ERROR, _("Copy Command Error"), NULL, 0, msg, NULL, NULL);
+        xset_msg_dialog(NULL, GTK_MESSAGE_ERROR, _("Copy Command Error"), 0, msg, NULL, NULL);
         gdk_threads_leave();
         g_free(msg);
     }
@@ -1350,7 +1350,7 @@ void ptk_handler_import(int mode, GtkWidget* handler_dlg, XSet* set)
             mode_name,
             mode_name);
         gdk_threads_enter(); // due to dialog run causes low level thread lock
-        xset_msg_dialog(NULL, GTK_MESSAGE_INFO, _("Handler Imported"), NULL, 0, msg, NULL, NULL);
+        xset_msg_dialog(NULL, GTK_MESSAGE_INFO, _("Handler Imported"), 0, msg, NULL, NULL);
         gdk_threads_leave();
         g_free(msg);
         return;
@@ -1461,7 +1461,6 @@ static void config_load_handler_settings(XSet* handler_xset, char* handler_xset_
             xset_msg_dialog(GTK_WIDGET(hnd->dlg),
                             GTK_MESSAGE_ERROR,
                             _("Error Loading Handler"),
-                            NULL,
                             0,
                             err_msg,
                             NULL,
@@ -1874,7 +1873,6 @@ static void on_configure_button_press(GtkButton* widget, HandlerData* hnd)
         if (xset_msg_dialog(hnd->dlg,
                             GTK_MESSAGE_WARNING,
                             _("Confirm Remove"),
-                            NULL,
                             GTK_BUTTONS_YES_NO,
                             _("Permanently remove the selected handler?"),
                             NULL,
@@ -2000,7 +1998,6 @@ static void on_configure_button_press(GtkButton* widget, HandlerData* hnd)
         xset_msg_dialog(GTK_WIDGET(hnd->dlg),
                         GTK_MESSAGE_ERROR,
                         _("Error Saving Handler"),
-                        NULL,
                         0,
                         err_msg,
                         NULL,
@@ -2096,7 +2093,6 @@ static bool on_handlers_key_press(GtkWidget* widget, GdkEventKey* evt, HandlerDa
     if (xset_msg_dialog(hnd->dlg,
                         GTK_MESSAGE_QUESTION,
                         _("Apply Changes ?"),
-                        NULL,
                         GTK_BUTTONS_YES_NO,
                         _("Apply changes to the current handler?"),
                         NULL,
@@ -2137,7 +2133,6 @@ static bool on_handlers_button_press(GtkWidget* view, GdkEventButton* evt, Handl
         if (xset_msg_dialog(hnd->dlg,
                             GTK_MESSAGE_QUESTION,
                             _("Apply Changes ?"),
-                            NULL,
                             GTK_BUTTONS_YES_NO,
                             _("Apply changes to the current handler?"),
                             NULL,
@@ -2180,7 +2175,6 @@ static void restore_defaults(HandlerData* hnd, bool all)
         int response = xset_msg_dialog(GTK_WIDGET(hnd->dlg),
                                        GTK_MESSAGE_WARNING,
                                        _("Restore Default Handlers"),
-                                       NULL,
                                        GTK_BUTTONS_YES_NO,
                                        _("Missing default handlers will be restored.\n\nAlso "
                                          "OVERWRITE ALL EXISTING default handlers?"),
@@ -2312,7 +2306,6 @@ static bool validate_archive_handler(HandlerData* hnd)
         xset_msg_dialog(GTK_WIDGET(hnd->dlg),
                         GTK_MESSAGE_WARNING,
                         _(dialog_titles[hnd->mode]),
-                        NULL,
                         FALSE,
                         _("Please enter a valid handler name."),
                         NULL,
@@ -2327,7 +2320,6 @@ static bool validate_archive_handler(HandlerData* hnd)
         xset_msg_dialog(GTK_WIDGET(hnd->dlg),
                         GTK_MESSAGE_WARNING,
                         _(dialog_titles[hnd->mode]),
-                        NULL,
                         FALSE,
                         _("Please enter a valid MIME Type or Pathname "
                           "pattern."),
@@ -2363,7 +2355,6 @@ static bool validate_archive_handler(HandlerData* hnd)
             xset_msg_dialog(GTK_WIDGET(hnd->dlg),
                             GTK_MESSAGE_WARNING,
                             _(dialog_titles[hnd->mode]),
-                            NULL,
                             FALSE,
                             _("The following "
                               "substitution variables should probably be in the "
@@ -2393,7 +2384,6 @@ static bool validate_archive_handler(HandlerData* hnd)
         xset_msg_dialog(GTK_WIDGET(hnd->dlg),
                         GTK_MESSAGE_WARNING,
                         _(dialog_titles[hnd->mode]),
-                        NULL,
                         FALSE,
                         _("The following "
                           "variables should probably be in the extraction "
@@ -2414,7 +2404,6 @@ static bool validate_archive_handler(HandlerData* hnd)
         xset_msg_dialog(GTK_WIDGET(hnd->dlg),
                         GTK_MESSAGE_WARNING,
                         _(dialog_titles[hnd->mode]),
-                        NULL,
                         FALSE,
                         _("The following "
                           "variables should probably be in the list "
@@ -2576,15 +2565,6 @@ static void on_entry_text_insert(GtkEntryBuffer* buffer, unsigned int position, 
         hnd->changed = TRUE;
         gtk_widget_set_sensitive(hnd->btn_apply, gtk_widget_get_sensitive(hnd->btn_remove));
     }
-    if (hnd->entry_handler_icon &&
-        gtk_entry_get_buffer(GTK_ENTRY(hnd->entry_handler_icon)) == buffer)
-    {
-        // update icon of icon choose button
-        const char* icon = gtk_entry_get_text(GTK_ENTRY(hnd->entry_handler_icon));
-        gtk_button_set_image(
-            GTK_BUTTON(hnd->icon_choose_btn),
-            xset_get_image(icon && icon[0] ? icon : GTK_STOCK_OPEN, GTK_ICON_SIZE_BUTTON));
-    }
 }
 
 static void on_entry_text_delete(GtkEntryBuffer* buffer, unsigned int position,
@@ -2667,7 +2647,6 @@ static void on_option_cb(GtkMenuItem* item, HandlerData* hnd)
             file = NULL;
             if (!xset_text_dialog(GTK_WIDGET(hnd->dlg),
                                   _("Enter Handler Plugin URL"),
-                                  NULL,
                                   FALSE,
                                   _("Enter SpaceFM Handler Plugin URL:\n\n(wget will be used to "
                                     "download the handler plugin file)"),
@@ -2712,7 +2691,6 @@ static void on_option_cb(GtkMenuItem* item, HandlerData* hnd)
         xset_msg_dialog(GTK_WIDGET(hnd->dlg),
                         GTK_MESSAGE_ERROR,
                         _("Error Creating Temp Directory"),
-                        NULL,
                         0,
                         _("Unable to create temporary directory"),
                         NULL,
@@ -2757,13 +2735,9 @@ static void on_archive_default(GtkMenuItem* menuitem, XSet* set)
 }
 
 static GtkWidget* add_popup_menuitem(GtkWidget* popup, GtkAccelGroup* accel_group,
-                                     const char* label, const char* image, int job,
-                                     HandlerData* hnd)
+                                     const char* label, int job, HandlerData* hnd)
 {
     GtkWidget* item = gtk_menu_item_new_with_mnemonic(label);
-    if (image)
-        gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item),
-                                      xset_get_image(image, GTK_ICON_SIZE_MENU));
     gtk_container_add(GTK_CONTAINER(popup), item);
     g_signal_connect(G_OBJECT(item), "activate", G_CALLBACK(on_option_cb), (void*)hnd);
     g_object_set_data(G_OBJECT(item), "job", GINT_TO_POINTER(job));
@@ -2786,39 +2760,18 @@ static void on_options_button_clicked(GtkWidget* btn, HandlerData* hnd)
     if (!btn)
     {
         // menu is shown from right-click on list
-        item = add_popup_menuitem(popup,
-                                  accel_group,
-                                  _("_Remove"),
-                                  GTK_STOCK_REMOVE,
-                                  HANDLER_JOB_REMOVE,
-                                  hnd);
+        item = add_popup_menuitem(popup, accel_group, _("_Remove"), HANDLER_JOB_REMOVE, hnd);
         gtk_widget_set_sensitive(item, handler_selected);
     }
 
-    item = add_popup_menuitem(popup,
-                              accel_group,
-                              _("_Export"),
-                              GTK_STOCK_SAVE,
-                              HANDLER_JOB_EXPORT,
-                              hnd);
+    item = add_popup_menuitem(popup, accel_group, _("_Export"), HANDLER_JOB_EXPORT, hnd);
     gtk_widget_set_sensitive(item, handler_selected);
 
-    add_popup_menuitem(popup,
-                       accel_group,
-                       _("Import _File"),
-                       GTK_STOCK_ADD,
-                       HANDLER_JOB_IMPORT_FILE,
-                       hnd);
-    add_popup_menuitem(popup,
-                       accel_group,
-                       _("Import _URL"),
-                       GTK_STOCK_NETWORK,
-                       HANDLER_JOB_IMPORT_URL,
-                       hnd);
+    add_popup_menuitem(popup, accel_group, _("Import _File"), HANDLER_JOB_IMPORT_FILE, hnd);
+    add_popup_menuitem(popup, accel_group, _("Import _URL"), HANDLER_JOB_IMPORT_URL, hnd);
     add_popup_menuitem(popup,
                        accel_group,
                        _("Restore _Default Handlers"),
-                       GTK_STOCK_REVERT_TO_SAVED,
                        HANDLER_JOB_RESTORE_ALL,
                        hnd);
     if (btn)
@@ -2910,15 +2863,13 @@ void ptk_handler_show_config(int mode, PtkFileBrowser* file_browser, XSet* def_h
 
     // Adding the help button but preventing it from taking the focus on click
     gtk_widget_set_focus_on_click(
-        GTK_BUTTON(gtk_dialog_add_button(GTK_DIALOG(hnd->dlg), GTK_STOCK_HELP, GTK_RESPONSE_HELP)),
+        GTK_BUTTON(gtk_dialog_add_button(GTK_DIALOG(hnd->dlg), _("Help"), GTK_RESPONSE_HELP)),
         FALSE);
 
     // Adding standard buttons and saving references in the dialog
     // 'Restore defaults' button has custom text but a stock image
     hnd->btn_defaults =
         gtk_dialog_add_button(GTK_DIALOG(hnd->dlg), _("Opt_ions"), GTK_RESPONSE_NONE);
-    GtkWidget* btn_defaults_image = xset_get_image("GTK_STOCK_PROPERTIES", GTK_ICON_SIZE_BUTTON);
-    gtk_button_set_image(GTK_BUTTON(hnd->btn_defaults), GTK_WIDGET(btn_defaults_image));
     gtk_widget_set_focus_on_click(GTK_BUTTON(hnd->btn_defaults), FALSE);
     // use clicked event because menu only shown once from dialog run???
     g_signal_connect(G_OBJECT(hnd->btn_defaults),
@@ -2928,14 +2879,10 @@ void ptk_handler_show_config(int mode, PtkFileBrowser* file_browser, XSet* def_h
 
     hnd->btn_defaults0 =
         gtk_dialog_add_button(GTK_DIALOG(hnd->dlg), _("Defa_ults"), GTK_RESPONSE_NO);
-    GtkWidget* btn_defaults_image0 =
-        xset_get_image("GTK_STOCK_REVERT_TO_SAVED", GTK_ICON_SIZE_BUTTON);
-    gtk_button_set_image(GTK_BUTTON(hnd->btn_defaults0), GTK_WIDGET(btn_defaults_image0));
     gtk_widget_set_focus_on_click(GTK_BUTTON(hnd->btn_defaults0), FALSE);
 
-    hnd->btn_cancel =
-        gtk_dialog_add_button(GTK_DIALOG(hnd->dlg), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
-    hnd->btn_ok = gtk_dialog_add_button(GTK_DIALOG(hnd->dlg), GTK_STOCK_OK, GTK_RESPONSE_OK);
+    hnd->btn_cancel = gtk_dialog_add_button(GTK_DIALOG(hnd->dlg), _("Cancel"), GTK_RESPONSE_CANCEL);
+    hnd->btn_ok = gtk_dialog_add_button(GTK_DIALOG(hnd->dlg), _("OK"), GTK_RESPONSE_OK);
 
     // Generating left-hand side of dialog
     GtkWidget* lbl_handlers = gtk_label_new(NULL);
@@ -3009,8 +2956,6 @@ void ptk_handler_show_config(int mode, PtkFileBrowser* file_browser, XSet* def_h
 
     // Treeview widgets
     hnd->btn_remove = gtk_button_new_with_mnemonic(_("_Remove"));
-    gtk_button_set_image(GTK_BUTTON(hnd->btn_remove),
-                         xset_get_image("GTK_STOCK_REMOVE", GTK_ICON_SIZE_BUTTON));
     gtk_widget_set_focus_on_click(GTK_BUTTON(hnd->btn_remove), FALSE);
     gtk_widget_set_sensitive(hnd->btn_remove, FALSE);
     g_signal_connect(G_OBJECT(hnd->btn_remove),
@@ -3019,14 +2964,10 @@ void ptk_handler_show_config(int mode, PtkFileBrowser* file_browser, XSet* def_h
                      hnd);
 
     hnd->btn_add = gtk_button_new_with_mnemonic(_("A_dd"));
-    gtk_button_set_image(GTK_BUTTON(hnd->btn_add),
-                         xset_get_image("GTK_STOCK_ADD", GTK_ICON_SIZE_BUTTON));
     gtk_widget_set_focus_on_click(GTK_BUTTON(hnd->btn_add), FALSE);
     g_signal_connect(G_OBJECT(hnd->btn_add), "clicked", G_CALLBACK(on_configure_button_press), hnd);
 
     hnd->btn_apply = gtk_button_new_with_mnemonic(_("Appl_y"));
-    gtk_button_set_image(GTK_BUTTON(hnd->btn_apply),
-                         xset_get_image("GTK_STOCK_APPLY", GTK_ICON_SIZE_BUTTON));
     gtk_widget_set_focus_on_click(GTK_BUTTON(hnd->btn_apply), FALSE);
     gtk_widget_set_sensitive(hnd->btn_apply, FALSE);
     g_signal_connect(G_OBJECT(hnd->btn_apply),
@@ -3035,15 +2976,11 @@ void ptk_handler_show_config(int mode, PtkFileBrowser* file_browser, XSet* def_h
                      hnd);
 
     hnd->btn_up = gtk_button_new_with_mnemonic(_("U_p"));
-    gtk_button_set_image(GTK_BUTTON(hnd->btn_up),
-                         xset_get_image("GTK_STOCK_GO_UP", GTK_ICON_SIZE_BUTTON));
     gtk_widget_set_focus_on_click(GTK_BUTTON(hnd->btn_up), FALSE);
     gtk_widget_set_sensitive(hnd->btn_up, FALSE);
     g_signal_connect(G_OBJECT(hnd->btn_up), "clicked", G_CALLBACK(on_configure_button_press), hnd);
 
     hnd->btn_down = gtk_button_new_with_mnemonic(_("Do_wn"));
-    gtk_button_set_image(GTK_BUTTON(hnd->btn_down),
-                         xset_get_image("GTK_STOCK_GO_DOWN", GTK_ICON_SIZE_BUTTON));
     gtk_widget_set_focus_on_click(GTK_BUTTON(hnd->btn_down), FALSE);
     gtk_widget_set_sensitive(hnd->btn_down, FALSE);
     g_signal_connect(G_OBJECT(hnd->btn_down),
@@ -3116,8 +3053,6 @@ void ptk_handler_show_config(int mode, PtkFileBrowser* file_browser, XSet* def_h
     {
         hnd->entry_handler_icon = gtk_entry_new();
         hnd->icon_choose_btn = gtk_button_new_with_mnemonic(_("C_hoose"));
-        gtk_button_set_image(GTK_BUTTON(hnd->icon_choose_btn),
-                             xset_get_image(GTK_STOCK_OPEN, GTK_ICON_SIZE_BUTTON));
         gtk_widget_set_focus_on_click(GTK_BUTTON(hnd->icon_choose_btn), FALSE);
 
         // keep this

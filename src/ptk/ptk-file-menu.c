@@ -551,7 +551,6 @@ GtkWidget* ptk_file_menu_new(PtkFileBrowser* browser, const char* file_path, VFS
     char* desc;
     char* str;
     XSet* set_radio;
-    GdkPixbuf* app_icon;
     int icon_w;
     int icon_h;
     GtkWidget* app_img;
@@ -806,12 +805,6 @@ GtkWidget* ptk_file_menu_new(PtkFileBrowser* browser, const char* file_path, VFS
                                  G_CALLBACK(on_app_button_press),
                                  (void*)data);
                 g_object_set_data(G_OBJECT(app_menu_item), "handler_set", set);
-                app_img = NULL;
-                if (set->icon && set->icon[0])
-                    app_img = xset_get_image(set->icon, GTK_ICON_SIZE_MENU);
-                if (!app_img)
-                    app_img = xset_get_image("gtk-execute", GTK_ICON_SIZE_MENU);
-                gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(app_menu_item), app_img);
             }
             g_slist_free(handlers_slist);
             // add a separator
@@ -876,15 +869,6 @@ GtkWidget* ptk_file_menu_new(PtkFileBrowser* browser, const char* file_path, VFS
                                        "desktop_file",
                                        desktop_file,
                                        vfs_app_desktop_unref);
-                app_icon =
-                    vfs_app_desktop_get_icon(desktop_file, icon_w > icon_h ? icon_w : icon_h, TRUE);
-                if (app_icon)
-                {
-                    app_img = gtk_image_new_from_pixbuf(app_icon);
-                    if (app_img)
-                        gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(app_menu_item), app_img);
-                    g_object_unref(app_icon);
-                }
             }
             g_strfreev(apps);
         }
@@ -929,19 +913,6 @@ GtkWidget* ptk_file_menu_new(PtkFileBrowser* browser, const char* file_path, VFS
             set->context = NULL;
         }
         item = GTK_MENU_ITEM(xset_add_menuitem(browser, submenu, accel_group, set));
-        app_icon = mime_type ? vfs_mime_type_get_icon(mime_type, FALSE) : NULL;
-        if (app_icon)
-        {
-            GdkPixbuf* app_icon_scaled =
-                gdk_pixbuf_scale_simple(app_icon, icon_w, icon_h, GDK_INTERP_BILINEAR);
-            app_img = gtk_image_new_from_pixbuf(app_icon_scaled);
-            if (app_img)
-            {
-                gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), app_img);
-            }
-            g_object_unref(app_icon);
-            g_object_unref(app_icon_scaled);
-        }
         if (set->menu_label)
             g_free(set->menu_label);
         set->menu_label = NULL; // don't bother to save this
@@ -1443,7 +1414,6 @@ void app_job(GtkWidget* item, GtkWidget* app_item)
                     data->browser,
                     0,
                     _("Remove Text Type Association"),
-                    NULL,
                     0,
                     _("NOTE:  When compiling the list of applications to appear in the Open "
                       "submenu "
@@ -1486,7 +1456,6 @@ void app_job(GtkWidget* item, GtkWidget* app_item)
                 if (xset_msg_dialog(GTK_WIDGET(data->browser),
                                     GTK_MESSAGE_QUESTION,
                                     _("Copy Desktop File"),
-                                    NULL,
                                     GTK_BUTTONS_YES_NO,
                                     msg,
                                     NULL,
@@ -1602,7 +1571,6 @@ void app_job(GtkWidget* item, GtkWidget* app_item)
                 if (xset_msg_dialog(GTK_WIDGET(data->browser),
                                     GTK_MESSAGE_QUESTION,
                                     _("Create New XML"),
-                                    NULL,
                                     GTK_BUTTONS_YES_NO,
                                     msg,
                                     NULL,
@@ -1862,12 +1830,7 @@ static GtkWidget* app_menu_additem(GtkWidget* menu, char* label, char* stock_ico
         if (!strcmp(stock_icon, "@check"))
             item = gtk_check_menu_item_new_with_mnemonic(label);
         else
-        {
             item = gtk_menu_item_new_with_mnemonic(label);
-            GtkWidget* image = gtk_image_new_from_stock(stock_icon, GTK_ICON_SIZE_MENU);
-            if (image)
-                gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), image);
-        }
     }
     else
         item = gtk_menu_item_new_with_mnemonic(label);
@@ -1922,17 +1885,17 @@ static void show_app_menu(GtkWidget* menu, GtkWidget* app_item, PtkFileMenu* dat
     // Set Default
     newitem = app_menu_additem(app_menu,
                                _("_Set As Default"),
-                               GTK_STOCK_SAVE,
+                               "document-save",
                                APP_JOB_DEFAULT,
                                app_item,
                                data);
 
     // Remove
     newitem =
-        app_menu_additem(app_menu, _("_Remove"), GTK_STOCK_DELETE, APP_JOB_REMOVE, app_item, data);
+        app_menu_additem(app_menu, _("_Remove"), "edit-delete", APP_JOB_REMOVE, app_item, data);
 
     // Add
-    newitem = app_menu_additem(app_menu, _("_Add..."), GTK_STOCK_ADD, APP_JOB_ADD, app_item, data);
+    newitem = app_menu_additem(app_menu, _("_Add..."), "list-add", APP_JOB_ADD, app_item, data);
 
     // Separator
     gtk_container_add(GTK_CONTAINER(app_menu), gtk_separator_menu_item_new());
@@ -1945,14 +1908,14 @@ static void show_app_menu(GtkWidget* menu, GtkWidget* app_item, PtkFileMenu* dat
         if (g_file_test(path, G_FILE_TEST_EXISTS))
         {
             str = replace_string(desktop_file->file_name, ".desktop", "._desktop", FALSE);
-            icon = GTK_STOCK_EDIT;
+            icon = "Edit";
         }
         else
         {
             str2 = replace_string(desktop_file->file_name, ".desktop", "._desktop", FALSE);
             str = g_strdup_printf("%s (*%s)", str2, _("copy"));
             g_free(str2);
-            icon = GTK_STOCK_NEW;
+            icon = "document-new";
         }
         newitem = app_menu_additem(app_menu, str, icon, APP_JOB_EDIT, app_item, data);
         g_free(str);
@@ -1960,20 +1923,12 @@ static void show_app_menu(GtkWidget* menu, GtkWidget* app_item, PtkFileMenu* dat
     }
 
     // mimeapps.list
-    newitem = app_menu_additem(app_menu,
-                               "_mimeapps.list",
-                               GTK_STOCK_EDIT,
-                               APP_JOB_EDIT_LIST,
-                               app_item,
-                               data);
+    newitem =
+        app_menu_additem(app_menu, "_mimeapps.list", "Edit", APP_JOB_EDIT_LIST, app_item, data);
 
     // applications/
-    newitem = app_menu_additem(app_menu,
-                               "appli_cations/",
-                               GTK_STOCK_DIRECTORY,
-                               APP_JOB_BROWSE,
-                               app_item,
-                               data);
+    newitem =
+        app_menu_additem(app_menu, "appli_cations/", "folder", APP_JOB_BROWSE, app_item, data);
     gtk_widget_set_sensitive(GTK_WIDGET(newitem), !!data->browser);
 
     // Separator
@@ -1992,7 +1947,7 @@ static void show_app_menu(GtkWidget* menu, GtkWidget* app_item, PtkFileMenu* dat
         path = str;
         str = g_strdup_printf("%s._xml", path);
         g_free(path);
-        icon = GTK_STOCK_EDIT;
+        icon = "Edit";
     }
     else
     {
@@ -2001,14 +1956,14 @@ static void show_app_menu(GtkWidget* menu, GtkWidget* app_item, PtkFileMenu* dat
         path = str;
         str = g_strdup_printf("%s._xml (*%s)", path, _("new"));
         g_free(path);
-        icon = GTK_STOCK_NEW;
+        icon = "document-new";
     }
     newitem = app_menu_additem(app_menu, str, icon, APP_JOB_EDIT_TYPE, app_item, data);
 
     // mime/packages/
     newitem = app_menu_additem(app_menu,
                                "mime/pac_kages/",
-                               GTK_STOCK_DIRECTORY,
+                               "folder",
                                APP_JOB_BROWSE_MIME,
                                app_item,
                                data);
@@ -2021,9 +1976,6 @@ static void show_app_menu(GtkWidget* menu, GtkWidget* app_item, PtkFileMenu* dat
     newitem = gtk_menu_item_new_with_mnemonic("/_usr");
     submenu = gtk_menu_new();
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(newitem), submenu);
-    gtk_image_menu_item_set_image(
-        GTK_IMAGE_MENU_ITEM(newitem),
-        gtk_image_new_from_stock(GTK_STOCK_DIRECTORY, GTK_ICON_SIZE_MENU));
     gtk_container_add(GTK_CONTAINER(app_menu), newitem);
     g_object_set_data(G_OBJECT(newitem), "job", GINT_TO_POINTER(APP_JOB_USR));
     g_object_set_data(G_OBJECT(newitem), "data", data);
@@ -2034,7 +1986,7 @@ static void show_app_menu(GtkWidget* menu, GtkWidget* app_item, PtkFileMenu* dat
     {
         newitem = app_menu_additem(submenu,
                                    desktop_file->file_name,
-                                   GTK_STOCK_FILE,
+                                   "text-x-generic",
                                    APP_JOB_VIEW,
                                    app_item,
                                    data);
@@ -2047,7 +1999,7 @@ static void show_app_menu(GtkWidget* menu, GtkWidget* app_item, PtkFileMenu* dat
     // /usr applications/
     newitem = app_menu_additem(submenu,
                                "appli_cations/",
-                               GTK_STOCK_DIRECTORY,
+                               "folder",
                                APP_JOB_BROWSE_SHARED,
                                app_item,
                                data);
@@ -2061,18 +2013,14 @@ static void show_app_menu(GtkWidget* menu, GtkWidget* app_item, PtkFileMenu* dat
     path = g_build_filename("/usr/share/mime", str, NULL);
     g_free(str);
     str = g_strdup_printf("%s._xml", type);
-    newitem = app_menu_additem(submenu, str, GTK_STOCK_FILE, APP_JOB_VIEW_TYPE, app_item, data);
+    newitem = app_menu_additem(submenu, str, "text-x-generic", APP_JOB_VIEW_TYPE, app_item, data);
     g_free(str);
     gtk_widget_set_sensitive(GTK_WIDGET(newitem), g_file_test(path, G_FILE_TEST_EXISTS));
     g_free(path);
 
     // /usr *Overrides.xml
-    newitem = app_menu_additem(submenu,
-                               "_Overrides.xml",
-                               GTK_STOCK_EDIT,
-                               APP_JOB_VIEW_OVER,
-                               app_item,
-                               data);
+    newitem =
+        app_menu_additem(submenu, "_Overrides.xml", "Edit", APP_JOB_VIEW_OVER, app_item, data);
     gtk_widget_set_sensitive(
         GTK_WIDGET(newitem),
         g_file_test("/usr/share/mime/packages/Overrides.xml", G_FILE_TEST_EXISTS));
@@ -2080,7 +2028,7 @@ static void show_app_menu(GtkWidget* menu, GtkWidget* app_item, PtkFileMenu* dat
     // mime/packages/
     newitem = app_menu_additem(submenu,
                                "mime/pac_kages/",
-                               GTK_STOCK_DIRECTORY,
+                               "folder",
                                APP_JOB_BROWSE_MIME_USR,
                                app_item,
                                data);
@@ -2092,7 +2040,7 @@ static void show_app_menu(GtkWidget* menu, GtkWidget* app_item, PtkFileMenu* dat
     gtk_container_add(GTK_CONTAINER(app_menu), gtk_separator_menu_item_new());
 
     // Help
-    newitem = app_menu_additem(app_menu, "_Help", GTK_STOCK_HELP, APP_JOB_HELP, app_item, data);
+    newitem = app_menu_additem(app_menu, "_Help", "help-browser", APP_JOB_HELP, app_item, data);
 
     // show menu
     gtk_widget_show_all(GTK_WIDGET(app_menu));

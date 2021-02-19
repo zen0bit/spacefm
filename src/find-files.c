@@ -270,9 +270,9 @@ static void on_open_files(GtkAction* action, FindFile* data)
 }
 
 static GtkActionEntry menu_actions[] = {
-    {"OpenAction", GTK_STOCK_OPEN, N_("_Open"), NULL, NULL, G_CALLBACK(on_open_files)},
+    {"OpenAction", "document-open", N_("_Open"), NULL, NULL, G_CALLBACK(on_open_files)},
     {"OpenDirectoryAction",
-     GTK_STOCK_OPEN,
+     "document-open",
      N_("Open Containing _Directory"),
      NULL,
      NULL,
@@ -764,9 +764,9 @@ static void on_add_search_browse(GtkWidget* menu, FindFile* data)
     GtkWidget* dlg = gtk_file_chooser_dialog_new(_("Select a directory"),
                                                  GTK_WINDOW(data->win),
                                                  GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
-                                                 GTK_STOCK_CANCEL,
+                                                 "Cancel",
                                                  GTK_RESPONSE_CANCEL,
-                                                 GTK_STOCK_OPEN,
+                                                 "document-open",
                                                  GTK_RESPONSE_OK,
                                                  NULL);
 
@@ -823,7 +823,6 @@ static void on_add_search_folder(GtkWidget* btn, FindFile* data)
     item = gtk_menu_item_new_with_label(g_get_home_dir());
     // img = gtk_image_new_from_icon_name( "gnome-fs-directory", GTK_ICON_SIZE_MENU );
     img = xset_get_image("gtk-directory", GTK_ICON_SIZE_MENU);
-    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), img);
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
     g_signal_connect(item, "activate", G_CALLBACK(on_add_search_home), data);
 
@@ -832,7 +831,6 @@ static void on_add_search_folder(GtkWidget* btn, FindFile* data)
         item = gtk_menu_item_new_with_label(dir);
         // img = gtk_image_new_from_icon_name( "gnome-fs-desktop", GTK_ICON_SIZE_MENU );
         img = xset_get_image("gtk-directory", GTK_ICON_SIZE_MENU);
-        gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), img);
         gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
         g_signal_connect(item, "activate", G_CALLBACK(on_add_search_desktop), data);
     }
@@ -840,7 +838,6 @@ static void on_add_search_folder(GtkWidget* btn, FindFile* data)
     item = gtk_menu_item_new_with_label(_("Local Volumes"));
     // img = gtk_image_new_from_icon_name( "gnome-dev-harddisk", GTK_ICON_SIZE_MENU );
     img = xset_get_image("gtk-harddisk", GTK_ICON_SIZE_MENU);
-    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), img);
     gtk_menu_shell_append(GTK_MENU_SHELL(menu), item);
     g_signal_connect(item, "activate", G_CALLBACK(on_add_search_volumes), data);
 
@@ -1048,7 +1045,7 @@ void fm_find_files(const char** search_dirs)
         g_object_unref(icon);
     }
     else
-        gtk_window_set_icon_name(GTK_WINDOW(data->win), GTK_STOCK_FIND);
+        gtk_window_set_icon_name(GTK_WINDOW(data->win), "Find");
 
     /* search criteria pane */
     data->search_criteria = (GtkWidget*)gtk_builder_get_object(builder, "search_criteria");
@@ -1142,8 +1139,6 @@ void fm_find_files(const char** search_dirs)
     data->start_btn = (GtkWidget*)gtk_builder_get_object(builder, "start_btn");
     data->stop_btn = (GtkWidget*)gtk_builder_get_object(builder, "stop_btn");
     data->again_btn = (GtkWidget*)gtk_builder_get_object(builder, "again_btn");
-    img = gtk_image_new_from_icon_name(GTK_STOCK_REFRESH, GTK_ICON_SIZE_BUTTON);
-    gtk_button_set_image((GtkButton*)data->again_btn, img);
 
     g_signal_connect(data->start_btn, "clicked", G_CALLBACK(on_start_search), data);
     g_signal_connect(data->stop_btn, "clicked", G_CALLBACK(on_stop_search), data);

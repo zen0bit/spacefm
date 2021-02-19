@@ -1310,7 +1310,6 @@ static void vfs_file_task_exec(char* src_file, VFSFileTask* task)
                 xset_msg_dialog(parent,
                                 GTK_MESSAGE_ERROR,
                                 _("Terminal SU Not Available"),
-                                NULL,
                                 0,
                                 str,
                                 NULL,
@@ -1329,7 +1328,7 @@ static void vfs_file_task_exec(char* src_file, VFSFileTask* task)
         g_warning(str, NULL);
         // do not use xset_msg_dialog if non-main thread
         // vfs_file_task_exec_error( task, 0, str );
-        xset_msg_dialog(parent, GTK_MESSAGE_ERROR, _("Error"), NULL, 0, str, NULL, NULL);
+        xset_msg_dialog(parent, GTK_MESSAGE_ERROR, _("Error"), 0, str, NULL, NULL);
         goto _exit_with_error_lean;
     }
 
@@ -1357,7 +1356,6 @@ static void vfs_file_task_exec(char* src_file, VFSFileTask* task)
             xset_msg_dialog(parent,
                             GTK_MESSAGE_ERROR,
                             _("Terminal Not Available"),
-                            NULL,
                             0,
                             str,
                             NULL,

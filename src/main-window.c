@@ -253,7 +253,6 @@ static void on_plugin_install(GtkMenuItem* item, FMMainWindow* main_window, XSet
         if (!xset_text_dialog(
                 GTK_WIDGET(main_window),
                 _("Enter Plugin URL"),
-                NULL,
                 FALSE,
                 _("Enter SpaceFM Plugin URL:\n\n(wget will be used to download the plugin file)"),
                 NULL,
@@ -290,7 +289,6 @@ static void on_plugin_install(GtkMenuItem* item, FMMainWindow* main_window, XSet
                 xset_msg_dialog(GTK_WIDGET(main_window),
                                 GTK_MESSAGE_ERROR,
                                 _("Invalid Plugin Filename"),
-                                NULL,
                                 0,
                                 msg,
                                 NULL,
@@ -322,7 +320,6 @@ static void on_plugin_install(GtkMenuItem* item, FMMainWindow* main_window, XSet
                 if (xset_msg_dialog(GTK_WIDGET(main_window),
                                     GTK_MESSAGE_WARNING,
                                     _("Overwrite Plugin ?"),
-                                    NULL,
                                     GTK_BUTTONS_YES_NO,
                                     msg,
                                     NULL,
@@ -348,7 +345,6 @@ static void on_plugin_install(GtkMenuItem* item, FMMainWindow* main_window, XSet
                 xset_msg_dialog(GTK_WIDGET(main_window),
                                 GTK_MESSAGE_ERROR,
                                 _("Error Creating Temp Directory"),
-                                NULL,
                                 0,
                                 _("Unable to create temporary directory"),
                                 NULL,
@@ -938,7 +934,6 @@ static void main_design_mode(GtkMenuItem* menuitem, FMMainWindow* main_window)
         GTK_WIDGET(main_window),
         0,
         _("Design Mode Help"),
-        NULL,
         0,
         _("Design Mode allows you to change the name, shortcut key and icon of menu, toolbar and "
           "bookmark items, show help for an item, and add your own custom commands and "
@@ -2573,11 +2568,6 @@ static bool notebook_clicked(GtkWidget* widget, GdkEventButton* event,
             set = xset_get("sep_tab");
             xset_add_menuitem(file_browser, popup, accel_group, set);
             set = xset_set_cb_panel(file_browser->mypanel,
-                                    "icon_tab",
-                                    main_update_fonts,
-                                    file_browser);
-            xset_add_menuitem(file_browser, popup, accel_group, set);
-            set = xset_set_cb_panel(file_browser->mypanel,
                                     "font_tab",
                                     main_update_fonts,
                                     file_browser);
@@ -2703,18 +2693,8 @@ GtkWidget* fm_main_window_create_tab_label(FMMainWindow* main_window, PtkFileBro
         close_btn = gtk_button_new();
         gtk_widget_set_focus_on_click(GTK_BUTTON(close_btn), FALSE);
         gtk_button_set_relief(GTK_BUTTON(close_btn), GTK_RELIEF_NONE);
-        pixbuf = vfs_load_icon(icon_theme, GTK_STOCK_CLOSE, 16);
-        if (pixbuf)
-        {
-            close_icon = gtk_image_new_from_pixbuf(pixbuf);
-            g_object_unref(pixbuf);
-            // shorten tab since we have a 16 icon
-            gtk_widget_set_size_request(close_btn, 24, 20);
-        }
-        else
-        {
-            close_icon = gtk_image_new_from_stock(GTK_STOCK_CLOSE, GTK_ICON_SIZE_MENU);
-        }
+        close_icon = gtk_image_new_from_icon_name("window-close", GTK_ICON_SIZE_MENU);
+
         gtk_container_add(GTK_CONTAINER(close_btn), close_icon);
         gtk_box_pack_end(GTK_BOX(tab_label), close_btn, FALSE, FALSE, 0);
         g_signal_connect(G_OBJECT(close_btn),
@@ -3963,7 +3943,6 @@ void on_reorder(GtkWidget* item, GtkWidget* parent)
         parent,
         0,
         _("Reorder Columns Help"),
-        NULL,
         0,
         _("To change the order of the columns, drag the column header to the desired location."),
         NULL,
@@ -5591,12 +5570,12 @@ void main_task_view_update_task(PtkFileTask* ptask)
             if (ptask->task->state_pause == VFS_FILE_TASK_PAUSE)
             {
                 set = xset_get("task_pause");
-                iname = g_strdup(set->icon ? set->icon : GTK_STOCK_MEDIA_PAUSE);
+                iname = g_strdup(set->icon ? set->icon : "media-playback-pause");
             }
             else if (ptask->task->state_pause == VFS_FILE_TASK_QUEUE)
             {
                 set = xset_get("task_que");
-                iname = g_strdup(set->icon ? set->icon : GTK_STOCK_ADD);
+                iname = g_strdup(set->icon ? set->icon : "list-add");
             }
             else if (ptask->err_count && ptask->task->type != VFS_FILE_TASK_EXEC)
                 iname = g_strdup_printf("error");

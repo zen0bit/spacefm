@@ -871,7 +871,6 @@ static void save_command_script(ContextData* ctxt, bool query)
     if (query && xset_msg_dialog(ctxt->dlg,
                                  GTK_MESSAGE_QUESTION,
                                  _("Save Modified Script?"),
-                                 NULL,
                                  GTK_BUTTONS_YES_NO,
                                  _("Save your changes to the command script?"),
                                  NULL,
@@ -882,7 +881,6 @@ static void save_command_script(ContextData* ctxt, bool query)
             ctxt->dlg,
             GTK_MESSAGE_QUESTION,
             _("Overwrite Script?"),
-            NULL,
             GTK_BUTTONS_YES_NO,
             _("The command script on disk has changed.\n\nDo you want to overwrite it?"),
             NULL,
@@ -989,7 +987,6 @@ static void on_edit_button_press(GtkWidget* btn, ContextData* ctxt)
             xset_msg_dialog(GTK_WIDGET(ctxt->dlg),
                             GTK_MESSAGE_ERROR,
                             _("Error"),
-                            NULL,
                             0,
                             _("The command line does not begin with a text file (script) to be "
                               "opened, or the script was not found in your $PATH."),
@@ -1098,8 +1095,6 @@ static void on_type_changed(GtkComboBox* box, ContextData* ctxt)
             {
                 gtk_widget_hide(ctxt->item_choose);
                 gtk_widget_hide(ctxt->hbox_opener);
-                gtk_button_set_image(GTK_BUTTON(ctxt->item_browse),
-                                     xset_get_image(GTK_STOCK_OPEN, GTK_ICON_SIZE_BUTTON));
                 gtk_label_set_text(GTK_LABEL(ctxt->target_label),
                                    _("Targets:  (a semicolon-separated list of paths or URLs)"));
             }
@@ -1107,8 +1102,6 @@ static void on_type_changed(GtkComboBox* box, ContextData* ctxt)
             {
                 gtk_widget_show(ctxt->item_choose);
                 gtk_widget_show(ctxt->hbox_opener);
-                gtk_button_set_image(GTK_BUTTON(ctxt->item_browse),
-                                     xset_get_image(GTK_STOCK_EXECUTE, GTK_ICON_SIZE_BUTTON));
                 gtk_label_set_text(GTK_LABEL(ctxt->target_label),
                                    _("Target:  (a .desktop or executable file)"));
             }
@@ -1344,7 +1337,6 @@ static void replace_item_props(ContextData* ctxt)
                 xset_msg_dialog(ctxt->dlg,
                                 GTK_MESSAGE_WARNING,
                                 _("Command Line Too Long"),
-                                NULL,
                                 GTK_BUTTONS_OK,
                                 _("Your command line is greater than 2000 characters and may be "
                                   "truncated when saved.  Consider using a command script instead "
@@ -1507,22 +1499,6 @@ static void on_icon_choose_button_clicked(GtkWidget* widget, ContextData* ctxt)
     }
 }
 
-static void on_entry_buffer_inserted_text(GtkEntryBuffer* buf, unsigned int position, char* chars,
-                                          unsigned int n_chars, ContextData* ctxt)
-{
-    // update icon of icon choose button
-    const char* icon = gtk_entry_get_text(GTK_ENTRY(ctxt->item_icon));
-    gtk_button_set_image(
-        GTK_BUTTON(ctxt->icon_choose_btn),
-        xset_get_image(icon && icon[0] ? icon : GTK_STOCK_OPEN, GTK_ICON_SIZE_BUTTON));
-}
-
-static void on_entry_buffer_deleted_text(GtkEntryBuffer* buf, unsigned int position,
-                                         unsigned int n_chars, ContextData* ctxt)
-{
-    on_entry_buffer_inserted_text(buf, position, NULL, n_chars, ctxt);
-}
-
 static void on_entry_activate(GtkWidget* entry, ContextData* ctxt)
 {
     gtk_button_clicked(GTK_BUTTON(ctxt->btn_ok));
@@ -1587,12 +1563,12 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
         gtk_window_set_default_size(GTK_WINDOW(ctxt->dlg), 800, 600);
 
     gtk_widget_set_focus_on_click(
-        GTK_BUTTON(gtk_dialog_add_button(GTK_DIALOG(ctxt->dlg), GTK_STOCK_HELP, GTK_RESPONSE_HELP)),
+        GTK_BUTTON(gtk_dialog_add_button(GTK_DIALOG(ctxt->dlg), _("Help"), GTK_RESPONSE_HELP)),
         FALSE);
 
-    gtk_dialog_add_button(GTK_DIALOG(ctxt->dlg), GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL);
+    gtk_dialog_add_button(GTK_DIALOG(ctxt->dlg), _("Cancel"), GTK_RESPONSE_CANCEL);
     ctxt->btn_ok =
-        GTK_BUTTON(gtk_dialog_add_button(GTK_DIALOG(ctxt->dlg), GTK_STOCK_OK, GTK_RESPONSE_OK));
+        GTK_BUTTON(gtk_dialog_add_button(GTK_DIALOG(ctxt->dlg), _("OK"), GTK_RESPONSE_OK));
 
     // Notebook
     ctxt->notebook = gtk_notebook_new();
@@ -1652,21 +1628,11 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     gtk_grid_attach(grid, label, 0, row, 1, 1);
     GtkWidget* hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     ctxt->icon_choose_btn = gtk_button_new_with_mnemonic(_("C_hoose"));
-    gtk_button_set_image(GTK_BUTTON(ctxt->icon_choose_btn),
-                         xset_get_image(GTK_STOCK_OPEN, GTK_ICON_SIZE_BUTTON));
     gtk_widget_set_focus_on_click(GTK_BUTTON(ctxt->icon_choose_btn), FALSE);
 
     // keep this
     gtk_button_set_always_show_image(GTK_BUTTON(ctxt->icon_choose_btn), TRUE);
     ctxt->item_icon = gtk_entry_new();
-    g_signal_connect(G_OBJECT(gtk_entry_get_buffer(GTK_ENTRY(ctxt->item_icon))),
-                     "inserted-text",
-                     G_CALLBACK(on_entry_buffer_inserted_text),
-                     ctxt);
-    g_signal_connect(G_OBJECT(gtk_entry_get_buffer(GTK_ENTRY(ctxt->item_icon))),
-                     "deleted-text",
-                     G_CALLBACK(on_entry_buffer_deleted_text),
-                     ctxt);
     gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(ctxt->item_icon), TRUE, TRUE, 0);
     gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(ctxt->icon_choose_btn), FALSE, TRUE, 0);
     gtk_grid_attach(grid, hbox, 1, row, 1, 1);
@@ -1695,8 +1661,6 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
     hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(gtk_label_new(NULL)), TRUE, TRUE, 0);
     ctxt->item_choose = gtk_button_new_with_mnemonic(_("C_hoose"));
-    gtk_button_set_image(GTK_BUTTON(ctxt->item_choose),
-                         xset_get_image(GTK_STOCK_OPEN, GTK_ICON_SIZE_BUTTON));
     gtk_widget_set_focus_on_click(GTK_BUTTON(ctxt->item_choose), FALSE);
 
     gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(ctxt->item_choose), FALSE, TRUE, 12);
@@ -1755,8 +1719,6 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
 
     // list buttons
     ctxt->btn_remove = GTK_BUTTON(gtk_button_new_with_mnemonic(_("_Remove")));
-    gtk_button_set_image(ctxt->btn_remove,
-                         xset_get_image("GTK_STOCK_REMOVE", GTK_ICON_SIZE_BUTTON));
     gtk_widget_set_focus_on_click(ctxt->btn_remove, FALSE);
 
     g_signal_connect(G_OBJECT(ctxt->btn_remove),
@@ -1765,13 +1727,11 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
                      ctxt);
 
     ctxt->btn_add = GTK_BUTTON(gtk_button_new_with_mnemonic(_("_Add")));
-    gtk_button_set_image(ctxt->btn_add, xset_get_image("GTK_STOCK_ADD", GTK_ICON_SIZE_BUTTON));
     gtk_widget_set_focus_on_click(ctxt->btn_add, FALSE);
 
     g_signal_connect(G_OBJECT(ctxt->btn_add), "clicked", G_CALLBACK(on_context_button_press), ctxt);
 
     ctxt->btn_apply = GTK_BUTTON(gtk_button_new_with_mnemonic(_("A_pply")));
-    gtk_button_set_image(ctxt->btn_apply, xset_get_image("GTK_STOCK_APPLY", GTK_ICON_SIZE_BUTTON));
     gtk_widget_set_focus_on_click(ctxt->btn_apply, FALSE);
 
     g_signal_connect(G_OBJECT(ctxt->btn_apply),

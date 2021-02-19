@@ -2175,7 +2175,6 @@ static GtkWidget* add_history_menu_item(PtkFileBrowser* file_browser, GtkWidget*
     menu_item = gtk_menu_item_new_with_label(disp_name);
     g_object_set_data(G_OBJECT(menu_item), "path", l);
     folder_image = gtk_image_new_from_icon_name("gnome-fs-directory", GTK_ICON_SIZE_MENU);
-    gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item), folder_image);
     g_signal_connect(menu_item,
                      "activate",
                      G_CALLBACK(on_history_menu_item_activate),
@@ -2628,7 +2627,6 @@ void ptk_file_browser_select_pattern(GtkWidget* item, PtkFileBrowser* file_brows
         if (!xset_text_dialog(
                 GTK_WIDGET(file_browser),
                 _("Select By Pattern"),
-                NULL,
                 FALSE,
                 _("Enter pattern to select files and directories:\n\nIf your pattern contains any "
                   "uppercase characters, the matching will be case sensitive.\n\nExample:  "
@@ -4537,7 +4535,6 @@ static void on_folder_view_drag_begin(GtkWidget* widget, GdkDragContext* drag_co
 {
     /*  Don't call the default handler  */
     g_signal_stop_emission_by_name(widget, "drag-begin");
-    /* gtk_drag_set_icon_stock ( drag_context, GTK_STOCK_DND_MULTIPLE, 1, 1 ); */
     gtk_drag_set_icon_default(drag_context);
     file_browser->is_drag = TRUE;
 }
@@ -4984,7 +4981,6 @@ void ptk_file_browser_copycmd(PtkFileBrowser* file_browser, GList* sel_files, ch
             xset_msg_dialog(GTK_WIDGET(file_browser),
                             GTK_MESSAGE_ERROR,
                             _("Invalid Destination"),
-                            NULL,
                             0,
                             _("Destination same as source"),
                             NULL,
@@ -5020,7 +5016,6 @@ void ptk_file_browser_copycmd(PtkFileBrowser* file_browser, GList* sel_files, ch
         xset_msg_dialog(GTK_WIDGET(file_browser),
                         GTK_MESSAGE_ERROR,
                         _("Invalid Destination"),
-                        NULL,
                         0,
                         _("Invalid destination"),
                         NULL,
@@ -5034,7 +5029,6 @@ void ptk_file_browser_hide_selected(PtkFileBrowser* file_browser, GList* files, 
             GTK_WIDGET(file_browser),
             0,
             _("Hide File"),
-            NULL,
             GTK_BUTTONS_OK_CANCEL,
             _("The names of the selected files will be added to the '.hidden' file located in this "
               "directory, which will hide them from view in SpaceFM.  You may need to refresh the "

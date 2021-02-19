@@ -925,9 +925,9 @@ static void on_create_browse_button_press(GtkWidget* widget, MoveSet* mset)
     GtkWidget* dlg = gtk_file_chooser_dialog_new(title,
                                                  mset->parent ? GTK_WINDOW(mset->parent) : NULL,
                                                  action,
-                                                 GTK_STOCK_CANCEL,
+                                                 "Cancel",
                                                  GTK_RESPONSE_CANCEL,
-                                                 GTK_STOCK_OK,
+                                                 "OK",
                                                  GTK_RESPONSE_OK,
                                                  NULL);
 
@@ -1056,9 +1056,9 @@ static void on_browse_button_press(GtkWidget* widget, MoveSet* mset)
                                                  mode_default == MODE_PARENT
                                                      ? GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER
                                                      : GTK_FILE_CHOOSER_ACTION_SAVE,
-                                                 GTK_STOCK_CANCEL,
+                                                 "Cancel",
                                                  GTK_RESPONSE_CANCEL,
-                                                 GTK_STOCK_OK,
+                                                 "OK",
                                                  GTK_RESPONSE_OK,
                                                  NULL);
     gtk_window_set_role(GTK_WINDOW(dlg), "file_dialog");
@@ -1248,7 +1248,7 @@ static void on_opt_toggled(GtkMenuItem* item, MoveSet* mset)
 
         if (move)
         {
-            btn_label = rename ? _("_Rename") : _("_Move");
+            btn_label = rename ? _("Rename") : _("Move");
             action = _("Move");
         }
         else if (copy)
@@ -1306,9 +1306,6 @@ static void on_opt_toggled(GtkMenuItem* item, MoveSet* mset)
 
     if (btn_label)
         gtk_button_set_label(GTK_BUTTON(mset->next), btn_label);
-    gtk_button_set_image(GTK_BUTTON(mset->next),
-                         xset_get_image(as_root ? "GTK_STOCK_DIALOG_WARNING" : "GTK_STOCK_YES",
-                                        GTK_ICON_SIZE_BUTTON));
 
     mset->full_path_same = FALSE;
     mset->mode_change = TRUE;
@@ -2114,33 +2111,25 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
     // Buttons
     mset->options = gtk_button_new_with_mnemonic(_("Opt_ions"));
     gtk_dialog_add_action_widget(GTK_DIALOG(mset->dlg), mset->options, GTK_RESPONSE_YES);
-    gtk_button_set_image(GTK_BUTTON(mset->options),
-                         xset_get_image("GTK_STOCK_PROPERTIES", GTK_ICON_SIZE_BUTTON));
     gtk_widget_set_focus_on_click(GTK_BUTTON(mset->options), FALSE);
     g_signal_connect(G_OBJECT(mset->options), "clicked", G_CALLBACK(on_options_button_press), mset);
 
     mset->browse = gtk_button_new_with_mnemonic(_("_Browse"));
     gtk_dialog_add_action_widget(GTK_DIALOG(mset->dlg), mset->browse, GTK_RESPONSE_YES);
-    gtk_button_set_image(GTK_BUTTON(mset->browse),
-                         xset_get_image("GTK_STOCK_OPEN", GTK_ICON_SIZE_BUTTON));
     gtk_widget_set_focus_on_click(GTK_BUTTON(mset->browse), FALSE);
     g_signal_connect(G_OBJECT(mset->browse), "clicked", G_CALLBACK(on_browse_button_press), mset);
 
     mset->revert = gtk_button_new_with_mnemonic(_("Re_vert"));
     gtk_dialog_add_action_widget(GTK_DIALOG(mset->dlg), mset->revert, GTK_RESPONSE_NO);
-    gtk_button_set_image(GTK_BUTTON(mset->revert),
-                         xset_get_image("GTK_STOCK_REVERT_TO_SAVED", GTK_ICON_SIZE_BUTTON));
     gtk_widget_set_focus_on_click(GTK_BUTTON(mset->revert), FALSE);
     g_signal_connect(G_OBJECT(mset->revert), "clicked", G_CALLBACK(on_revert_button_press), mset);
 
-    mset->cancel = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
+    mset->cancel = gtk_button_new_with_label("Cancel");
     gtk_dialog_add_action_widget(GTK_DIALOG(mset->dlg), mset->cancel, GTK_RESPONSE_CANCEL);
 
-    mset->next = gtk_button_new_from_stock(GTK_STOCK_OK);
+    mset->next = gtk_button_new_with_label("OK");
     gtk_dialog_add_action_widget(GTK_DIALOG(mset->dlg), mset->next, GTK_RESPONSE_OK);
     gtk_widget_set_focus_on_click(GTK_BUTTON(mset->next), FALSE);
-    gtk_button_set_image(GTK_BUTTON(mset->next),
-                         xset_get_image("GTK_STOCK_YES", GTK_ICON_SIZE_BUTTON));
     gtk_button_set_label(GTK_BUTTON(mset->next), _("_Rename"));
 
     if (create_new && auto_open)
@@ -2256,8 +2245,6 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
         {
             // Target Browse button
             mset->browse_target = gtk_button_new();
-            gtk_button_set_image(GTK_BUTTON(mset->browse_target),
-                                 xset_get_image("GTK_STOCK_OPEN", GTK_ICON_SIZE_BUTTON));
             gtk_widget_set_focus_on_click(GTK_BUTTON(mset->browse_target), FALSE);
             if (mset->new_path && file)
                 gtk_entry_set_text(GTK_ENTRY(mset->entry_target), mset->new_path);
@@ -2354,8 +2341,6 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
 
         // Template Browse button
         mset->browse_template = gtk_button_new();
-        gtk_button_set_image(GTK_BUTTON(mset->browse_template),
-                             xset_get_image("GTK_STOCK_OPEN", GTK_ICON_SIZE_BUTTON));
         gtk_widget_set_focus_on_click(GTK_BUTTON(mset->browse_template), FALSE);
         g_signal_connect(G_OBJECT(mset->browse_template),
                          "clicked",
@@ -2772,7 +2757,6 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
                     if (xset_msg_dialog(mset->parent,
                                         GTK_MESSAGE_QUESTION,
                                         _("Create Parent Directory"),
-                                        NULL,
                                         GTK_BUTTONS_YES_NO,
                                         _("The parent directory does not exist.  Create it?"),
                                         NULL,
@@ -2805,7 +2789,6 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
                 if (xset_msg_dialog(mset->parent,
                                     GTK_MESSAGE_WARNING,
                                     _("Overwrite Existing File"),
-                                    NULL,
                                     GTK_BUTTONS_YES_NO,
                                     _("OVERWRITE WARNING"),
                                     _("The file path exists.  Overwrite existing file?"),
@@ -3319,7 +3302,6 @@ static void open_files_with_handler(ParentInfo* parent, GList* files, XSet* hand
         xset_msg_dialog(parent->file_browser ? GTK_WIDGET(parent->file_browser) : NULL,
                         GTK_MESSAGE_ERROR,
                         _("Error Loading Handler"),
-                        NULL,
                         0,
                         err_msg,
                         NULL,
@@ -3813,7 +3795,6 @@ void ptk_file_misc_rootcmd(PtkFileBrowser* file_browser, GList* sel_files, char*
             if (xset_msg_dialog(parent,
                                 GTK_MESSAGE_WARNING,
                                 _("Confirm Delete As Root"),
-                                NULL,
                                 GTK_BUTTONS_YES_NO,
                                 _("DELETE AS ROOT"),
                                 str,

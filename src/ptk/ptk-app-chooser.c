@@ -369,9 +369,9 @@ void on_browse_btn_clicked(GtkButton* button, void* user_data)
     GtkWidget* dlg = gtk_file_chooser_dialog_new(NULL,
                                                  GTK_WINDOW(parent),
                                                  GTK_FILE_CHOOSER_ACTION_OPEN,
-                                                 GTK_STOCK_CANCEL,
+                                                 "Cancel",
                                                  GTK_RESPONSE_CANCEL,
-                                                 GTK_STOCK_OPEN,
+                                                 "document-open",
                                                  GTK_RESPONSE_OK,
                                                  NULL);
 
@@ -472,7 +472,7 @@ void ptk_app_chooser_has_handler_warn(GtkWidget* parent, VFSMimeType* mime_type)
               "application by default."),
             vfs_mime_type_get_type(mime_type),
             ((XSet*)handlers_slist->data)->menu_label);
-        xset_msg_dialog(parent, 0, _("MIME Type Has Handler"), NULL, 0, msg, NULL, NULL);
+        xset_msg_dialog(parent, 0, _("MIME Type Has Handler"), 0, msg, NULL, NULL);
         g_free(msg);
         g_slist_free(handlers_slist);
     }
@@ -496,7 +496,7 @@ void ptk_app_chooser_has_handler_warn(GtkWidget* parent, VFSMimeType* mime_type)
                   "with your associated application by default."),
                 vfs_mime_type_get_type(mime_type),
                 ((XSet*)handlers_slist->data)->menu_label);
-            xset_msg_dialog(parent, 0, _("MIME Type Has Handler"), NULL, 0, msg, NULL, NULL);
+            xset_msg_dialog(parent, 0, _("MIME Type Has Handler"), 0, msg, NULL, NULL);
             g_free(msg);
             g_slist_free(handlers_slist);
         }

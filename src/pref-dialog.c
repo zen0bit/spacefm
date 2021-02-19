@@ -420,14 +420,7 @@ static void on_response(GtkDialog* dlg, int response, FMPrefDlg* user_data)
                       "window is recommended.  Because SpaceFM runs some commands as root via su, "
                       "these settings are best protected by root."),
                     SYSCONFDIR);
-                xset_msg_dialog(GTK_WIDGET(dlg),
-                                0,
-                                _("Save Root Settings"),
-                                NULL,
-                                0,
-                                msg,
-                                NULL,
-                                NULL);
+                xset_msg_dialog(GTK_WIDGET(dlg), 0, _("Save Root Settings"), 0, msg, NULL, NULL);
                 g_free(msg);
                 PtkFileTask* task = ptk_file_exec_new(_("Save Root Settings"), NULL, NULL, NULL);
                 task->task->exec_command = g_strdup_printf("echo");

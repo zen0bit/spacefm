@@ -732,7 +732,6 @@ static void set_element_value(CustomElement* el, const char* name, char* value)
                     sep[0] = '\0';
                 else
                     sep = NULL;
-                gtk_button_set_image(GTK_BUTTON(w), NULL);
                 if (!sep &&
                     (!g_strcmp0(el_name->val, "ok") || !g_strcmp0(el_name->val, "cancel") ||
                      !g_strcmp0(el_name->val, "close") || !g_strcmp0(el_name->val, "open") ||
@@ -742,7 +741,6 @@ static void set_element_value(CustomElement* el, const char* name, char* value)
                      !g_strcmp0(el_name->val, "help") || !g_strcmp0(el_name->val, "stop")))
                 {
                     // stock button
-                    gtk_button_set_use_stock(GTK_BUTTON(w), TRUE);
                     str = g_strdup_printf("gtk-%s", el_name->val);
                     gtk_button_set_label(GTK_BUTTON(w), str);
                     g_free(str);
@@ -750,13 +748,9 @@ static void set_element_value(CustomElement* el, const char* name, char* value)
                 else
                 {
                     // custom button
-                    gtk_button_set_use_stock(GTK_BUTTON(w), FALSE);
                     gtk_button_set_label(GTK_BUTTON(w), el_name->val);
                 }
                 // set icon
-                if (sep && sep[1] != '\0')
-                    gtk_button_set_image(GTK_BUTTON(w),
-                                         xset_get_image(sep + 1, GTK_ICON_SIZE_BUTTON));
                 if (sep)
                     sep[0] = ':';
             }
@@ -2713,7 +2707,6 @@ static void update_element(CustomElement* el, GtkWidget* box, GSList** radio, in
                     sep[0] = '\0';
                 else
                     sep = NULL;
-                gtk_button_set_image(GTK_BUTTON(w), NULL);
                 if (!sep && (!g_strcmp0(el->val, "ok") || !g_strcmp0(el->val, "cancel") ||
                              !g_strcmp0(el->val, "close") || !g_strcmp0(el->val, "open") ||
                              !g_strcmp0(el->val, "yes") || !g_strcmp0(el->val, "no") ||
@@ -2722,7 +2715,6 @@ static void update_element(CustomElement* el, GtkWidget* box, GSList** radio, in
                              !g_strcmp0(el->val, "help") || !g_strcmp0(el->val, "stop")))
                 {
                     // stock button
-                    gtk_button_set_use_stock(GTK_BUTTON(w), TRUE);
                     str = g_strdup_printf("gtk-%s", el->val);
                     gtk_button_set_label(GTK_BUTTON(w), str);
                     g_free(str);
@@ -2730,13 +2722,9 @@ static void update_element(CustomElement* el, GtkWidget* box, GSList** radio, in
                 else
                 {
                     // custom button
-                    gtk_button_set_use_stock(GTK_BUTTON(w), FALSE);
                     gtk_button_set_label(GTK_BUTTON(w), el->val);
                 }
                 // set icon
-                if (sep && sep[1] != '\0')
-                    gtk_button_set_image(GTK_BUTTON(w),
-                                         xset_get_image(sep + 1, GTK_ICON_SIZE_BUTTON));
                 if (sep)
                     sep[0] = ':';
             }
@@ -3537,8 +3525,6 @@ static void build_dialog(GList* elements)
                        FALSE,
                        FALSE,
                        pad);
-    gtk_button_set_image(GTK_BUTTON(timeout_toggle),
-                         xset_get_image("GTK_STOCK_MEDIA_PAUSE", GTK_ICON_SIZE_BUTTON));
     gtk_widget_set_focus_on_click(GTK_BUTTON(timeout_toggle), FALSE);
 
     // add elements

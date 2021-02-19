@@ -894,7 +894,6 @@ void ptk_location_view_mount_network(PtkFileBrowser* file_browser, const char* u
         xset_msg_dialog(GTK_WIDGET(file_browser),
                         GTK_MESSAGE_ERROR,
                         _("Invalid URL"),
-                        NULL,
                         0,
                         _("The entered URL is not valid."),
                         NULL,
@@ -960,7 +959,6 @@ void ptk_location_view_mount_network(PtkFileBrowser* file_browser, const char* u
         xset_msg_dialog(GTK_WIDGET(file_browser),
                         GTK_MESSAGE_ERROR,
                         _("Handler Not Found"),
-                        NULL,
                         0,
                         _("No network handler is configured for this URL, or no mount command is "
                           "set.  Add a handler in Devices|Settings|Protocol Handlers."),
@@ -1047,7 +1045,7 @@ static void popup_missing_mount(GtkWidget* view, int job)
         g_strdup_printf(_("No handler is configured for this device type, or no %s command is set. "
                           " Add a handler in Settings|Device Handlers or Protocol Handlers."),
                         cmd);
-    xset_msg_dialog(view, GTK_MESSAGE_ERROR, _("Handler Not Found"), NULL, 0, msg, NULL, NULL);
+    xset_msg_dialog(view, GTK_MESSAGE_ERROR, _("Handler Not Found"), 0, msg, NULL, NULL);
     g_free(msg);
 }
 
@@ -1129,7 +1127,6 @@ static void on_mount_root(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2)
 
     if (xset_text_dialog(view,
                          _("Mount As Root"),
-                         xset_get_image("GTK_STOCK_DIALOG_WARNING", GTK_ICON_SIZE_DIALOG),
                          TRUE,
                          _("MOUNT AS ROOT"),
                          msg,
@@ -1189,7 +1186,6 @@ static void on_umount_root(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2)
 
     if (xset_text_dialog(view,
                          _("Unmount As Root"),
-                         xset_get_image("GTK_STOCK_DIALOG_WARNING", GTK_ICON_SIZE_DIALOG),
                          TRUE,
                          _("UNMOUNT AS ROOT"),
                          msg,
@@ -1632,7 +1628,6 @@ static void on_remount(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2)
     XSet* set = xset_get("dev_remount_options");
     if (!xset_text_dialog(view,
                           set->title,
-                          NULL,
                           TRUE,
                           set->desc,
                           NULL,
@@ -1814,7 +1809,7 @@ static void on_root_udevil(GtkMenuItem* item, GtkWidget* view)
     if (g_file_test(udevil_path, G_FILE_TEST_IS_DIR))
         xset_edit(view, udevil_conf, TRUE, FALSE);
     else
-        xset_msg_dialog(view, GTK_MESSAGE_ERROR, _("Directory Missing"), NULL, 0, msg, NULL, NULL);
+        xset_msg_dialog(view, GTK_MESSAGE_ERROR, _("Directory Missing"), 0, msg, NULL, NULL);
     g_free(udevil_path);
     g_free(udevil_conf);
     g_free(msg);
@@ -2275,7 +2270,6 @@ static void on_showhide(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2)
         msg = g_strdup(set->desc);
     if (xset_text_dialog(view,
                          set->title,
-                         NULL,
                          TRUE,
                          msg,
                          NULL,
@@ -2314,7 +2308,6 @@ static void on_automountlist(GtkMenuItem* item, VFSVolume* vol, GtkWidget* view2
         msg = g_strdup(set->desc);
     if (xset_text_dialog(view,
                          set->title,
-                         NULL,
                          TRUE,
                          msg,
                          NULL,
@@ -2786,24 +2779,12 @@ static void show_dev_design_menu(GtkWidget* menu, GtkWidget* dev_item, VFSVolume
     GtkWidget* image;
     set = xset_get("dev_menu_remove");
     item = gtk_menu_item_new_with_mnemonic(set->menu_label);
-    if (set->icon)
-    {
-        image = xset_get_image(set->icon, GTK_ICON_SIZE_MENU);
-        if (image)
-            gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), image);
-    }
     g_object_set_data(G_OBJECT(item), "view", view);
     g_signal_connect(item, "activate", G_CALLBACK(on_eject), vol);
     gtk_menu_shell_append(GTK_MENU_SHELL(popup), item);
 
     set = xset_get("dev_menu_unmount");
     item = gtk_menu_item_new_with_mnemonic(set->menu_label);
-    if (set->icon)
-    {
-        image = xset_get_image(set->icon, GTK_ICON_SIZE_MENU);
-        if (image)
-            gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), image);
-    }
     g_object_set_data(G_OBJECT(item), "view", view);
     g_signal_connect(item, "activate", G_CALLBACK(on_umount), vol);
     gtk_menu_shell_append(GTK_MENU_SHELL(popup), item);
@@ -2813,12 +2794,6 @@ static void show_dev_design_menu(GtkWidget* menu, GtkWidget* dev_item, VFSVolume
 
     set = xset_get("dev_menu_open");
     item = gtk_menu_item_new_with_mnemonic(set->menu_label);
-    if (set->icon)
-    {
-        image = xset_get_image(set->icon, GTK_ICON_SIZE_MENU);
-        if (image)
-            gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), image);
-    }
     g_object_set_data(G_OBJECT(item), "view", view);
     gtk_menu_shell_append(GTK_MENU_SHELL(popup), item);
     if (file_browser)
@@ -2828,12 +2803,6 @@ static void show_dev_design_menu(GtkWidget* menu, GtkWidget* dev_item, VFSVolume
 
     set = xset_get("dev_menu_mount");
     item = gtk_menu_item_new_with_mnemonic(set->menu_label);
-    if (set->icon)
-    {
-        image = xset_get_image(set->icon, GTK_ICON_SIZE_MENU);
-        if (image)
-            gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), image);
-    }
     g_object_set_data(G_OBJECT(item), "view", view);
     g_signal_connect(item, "activate", G_CALLBACK(on_mount), vol);
     gtk_menu_shell_append(GTK_MENU_SHELL(popup), item);
@@ -2845,12 +2814,6 @@ static void show_dev_design_menu(GtkWidget* menu, GtkWidget* dev_item, VFSVolume
     {
         set = xset_get("dev_menu_mark");
         item = gtk_menu_item_new_with_mnemonic(set->menu_label);
-        if (set->icon)
-        {
-            image = xset_get_image(set->icon, GTK_ICON_SIZE_MENU);
-            if (image)
-                gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), image);
-        }
         g_object_set_data(G_OBJECT(item), "view", view);
         g_signal_connect(item, "activate", G_CALLBACK(on_bookmark_device), vol);
         gtk_menu_shell_append(GTK_MENU_SHELL(popup), item);
@@ -2861,12 +2824,6 @@ static void show_dev_design_menu(GtkWidget* menu, GtkWidget* dev_item, VFSVolume
 
     set = xset_get("dev_prop");
     item = gtk_menu_item_new_with_mnemonic(set->menu_label);
-    if (set->icon)
-    {
-        image = xset_get_image(set->icon, GTK_ICON_SIZE_MENU);
-        if (image)
-            gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), image);
-    }
     g_object_set_data(G_OBJECT(item), "view", view);
     g_signal_connect(item, "activate", G_CALLBACK(on_prop), vol);
     gtk_menu_shell_append(GTK_MENU_SHELL(popup), item);
@@ -2973,12 +2930,6 @@ void ptk_location_view_dev_menu(GtkWidget* parent, PtkFileBrowser* file_browser,
     {
         vol = (VFSVolume*)l->data;
         item = gtk_menu_item_new_with_label(vfs_volume_get_disp_name(vol));
-        if (vfs_volume_get_icon(vol))
-        {
-            GtkWidget* image = xset_get_image(vfs_volume_get_icon(vol), GTK_ICON_SIZE_MENU);
-            if (image)
-                gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), image);
-        }
         g_object_set_data(G_OBJECT(item), "menu", menu);
         g_object_set_data(G_OBJECT(item), "vol", vol);
         g_signal_connect(item, "button-press-event", G_CALLBACK(on_dev_menu_button_press), vol);
