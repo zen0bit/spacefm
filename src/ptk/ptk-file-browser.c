@@ -43,7 +43,6 @@
 #include "ptk-dir-tree.h"
 
 #include "ptk-file-list.h"
-#include "ptk-text-renderer.h"
 
 #include "ptk-clipboard.h"
 
@@ -3672,6 +3671,12 @@ static GtkWidget* create_folder_view(PtkFileBrowser* file_browser, PtkFBViewMode
     GtkCellRenderer* renderer;
     int big_icon_size, small_icon_size, icon_size = 0;
 
+    PangoAttrList* attr_list;
+    attr_list = pango_attr_list_new();
+#if PANGO_VERSION_CHECK(1, 44, 0)
+    pango_attr_list_insert(attr_list, pango_attr_insert_hyphens_new(FALSE));
+#endif
+
     vfs_mime_type_get_icon_size(&big_icon_size, &small_icon_size);
 
     switch (view_mode)
@@ -3729,7 +3734,7 @@ static GtkWidget* create_folder_view(PtkFileBrowser* file_browser, PtkFBViewMode
                                                                     : COL_FILE_SMALL_ICON);
 
             /* add the name renderer */
-            renderer = ptk_text_renderer_new();
+            renderer = gtk_cell_renderer_text_new();
 
             if (view_mode == PTK_FB_COMPACT_VIEW)
             {
@@ -3738,14 +3743,19 @@ static GtkWidget* create_folder_view(PtkFileBrowser* file_browser, PtkFBViewMode
             else
             {
                 g_object_set(G_OBJECT(renderer),
+                             "alignment",
+                             PANGO_ALIGN_CENTER,
                              "wrap-mode",
                              PANGO_WRAP_WORD_CHAR,
                              "wrap-width",
-                             icon_size < 110 ? 109 : icon_size,
+                             105, // FIXME prob shouldnt hard code this
+                                  // icon_size < 105 ? 109 : icon_size, // breaks with cjk text
                              "xalign",
                              0.5,
                              "yalign",
                              0.0,
+                             "attributes",
+                             attr_list,
                              NULL);
             }
             gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(folder_view), renderer, TRUE);

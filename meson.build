@@ -166,7 +166,6 @@ sources = [
   'src/ptk/ptk-handler.c',
   'src/ptk/ptk-location-view.c',
   'src/ptk/ptk-path-entry.c',
-  'src/ptk/ptk-text-renderer.c',
   'src/ptk/ptk-utils.c',
   'src/vfs/vfs-app-desktop.c',
   'src/vfs/vfs-async-task.c',
