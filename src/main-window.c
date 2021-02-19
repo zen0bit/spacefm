@@ -693,56 +693,6 @@ void main_window_refresh_all()
     }
 }
 
-void main_window_root_bar_all()
-{
-    if (geteuid() != 0)
-        return;
-    GList* l;
-    FMMainWindow* a_window;
-    GdkColor color;
-    // GdkColor color_white;
-
-    if (xset_get_b("root_bar"))
-    {
-        color.pixel = 0;
-        color.red = 30000;
-        color.blue = 1000;
-        color.green = 0;
-
-        // gdk_color_parse( "#ffffff", &color_white );
-
-        for (l = all_windows; l; l = l->next)
-        {
-            a_window = (FMMainWindow*)l->data;
-            gtk_widget_override_background_color(GTK_WIDGET(a_window), GTK_STATE_NORMAL, &color);
-            gtk_widget_override_background_color(GTK_WIDGET(a_window->menu_bar),
-                                                 GTK_STATE_NORMAL,
-                                                 &color);
-            gtk_widget_override_background_color(GTK_WIDGET(a_window->panelbar),
-                                                 GTK_STATE_NORMAL,
-                                                 &color);
-            // how to change menu bar text color?
-            // gtk_widget_modify_fg( GTK_MENU_ITEM( a_window->file_menu_item ), GTK_STATE_NORMAL,
-            // &color_white );
-        }
-    }
-    else
-    {
-        for (l = all_windows; l; l = l->next)
-        {
-            a_window = (FMMainWindow*)l->data;
-            gtk_widget_override_background_color(GTK_WIDGET(a_window), GTK_STATE_NORMAL, NULL);
-            gtk_widget_override_background_color(GTK_WIDGET(a_window->menu_bar),
-                                                 GTK_STATE_NORMAL,
-                                                 NULL);
-            gtk_widget_override_background_color(GTK_WIDGET(a_window->panelbar),
-                                                 GTK_STATE_NORMAL,
-                                                 NULL);
-            // gtk_widget_modify_fg( a_window->menu_bar, GTK_STATE_NORMAL, NULL );
-        }
-    }
-}
-
 static void update_window_icon(GtkWindow* window, GtkIconTheme* theme)
 {
     const char* name;
@@ -1881,7 +1831,6 @@ static void fm_main_window_init(FMMainWindow* main_window)
     import_all_plugins(main_window);
     main_window->panel_change = FALSE;
     show_panels(NULL, main_window);
-    main_window_root_bar_all();
 
     gtk_widget_hide(GTK_WIDGET(main_window->task_scroll));
     on_task_popup_show(NULL, main_window, NULL);
@@ -2859,7 +2808,6 @@ void set_panel_focus(FMMainWindow* main_window, PtkFileBrowser* file_browser)
     int pages;
     int cur_tabx;
     GtkWidget* notebook;
-    PtkFileBrowser* a_browser;
 
     if (!file_browser && !main_window)
         return;
@@ -2868,20 +2816,10 @@ void set_panel_focus(FMMainWindow* main_window, PtkFileBrowser* file_browser)
     if (!mw)
         mw = (FMMainWindow*)file_browser->main_window;
 
-    if (file_browser)
-        ptk_file_browser_status_change(file_browser, file_browser->mypanel == mw->curpanel);
-
     for (p = 1; p < 5; p++)
     {
         notebook = mw->panel[p - 1];
         pages = gtk_notebook_get_n_pages(GTK_NOTEBOOK(notebook));
-        for (cur_tabx = 0; cur_tabx < pages; cur_tabx++)
-        {
-            a_browser =
-                PTK_FILE_BROWSER(gtk_notebook_get_nth_page(GTK_NOTEBOOK(notebook), cur_tabx));
-            if (a_browser != file_browser)
-                ptk_file_browser_status_change(a_browser, p == mw->curpanel);
-        }
         gtk_widget_set_sensitive(mw->panel_image[p - 1], p == mw->curpanel);
     }
 

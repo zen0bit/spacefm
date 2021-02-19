@@ -253,7 +253,6 @@ void ptk_file_browser_copycmd(PtkFileBrowser* file_browser, GList* sel_files, ch
                               char* setname);
 void ptk_file_browser_on_action(PtkFileBrowser* browser, char* setname);
 GList* folder_view_get_selected_items(PtkFileBrowser* file_browser, GtkTreeModel** model);
-void ptk_file_browser_status_change(PtkFileBrowser* file_browser, bool panel_focus);
 void ptk_file_browser_select_file(PtkFileBrowser* file_browser, const char* path);
 void ptk_file_browser_select_file_list(PtkFileBrowser* file_browser, char** filename,
                                        bool do_select);

@@ -321,13 +321,6 @@ static void on_response(GtkDialog* dlg, int response, FMPrefDlg* user_data)
         app_settings.no_confirm =
             !gtk_toggle_button_get_active((GtkToggleButton*)data->confirm_delete);
 
-        root_bar = gtk_toggle_button_get_active((GtkToggleButton*)data->root_bar);
-        if (!!root_bar != !!xset_get_b("root_bar"))
-        {
-            xset_set_b("root_bar", root_bar);
-            main_window_root_bar_all();
-        }
-
         char* s = g_strdup_printf("%d", gtk_combo_box_get_active(GTK_COMBO_BOX(data->drag_action)));
         xset_set("drag_action", "x", s);
         g_free(s);

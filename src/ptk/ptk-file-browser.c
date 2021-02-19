@@ -982,45 +982,6 @@ void ptk_file_browser_rebuild_toolbars(PtkFileBrowser* file_browser)
     enable_toolbar(file_browser);
 }
 
-void ptk_file_browser_status_change(PtkFileBrowser* file_browser, bool panel_focus)
-{
-    char* scolor;
-    GdkColor color;
-
-    // image
-    gtk_widget_set_sensitive(GTK_WIDGET(file_browser->status_image), panel_focus);
-
-    // text color
-    if (panel_focus)
-    {
-        scolor = xset_get_s("status_text");
-        if (scolor && gdk_rgba_parse(scolor, &color))
-            gtk_widget_modify_fg(GTK_WIDGET(file_browser->status_label), GTK_STATE_NORMAL, &color);
-        else
-            gtk_widget_modify_fg(GTK_WIDGET(file_browser->status_label), GTK_STATE_NORMAL, NULL);
-    }
-    else
-        gtk_widget_modify_fg(GTK_WIDGET(file_browser->status_label), GTK_STATE_NORMAL, NULL);
-
-    // frame border color
-    if (panel_focus)
-    {
-        scolor = xset_get_s("status_border");
-        if (scolor && gdk_rgba_parse(scolor, &color))
-            gtk_widget_override_background_color(GTK_WIDGET(file_browser->status_frame),
-                                                 GTK_STATE_NORMAL,
-                                                 &color);
-        else
-            gtk_widget_override_background_color(GTK_WIDGET(file_browser->status_frame),
-                                                 GTK_STATE_NORMAL,
-                                                 NULL);
-    }
-    else
-        gtk_widget_override_background_color(GTK_WIDGET(file_browser->status_frame),
-                                             GTK_STATE_NORMAL,
-                                             NULL);
-}
-
 static bool on_status_bar_button_press(GtkWidget* widget, GdkEventButton* event,
                                        PtkFileBrowser* file_browser)
 {
