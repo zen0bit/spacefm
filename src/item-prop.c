@@ -1614,62 +1614,42 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
         align,
         gtk_label_new_with_mnemonic(set->tool ? _("_Toolbar Item") : _("_Menu Item")));
 
-    GtkTable* table = GTK_TABLE(gtk_table_new(4, 2, FALSE));
-    gtk_container_set_border_width(GTK_CONTAINER(table), 0);
-    gtk_table_set_row_spacings(table, 6);
-    gtk_table_set_col_spacings(table, 8);
+    GtkGrid* grid = GTK_GRID(gtk_grid_new());
+    gtk_container_set_border_width(GTK_CONTAINER(grid), 0);
+    gtk_grid_set_row_spacing(grid, 6);
+    gtk_grid_set_column_spacing(grid, 8);
     int row = 0;
 
     GtkWidget* label = gtk_label_new_with_mnemonic(_("Type:"));
     gtk_widget_set_halign(GTK_MISC(label), GTK_ALIGN_START);
     gtk_widget_set_valign(GTK_MISC(label), GTK_ALIGN_CENTER);
-    gtk_table_attach(table, label, 0, 1, row, row + 1, GTK_FILL, GTK_SHRINK, 0, 0);
+    gtk_grid_attach(grid, label, 0, row, 1, 1);
     ctxt->item_type = gtk_combo_box_text_new();
     gtk_widget_set_focus_on_click(GTK_COMBO_BOX(ctxt->item_type), FALSE);
-    // align = gtk_alignment_new( 0, 0.5, 1, 1 );
-    // gtk_container_add ( GTK_CONTAINER ( align ), GTK_WIDGET( ctxt->item_type ) );
-    gtk_table_attach(table, ctxt->item_type, 1, 2, row, row + 1, GTK_FILL, GTK_SHRINK, 0, 0);
+    gtk_grid_attach(grid, ctxt->item_type, 1, row, 1, 1);
 
     label = gtk_label_new_with_mnemonic(_("Name:"));
     gtk_widget_set_halign(GTK_MISC(label), GTK_ALIGN_START);
     gtk_widget_set_valign(GTK_MISC(label), GTK_ALIGN_CENTER);
     row++;
-    gtk_table_attach(table, label, 0, 1, row, row + 1, GTK_FILL, GTK_SHRINK, 0, 0);
+    gtk_grid_attach(grid, label, 0, row, 1, 1);
     ctxt->item_name = gtk_entry_new();
-    gtk_table_attach(table,
-                     ctxt->item_name,
-                     1,
-                     2,
-                     row,
-                     row + 1,
-                     GTK_EXPAND | GTK_FILL,
-                     GTK_SHRINK,
-                     0,
-                     0);
+    gtk_grid_attach(grid, ctxt->item_name, 1, row, 1, 1);
 
     label = gtk_label_new_with_mnemonic(_("Key:"));
     gtk_widget_set_halign(GTK_MISC(label), GTK_ALIGN_START);
     gtk_widget_set_valign(GTK_MISC(label), GTK_ALIGN_CENTER);
     row++;
-    gtk_table_attach(table, label, 0, 1, row, row + 1, GTK_FILL, GTK_SHRINK, 0, 0);
+    gtk_grid_attach(grid, label, 0, row, 1, 1);
     ctxt->item_key = gtk_button_new_with_label(" ");
     gtk_widget_set_focus_on_click(GTK_BUTTON(ctxt->item_key), FALSE);
-    gtk_table_attach(table,
-                     ctxt->item_key,
-                     1,
-                     2,
-                     row,
-                     row + 1,
-                     GTK_EXPAND | GTK_FILL,
-                     GTK_SHRINK,
-                     0,
-                     0);
+    gtk_grid_attach(grid, ctxt->item_key, 1, row, 1, 1);
 
     label = gtk_label_new_with_mnemonic(_("Icon:"));
     gtk_widget_set_halign(GTK_MISC(label), GTK_ALIGN_START);
     gtk_widget_set_valign(GTK_MISC(label), GTK_ALIGN_CENTER);
     row++;
-    gtk_table_attach(table, label, 0, 1, row, row + 1, GTK_FILL, GTK_SHRINK, 0, 0);
+    gtk_grid_attach(grid, label, 0, row, 1, 1);
     GtkWidget* hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
     ctxt->icon_choose_btn = gtk_button_new_with_mnemonic(_("C_hoose"));
     gtk_button_set_image(GTK_BUTTON(ctxt->icon_choose_btn),
@@ -1689,9 +1669,9 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
                      ctxt);
     gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(ctxt->item_icon), TRUE, TRUE, 0);
     gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(ctxt->icon_choose_btn), FALSE, TRUE, 0);
-    gtk_table_attach(table, hbox, 1, 2, row, row + 1, GTK_EXPAND | GTK_FILL, GTK_SHRINK, 0, 0);
+    gtk_grid_attach(grid, hbox, 1, row, 1, 1);
 
-    gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(table), FALSE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(grid), FALSE, TRUE, 0);
 
     // Target
     ctxt->target_vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
@@ -1719,27 +1699,17 @@ void xset_item_prop_dlg(XSetContext* context, XSet* set, int page)
                          xset_get_image(GTK_STOCK_OPEN, GTK_ICON_SIZE_BUTTON));
     gtk_widget_set_focus_on_click(GTK_BUTTON(ctxt->item_choose), FALSE);
 
-    // align = gtk_alignment_new( 1, 0.5, 0.2, 1 );
-    // gtk_container_add ( GTK_CONTAINER ( align ), ctxt->item_choose );
     gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(ctxt->item_choose), FALSE, TRUE, 12);
 
     ctxt->item_browse = gtk_button_new_with_mnemonic(_("_Browse"));
     gtk_widget_set_focus_on_click(GTK_BUTTON(ctxt->item_choose), FALSE);
 
-    // align = gtk_alignment_new( 1, 0.5, 0.2, 1 );
-    // gtk_container_add ( GTK_CONTAINER ( align ), ctxt->item_browse );
     gtk_box_pack_start(GTK_BOX(hbox), GTK_WIDGET(ctxt->item_browse), FALSE, TRUE, 0);
 
     gtk_box_pack_start(GTK_BOX(ctxt->target_vbox), GTK_WIDGET(hbox), FALSE, TRUE, 0);
 
     gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(ctxt->target_vbox), FALSE, TRUE, 4);
 
-    // ctxt->show_tool = gtk_check_button_new_with_mnemonic(
-    //                                                _("S_how In Toolbar") );
-    // gtk_box_pack_start( GTK_BOX( vbox ),
-    //                    GTK_WIDGET( ctxt->show_tool ), FALSE, TRUE, 16 );
-
-    // Context Page  =======================================================
     align = gtk_alignment_new(0, 0, 1, 1);
     gtk_alignment_set_padding(GTK_ALIGNMENT(align), 8, 0, 8, 8);
     vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);

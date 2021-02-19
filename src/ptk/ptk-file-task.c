@@ -724,36 +724,24 @@ void ptk_file_task_progress_open(PtkFileTask* ptask)
 
     set_button_states(ptask);
 
-    // table
-    if (task->type != VFS_FILE_TASK_EXEC)
-        table = GTK_TABLE(gtk_table_new(5, 2, FALSE));
-    else
-        table = GTK_TABLE(gtk_table_new(3, 2, FALSE));
-    gtk_container_set_border_width(GTK_CONTAINER(table), 5);
-    gtk_table_set_row_spacings(table, 6);
-    gtk_table_set_col_spacings(table, 4);
+    GtkGrid* grid = GTK_GRID(gtk_grid_new());
+
+    gtk_container_set_border_width(GTK_CONTAINER(grid), 5);
+    gtk_grid_set_row_spacing(grid, 6);
+    gtk_grid_set_column_spacing(grid, 4);
     int row = 0;
 
     /* Copy/Move/Link: */
     label = GTK_LABEL(gtk_label_new(_(actions[task->type])));
     gtk_widget_set_halign(GTK_MISC(label), GTK_ALIGN_START);
     gtk_widget_set_valign(GTK_MISC(label), GTK_ALIGN_CENTER);
-    gtk_table_attach(table, GTK_WIDGET(label), 0, 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    gtk_grid_attach(grid, GTK_WIDGET(label), 0, row, 1, 1);
     ptask->from = GTK_LABEL(gtk_label_new(ptask->complete ? "" : task->current_file));
     gtk_widget_set_halign(GTK_MISC(ptask->from), GTK_ALIGN_START);
     gtk_widget_set_valign(GTK_MISC(ptask->from), GTK_ALIGN_CENTER);
     gtk_label_set_ellipsize(ptask->from, PANGO_ELLIPSIZE_MIDDLE);
     gtk_label_set_selectable(ptask->from, TRUE);
-    gtk_table_attach(table,
-                     GTK_WIDGET(ptask->from),
-                     1,
-                     2,
-                     row,
-                     row + 1,
-                     GTK_FILL | GTK_EXPAND,
-                     0,
-                     0,
-                     0);
+    gtk_grid_attach(grid, GTK_WIDGET(ptask->from), 1, row, 1, 1);
 
     if (task->type != VFS_FILE_TASK_EXEC)
     {
@@ -762,13 +750,13 @@ void ptk_file_task_progress_open(PtkFileTask* ptask)
         label = GTK_LABEL(gtk_label_new(_("From:")));
         gtk_widget_set_halign(GTK_MISC(label), GTK_ALIGN_START);
         gtk_widget_set_valign(GTK_MISC(label), GTK_ALIGN_CENTER);
-        gtk_table_attach(table, GTK_WIDGET(label), 0, 1, row, row + 1, GTK_FILL, 0, 0, 0);
+        gtk_grid_attach(grid, GTK_WIDGET(label), 0, row, 1, 1);
         ptask->src_dir = GTK_LABEL(gtk_label_new(NULL));
         gtk_widget_set_halign(GTK_MISC(ptask->src_dir), GTK_ALIGN_START);
         gtk_widget_set_valign(GTK_MISC(ptask->src_dir), GTK_ALIGN_CENTER);
         gtk_label_set_ellipsize(ptask->src_dir, PANGO_ELLIPSIZE_MIDDLE);
         gtk_label_set_selectable(ptask->src_dir, TRUE);
-        gtk_table_attach(table, GTK_WIDGET(ptask->src_dir), 1, 2, row, row + 1, GTK_FILL, 0, 0, 0);
+        gtk_grid_attach(grid, GTK_WIDGET(ptask->src_dir), 1, row, 1, 1);
         if (task->dest_dir)
         {
             /* To: <Destination directory>
@@ -777,13 +765,13 @@ void ptk_file_task_progress_open(PtkFileTask* ptask)
             label = GTK_LABEL(gtk_label_new(_("To:")));
             gtk_widget_set_halign(GTK_MISC(label), GTK_ALIGN_START);
             gtk_widget_set_valign(GTK_MISC(label), GTK_ALIGN_CENTER);
-            gtk_table_attach(table, GTK_WIDGET(label), 0, 1, row, row + 1, GTK_FILL, 0, 0, 0);
+            gtk_grid_attach(grid, GTK_WIDGET(label), 0, row, 1, 1);
             ptask->to = GTK_LABEL(gtk_label_new(task->dest_dir));
             gtk_widget_set_halign(GTK_MISC(ptask->to), GTK_ALIGN_START);
             gtk_widget_set_valign(GTK_MISC(ptask->to), GTK_ALIGN_CENTER);
             gtk_label_set_ellipsize(ptask->to, PANGO_ELLIPSIZE_MIDDLE);
             gtk_label_set_selectable(ptask->to, TRUE);
-            gtk_table_attach(table, GTK_WIDGET(ptask->to), 1, 2, row, row + 1, GTK_FILL, 0, 0, 0);
+            gtk_grid_attach(grid, GTK_WIDGET(ptask->to), 1, row, 1, 1);
         }
         else
             ptask->to = NULL;
@@ -793,13 +781,13 @@ void ptk_file_task_progress_open(PtkFileTask* ptask)
         label = GTK_LABEL(gtk_label_new(_("Progress:  ")));
         gtk_widget_set_halign(GTK_MISC(label), GTK_ALIGN_START);
         gtk_widget_set_valign(GTK_MISC(label), GTK_ALIGN_CENTER);
-        gtk_table_attach(table, GTK_WIDGET(label), 0, 1, row, row + 1, GTK_FILL, 0, 0, 0);
+        gtk_grid_attach(grid, GTK_WIDGET(label), 0, row, 1, 1);
         ptask->current = GTK_LABEL(gtk_label_new(""));
         gtk_widget_set_halign(GTK_MISC(ptask->current), GTK_ALIGN_START);
         gtk_widget_set_valign(GTK_MISC(ptask->current), GTK_ALIGN_CENTER);
         gtk_label_set_ellipsize(ptask->current, PANGO_ELLIPSIZE_MIDDLE);
         gtk_label_set_selectable(ptask->current, TRUE);
-        gtk_table_attach(table, GTK_WIDGET(ptask->current), 1, 2, row, row + 1, GTK_FILL, 0, 0, 0);
+        gtk_grid_attach(grid, GTK_WIDGET(ptask->current), 1, row, 1, 1);
     }
     else
     {
@@ -812,7 +800,7 @@ void ptk_file_task_progress_open(PtkFileTask* ptask)
     label = GTK_LABEL(gtk_label_new(_("Status:  ")));
     gtk_widget_set_halign(GTK_MISC(label), GTK_ALIGN_START);
     gtk_widget_set_valign(GTK_MISC(label), GTK_ALIGN_CENTER);
-    gtk_table_attach(table, GTK_WIDGET(label), 0, 1, row, row + 1, GTK_FILL, 0, 0, 0);
+    gtk_grid_attach(grid, GTK_WIDGET(label), 0, row, 1, 1);
     char* status;
     if (task->state_pause == VFS_FILE_TASK_PAUSE)
         status = _("Paused");
@@ -825,32 +813,14 @@ void ptk_file_task_progress_open(PtkFileTask* ptask)
     gtk_widget_set_valign(GTK_MISC(ptask->errors), GTK_ALIGN_CENTER);
     gtk_label_set_ellipsize(ptask->errors, PANGO_ELLIPSIZE_MIDDLE);
     gtk_label_set_selectable(ptask->errors, TRUE);
-    gtk_table_attach(table,
-                     GTK_WIDGET(ptask->errors),
-                     1,
-                     2,
-                     row,
-                     row + 1,
-                     GTK_FILL | GTK_EXPAND,
-                     0,
-                     0,
-                     0);
+    gtk_grid_attach(grid, GTK_WIDGET(ptask->errors), 1, row, 1, 1);
 
     /* Progress: */
     row++;
     ptask->progress_bar = GTK_PROGRESS_BAR(gtk_progress_bar_new());
     gtk_progress_bar_set_show_text(GTK_PROGRESS_BAR(ptask->progress_bar), TRUE);
     gtk_progress_bar_set_pulse_step(ptask->progress_bar, 0.08);
-    gtk_table_attach(table,
-                     GTK_WIDGET(ptask->progress_bar),
-                     0,
-                     2,
-                     row,
-                     row + 1,
-                     GTK_FILL | GTK_EXPAND,
-                     0,
-                     0,
-                     0);
+    gtk_grid_attach(grid, GTK_WIDGET(ptask->progress_bar), 0, row, 1, 1);
 
     // Error log
     ptask->scroll = GTK_SCROLLED_WINDOW(gtk_scrolled_window_new(NULL, NULL));
@@ -937,7 +907,7 @@ void ptk_file_task_progress_open(PtkFileTask* ptask)
 
     // Pack
     gtk_box_pack_start(GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(ptask->progress_dlg))),
-                       GTK_WIDGET(table),
+                       GTK_WIDGET(grid),
                        FALSE,
                        TRUE,
                        0);

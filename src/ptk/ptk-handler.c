@@ -3289,10 +3289,11 @@ void ptk_handler_show_config(int mode, PtkFileBrowser* file_browser, XSet* def_h
     GtkWidget* hbox_view_buttons = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
     GtkWidget* hbox_move_buttons = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
     GtkWidget* vbox_settings = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-    GtkWidget* tbl_settings = gtk_table_new(3, mode == HANDLER_MODE_FILE ? 4 : 3, FALSE);
     GtkWidget* hbox_compress_header = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
     GtkWidget* hbox_extract_header = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
     GtkWidget* hbox_list_header = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
+
+    GtkGrid* grid = GTK_GRID(gtk_grid_new());
 
     /* Packing widgets into boxes
      * Remember, start and end-ness is broken
@@ -3302,7 +3303,7 @@ void ptk_handler_show_config(int mode, PtkFileBrowser* file_browser, XSet* def_h
     gtk_box_pack_start(GTK_BOX(vbox_handlers), GTK_WIDGET(lbl_handlers), FALSE, FALSE, 4);
     gtk_box_pack_start(GTK_BOX(hbox_main), GTK_WIDGET(vbox_settings), TRUE, TRUE, 4);
     gtk_box_pack_start(GTK_BOX(vbox_settings), hnd->chkbtn_handler_enabled, FALSE, FALSE, 4);
-    gtk_box_pack_start(GTK_BOX(vbox_settings), GTK_WIDGET(tbl_settings), FALSE, FALSE, 4);
+    gtk_box_pack_start(GTK_BOX(vbox_settings), GTK_WIDGET(grid), FALSE, FALSE, 4);
 
     /* view_handlers isn't added but view_scroll is - view_handlers is
      * inside view_scroll. No padding added to get it to align with the
@@ -3321,93 +3322,22 @@ void ptk_handler_show_config(int mode, PtkFileBrowser* file_browser, XSet* def_h
     gtk_box_pack_start(GTK_BOX(hbox_move_buttons), GTK_WIDGET(hnd->btn_up), TRUE, TRUE, 4);
     gtk_box_pack_start(GTK_BOX(hbox_move_buttons), GTK_WIDGET(hnd->btn_down), TRUE, TRUE, 4);
 
-    gtk_table_set_row_spacing(GTK_TABLE(tbl_settings), 1, 5);
+    gtk_grid_set_row_spacing(GTK_TABLE(grid), 5);
 
-    gtk_table_attach(GTK_TABLE(tbl_settings),
-                     GTK_WIDGET(lbl_handler_name),
-                     0,
-                     1,
-                     0,
-                     1,
-                     GTK_FILL,
-                     GTK_FILL,
-                     0,
-                     0);
-    gtk_table_attach(GTK_TABLE(tbl_settings),
-                     GTK_WIDGET(hnd->entry_handler_name),
-                     1,
-                     4,
-                     0,
-                     1,
-                     GTK_EXPAND | GTK_FILL,
-                     GTK_FILL,
-                     0,
-                     0);
-    gtk_table_attach(GTK_TABLE(tbl_settings),
-                     GTK_WIDGET(lbl_handler_mime),
-                     0,
-                     1,
-                     1,
-                     2,
-                     GTK_FILL,
-                     GTK_FILL,
-                     0,
-                     0);
-    gtk_table_attach(GTK_TABLE(tbl_settings),
-                     GTK_WIDGET(hnd->entry_handler_mime),
-                     1,
-                     4,
-                     1,
-                     2,
-                     GTK_EXPAND | GTK_FILL,
-                     GTK_FILL,
-                     0,
-                     0);
-    gtk_table_attach(GTK_TABLE(tbl_settings),
-                     GTK_WIDGET(lbl_handler_extension),
-                     0,
-                     1,
-                     2,
-                     3,
-                     GTK_FILL,
-                     GTK_FILL,
-                     0,
-                     0);
-    gtk_table_attach(GTK_TABLE(tbl_settings),
-                     GTK_WIDGET(hnd->entry_handler_extension),
-                     1,
-                     4,
-                     2,
-                     3,
-                     GTK_EXPAND | GTK_FILL,
-                     GTK_FILL,
-                     0,
-                     0);
+    gtk_grid_attach(grid, GTK_WIDGET(lbl_handler_name), 0, 0, 1, 1);
+    gtk_grid_attach(grid, GTK_WIDGET(hnd->entry_handler_name), 1, 0, 1, 1);
+    gtk_grid_attach(grid, GTK_WIDGET(lbl_handler_mime), 0, 1, 1, 1);
+    gtk_grid_attach(grid, GTK_WIDGET(hnd->entry_handler_mime), 1, 1, 1, 1);
+    gtk_grid_attach(grid, GTK_WIDGET(lbl_handler_extension), 0, 2, 1, 1);
+    gtk_grid_attach(grid, GTK_WIDGET(hnd->entry_handler_extension), 1, 2, 1, 1);
+
     if (mode == HANDLER_MODE_FILE)
     {
-        gtk_table_attach(GTK_TABLE(tbl_settings),
-                         GTK_WIDGET(lbl_handler_icon),
-                         0,
-                         1,
-                         3,
-                         4,
-                         GTK_FILL,
-                         GTK_FILL,
-                         0,
-                         0);
+        gtk_grid_attach(grid, GTK_WIDGET(lbl_handler_icon), 0, 3, 1, 1);
         GtkWidget* hbox_icon = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
         gtk_box_pack_start(GTK_BOX(hbox_icon), GTK_WIDGET(hnd->entry_handler_icon), TRUE, TRUE, 0);
         gtk_box_pack_start(GTK_BOX(hbox_icon), GTK_WIDGET(hnd->icon_choose_btn), FALSE, TRUE, 0);
-        gtk_table_attach(GTK_TABLE(tbl_settings),
-                         GTK_WIDGET(hbox_icon),
-                         1,
-                         4,
-                         3,
-                         4,
-                         GTK_EXPAND | GTK_FILL,
-                         GTK_FILL,
-                         0,
-                         0);
+        gtk_grid_attach(grid, GTK_WIDGET(hbox_icon), 1, 3, 1, 1);
     }
 
     // Make sure widgets do not separate too much vertically
