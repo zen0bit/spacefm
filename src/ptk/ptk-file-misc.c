@@ -2011,6 +2011,8 @@ int ptk_rename_file(PtkFileBrowser* file_browser, const char* file_dir, VFSFileI
                     const char* dest_dir, bool clip_copy, PtkRenameMode create_new,
                     AutoOpenCreate* auto_open)
 {
+    // TODO convert to gtk_builder (glade file)
+
     char* full_name;
     char* full_path;
     char* path;

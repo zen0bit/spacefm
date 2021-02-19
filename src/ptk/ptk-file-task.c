@@ -1902,6 +1902,8 @@ static void on_query_button_press(GtkWidget* widget, PtkFileTask* ptask)
 
 static void query_overwrite(PtkFileTask* ptask)
 {
+    // TODO convert to gtk_builder (glade file)
+
     // printf("query_overwrite ptask=%#x\n", ptask);
     const char* title;
     GtkWidget* dlg;
